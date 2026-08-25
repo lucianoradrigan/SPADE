@@ -1,0 +1,75 @@
+geometry:
+  source: K001.pdf..K006.pdf (KAt-DataCenter 'Profile of rolling bearing damage' datasheets)
+  bearing_type: '6203'
+  n_elements: 8
+  element_diameter_m: 0.00675
+  pitch_diameter_m: 0.02905
+  contact_angle_rad: 0.0
+operating_condition_fit_to: N09_M07_F10 (900 rpm nominal, matched across ['K001',
+  'K002', 'K003', 'K004', 'K005', 'K006'])
+fit_bearing_codes:
+- K001
+- K002
+- K003
+- K004
+- K005
+- K006
+n_recordings_used: 90
+freq_bounds_hz:
+- 100.0
+- 10000.0
+damping_bounds:
+- 0.001
+- 0.3
+modes:
+- natural_freq_hz: 100.00000000000003
+  damping_ratio: 0.29999999999999993
+  gain: 0.001469532190428905
+- natural_freq_hz: 3258.307384099802
+  damping_ratio: 0.021432392159624083
+  gain: 7.528168938283447e-05
+- natural_freq_hz: 5895.587445523037
+  damping_ratio: 0.02295234879533615
+  gain: 8.949153409290127e-05
+- natural_freq_hz: 7764.5444512862505
+  damping_ratio: 0.007656083984567682
+  gain: 1.994366245643894e-05
+pooled_fit_rmse_log10_psd: 0.056498955835771233
+background_noise_gain: 158.00175041939278
+cross_validation:
+- fit_codes: &id001
+  - K002
+  - K003
+  - K004
+  holdout_code: K001
+  model_rmse: 0.423630612800995
+  null_rmse: 0.07002404901329926
+- fit_codes: *id001
+  holdout_code: K005
+  model_rmse: 0.5625298440489759
+  null_rmse: 0.31918955935944393
+- fit_codes: *id001
+  holdout_code: K006
+  model_rmse: 0.4160320981591771
+  null_rmse: 0.07084125256920284
+- fit_codes: &id002
+  - K001
+  - K005
+  - K006
+  holdout_code: K002
+  model_rmse: 0.47658072538791635
+  null_rmse: 0.14523114496114375
+- fit_codes: *id002
+  holdout_code: K003
+  model_rmse: 0.08109990898395929
+  null_rmse: 0.05210502379388401
+- fit_codes: *id002
+  holdout_code: K004
+  model_rmse: 0.8853060503050112
+  null_rmse: 0.2646511228194574
+cross_validation_note: 'Leave-bearing-out CV (6 holdout evals) shows this generic
+  fit does NOT transfer well to individual unseen bearing samples: model RMSE was
+  worse than a flat-PSD null model in 6/6 folds. Module B is a coarse physical approximation
+  of the *generic* structural resonance, not a per-bearing-exact model -- Module C
+  (a data-driven residual corrector meant to absorb per-sample idiosyncrasies) was
+  tried and retired, see docs/patch2_retiro_modulo_C.md.'

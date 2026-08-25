@@ -1,0 +1,17 @@
+# Fixed dark "industrial workbench" theme (Grafana/JetBrains-UI inspired) -- driveflow deliberately
+# commits to one visual identity rather than adapting to the browser's light/dark preference, same
+# spirit as Grafana/LabVIEW shipping their own consistent tool chrome. Using Streamlit's native
+# theme system (not just CSS) so built-in widgets -- sliders, checkboxes, alerts, inputs, tabs --
+# get theme-appropriate colors/contrast/hover states for free, instead of hand-overriding every
+# internal BaseWeb class name (fragile across Streamlit versions). viz/dashboard.py's own SURFACE/
+# BORDER/ACCENT/etc. Python constants (used for Plotly charts and bespoke CSS) are kept numerically
+# in sync with the values below by hand -- if you change one, change the other.
+[theme]
+base = "dark"
+primaryColor = "#0EA5E9"
+backgroundColor = "#0F172A"
+secondaryBackgroundColor = "#1E293B"
+textColor = "#E2E8F0"
+borderColor = "#334155"
+linkColor = "#0EA5E9"
+font = "sans serif"

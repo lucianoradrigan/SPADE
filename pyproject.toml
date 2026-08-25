@@ -1,0 +1,31 @@
+[project]
+name = "driveflow"
+version = "0.1.0"
+description = "A unified simulation, differentiable predictive control (DPC), and ML fault-diagnosis platform for electric drives -- ships as the 'driveflow' Python package."
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+license = { text = "MIT" }
+dependencies = [
+    "numpy",
+    "scipy",
+    "pandas",
+    "pyarrow",
+    "tensorflow",
+    "gymnasium",
+    "pyyaml",
+    "scikit-learn",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+viz = ["streamlit", "plotly"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/driveflow"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

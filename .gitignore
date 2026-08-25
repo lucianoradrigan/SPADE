@@ -1,0 +1,24 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+
+# Simulated/external datasets: never committed -- generated on demand by datagen/, or in the
+# case of Data4train.mat, sourced from the original DPC4PowerElectronics repo (see README).
+*.parquet
+/data/
+
+# Large trained-model checkpoints are ignored by default -- EXCEPT the 3 small (~21KB) DPC
+# checkpoints below, which are shipped so the dashboard and experiments/ scripts work out of
+# the box without requiring a local training run first.
+*.h5
+!configs/dpc_trained.weights.h5
+!configs/dpc_trained_v2_closed_loop.weights.h5
+!configs/dpc_trained_v3_closed_loop.weights.h5
+
+# Motor-characteristic profiles a user saves locally from viz/dashboard.py -- personal
+# experimentation state, not versioned calibration.
+configs/motor_profiles.json
