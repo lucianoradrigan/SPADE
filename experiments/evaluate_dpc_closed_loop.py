@@ -27,10 +27,26 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_WEIGHTS = REPO_ROOT / "configs" / "dpc_trained.weights.h5"
 
 
-def run_closed_loop(weights_path: Path, r_ohm: float = 8.0064, n_steps: int = 2000, tau: float = 1e-4):
+def run_closed_loop(
+    weights_path: Path,
+    r_ohm: float = 8.0064,
+    n_steps: int = 2000,
+    tau: float = 1e-4,
+    magnitude_v: float = None,
+    omega_rad_s: float = None,
+):
+    """magnitude_v/omega_rad_s: None (default) uses RotatingReference's own validated defaults
+    (50.0V, grid frequency) -- pass explicit values to probe off-distribution reference conditions,
+    same convention as Scenario's reference_magnitude_v/reference_omega_rad_s (see
+    tests/test_dpc_robustness_grid.py, which reuses this function across a grid of conditions)."""
     system = VscSystem(load_resistance_ohm=r_ohm, tau=tau)
     controller = DpcController(weights_path, r_ohm=r_ohm)
-    reference = RotatingReference(tau=tau)
+    reference_kwargs = dict(tau=tau)
+    if magnitude_v is not None:
+        reference_kwargs["magnitude_v"] = magnitude_v
+    if omega_rad_s is not None:
+        reference_kwargs["omega_rad_s"] = omega_rad_s
+    reference = RotatingReference(**reference_kwargs)
 
     state = system.reset()
     controller.reset()
@@ -59,9 +75,13 @@ def main():
     parser.add_argument("--weights", type=Path, default=DEFAULT_WEIGHTS)
     parser.add_argument("--n-steps", type=int, default=2000)
     parser.add_argument("--r-ohm", type=float, default=8.0064)
+    parser.add_argument("--magnitude-v", type=float, default=None, help="None (default) uses RotatingReference's own default (50.0V)")
+    parser.add_argument("--omega-rad-s", type=float, default=None, help="None (default) uses RotatingReference's own default (grid frequency)")
     args = parser.parse_args()
 
-    records = run_closed_loop(args.weights, r_ohm=args.r_ohm, n_steps=args.n_steps)
+    records = run_closed_loop(
+        args.weights, r_ohm=args.r_ohm, n_steps=args.n_steps, magnitude_v=args.magnitude_v, omega_rad_s=args.omega_rad_s
+    )
 
     vc_real = np.array([r["vc_real"] for r in records])
     vc_imag = np.array([r["vc_imag"] for r in records])

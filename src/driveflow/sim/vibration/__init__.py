@@ -50,7 +50,7 @@ WHY IT LOOKS LIKE THIS (not the addendum's original B+C design)
    or current. -- docs/patch3_mejora_modulo_B.md
 3. `severity` is calibrated, not a round number picked by hand: datagen/scenario.py's
    CALIBRATED_MECHANICAL_SEVERITY (per fault type) was found by matching synthetic-vs-real AUC
-   separability (experiments/validate_separability.py) on windowed envelope-band-energy features.
+   separability (experiments/verify_vibration_separability_auc.py) on windowed envelope-band-energy features.
 4. inner_race/ball impulses are amplitude-modulated (LoadZoneModulator, fault_impulses.py)
    because those defects physically rotate through the load zone once per shaft/cage revolution
    -- outer_race defects don't (fixed position relative to a fixed radial load). This is *why*

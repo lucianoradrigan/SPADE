@@ -69,6 +69,7 @@ class PaderbornRecording:
     vibration: np.ndarray  # g (or sensor-native unit; KAt-DataCenter does not label it), 64 kHz
     speed_rpm: np.ndarray  # min^-1, 4 kHz
     torque: np.ndarray  # Nm, 4 kHz
+    force: np.ndarray  # N, 4 kHz -- radial load cell, see the "force" channel in the raw .mat.
     path: Path
 
     @property
@@ -101,6 +102,7 @@ def load_recording(mat_path) -> PaderbornRecording:
         vibration=channels["vibration_1"],
         speed_rpm=channels["speed"],
         torque=channels["torque"],
+        force=channels["force"],
         path=mat_path,
     )
 

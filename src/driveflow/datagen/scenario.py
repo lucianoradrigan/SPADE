@@ -6,7 +6,7 @@ config-object soup, since Macro-fase A only needs to vary a handful of things (S
 from dataclasses import dataclass
 
 #: Per-fault-type Module B impulse amplitude that best matches real Paderborn separability
-#: (AUC), found by grid search in experiments/validate_separability.py -- see
+#: (AUC), found by grid search in experiments/verify_vibration_separability_auc.py -- see
 #: docs/patch2_retiro_modulo_C.md Sec. 4's result table. Only outer_race/inner_race were
 #: validated against real data (KAt-DataCenter has no clean single-defect ball/cage code, see
 #: docs/patch3_mejora_modulo_B.md's Paso 0); ball/cage reuse inner_race's (more conservative,

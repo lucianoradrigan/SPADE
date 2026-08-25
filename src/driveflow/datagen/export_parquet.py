@@ -4,7 +4,7 @@ Sec. 6 (acc_x/y/z populated in v1, plus vibration_source; audio stays NaN, out o
 
 The v_ref_real/v_ref_imag/vc_real/vc_imag/i_f_real/i_f_imag columns are Macro-fase B's addition
 (docs/macro_fase_B2_dpc_deployment.md) for "vsc_dpc_v1" scenario records -- NaN for
-"dc_perm_ex_v1" records, same as current_s/current_t/rpm/torque_nm/acc_x.../bpfo_hz... are NaN
+"dc_perm_ex_v1" records, same as current_s/current_t/rpm/torque_nm/voltage_v/acc_x.../bpfo_hz... are NaN
 for "vsc_dpc_v1" records (see runner.py's module docstring: these are two unrelated plants
 sharing one wide schema, not one plant with optional fields).
 """
@@ -28,6 +28,7 @@ SCHEMA_COLUMNS = [
     "audio",
     "rpm",
     "torque_nm",
+    "voltage_v",
     "label",
     "electrical_severity_nm",
     "mechanical_severity",

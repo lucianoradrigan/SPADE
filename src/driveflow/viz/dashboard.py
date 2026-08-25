@@ -48,6 +48,7 @@ from driveflow.datagen import Scenario, run_flow, run_scenario
 from driveflow.control.dpc import COLUMNS as DPC_COLUMNS
 from driveflow.control.dpc import HORIZON as DPC_HORIZON
 from driveflow.control.dpc import build_dpc_network, simulate_horizon
+from driveflow.viz.dpc_upload_validation import DPC_AUTOFILL_COLUMNS, DPC_REQUIRED_COLUMNS, validate_dpc_upload
 from driveflow.control.dpc.reference import GRID_OMEGA_RAD_S, REFERENCE_MAGNITUDE_V, RotatingReference
 from driveflow.datagen.runner import _DPC_WEIGHTS_PATH, _VSC_R_OHM
 from driveflow.datagen.runner import TAU as _TAU_S
@@ -193,7 +194,7 @@ def _render_about_content():
 
 **You control**: fault type & severity, control mode & setpoint, run duration, random seed, the motor's own characteristics (resistance/inductance/flux), and how much white noise to add.
 
-**You get out**: `i_a` (current), `rpm`, `torque`, and 3-axis synthetic vibration -- from a real closed-loop physics simulation run fresh every time you click Generate, never pre-computed or looked up.
+**You get out**: `i_a` (current), `rpm`, `torque`, `u_a` (armature voltage -- the controller's actual commanded/applied voltage, always plotted regardless of whether the setpoint above is speed or torque), and 3-axis synthetic vibration -- from a real closed-loop physics simulation run fresh every time you click Generate, never pre-computed or looked up.
             """
         )
     with col_pmsm:
@@ -230,7 +231,7 @@ def _render_about_content():
         """
 ---
 ##### Reading the tabs
-**Fase A** -- 01 Corrientes y vibración: the DC system's electrical (i_a, rpm, torque) and vibration (acc_x/y/z) signals over time. 02 Envolvente (ω, i_a) DC: the same run's (ω, i_a) path against the motor's physical voltage/current limit curves. 03 Plano i_d–i_q PMSM: MTPA vs. naive point clouds against the analytic MTPA locus and current-limit circle.
+**Fase A** -- 01 Corrientes y vibración: the DC system's electrical (i_a, rpm, torque, u_a) and vibration (acc_x/y/z) signals over time. 02 Envolvente (ω, i_a) DC: the same run's (ω, i_a) path against the motor's physical voltage/current limit curves. 03 Plano i_d–i_q PMSM: MTPA vs. naive point clouds against the analytic MTPA locus and current-limit circle.
 
 **Fase B** -- 01 Tracking (t): v_ref vs. v_c and i_f over time. 02 Complex voltage plane: the same run's v_c trajectory against v_ref in the complex plane.
 
@@ -336,6 +337,12 @@ def _base_layout(fig, height=320):
 
 
 def _plotly_lines(df, rows, ref_cols=None):
+    """ref_cols: one entry per row, aligned with `rows` -- None (no reference line), a column name
+    (string, looked up in df -- e.g. Fase B's time-varying v_ref_real), a plain number (a constant
+    setpoint held for the whole run, e.g. Fase A's single-simulation ω_ref/τ_ref -- broadcast to a
+    flat dashed line), or an array already the same length as df (e.g. Advanced Flow's per-segment
+    setpoint, which can change control mode/value partway through -- NaN stretches in that array
+    render as gaps, which is exactly "no reference active" for a segment controlled the other way)."""
     ref_cols = ref_cols or [None] * len(rows)
     fig = make_subplots(rows=len(rows), cols=1, shared_xaxes=True, vertical_spacing=0.08, subplot_titles=[y for _, y in rows])
     for i, ((col, ylabel), ref_col) in enumerate(zip(rows, ref_cols), start=1):
@@ -345,8 +352,14 @@ def _plotly_lines(df, rows, ref_cols=None):
             col=1,
         )
         if ref_col is not None:
+            if isinstance(ref_col, str):
+                ref_y = df[ref_col]
+            elif np.isscalar(ref_col):
+                ref_y = [ref_col] * len(df)
+            else:
+                ref_y = ref_col
             fig.add_trace(
-                go.Scatter(x=df["timestamp_s"], y=df[ref_col], mode="lines", name="reference", line=dict(width=1.2, color=REF_GREY, dash="dash"), showlegend=(i == 1)),
+                go.Scatter(x=df["timestamp_s"], y=ref_y, mode="lines", name="reference", line=dict(width=1.2, color=REF_GREY, dash="dash"), showlegend=(i == 1)),
                 row=i,
                 col=1,
             )
@@ -896,10 +909,18 @@ def _render_single_simulation():
             if _dc_stale:
                 st.warning("Sidebar/motor parameters changed since this result was generated -- click 'Generate DC scenario' to refresh (nothing re-runs automatically).")
             st.subheader(f"Result -- {df['label'].iloc[0]}")
+            # Positional unpacking matching _dc_config_now's layout above -- only control_mode/
+            # omega_ref/torque_ref (indices 3-5) are needed here, `*_` absorbs the rest so this
+            # doesn't break if that tuple's shape changes elsewhere.
+            _, _, _, _cm_used, _omega_ref_used, _torque_ref_used, *_ = st.session_state["dc_config_used"]
+            if _cm_used == "Speed (ω_ref)":
+                _elec_ref_cols = [None, _omega_ref_used * 60.0 / (2 * np.pi), None, None]
+            else:
+                _elec_ref_cols = [None, None, _torque_ref_used, None]
             col1, col2 = st.columns(2)
             with col1:
                 st.markdown("##### Electrical / mechanical")
-                st.plotly_chart(_plotly_lines(df, [("current_r", "i_a (A)"), ("rpm", "rpm"), ("torque_nm", "torque (Nm)")]), width="stretch")
+                st.plotly_chart(_plotly_lines(df, [("current_r", "i_a (A)"), ("rpm", "rpm"), ("torque_nm", "torque (Nm)"), ("voltage_v", "u_a (V)")], ref_cols=_elec_ref_cols), width="stretch")
             with col2:
                 st.markdown("##### Synthetic vibration (Module B)")
                 st.plotly_chart(_plotly_lines(df, [("acc_x", "acc_x"), ("acc_y", "acc_y"), ("acc_z", "acc_z")]), width="stretch")
@@ -1027,11 +1048,11 @@ def _describe_segment(seg: dict) -> str:
     return f"{seg['duration_s']:.2f}s @ {ref}, {seg['fault_label']}"
 
 
-def _flow_figure(df, rows):
+def _flow_figure(df, rows, ref_cols=None):
     """Same multi-row line layout as _plotly_lines, plus a dotted vertical marker at every
     segment boundary (skipping t=0, the flow's own start) so the sequence of operating states is
     visible directly on the chart, not just in the segment table below it."""
-    fig = _plotly_lines(df, rows)
+    fig = _plotly_lines(df, rows, ref_cols=ref_cols)
     boundaries = df.loc[df["segment_index"].diff() != 0, "timestamp_s"]
     for t in boundaries.iloc[1:]:
         fig.add_vline(x=float(t), line_width=1, line_dash="dot", line_color=REF_GREY, row="all", col="all")
@@ -1126,13 +1147,26 @@ def _render_advanced_flow():
         "here -- e.g. step through healthy → outer_race → inner_race to see the transitions between fault "
         "types, or sweep several setpoints in a row, without refilling the form above each time."
     )
-    vary_by = card_seq.radio("Vary", ["Fault type", "Setpoint"], horizontal=True, key="flow_seq_vary")
+    vary_by = card_seq.radio(
+        "Vary",
+        ["Fault type", "Setpoint"],
+        horizontal=True,
+        key="flow_seq_vary",
+        help=(
+            "**Fault type**: one segment per fault you pick below, each reusing the SAME Control mode/Setpoint/"
+            "Duration/severities/noise set in 'Add segment' above -- only fault_type changes between segments. "
+            "Once added, open any segment below in the Queue to tweak its own setpoint if you want it to differ.\n\n"
+            "**Setpoint**: one segment per number you type below, each reusing the CURRENT Control mode and "
+            "Fault type/severities/noise set in 'Add segment' above -- only the setpoint (ω_ref or τ_ref, "
+            "whichever Control mode is active) changes between segments."
+        ),
+    )
     if vary_by == "Fault type":
         seq_faults = card_seq.multiselect(
             "Fault types, in order",
             _BUILTIN_FAULT_TYPES + sorted(custom_faults),
             key="flow_seq_faults",
-            help="One segment per selection, in the order you pick them -- each uses the Control mode/Setpoint/Duration/severities/noise set above.",
+            help="One segment per selection, in the order you pick them -- each uses the Control mode/Setpoint/Duration/severities/noise set above (editable per-segment afterwards, in the Queue below).",
         )
         if card_seq.button("+ Add sequence", key="flow_seq_add_fault", disabled=len(seq_faults) < 2, help="Pick at least 2 fault types to build a sequence." if len(seq_faults) < 2 else None):
             segments = st.session_state.setdefault("flow_segments", [])
@@ -1174,6 +1208,15 @@ def _render_advanced_flow():
         if col_del.button("🗑️", key=f"flow_seg_del_{i}", help="Remove"):
             del segments[i]
             st.rerun()
+        seg_expander = card_queue.expander(f"✏️ Edit segment {i}'s setpoint", expanded=False)
+        # Keyed by id(seg), not the positional i -- i shifts under a segment when ▲/▼ reorders the
+        # list (same dict object, new index), which would otherwise show a stale widget value left
+        # over from whatever segment used to sit at that index.
+        _seg_key = f"flow_seg_setpoint_{id(seg)}"
+        if seg["control_mode"] == "Speed (ω_ref)":
+            seg["setpoint"] = _slider_with_custom(seg_expander, "ω_ref (rad/s)", 10.0, 350.0, float(seg["setpoint"]), key=_seg_key)
+        else:
+            seg["setpoint"] = _slider_with_custom(seg_expander, "τ_ref (Nm)", 0.0, 38.0, float(seg["setpoint"]), key=_seg_key)
 
     col_run, col_clear = st.sidebar.columns(2)
     if col_run.button("▶ Run flow", key="flow_run_button", type="primary", disabled=not segments):
@@ -1214,10 +1257,20 @@ def _render_advanced_flow():
             f"{len(entry['segments'])} segment{'s' if len(entry['segments']) != 1 else ''}, {df['timestamp_s'].iloc[-1]:.2f}s total -- "
             + " → ".join(f"[{i}] {_describe_segment(s)}" for i, s in enumerate(entry["segments"]))
         )
+        # Per-segment reference arrays -- NaN outside a segment controlled that way, so the dashed
+        # line only appears while that reference was actually active (see _plotly_lines' docstring).
+        _omega_ref_arr = np.full(len(df), np.nan)
+        _torque_ref_arr = np.full(len(df), np.nan)
+        for _i, _seg in enumerate(entry["segments"]):
+            _mask = (df["segment_index"] == _i).to_numpy()
+            if _seg["control_mode"] == "Speed (ω_ref)":
+                _omega_ref_arr[_mask] = _seg["setpoint"] * 60.0 / (2 * np.pi)
+            else:
+                _torque_ref_arr[_mask] = _seg["setpoint"]
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("##### Electrical / mechanical")
-            st.plotly_chart(_flow_figure(df, [("current_r", "i_a (A)"), ("rpm", "rpm"), ("torque_nm", "torque (Nm)")]), width="stretch", key=f"flow_chart_elec_{entry['id']}")
+            st.plotly_chart(_flow_figure(df, [("current_r", "i_a (A)"), ("rpm", "rpm"), ("torque_nm", "torque (Nm)"), ("voltage_v", "u_a (V)")], ref_cols=[None, _omega_ref_arr, _torque_ref_arr, None]), width="stretch", key=f"flow_chart_elec_{entry['id']}")
         with col2:
             st.markdown("##### Synthetic vibration (Module B)")
             st.plotly_chart(_flow_figure(df, [("acc_x", "acc_x"), ("acc_y", "acc_y"), ("acc_z", "acc_z")]), width="stretch", key=f"flow_chart_vib_{entry['id']}")
@@ -1243,16 +1296,6 @@ def _dpc_figure(df):
     return _base_layout(fig, height=520)
 
 
-#: The true minimum to run the network at all: the measured state (i_f, v_c), R, and the
-#: reference's CURRENT value. Order matches DPC_COLUMNS[:7].
-_DPC_REQUIRED_COLUMNS = ["if_alpha", "if_beta", "vc_alpha", "vc_beta", "vref_alpha", "vref_beta", "r"]
-#: The remaining 8 inputs are the reference's horizon steps 2-5 -- genuinely optional, because
-#: they're derivable from vref_alpha/vref_beta plus an assumed rotation frequency (see
-#: _autofill_horizon_columns below) if the caller doesn't have them. Order matches DPC_COLUMNS[7:].
-_DPC_AUTOFILL_COLUMNS = [
-    "vref_alphaph", "vref_betaph", "vref_alphaph3", "vref_betaph3",
-    "vref_alphaph4", "vref_betaph4", "vref_alphaph5", "vref_betaph5",
-]
 #: horizon step (1-4, since step 0 IS vref_alpha/vref_beta) each auto-fill column corresponds to.
 _DPC_AUTOFILL_STEP = {"vref_alphaph": 1, "vref_betaph": 1, "vref_alphaph3": 2, "vref_betaph3": 2,
                        "vref_alphaph4": 3, "vref_betaph4": 3, "vref_alphaph5": 4, "vref_betaph5": 4}
@@ -1346,16 +1389,16 @@ def _render_dpc_upload_eval():
         "own state to score it -- exactly how Data4train.mat's own holdout split is scored."
     )
 
-    with st.expander(f"Required format -- {len(DPC_COLUMNS)} columns ({len(_DPC_REQUIRED_COLUMNS)} required + {len(_DPC_AUTOFILL_COLUMNS)} optional)", expanded=False):
+    with st.expander(f"Required format -- {len(DPC_COLUMNS)} columns ({len(DPC_REQUIRED_COLUMNS)} required + {len(DPC_AUTOFILL_COLUMNS)} optional)", expanded=False):
         st.dataframe(
             _dpc_format_table_styler(pd.DataFrame(_DPC_COLUMN_SPEC, columns=["column", "meaning", "units", "requirement"])),
             width="stretch",
             hide_index=True,
         )
         st.caption(
-            f"**Minimum to run at all: the {len(_DPC_REQUIRED_COLUMNS)} green 'Required' columns** -- the "
+            f"**Minimum to run at all: the {len(DPC_REQUIRED_COLUMNS)} green 'Required' columns** -- the "
             f"current measured state (i_f, v_c), R, and the reference's current value. The "
-            f"{len(_DPC_AUTOFILL_COLUMNS)} orange 'Optional' columns are the reference at horizon steps "
+            f"{len(DPC_AUTOFILL_COLUMNS)} orange 'Optional' columns are the reference at horizon steps "
             "2-5 -- supply them for an exact evaluation, or omit them and they'll be auto-filled after "
             "upload by extrapolating vref_alpha/vref_beta forward under a rotating-reference assumption "
             "(you'll get to confirm the assumed frequency)."
@@ -1376,7 +1419,7 @@ def _render_dpc_upload_eval():
             file_name="dpc_dataset_template.json", key="dpc_template_json",
         )
         col_min.download_button(
-            "Download minimal template (CSV, 7 cols)", template_df[_DPC_REQUIRED_COLUMNS].to_csv(index=False),
+            "Download minimal template (CSV, 7 cols)", template_df[DPC_REQUIRED_COLUMNS].to_csv(index=False),
             file_name="dpc_dataset_template_minimal.csv", key="dpc_template_minimal_csv",
             help="Only the required columns -- the rest get auto-filled after upload.",
         )
@@ -1394,27 +1437,12 @@ def _render_dpc_upload_eval():
         st.error(f"Could not parse '{uploaded.name}' as {'JSON' if uploaded.name.lower().endswith('.json') else 'CSV'}: {e}")
         return
 
-    df_up.columns = [str(c).strip() for c in df_up.columns]
-    missing_required = [c for c in _DPC_REQUIRED_COLUMNS if c not in df_up.columns]
-    if missing_required:
-        st.error(
-            f"Missing required column(s): {', '.join(missing_required)}. These {len(_DPC_REQUIRED_COLUMNS)} "
-            "are the minimum needed to run the network at all -- expand 'Required format' above for the full schema."
-        )
+    df_clean, missing_horizon_cols, messages = validate_dpc_upload(df_up)
+    for level, text in messages:
+        getattr(st, level)(text)
+    if df_clean is None:
         return
-
-    present_horizon_cols = [c for c in _DPC_AUTOFILL_COLUMNS if c in df_up.columns]
-    missing_horizon_cols = [c for c in _DPC_AUTOFILL_COLUMNS if c not in df_up.columns]
-
-    df_up = df_up[_DPC_REQUIRED_COLUMNS + present_horizon_cols]
-    n_before = len(df_up)
-    df_up = df_up.apply(pd.to_numeric, errors="coerce").dropna()
-    n_dropped = n_before - len(df_up)
-    if n_dropped:
-        st.warning(f"Dropped {n_dropped} row(s) with non-numeric or missing values.")
-    if df_up.empty:
-        st.error("No valid rows left to evaluate.")
-        return
+    df_up = df_clean
 
     MAX_ROWS = 5000
     if len(df_up) > MAX_ROWS:
@@ -1423,7 +1451,7 @@ def _render_dpc_upload_eval():
 
     if missing_horizon_cols:
         st.info(
-            f"{len(missing_horizon_cols)} of the {len(_DPC_AUTOFILL_COLUMNS)} optional horizon column(s) "
+            f"{len(missing_horizon_cols)} of the {len(DPC_AUTOFILL_COLUMNS)} optional horizon column(s) "
             f"weren't in your upload ({', '.join(missing_horizon_cols)}) -- auto-filling them by "
             "extrapolating each row's own vref_alpha/vref_beta forward assuming a rotating reference at "
             "the frequency below. For an exact evaluation, supply the real values instead."

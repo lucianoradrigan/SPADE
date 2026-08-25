@@ -19,9 +19,15 @@ Three physically distinct systems, unified under one interface:
 | **2. PMSM FOC/MTPA** | Salient permanent-magnet synchronous motor | Native dq-frame field-oriented current control, MTPA vs. naive policy | Control-law comparison against the analytic MTPA locus and current-limit circle |
 | **3. DPC / Voltage Source Converter** | VSC + LCL filter (power electronics, no rotating machinery) | Trained Direct Power Control (DPC) neural network, ported from [DPC4PowerElectronics](https://github.com/aipoweraau/DPC4PowerElectronics) | Off-distribution robustness probes (load resistance, reference magnitude/frequency) + a dataset-upload evaluator for your own data |
 
-Systems 1 and 2 also feed a fault-injection/diagnosis data-generation pipeline
-(`src/driveflow/datagen/`) and the beginnings of an ML diagnosis stack
-(`src/driveflow/models/`) for training classifiers/regressors on simulated fault signatures.
+System 1 also feeds a fault-injection/diagnosis data-generation pipeline (`src/driveflow/datagen/`)
+and the beginnings of an ML diagnosis stack (`src/driveflow/models/`) for training
+classifiers/regressors on simulated fault signatures.
+
+**System 2 (PMSM) is not connected to this pipeline at all** -- not even for normal-operation
+data. It has no `plant_config_id` and is never dispatched through `Scenario`/`run_scenario`; the
+dq-frame FOC/MTPA controller (`control/classical/pmsm_foc.py`) is called directly by the dashboard
+for a standalone control-law comparison (MTPA vs. naive policy on short current steps), with no
+fault model and no dataset export path. See that module's own docstring for the same statement.
 
 ## Quick start
 
@@ -80,14 +86,18 @@ configs/          the 3 shipped DPC checkpoints (see below) + vibration module c
 
 To retrain from scratch you'll need `Data4train.mat` from the original
 [DPC4PowerElectronics](https://github.com/aipoweraau/DPC4PowerElectronics) repository (not
-redistributed here) -- see `experiments/train_dpc.py --help`.
+redistributed here) -- see `experiments/train_dpc.py --help` and `DATA.md` for the full dependency
+note (also covers the KAt-DataCenter/Paderborn bearing dataset the vibration module depends on).
 
 ## Design notes
 
 - One ML framework throughout: Keras/TensorFlow (no PyTorch, no sklearn/XGBoost as a final model).
 - Simulation is decoupled from `gymnasium.Env` -- `SCMLSystem` (`sim/scml_system.py`) is driven
   directly, not through the full Gym environment layer.
-- DPC is one controller among others, interchangeable with the classical PI controller.
+- DPC is NOT a drop-in alternative to the classical PI controller: it operates on a different
+  physical domain entirely (a Voltage Source Converter -- no motor, no mechanical side, no rotor)
+  with no state space, plant, or control objective in common with PI/MPC's motor domain. There is
+  no "same conditions" under which to compare DPC vs. PI/MPC performance -- see `docs/patch5_alcance_macrofase_B.md`.
 - No large datasets are committed to the repository (see `.gitignore`); the dashboard and
   `datagen/` generate everything on demand.
 

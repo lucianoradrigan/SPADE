@@ -73,7 +73,7 @@ def main():
         fault_types=("outer_race", "inner_race"),
         # electrical_severity defaults to 8.0 Nm (matches A.4/A.5's original MCSA validation);
         # mechanical_severity defaults to the per-fault-type value calibrated against real
-        # Paderborn separability in experiments/validate_separability.py -- see
+        # Paderborn separability in experiments/verify_vibration_separability_auc.py -- see
         # docs/patch2_retiro_modulo_C.md Sec. 4 and scenario.py's CALIBRATED_MECHANICAL_SEVERITY.
         seeds=(0,),
         duration_s=args.duration_s,

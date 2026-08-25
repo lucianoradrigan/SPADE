@@ -243,8 +243,18 @@ class TestRunScenario:
 
     def test_all_signals_finite(self):
         records = run_scenario(Scenario(scenario_id="s", duration_s=0.02, fault_type="inner_race", mechanical_severity=6.0))
-        for col in ("current_r", "acc_x", "acc_y", "acc_z", "rpm", "torque_nm"):
+        for col in ("current_r", "acc_x", "acc_y", "acc_z", "rpm", "torque_nm", "voltage_v"):
             assert all(np.isfinite(r[col]) for r in records)
+
+    def test_voltage_v_populated_in_both_control_modes(self):
+        """u_a is the controller's actual applied voltage, not the setpoint -- it should be a real,
+        non-degenerate signal whether the loop is tracking a speed or a torque reference."""
+        speed_records = run_scenario(Scenario(scenario_id="s", duration_s=0.02, omega_ref_rad_s=100.0))
+        torque_records = run_scenario(Scenario(scenario_id="s", duration_s=0.02, torque_ref_nm=5.0))
+        for records in (speed_records, torque_records):
+            voltages = [r["voltage_v"] for r in records]
+            assert all(np.isfinite(v) for v in voltages)
+            assert len(set(voltages)) > 1  # not flat-lined/degenerate
 
 
 class TestDpcVscScenario:
@@ -263,7 +273,7 @@ class TestDpcVscScenario:
     def test_dc_motor_columns_are_nan_vsc_columns_are_populated(self):
         records = run_scenario(self._dpc_scenario(duration_s=0.005))
         for r in records:
-            for col in ("current_r", "rpm", "torque_nm", "acc_x", "acc_y", "acc_z", "bpfo_hz"):
+            for col in ("current_r", "rpm", "torque_nm", "voltage_v", "acc_x", "acc_y", "acc_z", "bpfo_hz"):
                 assert np.isnan(r[col])
             assert r["vibration_source"] is None
             assert r["label"] == "normal"

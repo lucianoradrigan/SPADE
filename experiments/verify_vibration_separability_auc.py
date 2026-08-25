@@ -15,7 +15,19 @@ Component=IR) only -- there is no clean single-defect "ball" or "cage" code to c
 mixed IR+OR damage, no clean characteristic frequency).
 
 Usage:
-    python experiments/validate_separability.py --dataset-root /path/to/BearingDataCenter/extracted
+    python experiments/verify_vibration_separability_auc.py --dataset-root /path/to/BearingDataCenter/extracted
+
+Rerun for Patch 8 Sec. 2 (2026-08-25) against the same real Paderborn data cited in
+docs/patch2_retiro_modulo_C.md Sec. 4: real AUC reproduced almost exactly (outer_race 0.7124 vs.
+cited 0.712, inner_race 0.5179 vs. cited 0.518 -- this half of the script reads real data directly
+and doesn't depend on Module B at all, so this is close to a bit-exact reproduction). The
+CALIBRATED severity/synthetic-AUC numbers differ somewhat from Patch 2's originally-cited pair
+(outer_race 0.05->0.766, inner_race 0.02->0.512): this run's calibration reflects the CURRENT
+codebase, which already includes docs/patch4_modulacion_zona_carga.md's load-zone modulation
+(FaultImpulseGenerator's default `load_zone_modulation=True`) -- added after Patch 2's original
+grid search, and which Patch 4 itself documents as making inner_race harder to detect at a given
+severity. A lower calibrated severity today (vs. Patch 2's pre-Patch-4 numbers) is the expected,
+correct consequence of that later improvement, not a discrepancy to chase.
 """
 
 import argparse

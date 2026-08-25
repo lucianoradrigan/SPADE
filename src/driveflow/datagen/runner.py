@@ -182,6 +182,7 @@ def _run_dc_motor_scenario(scenario: Scenario) -> list:
         omega = float(physical[system.OMEGA_IDX])
         torque = float(physical[system.TORQUE_IDX])
         current = float(physical[system.CURRENTS_IDX[0]])
+        voltage = float(physical[system.VOLTAGES_IDX[0]])
 
         acc_x, acc_y, acc_z = vibration_synth.step(omega)
 
@@ -203,6 +204,7 @@ def _run_dc_motor_scenario(scenario: Scenario) -> list:
                 "audio": np.nan,  # out of scope, per the addendum's schema (Sec. 6)
                 "rpm": omega * 60.0 / (2 * np.pi),
                 "torque_nm": torque,
+                "voltage_v": voltage,
                 "label": scenario.label,
                 "electrical_severity_nm": scenario.electrical_severity if any_fault_active else 0.0,
                 "mechanical_severity": scenario.mechanical_severity if any_fault_active else 0.0,
@@ -298,6 +300,7 @@ def _run_vsc_scenario(scenario: Scenario) -> list:
                 "audio": np.nan,
                 "rpm": np.nan,
                 "torque_nm": np.nan,
+                "voltage_v": np.nan,
                 "label": "normal",  # no fault model exists for this plant yet
                 "electrical_severity_nm": 0.0,
                 "mechanical_severity": 0.0,
