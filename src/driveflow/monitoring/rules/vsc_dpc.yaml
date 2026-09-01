@@ -1,0 +1,17 @@
+# Monitoring rules for the vsc_dpc domain (docs/design_ai_layer_transversal.md Sec. 8 step 1).
+#
+# dpc_load_resistance_divergence: the documented open-loop instability of VscSystem below
+# R* ~= 3.3707 ohm (docs/patch9_correccion_divergencia_dpc.md; see also
+# tests/test_dpc_robustness_grid.py and sim.vsc_system.MIN_STABLE_LOAD_RESISTANCE_OHM). The
+# dashboard's "Load resistance" slider is already floored at MIN_STABLE_LOAD_RESISTANCE_OHM
+# (4.0 ohm) with a warning on its "Custom value" override, so this rule is NOT closing an
+# unmitigated gap in the dashboard -- it is the same safeguard expressed as data (not UI code) for
+# any path that bypasses the dashboard, e.g. a scripted Scenario(load_resistance_ohm=...) run or a
+# future monitoring agent (Sec. 4.3) watching a live rollout.
+domain: vsc_dpc
+rules:
+  - name: dpc_load_resistance_divergence
+    condition: "load_resistance_ohm >= 1.0 and load_resistance_ohm <= 3.0"
+    severity: high
+    hysteresis_seconds: 2
+    action: alert

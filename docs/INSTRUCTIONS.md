@@ -163,6 +163,7 @@ E depende de la validación conjunta de A, C y D.
 | `driveflow/docs/patch10_implementacion_mpc.md` | Implementación de MPC lineal nativo para el motor DC (`control/mpc/`), resolviendo la discrepancia entre "Fase A completada" e INSTRUCTIONS.md mencionando PI/MPC sin que MPC existiera; confirma que Patch 5 no se ve afectado |
 | `driveflow/docs/patch11_archivado_modulo_c.md` | Archivado de `experiments/train_module_c*.py` (código histórico NOT RUNNABLE de Módulo C, ver Patch 2) a `experiments/_archive/`, para reducir la confusión "Módulo C" vs. "Fase C" |
 | `driveflow/docs/patch12_auditoria_estadistica_modulo_c.md` | Auditoría estadística del retiro de Módulo C (Patch 2): primera ejecución real de las reconstrucciones de coherencia de Patch 8 contra el dataset Paderborn, umbral de significancia formal (no existía antes), reconfirma Patch 2/3 |
+| `driveflow/docs/design_ai_layer_transversal.md` | **No histórico — vigente.** Especificación de la capa de IA transversal (regresores/clasificadores/agentes de reglas por tier PC/Raspberry Pi 5/ESP32, registro de modelos, pestaña de frontend); ver Sección 10 para su relación con esta fase |
 
 **Nota sobre esta tabla respecto al borrador original de este documento:** no existe un
 `patch3b_verificacion_sanos.md` ni un `patch4_desacople_severidad.md` como archivos separados —
@@ -177,7 +178,14 @@ Lee este documento (`INSTRUCTIONS.md`) completo antes de escribir código. No es
 documentos de la Sección 9 salvo que necesites la justificación extendida de alguna decisión ya
 consolidada aquí.
 
-Trabaja únicamente en la Fase C (Sección 5). No toques la Fase D ni la Fase E todavía.
+Trabaja en la Fase C (Sección 5) como línea principal. No toques la Fase D ni la Fase E todavía
+**salvo** lo autorizado explícitamente por `docs/design_ai_layer_transversal.md` (vigente desde
+2026-09-01): esa capa transversal (reglas de monitoreo, builders de config, registro de modelos,
+pestaña de frontend) corre en paralelo a la Fase C porque toca módulos distintos (`monitoring/`,
+no `models/classifiers` ni `models/regressors`), siguiendo el orden de su Sección 8. Consultar la
+nota de estado al final de ese documento antes de continuar cualquiera de sus pasos. No iniciar el
+entrenamiento real de clasificadores/regresor de esa capa (su Sección 6.4) sin haber completado
+antes la salvaguarda de filtrado de dominio de este documento (punto siguiente).
 
 Antes de iniciar cualquier entrenamiento, implementa y verifica la salvaguarda de filtrado por
 dominio (punto 3 de la Sección 5) como test de regresión. No avances al portado de arquitecturas
