@@ -339,7 +339,7 @@ No es necesario ni recomendable construir las 18 combinaciones en paralelo.
 2. Esquema de reglas + validación en CI (Sección 6.5) — bajo costo, habilita el punto 1 de forma
    segura. **Hecho — ver nota de estado al final.**
 3. Generalizar `dpc_upload_validation.py` a ambos dominios (Sección 5.2) — reutiliza código
-   existente, bajo riesgo.
+   existente, bajo riesgo. **Hecho — ver nota de estado al final.**
 4. Builder + esquema de config para clasificador y regresor (Secciones 6.1–6.3), empezando por el
    tier PC. Validar sin restricción de recursos antes de pensar en distillation.
 5. Script de entrenamiento único parametrizado (Sección 6.4) — usarlo primero para la Fase D.1
@@ -378,5 +378,14 @@ No es necesario ni recomendable construir las 18 combinaciones en paralelo.
   `monitoring/rules/vsc_dpc.yaml` con la regla `dpc_load_resistance_divergence`, y
   `tests/test_monitoring_rules_schema.py` (18 casos, incluye intentos de inyección de código en
   `condition`). `SPADE_tareas_correccion.md` no estaba disponible en el repo al momento de
-  implementar este documento; se procedió sin él por indicación explícita del usuario. Pasos 3–9
-  no iniciados.
+  implementar este documento; se procedió sin él por indicación explícita del usuario.
+- **2026-09-01:** Paso 3 implementado: `viz/dpc_upload_validation.py` generalizado — la lógica
+  compartida ("columnas presentes → dtype numérico → rangos razonables") se extrajo a
+  `_coerce_numeric`/`_drop_out_of_range_rows`; `validate_dpc_upload` (dominio `vsc_dpc`) queda con
+  el mismo comportamiento y mensajes de siempre (tests existentes sin tocar, 20 tests pasan);
+  `validate_dc_motor_upload` (dominio `dc_motor`, nuevo) reutiliza `CANDIDATE_CHANNELS` de
+  `models/common/windowing.py` y exige al menos un canal conocido presente (no los 7 fijos de DPC,
+  porque no hay todavía un modelo entrenado de dominio A que fije un esquema de entrada). El
+  archivo no se renombró — sigue siendo el mismo path que ya importa `dashboard.py`. Test nuevo:
+  `tests/test_dc_motor_upload_validation.py` (13 casos). Todavía no hay pestaña de frontend que use
+  `validate_dc_motor_upload` (eso es el paso 7). Pasos 4–9 no iniciados.
