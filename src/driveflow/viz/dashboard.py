@@ -55,6 +55,7 @@ from driveflow.datagen.runner import TAU as _TAU_S
 from driveflow.datagen.scenario import CALIBRATED_MECHANICAL_SEVERITY
 from driveflow.sim import DcPermanentlyExcitedMotor
 from driveflow.sim.vibration import bearing_frequencies as bf
+from driveflow.sim.vsc_system import MIN_STABLE_LOAD_RESISTANCE_OHM
 
 st.set_page_config(page_title="driveflow", layout="wide", page_icon="📈")
 
@@ -1537,9 +1538,21 @@ def _render_fase_b():
         "control/dpc/controller.py). The default below is the constant value found in every row of the "
         "network's own training data (Data4train.mat) -- it has never seen any other R. Moving this slider is "
         "a genuine robustness probe (does tracking degrade when the real load doesn't match training?), not a "
-        "validated operating point."
+        f"validated operating point. The slider floors at {MIN_STABLE_LOAD_RESISTANCE_OHM:.1f}Ω because below "
+        "~3.37Ω the plant itself (Adf/Bdf's i_load=v_c/R feedback) is open-loop unstable -- no controller, "
+        "trained on this or any other data, changes that (see sim/vsc_system.py's load_feedback_spectral_radius "
+        "and tests/test_dpc_robustness_grid.py)."
     )
-    load_resistance_ohm = _slider_with_custom(card_electrical, "Load resistance R (Ω)", 1.0, 20.0, float(_VSC_R_OHM), format="%.4f", key="dpc_r_ohm")
+    load_resistance_ohm = _slider_with_custom(
+        card_electrical, "Load resistance R (Ω)", MIN_STABLE_LOAD_RESISTANCE_OHM, 20.0, float(_VSC_R_OHM), format="%.4f", key="dpc_r_ohm"
+    )
+    if load_resistance_ohm < MIN_STABLE_LOAD_RESISTANCE_OHM:
+        card_electrical.warning(
+            f"R = {load_resistance_ohm:.4f}Ω is below the plant's open-loop stability floor (~3.37Ω, see caption "
+            "above) -- the closed loop is expected to diverge to NaN within ~2000 steps regardless of the "
+            "controller. Kept reachable via 'Custom value' for reproducing this known finding, not as a "
+            "supported operating point."
+        )
 
     dpc_config_now = (duration_s, int(seed), load_resistance_ohm, reference_magnitude_v, reference_omega_rad_s)
     dpc_has_result = "df_b" in st.session_state

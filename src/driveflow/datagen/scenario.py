@@ -25,10 +25,13 @@ class Scenario:
 
     Args:
         scenario_id: Unique name for this run (becomes dataset_id/source_file in the export).
-        controller_type: "PI" (Macro-fase A, against plant_config_id="dc_perm_ex_v1") or "DPC"
-            (Macro-fase B, against plant_config_id="vsc_dpc_v1" -- a Voltage Source Converter,
-            NOT the DC motor; see runner.py's module docstring on why these are two unrelated
-            plants, not a controller swap on the same system). "MPC" is not implemented yet.
+        controller_type: "PI" or "MPC" (both against plant_config_id="dc_perm_ex_v1" -- the same
+            DcMotorSystem, genuinely interchangeable controllers for it, see
+            control/mpc/controller.py) or "DPC" (Macro-fase B, against
+            plant_config_id="vsc_dpc_v1" -- a Voltage Source Converter, NOT the DC motor; see
+            runner.py's module docstring on why DPC is two unrelated plants away from PI/MPC, not
+            a controller swap on the same system -- docs/patch5_alcance_macrofase_B.md,
+            reconfirmed with a real MPC in hand by docs/patch10_implementacion_mpc.md).
         omega_ref_rad_s: Target speed for the whole run (PI/dc_perm_ex_v1 only; ignored for DPC
             scenarios, which have no rotating machinery -- see runner.py).
         fault_type: None (healthy) or one of bearing_frequencies.FAULT_FREQUENCY_FUNCS' keys, or
@@ -132,15 +135,15 @@ class Scenario:
     reference_magnitude_v: float = None
     reference_omega_rad_s: float = None
 
-    _VALID_PAIRS = {("PI", "dc_perm_ex_v1"), ("DPC", "vsc_dpc_v1")}
+    _VALID_PAIRS = {("PI", "dc_perm_ex_v1"), ("MPC", "dc_perm_ex_v1"), ("DPC", "vsc_dpc_v1")}
 
     def __post_init__(self):
         if (self.controller_type, self.plant_config_id) not in self._VALID_PAIRS:
             raise NotImplementedError(
                 f"(controller_type={self.controller_type!r}, plant_config_id={self.plant_config_id!r}) "
                 f"is not a supported pairing -- valid pairs are {sorted(self._VALID_PAIRS)}. "
-                "Each controller_type here targets exactly one plant (DPC controls a VSC, not "
-                "the DC motor PI/MPC target -- see runner.py's module docstring)."
+                "PI and MPC both target the DC motor plant (dc_perm_ex_v1); DPC targets a "
+                "separate VSC plant (vsc_dpc_v1) -- see runner.py's module docstring."
             )
         if self.mechanical_severity is None:
             default = CALIBRATED_MECHANICAL_SEVERITY.get(self.fault_type, 0.0)

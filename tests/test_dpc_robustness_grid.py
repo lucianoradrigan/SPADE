@@ -23,13 +23,31 @@ docs/macro_fase_B2_dpc_deployment.md). If the checkpoint or plant model changes 
 here needs updating, re-measure rather than loosening blindly -- these numbers are a snapshot of
 v3's actual behavior, not a design target.
 
-KNOWN, DOCUMENTED LIMITATION found while building this grid (not previously tracked anywhere):
-the closed-loop simulation DIVERGES (state grows unbounded to NaN within ~2000 steps) for R
-roughly in [1.0, 3.0]ohm -- a real, currently-reachable slice of the dashboard's own R slider
-range (which allows down to 1.0ohm). This is not a test-infrastructure bug: VscSystem's ADF/BDF
-discrete-time model goes unstable in closed loop as i_load = vc/R grows large at small R, and
-nothing in the dashboard currently warns the user or clips the slider before this point -- see
-TestKnownDivergenceAtLowR below and the Patch 8 summary this file was added under.
+ROOT CAUSE, identified and fixed under Patch 9 (Corrección de la divergencia DPC en R bajo): the
+closed-loop simulation DIVERGES (state grows unbounded to NaN within ~2000 steps) for R roughly in
+[1.0, 3.0]ohm. This is NOT a training-data coverage gap (R is constant at 8.0064ohm across every
+row of v1/v2/v3's training data, so no amount of "more data at low R" was ever going to fix it via
+this same fine-tuning approach) and NOT a test-infrastructure bug: it is a structural, analytically
+verified open-loop instability of VscSystem's own ADF/BDF discrete-time model. Folding the
+resistive load's feedback (i_load = vc/R) into the state matrix and computing its spectral radius
+as a function of R (see sim.vsc_system.load_feedback_spectral_radius) shows the plant itself --
+with NO controller at all -- is unstable below R* ~= 3.3707ohm (spectral radius grows from ~1.25 at
+R=3.0ohm to ~12.16 at R=0.5ohm). No receding-horizon network trained the way v1/v2/v3 were (a
+single fixed R, no R variation to learn a compensating gain from) can be expected to tame a real
+pole of that magnitude -- and even a network that *could* would face an unrelated, unresolved
+bootstrapping problem for collecting DAgger-style rollout data there: the current controller
+diverges to NaN immediately at those R, so there is no well-formed "current policy's visited
+states" to record in the first place.
+
+MITIGATION (implemented, not deferred): sim.vsc_system.MIN_STABLE_LOAD_RESISTANCE_OHM (4.0, ~19%
+margin over R*) is now the floor of the dashboard's "Load resistance" slider (viz/dashboard.py) --
+the divergent region is only reachable via that slider's "Custom value" override, and doing so
+shows a visible warning naming the analytic cause, rather than silently returning NaN with no
+explanation. TestKnownDivergenceAtLowR below is kept (the plant genuinely still diverges there --
+that is physics, not a bug to "fix" away) but is now backed by TestOpenLoopStabilityThreshold,
+which asserts the analytic mechanism itself and WILL fail if MIN_STABLE_LOAD_RESISTANCE_OHM (or a
+future Adf/Bdf change) ever stops leaving a safe margin over R* -- i.e. this stays a live
+regression check on the mitigation, not a permanent acceptance of the divergence.
 """
 
 import numpy as np
@@ -38,7 +56,7 @@ import pytest
 from driveflow.control.dpc.controller import DpcController
 from driveflow.control.dpc.reference import GRID_OMEGA_RAD_S, REFERENCE_MAGNITUDE_V, RotatingReference
 from driveflow.datagen.runner import TAU, _DPC_WEIGHTS_PATH, _VSC_R_OHM
-from driveflow.sim.vsc_system import VscSystem
+from driveflow.sim.vsc_system import MIN_STABLE_LOAD_RESISTANCE_OHM, VscSystem, load_feedback_spectral_radius
 
 N_STEPS = 2000
 WARMUP_STEPS = 50  # first ~5ms: startup transient from state=0, excluded from "settled" RMSE
@@ -97,19 +115,65 @@ class TestRobustnessGrid:
 
 
 class TestKnownDivergenceAtLowR:
-    """R in [1.0, 3.0]ohm is within the dashboard's own slider range (1.0-20.0ohm) but makes the
-    closed loop diverge -- see module docstring. These assertions exist so this stays a tracked,
-    intentional finding: if a future plant/controller change makes low-R stable, THIS test should
-    start failing (isfinite becomes true) and should be revisited/loosened deliberately, not have
-    its assumption silently bit-rot unnoticed either way."""
+    """R in [1.0, 3.0]ohm is below the plant's own open-loop stability floor (see module docstring
+    and TestOpenLoopStabilityThreshold) -- the closed loop is expected to diverge there for
+    structural reasons, not a bug. It is no longer reachable via the dashboard's default slider
+    (floored at MIN_STABLE_LOAD_RESISTANCE_OHM), only via its 'Custom value' override, which now
+    shows a warning when used there. These assertions exist so this stays a tracked, intentional
+    finding: if a future plant/controller change makes low-R stable, THIS test should start
+    failing (isfinite becomes true) and should be revisited/loosened deliberately -- and the
+    dashboard's slider floor and warning threshold reconsidered too -- not have its assumption
+    silently bit-rot unnoticed either way."""
 
     @pytest.mark.parametrize("r_ohm", [1.0, 1.5, 2.0, 2.5, 3.0])
     def test_low_r_currently_diverges(self, r_ohm):
         rmse = _settled_rmse(r_ohm, MAG_DEFAULT, OMEGA_DEFAULT)
         assert not np.isfinite(rmse), (
-            f"R={r_ohm}ohm no longer diverges (settled RMSE={rmse:.3f}V) -- this was a documented "
-            "instability at the time this test was written (Patch 8 Sec. 7). If a plant/controller "
-            "change genuinely fixed it, update this test (and the module docstring, and consider "
-            "whether the dashboard's R slider minimum should change) rather than just deleting the "
-            "assertion."
+            f"R={r_ohm}ohm no longer diverges (settled RMSE={rmse:.3f}V) -- this was a documented, "
+            "analytically-explained open-loop instability (Patch 9). If a plant/controller change "
+            "genuinely fixed it, update this test, the module docstring, TestOpenLoopStabilityThreshold, "
+            "and reconsider whether MIN_STABLE_LOAD_RESISTANCE_OHM (sim/vsc_system.py) and the dashboard's "
+            "slider floor/warning should relax -- rather than just deleting the assertion."
         )
+
+
+class TestOpenLoopStabilityThreshold:
+    """Verifies the ROOT CAUSE mechanism itself (not just its symptom): the plant's own
+    load-feedback dynamics, with no controller at all, are unstable below R* ~= 3.3707ohm. This is
+    what makes TestKnownDivergenceAtLowR's divergence structural rather than a training artifact,
+    and it's what MIN_STABLE_LOAD_RESISTANCE_OHM / the dashboard's slider floor are supposed to
+    stay a safe margin above. If Adf/Bdf ever change (e.g. a different identified plant), THIS
+    class is what should fail first and force MIN_STABLE_LOAD_RESISTANCE_OHM to be re-derived,
+    rather than the failure only surfacing as a mysterious NaN somewhere downstream."""
+
+    @pytest.mark.parametrize(
+        "r_ohm,expect_unstable",
+        [(0.5, True), (1.0, True), (2.0, True), (3.0, True), (3.3707, None), (3.5, False), (8.0064, False), (20.0, False)],
+    )
+    def test_spectral_radius_matches_empirical_divergence(self, r_ohm, expect_unstable):
+        """Spot-checks that the analytic spectral radius crosses 1.0 in the same place the
+        empirical divergence grid (TestKnownDivergenceAtLowR / the on-distribution baseline) does
+        -- the two are independent checks of the same underlying fact and should agree."""
+        radius = load_feedback_spectral_radius(r_ohm)
+        if expect_unstable is None:  # right at the analytic crossing -- direction, not magnitude
+            return
+        assert (radius > 1.0) == expect_unstable, (
+            f"R={r_ohm}ohm: load_feedback_spectral_radius={radius:.4f}, expected "
+            f"{'unstable (>1)' if expect_unstable else 'stable (<=1)'}"
+        )
+
+    def test_min_stable_load_resistance_has_safe_margin_over_analytic_threshold(self):
+        """The dashboard's slider floor must sit in genuinely stable territory, with margin -- not
+        exactly at the crossing, where floating-point/model-mismatch noise could still diverge."""
+        radius_at_floor = load_feedback_spectral_radius(MIN_STABLE_LOAD_RESISTANCE_OHM)
+        assert radius_at_floor < 0.95, (
+            f"MIN_STABLE_LOAD_RESISTANCE_OHM={MIN_STABLE_LOAD_RESISTANCE_OHM}ohm has spectral radius "
+            f"{radius_at_floor:.4f} -- expected a real margin (<0.95) below the R*~=3.3707ohm instability "
+            "crossing, not a value that barely clears it."
+        )
+
+    def test_min_stable_load_resistance_closed_loop_actually_converges(self):
+        """End-to-end confirmation that the chosen floor is not just analytically stable in the
+        open-loop sense but also gives a finite, sane settled RMSE in the real closed loop."""
+        rmse = _settled_rmse(MIN_STABLE_LOAD_RESISTANCE_OHM, MAG_DEFAULT, OMEGA_DEFAULT)
+        assert np.isfinite(rmse), f"R=MIN_STABLE_LOAD_RESISTANCE_OHM={MIN_STABLE_LOAD_RESISTANCE_OHM}ohm still diverges in closed loop"

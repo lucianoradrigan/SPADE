@@ -2,6 +2,11 @@
 result (see below) motivated retiring it -- see docs/patch2_retiro_modulo_C.md. Kept only as the
 documented record of the investigation that led to that decision; do not try to run this.
 
+Moved out of the active experiments/ tree into experiments/_archive/ in Patch 11
+(docs/patch11_archivado_modulo_c.md) -- its "Module C" name was repeatedly confused with the
+unrelated "Fase C" (diagnosis classifiers, see INSTRUCTIONS.md Sec. 5); living outside the
+active tree makes that mix-up harder for a casual `ls experiments/` to reproduce.
+
 Original docstring follows, describing what it did when it still ran:
 
 Module C, take 2: a windowed-RMS target + a sequence model (GRU), instead of the pointwise MLP

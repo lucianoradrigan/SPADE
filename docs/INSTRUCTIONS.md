@@ -41,7 +41,10 @@ en comunicación futura.
 ## 3. Fase A — estado implementado (resumen ejecutivo)
 
 - Motor de simulación de GEM extraído como `SCMLSystem`, sin dependencia de `gymnasium.Env`.
-  Controladores PI/MPC ya existentes de GEM.
+  Controlador PI nativo (no un port de GEM, ver `control/classical/pi_controller.py`). El
+  controlador MPC que este párrafo daba por existente ("PI/MPC ya existentes de GEM") en realidad
+  nunca se implementó hasta Patch 10 (`control/mpc/` era solo un `.gitkeep`) -- corregido; ver
+  `driveflow/docs/patch10_implementacion_mpc.md` para el detalle y por qué no afecta a Patch 5.
 - Módulo de vibración (`sim/vibration/`): `background_noise.py` (ruido estocástico calibrado por
   PSD/RMS de rodamientos sanos de Paderborn, sin dependencia de variables eléctricas/mecánicas) +
   `fault_impulses.py` (tren de impulsos en BPFO/BPFI/BSF/FTF, cinemático — depende de velocidad,
@@ -156,6 +159,9 @@ E depende de la validación conjunta de A, C y D.
 | `driveflow/docs/macro_fase_B2_dpc_deployment.md` | Despliegue y validación en lazo cerrado del controlador DPC (v1→v2→v3) e integración en `runner.py` |
 | `driveflow/docs/patch5_alcance_macrofase_B.md` | Corrección de alcance: DPC y PI/MPC no son comparables bajo las mismas condiciones |
 | `driveflow/docs/patch7_fase_D_dpc.md` | Definición de la Fase D (D.1, D.2) |
+| `driveflow/docs/patch9_correccion_divergencia_dpc.md` | Corrección (no ampliación de fase) de la divergencia DPC en R∈[1.0,3.0]Ω documentada por Patch 8: causa raíz analítica (inestabilidad de planta en lazo abierto, no hueco de datos) y mitigación en dashboard/tests |
+| `driveflow/docs/patch10_implementacion_mpc.md` | Implementación de MPC lineal nativo para el motor DC (`control/mpc/`), resolviendo la discrepancia entre "Fase A completada" e INSTRUCTIONS.md mencionando PI/MPC sin que MPC existiera; confirma que Patch 5 no se ve afectado |
+| `driveflow/docs/patch11_archivado_modulo_c.md` | Archivado de `experiments/train_module_c*.py` (código histórico NOT RUNNABLE de Módulo C, ver Patch 2) a `experiments/_archive/`, para reducir la confusión "Módulo C" vs. "Fase C" |
 
 **Nota sobre esta tabla respecto al borrador original de este documento:** no existe un
 `patch3b_verificacion_sanos.md` ni un `patch4_desacople_severidad.md` como archivos separados —

@@ -27,6 +27,37 @@ from driveflow.control.dpc.loss import ADF, BDF
 TAU = 1e-4
 
 
+def load_feedback_spectral_radius(r_ohm: float) -> float:
+    """Spectral radius of the plant's autonomous dynamics from the resistive-load feedback alone
+    (``i_load = vc/R`` folded into the state matrix, controller action v_o held at 0) -- i.e.
+    whether this discrete-time plant is open-loop stable at this R, BEFORE any controller acts.
+
+    Root cause of the closed-loop divergence documented in tests/test_dpc_robustness_grid.py: this
+    crosses 1.0 at R* ~= 3.3707 ohm (solved numerically, not a round number) -- below that R, the
+    identified Adf/Bdf model is open-loop unstable by itself (spectral radius grows from ~1.25 at
+    R=3.0ohm to ~12.16 at R=0.5ohm), independent of which network is controlling it. This is why
+    v1/v2/v3 all diverge there regardless of training data: no fine-tuning of a 1-step-ahead
+    receding-horizon controller trained at a single fixed R can be expected to tame an
+    already-unstable real pole of that magnitude. See MIN_STABLE_LOAD_RESISTANCE_OHM.
+    """
+    adf, bdf = ADF.astype(np.float64), BDF.astype(np.float64)
+    a_eff = np.array(
+        [
+            [adf[0, 0], adf[0, 1] + bdf[0, 1] / r_ohm],
+            [adf[1, 0], adf[1, 1] + bdf[1, 1] / r_ohm],
+        ]
+    )
+    return float(np.max(np.abs(np.linalg.eigvals(a_eff))))
+
+
+#: Below this R, load_feedback_spectral_radius(R) > 1 -- the plant is open-loop unstable
+#: regardless of the controller (see that function's docstring for the analytic R* ~= 3.3707ohm
+#: this crossing happens at). 4.0 adds ~19% margin over R* rather than sitting right at the
+#: boundary. This is the floor viz/dashboard.py uses for the "Load resistance" slider, and what
+#: tests/test_dpc_robustness_grid.py checks stays a safe margin above R*.
+MIN_STABLE_LOAD_RESISTANCE_OHM = 4.0
+
+
 @dataclass
 class VscState:
     i_f_real: float

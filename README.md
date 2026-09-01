@@ -15,7 +15,7 @@ Three physically distinct systems, unified under one interface:
 
 | System | Plant | Controller | Fault/robustness angle |
 |---|---|---|---|
-| **1. DC motor** | Permanently-excited DC motor (same physics/parameters as [gym-electric-motor](https://github.com/upb-lea/gym-electric-motor)) | Native cascaded PI (speed or torque) | Bearing-fault injection on two independent paths: torque ripple (electrical/MCSA) and synthetic 3-axis vibration |
+| **1. DC motor** | Permanently-excited DC motor (same physics/parameters as [gym-electric-motor](https://github.com/upb-lea/gym-electric-motor)) | Native cascaded PI or linear MPC (speed or torque, `controller_type="PI"`/`"MPC"` -- genuinely interchangeable, same plant) | Bearing-fault injection on two independent paths: torque ripple (electrical/MCSA) and synthetic 3-axis vibration |
 | **2. PMSM FOC/MTPA** | Salient permanent-magnet synchronous motor | Native dq-frame field-oriented current control, MTPA vs. naive policy | Control-law comparison against the analytic MTPA locus and current-limit circle |
 | **3. DPC / Voltage Source Converter** | VSC + LCL filter (power electronics, no rotating machinery) | Trained Direct Power Control (DPC) neural network, ported from [DPC4PowerElectronics](https://github.com/aipoweraau/DPC4PowerElectronics) | Off-distribution robustness probes (load resistance, reference magnitude/frequency) + a dataset-upload evaluator for your own data |
 
@@ -63,6 +63,7 @@ src/driveflow/
                   synthetic vibration synthesis
   control/
     classical/    PI controller, PMSM FOC/MTPA
+    mpc/          linear MPC (QP per step) for the DC motor -- interchangeable with PI, same plant
     dpc/          DPC network, model-based training loss, receding-horizon controller
   datagen/        Scenario dataclass + runner -- turns a config into a simulated dataset/trace
   models/         ML diagnosis stack: windowing, dataset splits, classifiers, regressors

@@ -2,9 +2,10 @@
 export_parquet.py's schema. Two unrelated plant/controller pairs, dispatched by
 scenario.plant_config_id (see scenario.py's docstring for the valid pairings):
 
-- "dc_perm_ex_v1" / PICascadeController: SCMLSystem + PICascadeController + BearingFaultLoad
-  (electrical/MCSA fault path) + VibrationSynthesizer (mechanical fault path). Mirrors the loop
-  sketched in docs/addendum_vibracion_v1.md Sec. 4, updated per Patch 3
+- "dc_perm_ex_v1" / PICascadeController or MpcController (scenario.controller_type: "PI" or
+  "MPC" -- see _DC_MOTOR_CONTROLLERS below and docs/patch10_implementacion_mpc.md): SCMLSystem +
+  {PI,MPC} + BearingFaultLoad (electrical/MCSA fault path) + VibrationSynthesizer (mechanical
+  fault path). Mirrors the loop sketched in docs/addendum_vibracion_v1.md Sec. 4, updated per Patch 3
   (docs/patch3_mejora_modulo_B.md): VibrationSynthesizer.step() no longer takes i_d/i_q/torque --
   Module B's excitation was found to have no exploitable dependence on those signals::
 
@@ -33,6 +34,7 @@ import yaml
 
 from driveflow.control.classical import PICascadeController
 from driveflow.control.dpc.controller import DpcController
+from driveflow.control.mpc import MpcController
 from driveflow.control.dpc.reference import RotatingReference
 from driveflow.datagen.fault_injection import BearingFaultLoad
 from driveflow.datagen.scenario import Scenario
@@ -153,9 +155,12 @@ def build_vibration_synthesizer(scenario: Scenario) -> VibrationSynthesizer:
     return synth
 
 
+_DC_MOTOR_CONTROLLERS = {"PI": PICascadeController, "MPC": MpcController}
+
+
 def _run_dc_motor_scenario(scenario: Scenario) -> list:
     system = build_plant(scenario)
-    controller = PICascadeController(system)
+    controller = _DC_MOTOR_CONTROLLERS[scenario.controller_type](system)
     vibration_synth = build_vibration_synthesizer(scenario)
 
     system.seed(np.random.SeedSequence(scenario.seed))

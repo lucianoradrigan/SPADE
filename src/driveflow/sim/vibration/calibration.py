@@ -288,8 +288,10 @@ def fit_background_noise_gain(fit_recordings, modes, n_substeps: int = 1) -> flo
 # (unverified) white-noise force input. That throws away phase: it says "the frequency content
 # has a similar shape" but nothing about *when* a given torque fluctuation shows up in the
 # vibration signal. Driving those modes with the REAL torque(t) and comparing sample-by-sample
-# to the real vibration(t) confirmed this empirically -- see experiments/train_module_c.py and
-# experiments/train_module_c_envelope.py's reports: even the best-fit scalar gain correction gave
+# to the real vibration(t) confirmed this empirically -- see experiments/_archive/train_module_c.py
+# and experiments/_archive/train_module_c_envelope.py's reports (archived, not runnable -- Patch 2
+# retired Module C; moved out of the active experiments/ tree in Patch 11, see
+# docs/patch11_archivado_modulo_c.md): even the best-fit scalar gain correction gave
 # 0.0% RMSE improvement over no correction, i.e. Module B's raw output is essentially
 # uncorrelated with reality in time, only similar in aggregate spectral shape.
 #

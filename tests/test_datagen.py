@@ -23,7 +23,17 @@ class TestScenario:
 
     def test_rejects_unimplemented_controller(self):
         with pytest.raises(NotImplementedError):
-            Scenario(scenario_id="s1", controller_type="MPC")
+            Scenario(scenario_id="s1", controller_type="not_a_real_controller")
+
+    def test_accepts_mpc_dc_motor_pairing(self):
+        """MPC was implemented in Patch 10 (docs/patch10_implementacion_mpc.md) -- this used to
+        raise NotImplementedError (see git history of test_rejects_unimplemented_controller
+        above), which is exactly the Fase A / INSTRUCTIONS.md discrepancy that patch resolved."""
+        Scenario(scenario_id="s1", controller_type="MPC")  # default plant_config_id is dc_perm_ex_v1
+
+    def test_rejects_mpc_vsc_pairing(self):
+        with pytest.raises(NotImplementedError):
+            Scenario(scenario_id="s1", controller_type="MPC", plant_config_id="vsc_dpc_v1")
 
     def test_motor_parameter_override_changes_simulated_behavior(self):
         """viz/dashboard.py's editable motor-characteristics panel relies on this actually
@@ -255,6 +265,28 @@ class TestRunScenario:
             voltages = [r["voltage_v"] for r in records]
             assert all(np.isfinite(v) for v in voltages)
             assert len(set(voltages)) > 1  # not flat-lined/degenerate
+
+
+class TestRunScenarioMpc:
+    """controller_type="MPC" through the full Scenario/run_scenario pipeline, against the SAME
+    dc_perm_ex_v1 plant PI already runs against (see control/mpc/controller.py and
+    docs/patch10_implementacion_mpc.md) -- short durations since MpcController solves a real QP
+    every step (~7ms/step), unlike PI's O(1) update."""
+
+    def test_returns_one_record_per_step(self):
+        records = run_scenario(Scenario(scenario_id="s", controller_type="MPC", duration_s=0.01))
+        assert len(records) == round(0.01 / TAU)
+
+    def test_all_signals_finite(self):
+        records = run_scenario(
+            Scenario(scenario_id="s", controller_type="MPC", duration_s=0.01, fault_type="inner_race", mechanical_severity=6.0)
+        )
+        for col in ("current_r", "acc_x", "acc_y", "acc_z", "rpm", "torque_nm", "voltage_v"):
+            assert all(np.isfinite(r[col]) for r in records)
+
+    def test_torque_ref_nm_switches_runner_to_torque_control(self):
+        records = run_scenario(Scenario(scenario_id="s", controller_type="MPC", duration_s=0.01, torque_ref_nm=10.0))
+        assert records[-1]["torque_nm"] == pytest.approx(10.0, rel=0.2)
 
 
 class TestDpcVscScenario:
