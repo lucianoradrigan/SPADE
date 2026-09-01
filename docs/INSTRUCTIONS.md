@@ -162,6 +162,7 @@ E depende de la validación conjunta de A, C y D.
 | `driveflow/docs/patch9_correccion_divergencia_dpc.md` | Corrección (no ampliación de fase) de la divergencia DPC en R∈[1.0,3.0]Ω documentada por Patch 8: causa raíz analítica (inestabilidad de planta en lazo abierto, no hueco de datos) y mitigación en dashboard/tests |
 | `driveflow/docs/patch10_implementacion_mpc.md` | Implementación de MPC lineal nativo para el motor DC (`control/mpc/`), resolviendo la discrepancia entre "Fase A completada" e INSTRUCTIONS.md mencionando PI/MPC sin que MPC existiera; confirma que Patch 5 no se ve afectado |
 | `driveflow/docs/patch11_archivado_modulo_c.md` | Archivado de `experiments/train_module_c*.py` (código histórico NOT RUNNABLE de Módulo C, ver Patch 2) a `experiments/_archive/`, para reducir la confusión "Módulo C" vs. "Fase C" |
+| `driveflow/docs/patch12_auditoria_estadistica_modulo_c.md` | Auditoría estadística del retiro de Módulo C (Patch 2): primera ejecución real de las reconstrucciones de coherencia de Patch 8 contra el dataset Paderborn, umbral de significancia formal (no existía antes), reconfirma Patch 2/3 |
 
 **Nota sobre esta tabla respecto al borrador original de este documento:** no existe un
 `patch3b_verificacion_sanos.md` ni un `patch4_desacople_severidad.md` como archivos separados —
