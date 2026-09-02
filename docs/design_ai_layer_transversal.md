@@ -341,7 +341,8 @@ No es necesario ni recomendable construir las 18 combinaciones en paralelo.
 3. Generalizar `dpc_upload_validation.py` a ambos dominios (Sección 5.2) — reutiliza código
    existente, bajo riesgo. **Hecho — ver nota de estado al final.**
 4. Builder + esquema de config para clasificador y regresor (Secciones 6.1–6.3), empezando por el
-   tier PC. Validar sin restricción de recursos antes de pensar en distillation.
+   tier PC. Validar sin restricción de recursos antes de pensar en distillation. **Hecho — ver
+   nota de estado al final.**
 5. Script de entrenamiento único parametrizado (Sección 6.4) — usarlo primero para la Fase D.1
    (regresor, dominio B) y para el clasificador maestro de Fase C (dominio A), que ya están en el
    roadmap activo.
@@ -388,4 +389,21 @@ No es necesario ni recomendable construir las 18 combinaciones en paralelo.
   porque no hay todavía un modelo entrenado de dominio A que fije un esquema de entrada). El
   archivo no se renombró — sigue siendo el mismo path que ya importa `dashboard.py`. Test nuevo:
   `tests/test_dc_motor_upload_validation.py` (13 casos). Todavía no hay pestaña de frontend que use
-  `validate_dc_motor_upload` (eso es el paso 7). Pasos 4–9 no iniciados.
+  `validate_dc_motor_upload` (eso es el paso 7).
+- **2026-09-01:** Paso 4 implementado, tier PC únicamente:
+  `models/classifiers/schemas.py` (`ClassifierConfig`/`ConvBlockConfig`) + `builder.py`
+  (`build_classifier`, reutiliza `se_block` de `gateway.py`) para el esquema de bloques Conv1D+SE
+  de la Sección 6.2; `models/regressors/schemas.py` (`ForecasterConfig`, con
+  `RECURRENT_TYPES_BY_TIER` como guardarraíl estructural — ESP32 solo acepta
+  `recurrent_type: none`, ni LSTM ni GRU, no solo LSTM como dice literalmente la Sección 9) +
+  `builder.py` (`build_forecaster`, LSTM/GRU apilado + atención opcional, salida
+  `(horizon, n_channels)` — **distinto** de la convención RMS-por-bin de
+  `envelope_forecaster.py`, que sigue siendo la arquitectura que adapta la Fase D.1 directamente,
+  no este builder nuevo). `recurrent_type: none` queda validado por el esquema pero
+  `build_forecaster` lanza `NotImplementedError` explícito para ese caso — la arquitectura no
+  recurrente de ESP32 es del paso 8, no se diseñó todavía. Presets nuevos:
+  `configs/classifiers/pc_server.yaml`, `configs/regressors/pc_full.yaml` (ninguno wireado a
+  datos reales todavía — eso es el paso 5). Tests nuevos: `tests/test_classifier_builder.py`,
+  `tests/test_forecaster_builder.py` (36 casos, incluye el guardarraíl ESP32 en ambas
+  variantes lstm/gru). No se crearon presets rpi5/esp32 — deliberadamente diferido al paso 8.
+  Pasos 5–9 no iniciados.
