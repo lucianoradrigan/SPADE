@@ -48,6 +48,7 @@ from driveflow.datagen import Scenario, run_flow, run_scenario
 from driveflow.control.dpc import COLUMNS as DPC_COLUMNS
 from driveflow.control.dpc import HORIZON as DPC_HORIZON
 from driveflow.control.dpc import build_dpc_network, simulate_horizon
+from driveflow.viz.ai_dashboard import _render_fase_ia
 from driveflow.viz.dpc_upload_validation import DPC_AUTOFILL_COLUMNS, DPC_REQUIRED_COLUMNS, validate_dpc_upload
 from driveflow.control.dpc.reference import GRID_OMEGA_RAD_S, REFERENCE_MAGNITUDE_V, RotatingReference
 from driveflow.datagen.runner import _DPC_WEIGHTS_PATH, _VSC_R_OHM
@@ -264,6 +265,16 @@ _PHASES = {
             "bearing, no fault model. Tracking accuracy shown in time and in the complex voltage plane."
         ),
     ),
+    "IA": dict(
+        title="IA — Cross-domain classifiers & regressors",
+        summary="Config-driven classifiers/regressors, consuming data already generated (or uploaded).",
+        description=(
+            "Evaluates a per-domain classifier and/or regressor -- registered separately by domain, never "
+            "sharing training data across Fase A/B (docs/design_ai_layer_transversal.md) -- against a sample "
+            "simulation run or an uploaded file. A consumer of data, not a live control surface: no sidebar "
+            "controls here re-run Fase A/B's own simulations."
+        ),
+    ),
 }
 
 
@@ -276,8 +287,8 @@ def _render_landing_page():
         """,
         unsafe_allow_html=True,
     )
-    col_a, col_b = st.columns(2)
-    for col, phase_id in ((col_a, "A"), (col_b, "B")):
+    cols = st.columns(len(_PHASES))
+    for col, phase_id in zip(cols, _PHASES):
         phase = _PHASES[phase_id]
         with col:
             card = st.container(border=True)
@@ -1628,5 +1639,7 @@ if _selected_phase == "A":
         _render_single_simulation()
     else:
         _render_advanced_flow()
-else:
+elif _selected_phase == "B":
     _render_fase_b()
+else:
+    _render_fase_ia()

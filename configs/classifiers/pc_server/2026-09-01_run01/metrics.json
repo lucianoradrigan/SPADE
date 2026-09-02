@@ -1,0 +1,23 @@
+{
+  "kind": "classifier",
+  "domain": "dc_motor",
+  "tier": "pc",
+  "channels": [
+    "acc_x",
+    "acc_y",
+    "acc_z",
+    "current_r",
+    "rpm",
+    "torque_nm"
+  ],
+  "classes": [
+    "inner_race",
+    "normal",
+    "outer_race"
+  ],
+  "n_train": 190,
+  "n_val": 57,
+  "n_test": 38,
+  "test_accuracy": 0.8947368421052632,
+  "test_macro_f1": 0.8935574229691876
+}

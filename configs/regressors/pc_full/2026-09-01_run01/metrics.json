@@ -1,0 +1,15 @@
+{
+  "kind": "forecaster",
+  "domain": "vsc_dpc",
+  "tier": "pc",
+  "channels": [
+    "vc_real",
+    "vc_imag",
+    "i_f_real",
+    "i_f_imag"
+  ],
+  "n_train": 108,
+  "n_test": 27,
+  "test_mse": 0.0036145015619695187,
+  "test_rmse": 0.06012072489557589
+}

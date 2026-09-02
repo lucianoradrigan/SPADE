@@ -32,6 +32,7 @@ building training windows.
 import pandas as pd
 
 from driveflow.models.common.windowing import CANDIDATE_CHANNELS as DC_MOTOR_CANDIDATE_CHANNELS
+from driveflow.models.common.windowing import VSC_DPC_CANDIDATE_CHANNELS
 
 #: The true minimum to run the network at all: the measured state (i_f, v_c), R, and the
 #: reference's CURRENT value. Order matches driveflow.control.dpc.COLUMNS[:7].
@@ -127,30 +128,29 @@ def validate_dpc_upload(df_raw: pd.DataFrame):
     return df, missing_horizon_cols, messages
 
 
-def validate_dc_motor_upload(df_raw: pd.DataFrame):
-    """Same "columns present -> numeric dtype -> reasonable ranges" pattern as
-    validate_dpc_upload, generalized to the dc_motor domain's diagnosis channels
-    (models.common.windowing.CANDIDATE_CHANNELS) -- see module docstring for how the two domains'
-    schemas genuinely differ, not just their column names.
+def _validate_channel_based_upload(df_raw: pd.DataFrame, candidate_channels: list) -> tuple:
+    """Shared "at least one known channel present -> numeric dtype -> reasonable ranges" logic
+    behind validate_dc_motor_upload and validate_vsc_dpc_forecast_upload -- the two domains differ
+    only in which channel list is "known", not in the validation mechanics themselves.
 
     Returns:
         (df_clean, missing_channels, messages) -- same 3-tuple shape as validate_dpc_upload.
-        missing_channels lists which of CANDIDATE_CHANNELS were not found in the upload
+        missing_channels lists which of candidate_channels were not found in the upload
         (informational: unlike DPC's horizon columns, there is no autofill step for these).
     """
     messages = []
     df = df_raw.copy()
     df.columns = [str(c).strip() for c in df.columns]
 
-    present_channels = [c for c in DC_MOTOR_CANDIDATE_CHANNELS if c in df.columns]
+    present_channels = [c for c in candidate_channels if c in df.columns]
     if not present_channels:
         messages.append((
             "error",
-            f"None of the known diagnosis channels ({', '.join(DC_MOTOR_CANDIDATE_CHANNELS)}) were found in "
-            "the upload -- at least one is needed to evaluate anything.",
+            f"None of the known channels ({', '.join(candidate_channels)}) were found in the upload -- "
+            "at least one is needed to evaluate anything.",
         ))
         return None, None, messages
-    missing_channels = [c for c in DC_MOTOR_CANDIDATE_CHANNELS if c not in df.columns]
+    missing_channels = [c for c in candidate_channels if c not in df.columns]
 
     df = df[present_channels]
     df, n_nonnumeric = _coerce_numeric(df)
@@ -169,3 +169,21 @@ def validate_dc_motor_upload(df_raw: pd.DataFrame):
         return None, None, messages
 
     return df, missing_channels, messages
+
+
+def validate_dc_motor_upload(df_raw: pd.DataFrame):
+    """Same "columns present -> numeric dtype -> reasonable ranges" pattern as
+    validate_dpc_upload, generalized to the dc_motor domain's diagnosis channels
+    (models.common.windowing.CANDIDATE_CHANNELS) -- see module docstring for how the two domains'
+    schemas genuinely differ, not just their column names."""
+    return _validate_channel_based_upload(df_raw, DC_MOTOR_CANDIDATE_CHANNELS)
+
+
+def validate_vsc_dpc_forecast_upload(df_raw: pd.DataFrame):
+    """Same pattern as validate_dc_motor_upload, for the vsc_dpc domain's own raw state channels
+    (models.common.windowing.VSC_DPC_CANDIDATE_CHANNELS) -- used by the generic config-driven
+    regressor (models/regressors/builder.py, docs/design_ai_layer_transversal.md Sec. 8 step 4/5/
+    7). Distinct from validate_dpc_upload, which validates against one specific pre-trained
+    control network's fixed 15-column input row, not this domain's general state channels -- see
+    VSC_DPC_CANDIDATE_CHANNELS' own comment in windowing.py for why the two schemas differ."""
+    return _validate_channel_based_upload(df_raw, VSC_DPC_CANDIDATE_CHANNELS)

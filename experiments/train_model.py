@@ -37,6 +37,7 @@ from sklearn.metrics import f1_score
 from driveflow.models.classifiers.builder import build_classifier
 from driveflow.models.classifiers.schemas import ClassifierConfig, load_classifier_config
 from driveflow.models.common import (
+    VSC_DPC_CANDIDATE_CHANNELS,
     build_classification_windows,
     build_direct_forecast_windows,
     discover_channels,
@@ -50,10 +51,6 @@ from driveflow.models.regressors.schemas import ForecasterConfig, load_forecaste
 #: domain -> plant_config_id, matching driveflow.datagen.scenario.Scenario._VALID_PAIRS. Only the
 #: two domains that exist today -- extend when a third domain is added.
 _PLANT_CONFIG_ID_BY_DOMAIN = {"dc_motor": "dc_perm_ex_v1", "vsc_dpc": "vsc_dpc_v1"}
-
-#: vsc_dpc has no CANDIDATE_CHANNELS-style constant of its own (windowing.py's is dc_motor-only,
-#: see that module's docstring) -- its columns are the converter's own state, not vibration/MCSA.
-VSC_DPC_CANDIDATE_CHANNELS = ["vc_real", "vc_imag", "i_f_real", "i_f_imag"]
 
 
 def _load_any_config(config_path: Path):

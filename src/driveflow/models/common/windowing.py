@@ -28,6 +28,15 @@ CANDIDATE_CHANNELS = [
     "rpm", "torque_nm",
 ]
 
+#: vsc_dpc domain's own channel taxonomy -- the converter's state (not vibration/MCSA, which
+#: CANDIDATE_CHANNELS above is specific to the dc_motor domain for). real/imag naming here matches
+#: datagen/runner.py's exported column names for this domain (_run_vsc_scenario) -- a DIFFERENT,
+#: unrelated schema from the pre-existing trained DPC control network's own fixed input row
+#: (viz/dpc_upload_validation.py's DPC_REQUIRED_COLUMNS, alpha/beta-named): one is this domain's
+#: raw state channels (what a generic classifier/regressor windows over, Sec. 8 step 4/5 of
+#: docs/design_ai_layer_transversal.md), the other is one specific network's exact input format.
+VSC_DPC_CANDIDATE_CHANNELS = ["vc_real", "vc_imag", "i_f_real", "i_f_imag"]
+
 
 def window_samples_for(fs_hz: float, window_s: float = WINDOW_S) -> int:
     return int(round(fs_hz * window_s))

@@ -2,6 +2,7 @@ from .dataset import DIAGNOSIS_PLANT_CONFIG_IDS, filter_diagnosis_domain, load_d
 from .splits import grouped_split, prepare_classification_splits
 from .windowing import (
     CANDIDATE_CHANNELS,
+    VSC_DPC_CANDIDATE_CHANNELS,
     WINDOW_S,
     build_classification_windows,
     build_direct_forecast_windows,
@@ -18,6 +19,7 @@ __all__ = [
     "grouped_split",
     "prepare_classification_splits",
     "CANDIDATE_CHANNELS",
+    "VSC_DPC_CANDIDATE_CHANNELS",
     "WINDOW_S",
     "build_classification_windows",
     "build_direct_forecast_windows",

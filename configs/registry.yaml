@@ -1,0 +1,3 @@
+entries:
+  dc_motor/pc/classifier: configs/classifiers/pc_server/2026-09-01_run01
+  vsc_dpc/pc/regressor: configs/regressors/pc_full/2026-09-01_run01

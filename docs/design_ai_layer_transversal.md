@@ -348,8 +348,9 @@ No es necesario ni recomendable construir las 18 combinaciones en paralelo.
    roadmap activo. **Hecho — ver nota de estado al final (con una aclaración de alcance
    importante).**
 6. `ai/registry.py` — una vez que exista al menos un artefacto real que registrar, no antes.
+   **Hecho — ver nota de estado al final.**
 7. Pestaña IA en frontend (Sección 5.1) — una vez que haya al menos un regresor y un clasificador
-   de tier PC funcionando.
+   de tier PC funcionando. **Hecho — ver nota de estado al final.**
 8. Distillation hacia Raspberry Pi 5 y ESP32 — al final, y solo para los bloques donde el
    despliegue en edge sea realmente un objetivo del proyecto a corto plazo.
 9. Agentes de tier PC y Raspberry Pi 5 (razonamiento contextual y reglas con estado) — pueden
@@ -430,4 +431,47 @@ No es necesario ni recomendable construir las 18 combinaciones en paralelo.
   test de integración (`tests/test_train_model.py`) con escenarios sintéticos minúsculos
   (1 época, ventanas chicas) — confirma que el mecanismo funciona, no dice nada sobre la calidad
   de ningún modelo real. Test nuevo también para `build_direct_forecast_windows` en
-  `tests/test_windowing.py`. Pasos 6–9 no iniciados.
+  `tests/test_windowing.py`.
+- **2026-09-01:** Pasos 6 y 7 implementados juntos, y con eso **por primera vez hay artefactos
+  reales entrenados** (no sintéticos de test):
+  - Datasets reales generados: `data/diagnosis_dataset.parquet` (dominio `dc_motor`, 15
+    escenarios × 1.0s, 3 clases balanceadas — versión reducida de
+    `experiments/generate_diagnosis_dataset.py`, que con sus parámetros por defecto — 30
+    escenarios × 5.0s — tardaba más de 13 minutos por el filtrado modal de vibración y se
+    canceló) y `data/vsc_dpc_dataset.parquet` (dominio `vsc_dpc`, script nuevo
+    `experiments/generate_vsc_dpc_dataset.py`, 15 escenarios × 0.3s — el cuello de botella acá es
+    la inferencia de la red DPC en cada paso, ~16s por 0.5s simulado). Ninguno de los dos
+    reproduce los parámetros exactos de Fase C/D.1 reales (que usarían más escenarios/duración) —
+    son datasets reales, no sintéticos de 1 época, pero más chicos de lo que pediría una Fase C
+    rigurosa.
+  - Clasificador real (dc_motor, `configs/classifiers/pc_server.yaml`, 15 épocas):
+    **89.5% accuracy, F1 macro 0.89** sobre el test set.
+  - Regresor real (vsc_dpc, `configs/regressors/pc_full.yaml`, 30 épocas): **RMSE 0.06**
+    (normalizado) sobre el test set.
+  - `src/driveflow/ai/registry.py` (`promote`/`resolve`/`load_promoted_model`), manifiesto único
+    versionado en `configs/registry.yaml`. `experiments/promote_run.py` como CLI. Ambos artefactos
+    de arriba ya están promovidos: `dc_motor/pc/classifier` y `vsc_dpc/pc/regressor`.
+  - `src/driveflow/viz/ai_dashboard.py` (`_render_fase_ia`) — pestaña "IA" nueva en el landing
+    page del dashboard (junto a Fase A/B, mismo patrón de tarjetas), selector de dominio + fuente
+    de datos (simulación de muestra o archivo subido, reutilizando `validate_dc_motor_upload` /
+    `validate_vsc_dpc_forecast_upload` — este último es una función nueva, ver abajo), paneles de
+    clasificador/regresor que consultan el registro y muestran "no registrado todavía" si falta
+    alguno (verificado con ambos casos). Cache vía `st.cache_resource`, mismo patrón que
+    `_load_dpc_model` existente. `dashboard.py` solo ganó ~10 líneas (entrada a `_PHASES` +
+    import + dispatch) — el resto vive en `ai_dashboard.py`, según la Sección 9.
+  - Efecto colateral necesario: el esquema de 15 columnas de `validate_dpc_upload` (red DPC de
+    control ya existente) no sirve para el regresor nuevo (canales `vc_real/vc_imag/i_f_real/
+    i_f_imag`, sin relación con `if_alpha/vc_alpha/...`) — se agregó
+    `validate_vsc_dpc_forecast_upload` en `dpc_upload_validation.py`, y se refactorizó la lógica
+    compartida con `validate_dc_motor_upload` a `_validate_channel_based_upload` para no
+    duplicarla. `VSC_DPC_CANDIDATE_CHANNELS` ahora vive en `models/common/windowing.py`, junto a
+    `CANDIDATE_CHANNELS`.
+  - Verificado con `streamlit.testing.v1.AppTest` (sin navegador) y con el dashboard real
+    corriendo — ver `tests/test_ai_dashboard.py` (4 casos: landing page, entrar a la fase,
+    generar corrida de muestra en ambos dominios, verificado contra el estado real del registro
+    en vez de asumir un estado fijo).
+  - **No se hizo** (deliberadamente fuera de alcance de este paso): ronda de validación rigurosa
+    de Fase C contra métricas de `paper_federative`, ni el resto del Paso 0 de Fase D.2. Estos
+    artefactos son reales y funcionan, pero no son la entrega formal de Fase C/D.1 — ver la
+    aclaración ya registrada en la nota del paso 5.
+  Pasos 8–9 no iniciados.

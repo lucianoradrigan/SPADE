@@ -11,13 +11,19 @@ dist/
 *.parquet
 /data/
 
-# Large trained-model checkpoints are ignored by default -- EXCEPT the 3 small (~21KB) DPC
-# checkpoints below, which are shipped so the dashboard and experiments/ scripts work out of
-# the box without requiring a local training run first.
+# Large trained-model checkpoints are ignored by default -- EXCEPT the small checkpoints below,
+# which are shipped so the dashboard and experiments/ scripts work out of the box without
+# requiring a local training run first.
 *.h5
 !configs/dpc_trained.weights.h5
 !configs/dpc_trained_v2_closed_loop.weights.h5
 !configs/dpc_trained_v3_closed_loop.weights.h5
+# ai/registry.py's promoted runs (docs/design_ai_layer_transversal.md Sec. 7/8 step 6) -- the
+# registry.yaml manifest points at these paths, so a fresh checkout needs the weights files
+# themselves to actually resolve, not just the config.yaml/metrics.json siblings (already
+# unaffected by *.h5 above).
+!configs/classifiers/pc_server/2026-09-01_run01/model.weights.h5
+!configs/regressors/pc_full/2026-09-01_run01/model.weights.h5
 
 # Motor-characteristic profiles a user saves locally from viz/dashboard.py -- personal
 # experimentation state, not versioned calibration.
