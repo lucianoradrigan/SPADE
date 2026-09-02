@@ -203,3 +203,59 @@ def build_forecast_windows(
     if not all_X:
         return None, None, None
     return np.array(all_X, dtype=np.float32), np.array(all_Y, dtype=np.float32), np.array(all_groups)
+
+
+def build_direct_forecast_windows(
+    df: pd.DataFrame,
+    channels: list,
+    window_samples: int,
+    horizon_samples: int,
+    cap_per_group: int = 60,
+    group_col: str = "source_file",
+) -> tuple:
+    """Like build_forecast_windows, but the target Y is the raw (normalized) future signal itself
+    -- (n, horizon_samples, C) -- not an RMS-per-bin envelope. Used by
+    models/regressors/builder.py's build_forecaster (the config-driven LSTM/GRU family,
+    docs/design_ai_layer_transversal.md Sec. 6.3) -- a sibling of build_forecast_windows /
+    envelope_forecaster.py's RMS-envelope convention, not a replacement for it: Fase D.1's
+    dpc_tracking_forecaster still uses that pairing directly (INSTRUCTIONS.md Sec. 6).
+
+    Returns (X, Y, groups): X (n, window_samples, C), Y (n, horizon_samples, C).
+    """
+    seg_len = window_samples + horizon_samples
+    all_X, all_Y, all_groups = [], [], []
+
+    for src in df[group_col].unique():
+        sub = df[df[group_col] == src]
+        n_rows = len(sub)
+        if n_rows < seg_len:
+            continue
+        present_cols = [c for c in channels if c in sub.columns and sub[c].notna().all()]
+        if len(present_cols) < len(channels):
+            continue
+        col_values = {c: sub[c].to_numpy() for c in present_cols}
+
+        n_segments = min(cap_per_group, n_rows // seg_len)
+        for i in range(n_segments):
+            sl = slice(i * seg_len, i * seg_len + seg_len)
+            ctx_chans, fut_chans = [], []
+            for c in channels:
+                raw = col_values[c][sl].astype(np.float32)
+                ctx_raw = raw[:window_samples]
+                fut_raw = raw[window_samples : window_samples + horizon_samples]
+                if is_live_window(ctx_raw):
+                    mu, sigma = ctx_raw.mean(), ctx_raw.std()
+                    ctx_n = (ctx_raw - mu) / sigma
+                    fut_n = (fut_raw - mu) / sigma
+                else:
+                    ctx_n = np.zeros_like(ctx_raw)
+                    fut_n = np.zeros_like(fut_raw)
+                ctx_chans.append(ctx_n.astype(np.float32))
+                fut_chans.append(fut_n.astype(np.float32))
+            all_X.append(np.stack(ctx_chans, axis=-1))
+            all_Y.append(np.stack(fut_chans, axis=-1))
+            all_groups.append(src)
+
+    if not all_X:
+        return None, None, None
+    return np.array(all_X, dtype=np.float32), np.array(all_Y, dtype=np.float32), np.array(all_groups)

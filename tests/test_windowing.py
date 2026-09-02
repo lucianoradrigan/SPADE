@@ -13,6 +13,7 @@ from driveflow.datagen import Scenario, run_scenario
 from driveflow.datagen.runner import TAU
 from driveflow.models.common import (
     build_classification_windows,
+    build_direct_forecast_windows,
     build_forecast_windows,
     discover_channels,
     grouped_split,
@@ -129,6 +130,23 @@ class TestBuildForecastWindows:
         assert X is not None
         assert X.shape[1:] == (window_samples, len(channels))
         assert Y.shape[1:] == (10, len(channels))
+        assert len(X) == len(Y) == len(groups)
+
+
+class TestBuildDirectForecastWindows:
+    """models/regressors/builder.py's build_forecaster (docs/design_ai_layer_transversal.md
+    Sec. 6.3) needs raw future values, not build_forecast_windows' RMS-per-bin envelope -- see
+    that function's module docstring for why the two coexist."""
+
+    def test_context_and_horizon_shapes(self, mixed_labeled_df):
+        window_samples = window_samples_for(1.0 / TAU)
+        channels = discover_channels(mixed_labeled_df, window_samples)
+        healthy_df = mixed_labeled_df[mixed_labeled_df["label"] == "normal"]
+        X, Y, groups = build_direct_forecast_windows(healthy_df, channels, window_samples, horizon_samples=500, cap_per_group=5)
+
+        assert X is not None
+        assert X.shape[1:] == (window_samples, len(channels))
+        assert Y.shape[1:] == (500, len(channels))
         assert len(X) == len(Y) == len(groups)
 
 

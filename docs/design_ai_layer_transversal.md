@@ -345,7 +345,8 @@ No es necesario ni recomendable construir las 18 combinaciones en paralelo.
    nota de estado al final.**
 5. Script de entrenamiento único parametrizado (Sección 6.4) — usarlo primero para la Fase D.1
    (regresor, dominio B) y para el clasificador maestro de Fase C (dominio A), que ya están en el
-   roadmap activo.
+   roadmap activo. **Hecho — ver nota de estado al final (con una aclaración de alcance
+   importante).**
 6. `ai/registry.py` — una vez que exista al menos un artefacto real que registrar, no antes.
 7. Pestaña IA en frontend (Sección 5.1) — una vez que haya al menos un regresor y un clasificador
    de tier PC funcionando.
@@ -407,3 +408,26 @@ No es necesario ni recomendable construir las 18 combinaciones en paralelo.
   `tests/test_forecaster_builder.py` (36 casos, incluye el guardarraíl ESP32 en ambas
   variantes lstm/gru). No se crearon presets rpi5/esp32 — deliberadamente diferido al paso 8.
   Pasos 5–9 no iniciados.
+- **2026-09-01:** Paso 5 implementado: `experiments/train_model.py` (`train_from_config`,
+  CLI vía `--config`/`--dataset`). Detecta si el YAML es de clasificador (`blocks`) o de
+  regresor (`recurrent_type`), carga el dataframe del dominio correcto (`load_diagnosis_dataset`
+  para `dc_motor` — el resguardo obligatorio de Fase C, filtro directo por `plant_config_id` para
+  `vsc_dpc`, que no tiene un módulo equivalente porque Fase C nunca lo necesitó), construye
+  ventanas, entrena, evalúa contra un split agrupado (`grouped_split`/`prepare_classification_
+  splits`, reutilizados de `models/common/splits.py`), y guarda los 3 artefactos en
+  `<config_dir>/<config_stem>/<fecha>_run<NN>/`.
+  **Aclaración de alcance importante:** para poder entrenar el regresor LSTM del paso 4 hizo
+  falta una función de ventaneo nueva, `models/common/windowing.py::build_direct_forecast_
+  windows` — la ya existente `build_forecast_windows` produce una envolvente RMS-por-bin
+  (la convención de `envelope_forecaster.py`), incompatible con la salida `(horizon, n_channels)`
+  de valores directos que diseñé para `build_forecaster` en el paso 4. Las dos funciones de
+  ventaneo y las dos familias de regresor coexisten a propósito (ver docstrings cruzados) — la
+  Fase D.1 (`dpc_tracking_forecaster`, INSTRUCTIONS.md Sección 6) sigue usando
+  `build_forecast_windows`/`envelope_forecaster.py` directamente, no lo que se construyó acá.
+  **Este script NO ejecuta el entrenamiento real de Fase C ni de Fase D.1** — no existe todavía
+  un dataset de Fase A/B generado en este checkout del repo, y generarlo es una decisión aparte
+  (cómputo/tiempo) no tomada en este paso. La prueba de que el pipeline funciona end-to-end es un
+  test de integración (`tests/test_train_model.py`) con escenarios sintéticos minúsculos
+  (1 época, ventanas chicas) — confirma que el mecanismo funciona, no dice nada sobre la calidad
+  de ningún modelo real. Test nuevo también para `build_direct_forecast_windows` en
+  `tests/test_windowing.py`. Pasos 6–9 no iniciados.
