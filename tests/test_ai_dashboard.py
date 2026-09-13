@@ -75,17 +75,21 @@ class TestSampleRunControlsAreReal:
         text = next(el.value for el in at.caption if "row(s) available for evaluation" in el.value)
         return int(text.split()[0])
 
-    def test_dc_motor_exposes_fault_and_severity_widgets(self):
+    def test_dc_motor_exposes_fault_speed_and_severity_widgets(self):
         at = AppTest.from_file(DASHBOARD_PATH, default_timeout=60)
         at.run()
         at.button(key="enter_phase_IA").click().run()
         assert not at.exception
         assert at.sidebar.selectbox(key="ia_fault_type").options == ["healthy", "outer_race", "inner_race", "ball", "cage"]
+        # Sec. 4's default speed setpoint (Fase A's own default, GEM's real nominal ω) --
+        # NOT Scenario's own dataclass default (150.0), see ai_dashboard.py's
+        # _DC_MOTOR_DEFAULT_OMEGA_REF_RAD_S comment.
+        assert at.sidebar.slider(key="ia_omega_ref_slider").value == 300.0
         # "healthy" is the default -- severity sliders only render for an actual fault.
         at.sidebar.selectbox(key="ia_fault_type").set_value("outer_race").run()
         assert not at.exception
-        assert at.sidebar.slider(key="ia_elec_severity") is not None
-        assert at.sidebar.slider(key="ia_mech_severity") is not None
+        assert at.sidebar.slider(key="ia_elec_severity_slider") is not None
+        assert at.sidebar.slider(key="ia_mech_severity_slider") is not None
 
     def test_vsc_dpc_exposes_load_resistance_and_reference_widgets(self):
         at = AppTest.from_file(DASHBOARD_PATH, default_timeout=60)
@@ -93,23 +97,40 @@ class TestSampleRunControlsAreReal:
         at.button(key="enter_phase_IA").click().run()
         at.selectbox(key="ia_domain").set_value("vsc_dpc").run()
         assert not at.exception
-        r_slider = at.sidebar.slider(key="ia_load_r")
+        r_slider = at.sidebar.slider(key="ia_load_r_slider")
         assert r_slider.min == pytest.approx(MIN_STABLE_LOAD_RESISTANCE_OHM, abs=1e-3)
-        assert at.sidebar.slider(key="ia_ref_mag") is not None
-        assert at.sidebar.slider(key="ia_ref_omega") is not None
+        assert at.sidebar.slider(key="ia_ref_mag_slider") is not None
+        assert at.sidebar.slider(key="ia_ref_omega_slider") is not None
 
     def test_changing_duration_changes_the_generated_row_count(self):
         at = AppTest.from_file(DASHBOARD_PATH, default_timeout=120)
         at.run()
         at.button(key="enter_phase_IA").click().run()
-        at.sidebar.slider(key="ia_duration").set_value(0.1).run()
+        at.sidebar.slider(key="ia_duration_slider").set_value(0.1).run()
         at.sidebar.button(key="ia_generate").click().run()
         assert not at.exception
         short_rows = self._rows_caption_count(at)
 
-        at.sidebar.slider(key="ia_duration").set_value(0.6).run()
+        at.sidebar.slider(key="ia_duration_slider").set_value(0.6).run()
         at.sidebar.button(key="ia_generate").click().run()
         assert not at.exception
         long_rows = self._rows_caption_count(at)
 
         assert long_rows > short_rows
+
+    def test_duration_custom_value_escape_hatch_goes_past_the_slider_max(self):
+        """The slider alone tops out at 1.0s -- the "Custom value" checkbox must allow going
+        past that, same as Fase A/B, so a value the slider itself could never reach still
+        produces more rows than the slider's own max."""
+        at = AppTest.from_file(DASHBOARD_PATH, default_timeout=120)
+        at.run()
+        at.button(key="enter_phase_IA").click().run()
+        at.sidebar.slider(key="ia_duration_slider").set_value(1.0).run()  # slider's own max
+        at.sidebar.button(key="ia_generate").click().run()
+        rows_at_slider_max = self._rows_caption_count(at)
+
+        at.sidebar.checkbox(key="ia_duration_custom").set_value(True).run()
+        at.sidebar.number_input(key="ia_duration_custom_input").set_value(1.5).run()
+        at.sidebar.button(key="ia_generate").click().run()
+        assert not at.exception
+        assert self._rows_caption_count(at) > rows_at_slider_max

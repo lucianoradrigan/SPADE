@@ -35,6 +35,33 @@ _PLOT_COLORS = ["#38BDF8", "#34D399", "#FB923C", "#F472B6", "#A78BFA", "#FBBF24"
 #: module docstring; custom fault combinations (dashboard.py's fault manager) are a Fase A sidebar
 #: feature, out of scope for this tab's "quick sample, not a live control surface" role.
 _BUILTIN_FAULT_TYPES = ["healthy", "outer_race", "inner_race", "ball", "cage"]
+#: Fase A's own default speed setpoint (DcPermanentlyExcitedMotor's real nominal ω per GEM's
+#: spec, see dashboard.py's card_ref) -- Scenario's own dataclass default (150.0) is NOT this;
+#: it's an unrelated placeholder that only dashboard.py's sidebar ever overrides. Sample runs
+#: below pass this explicitly instead of leaving omega_ref_rad_s unset, so a "healthy" dc_motor
+#: sample matches Fase A's own default operating point rather than silently landing on 150.0.
+_DC_MOTOR_DEFAULT_OMEGA_REF_RAD_S = 300.0
+
+
+def _slider_with_custom(container, label, min_value, max_value, value, step=None, format=None, help=None, key=None):
+    """Same pattern as dashboard.py's own helper of the same name (duplicated, not imported --
+    this module's docstring forbids depending on dashboard.py): a slider for the common range,
+    plus a "Custom value" checkbox that swaps in an unbounded number_input, since a slider alone
+    can never go past max_value."""
+    base_key = key or label
+    slider_val = container.slider(label, min_value, max_value, value, step=step, format=format, help=help, key=f"{base_key}_slider")
+    use_custom = container.checkbox("Custom value", key=f"{base_key}_custom", help=f'Type a "{label}" value outside {min_value}-{max_value} above.')
+    if not use_custom:
+        return slider_val
+    is_int = isinstance(value, int) and not isinstance(value, bool)
+    custom_val = container.number_input(
+        f"{label} (custom)",
+        value=int(slider_val) if is_int else float(slider_val),
+        step=step or (1 if is_int else 0.1),
+        format=format,
+        key=f"{base_key}_custom_input",
+    )
+    return int(custom_val) if is_int else custom_val
 
 
 @st.cache_resource
@@ -62,10 +89,11 @@ def _generate_sample_dataframe(domain: str, **scenario_kwargs) -> pd.DataFrame:
 def _sample_run_controls(domain: str) -> dict:
     """Sidebar widgets for the "Generate a sample run" data source -- a deliberately narrower
     subset of Fase A/B's own scenario sidebar (no motor-characteristic overrides, no custom fault
-    combinations, no "Custom value" unbounded escape hatches): enough to exercise the model on
-    something other than one fixed default run, without duplicating the full A/B control surface
-    this tab is explicitly not supposed to be (Sec. 5.1)."""
-    duration_s = st.sidebar.slider("Duration (s)", 0.05, 1.0, 0.3, key="ia_duration")
+    combinations): enough to exercise the model on something other than one fixed default run,
+    without duplicating the full A/B control surface this tab is explicitly not supposed to be
+    (Sec. 5.1). Every numeric control uses _slider_with_custom, same as Fase A/B, so nothing here
+    is capped below what a Scenario itself accepts."""
+    duration_s = _slider_with_custom(st.sidebar, "Duration (s)", 0.05, 1.0, 0.3, key="ia_duration")
     seed = st.sidebar.number_input("Seed", value=0, step=1, key="ia_seed")
     kwargs = {"duration_s": duration_s, "seed": int(seed)}
 
@@ -73,23 +101,33 @@ def _sample_run_controls(domain: str) -> dict:
         fault_label = st.sidebar.selectbox("Fault type", _BUILTIN_FAULT_TYPES, key="ia_fault_type")
         fault_type = None if fault_label == "healthy" else fault_label
         kwargs["fault_type"] = fault_type
+        # Explicit, not Scenario's own dataclass default (150.0) -- see
+        # _DC_MOTOR_DEFAULT_OMEGA_REF_RAD_S's own comment above.
+        kwargs["omega_ref_rad_s"] = _slider_with_custom(
+            st.sidebar, "Speed setpoint ω_ref (rad/s)", 10.0, 350.0, _DC_MOTOR_DEFAULT_OMEGA_REF_RAD_S, key="ia_omega_ref"
+        )
         if fault_type is not None:
-            kwargs["electrical_severity"] = st.sidebar.slider("Electrical severity (Nm)", 0.0, 20.0, 8.0, key="ia_elec_severity")
+            kwargs["electrical_severity"] = _slider_with_custom(st.sidebar, "Electrical severity (Nm)", 0.0, 20.0, 8.0, key="ia_elec_severity")
             default_mech = float(CALIBRATED_MECHANICAL_SEVERITY.get(fault_type, 0.0))
-            kwargs["mechanical_severity"] = st.sidebar.slider("Mechanical severity", 0.0, 0.2, default_mech, format="%.3f", key="ia_mech_severity")
+            kwargs["mechanical_severity"] = _slider_with_custom(
+                st.sidebar, "Mechanical severity", 0.0, 0.2, default_mech, format="%.3f", key="ia_mech_severity"
+            )
     else:
-        load_resistance_ohm = st.sidebar.slider(
+        load_resistance_ohm = _slider_with_custom(
+            st.sidebar,
             "Load resistance R (Ω)",
             MIN_STABLE_LOAD_RESISTANCE_OHM,
             20.0,
             float(_VSC_R_OHM),
             format="%.4f",
             key="ia_load_r",
-            help=f"Floored at {MIN_STABLE_LOAD_RESISTANCE_OHM:.2f}Ω, the plant's own open-loop stability limit (Fase B sidebar has the full explanation) -- below it the closed loop is expected to diverge regardless of the controller.",
+            help=f"Floored at {MIN_STABLE_LOAD_RESISTANCE_OHM:.2f}Ω, the plant's own open-loop stability limit (Fase B sidebar has the full explanation) -- below it the closed loop is expected to diverge regardless of the controller. Use 'Custom value' to go below it on purpose.",
         )
         kwargs["load_resistance_ohm"] = load_resistance_ohm
-        kwargs["reference_magnitude_v"] = st.sidebar.slider("Reference magnitude |v_ref| (V)", 10.0, 150.0, float(REFERENCE_MAGNITUDE_V), key="ia_ref_mag")
-        kwargs["reference_omega_rad_s"] = st.sidebar.slider("Reference frequency ω (rad/s)", 50.0, 700.0, float(GRID_OMEGA_RAD_S), format="%.2f", key="ia_ref_omega")
+        kwargs["reference_magnitude_v"] = _slider_with_custom(st.sidebar, "Reference magnitude |v_ref| (V)", 10.0, 150.0, float(REFERENCE_MAGNITUDE_V), key="ia_ref_mag")
+        kwargs["reference_omega_rad_s"] = _slider_with_custom(
+            st.sidebar, "Reference frequency ω (rad/s)", 50.0, 700.0, float(GRID_OMEGA_RAD_S), format="%.2f", key="ia_ref_omega"
+        )
     return kwargs
 
 
