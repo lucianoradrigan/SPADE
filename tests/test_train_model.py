@@ -11,6 +11,7 @@ import json
 import pandas as pd
 import pytest
 
+from driveflow.ai.registry import RegistryError, promote
 from driveflow.datagen import Scenario, export_parquet, run_scenario
 from experiments.train_model import train_from_config
 
@@ -35,6 +36,31 @@ input_window: 16
 horizon: 8
 recurrent_type: lstm
 layers: [8]
+use_attention: false
+"""
+
+#: Student configs for the distillation tests (Sec. 8 step 8) -- input_window/horizon MATCH their
+#: respective teacher config above, as distillation requires (see train_model.py's docstring).
+RPI5_CLASSIFIER_CONFIG_YAML = """\
+domain: dc_motor
+tier: rpi5
+input_window: 64
+num_classes: 2
+blocks:
+  - type: conv1d
+    filters: 4
+    kernel_size: 3
+dense_units: [4]
+dropout: 0.0
+"""
+
+ESP32_FORECASTER_CONFIG_YAML = """\
+domain: vsc_dpc
+tier: esp32
+input_window: 16
+horizon: 8
+recurrent_type: none
+layers: [4]
 use_attention: false
 """
 
@@ -106,6 +132,68 @@ class TestTrainForecasterFromConfig:
         assert metrics["domain"] == "vsc_dpc"
         assert metrics["n_train"] > 0
         assert metrics["test_rmse"] is None or metrics["test_rmse"] >= 0.0
+
+
+class TestDistillation:
+    def test_classifier_distillation_requires_a_promoted_teacher(self, tmp_path, dc_motor_dataset_path):
+        config_path = tmp_path / "configs" / "classifiers" / "rpi5.yaml"
+        config_path.parent.mkdir(parents=True)
+        config_path.write_text(RPI5_CLASSIFIER_CONFIG_YAML)
+        registry_path = tmp_path / "registry.yaml"
+
+        with pytest.raises(RegistryError, match="no promoted run"):
+            train_from_config(config_path, dc_motor_dataset_path, epochs=1, batch_size=4, seed=0, distill=True, registry_path=registry_path)
+
+    def test_classifier_distillation_trains_against_a_promoted_teacher(self, tmp_path, dc_motor_dataset_path):
+        registry_path = tmp_path / "registry.yaml"
+        teacher_config_path = tmp_path / "configs" / "classifiers" / "tiny_pc.yaml"
+        teacher_config_path.parent.mkdir(parents=True)
+        teacher_config_path.write_text(CLASSIFIER_CONFIG_YAML)
+        teacher_run_dir = train_from_config(teacher_config_path, dc_motor_dataset_path, epochs=1, batch_size=4, seed=0)
+        promote(teacher_run_dir, registry_path=registry_path)
+
+        student_config_path = tmp_path / "configs" / "classifiers" / "rpi5.yaml"
+        student_config_path.write_text(RPI5_CLASSIFIER_CONFIG_YAML)
+        run_dir = train_from_config(
+            student_config_path, dc_motor_dataset_path, epochs=1, batch_size=4, seed=0,
+            distill=True, registry_path=registry_path,
+        )
+
+        metrics = json.loads((run_dir / "metrics.json").read_text())
+        assert metrics["distilled_from"] == "dc_motor/pc/classifier"
+        assert metrics["distill_alpha"] == 0.5
+        assert 0.0 <= metrics["test_accuracy"] <= 1.0
+
+    def test_forecaster_distillation_trains_against_a_promoted_teacher(self, tmp_path, vsc_dpc_dataset_path):
+        registry_path = tmp_path / "registry.yaml"
+        teacher_config_path = tmp_path / "configs" / "regressors" / "tiny_pc.yaml"
+        teacher_config_path.parent.mkdir(parents=True)
+        teacher_config_path.write_text(FORECASTER_CONFIG_YAML)
+        teacher_run_dir = train_from_config(teacher_config_path, vsc_dpc_dataset_path, epochs=1, batch_size=4, seed=0)
+        promote(teacher_run_dir, registry_path=registry_path)
+
+        student_config_path = tmp_path / "configs" / "regressors" / "esp32.yaml"
+        student_config_path.write_text(ESP32_FORECASTER_CONFIG_YAML)
+        run_dir = train_from_config(
+            student_config_path, vsc_dpc_dataset_path, epochs=1, batch_size=4, seed=0,
+            distill=True, distill_alpha=0.3, registry_path=registry_path,
+        )
+
+        metrics = json.loads((run_dir / "metrics.json").read_text())
+        assert metrics["distilled_from"] == "vsc_dpc/pc/regressor"
+        assert metrics["distill_alpha"] == 0.3
+
+    def test_pc_tier_config_ignores_distill_flag(self, tmp_path, dc_motor_dataset_path):
+        """A PC-tier config IS the teacher for other tiers -- --distill on it must not require a
+        (non-existent) PC-tier-of-a-PC-tier promoted run."""
+        config_path = tmp_path / "configs" / "classifiers" / "tiny_pc.yaml"
+        config_path.parent.mkdir(parents=True)
+        config_path.write_text(CLASSIFIER_CONFIG_YAML)
+        registry_path = tmp_path / "registry.yaml"  # deliberately empty -- nothing promoted
+
+        run_dir = train_from_config(config_path, dc_motor_dataset_path, epochs=1, batch_size=4, seed=0, distill=True, registry_path=registry_path)
+        metrics = json.loads((run_dir / "metrics.json").read_text())
+        assert "distilled_from" not in metrics
 
 
 class TestConfigKindDetection:

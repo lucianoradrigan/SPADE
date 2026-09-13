@@ -24,6 +24,8 @@ dist/
 # unaffected by *.h5 above).
 !configs/classifiers/pc_server/2026-09-01_run01/model.weights.h5
 !configs/regressors/pc_full/2026-09-01_run01/model.weights.h5
+!configs/classifiers/esp32_dscnn/2026-09-01_run02/model.weights.h5
+!configs/classifiers/rpi5_resnet1d_se/2026-09-01_run01/model.weights.h5
 
 # Motor-characteristic profiles a user saves locally from viz/dashboard.py -- personal
 # experimentation state, not versioned calibration.

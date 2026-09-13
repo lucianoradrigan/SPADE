@@ -116,10 +116,27 @@ class TestBuildForecaster:
         out = model(tf.zeros((1, config.input_window, 1)))
         assert out.shape == (1, config.horizon, 1)
 
-    def test_none_recurrent_type_not_implemented_yet(self):
+    def test_none_recurrent_type_builds_a_tcn(self):
+        """Sec. 8 step 8: recurrent_type: "none" is now the causal-dilated-Conv1D (TCN) tower,
+        not an unimplemented placeholder -- layers is reinterpreted as filter counts."""
+        config = ForecasterConfig(**_base_kwargs(tier="esp32", recurrent_type="none", layers=(8, 8)))
+        model = build_forecaster(config, n_channels=2)
+        out = model(tf.zeros((1, config.input_window, 2)))
+        assert out.shape == (1, config.horizon, 2)
+
+    def test_none_recurrent_type_with_empty_layers_still_builds(self):
+        """A degenerate but valid case (module docstring): zero TCN layers -> a trivial
+        linear-from-last-observation model, not an error."""
         config = ForecasterConfig(**_base_kwargs(tier="esp32", recurrent_type="none", layers=()))
-        with pytest.raises(NotImplementedError, match="recurrent_type"):
-            build_forecaster(config, n_channels=2)
+        model = build_forecaster(config, n_channels=2)
+        out = model(tf.zeros((1, config.input_window, 2)))
+        assert out.shape == (1, config.horizon, 2)
+
+    def test_none_recurrent_type_output_is_finite(self):
+        config = ForecasterConfig(**_base_kwargs(tier="esp32", recurrent_type="none", layers=(4, 4, 4)))
+        model = build_forecaster(config, n_channels=2)
+        out = model(tf.random.normal((4, config.input_window, 2)))
+        assert np.all(np.isfinite(out.numpy()))
 
     def test_shipped_pc_full_config_builds(self):
         config = load_forecaster_config(PC_FULL_CONFIG_PATH)

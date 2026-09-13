@@ -21,6 +21,13 @@ script was added at).
 Usage:
     python experiments/train_model.py --config configs/classifiers/pc_server.yaml --dataset path/to/dataset.parquet
     python experiments/train_model.py --config configs/regressors/pc_full.yaml --dataset path/to/dataset.parquet
+
+    # Distillation (Sec. 4.1/4.2 "distillado del modelo de PC", Sec. 8 step 8) -- auto-resolves
+    # the promoted PC-tier run for the SAME (domain, block) from the registry as teacher; requires
+    # one to already be promoted (experiments/promote_run.py). --distill-alpha weighs the true/
+    # direct target against the teacher's own prediction (1.0 = no distillation, 0.0 = pure
+    # mimicry of the teacher) -- see _blend_classifier_targets/_blend_regressor_targets.
+    python experiments/train_model.py --config configs/classifiers/rpi5_resnet1d_se.yaml --dataset path/to/dataset.parquet --distill
 """
 
 import argparse
@@ -34,6 +41,7 @@ import pandas as pd
 import yaml
 from sklearn.metrics import f1_score
 
+from driveflow.ai.registry import DEFAULT_REGISTRY_PATH, RegistryError, load_promoted_model
 from driveflow.models.classifiers.builder import build_classifier
 from driveflow.models.classifiers.schemas import ClassifierConfig, load_classifier_config
 from driveflow.models.common import (
@@ -51,6 +59,12 @@ from driveflow.models.regressors.schemas import ForecasterConfig, load_forecaste
 #: domain -> plant_config_id, matching driveflow.datagen.scenario.Scenario._VALID_PAIRS. Only the
 #: two domains that exist today -- extend when a third domain is added.
 _PLANT_CONFIG_ID_BY_DOMAIN = {"dc_motor": "dc_perm_ex_v1", "vsc_dpc": "vsc_dpc_v1"}
+
+#: This script's own "kind" naming ("classifier"/"forecaster", from _load_any_config) vs.
+#: driveflow.ai.registry's "block" naming ("classifier"/"regressor") -- a small, pre-existing
+#: inconsistency bridged here rather than renamed throughout (renaming "forecaster" to "regressor"
+#: everywhere in this file would be a much larger, unrelated diff for a step 8 feature).
+_KIND_TO_REGISTRY_BLOCK = {"classifier": "classifier", "forecaster": "regressor"}
 
 
 def _load_any_config(config_path: Path):
@@ -86,7 +100,24 @@ def _channels_for_domain(df: pd.DataFrame, domain: str, window_samples: int) -> 
     raise ValueError(f"unknown domain {domain!r} -- expected one of {sorted(_PLANT_CONFIG_ID_BY_DOMAIN)}")
 
 
-def _train_classifier(config: ClassifierConfig, df: pd.DataFrame, epochs: int, batch_size: int, seed: int) -> tuple:
+def _blend_classifier_targets(y_int: np.ndarray, n_classes: int, teacher_probs: np.ndarray, alpha: float) -> np.ndarray:
+    """Sec. 4.1/4.2 'distillado del modelo de PC': a one-hot-vs-teacher-softmax blend, trained
+    with plain categorical_crossentropy -- the standard soft-target distillation trick, avoiding a
+    custom Keras loss/training loop for what is otherwise an ordinary classification fit()."""
+    y_onehot = np.eye(n_classes, dtype=np.float32)[y_int]
+    return alpha * y_onehot + (1 - alpha) * teacher_probs
+
+
+def _blend_regressor_targets(y_true: np.ndarray, teacher_pred: np.ndarray, alpha: float) -> np.ndarray:
+    """Same blending idea as _blend_classifier_targets, for a continuous target: no notion of a
+    "soft label" for regression, so this is just weighting the true value against the teacher's
+    own prediction, trained with plain mse."""
+    return alpha * y_true + (1 - alpha) * teacher_pred
+
+
+def _train_classifier(
+    config: ClassifierConfig, df: pd.DataFrame, epochs: int, batch_size: int, seed: int, teacher=None, distill_alpha: float = 0.5
+) -> tuple:
     channels = _channels_for_domain(df, config.domain, config.input_window)
     if not channels:
         raise ValueError(f"no live channels found for domain {config.domain!r} at input_window={config.input_window}")
@@ -99,8 +130,20 @@ def _train_classifier(config: ClassifierConfig, df: pd.DataFrame, epochs: int, b
     X_train, X_val, X_test, y_train, y_val, y_test, le = prepare_classification_splits(X, y_str, classes, groups, seed=seed)
 
     model = build_classifier(config, n_channels=len(channels))
-    model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
-    model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=epochs, batch_size=batch_size, verbose=0)
+    if teacher is None:
+        model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+        model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=epochs, batch_size=batch_size, verbose=0)
+    else:
+        # Teacher must see the exact same windows the student trains on -- callers are
+        # responsible for the teacher/student configs sharing input_window (see the shipped
+        # rpi5/esp32 presets' own comments on this).
+        teacher_probs = teacher.predict(X_train, verbose=0)
+        y_train_blend = _blend_classifier_targets(y_train, len(le.classes_), teacher_probs, distill_alpha)
+        model.compile(optimizer="adam", loss="categorical_crossentropy")
+        # No validation_data here: y_val stays as plain int labels (never blended -- val isn't
+        # consumed by any callback in this simple fixed-epoch fit), which would mismatch
+        # categorical_crossentropy's expected shape.
+        model.fit(X_train, y_train_blend, epochs=epochs, batch_size=batch_size, verbose=0)
 
     y_pred = np.argmax(model.predict(X_test, verbose=0), axis=1)
     metrics = {
@@ -118,7 +161,9 @@ def _train_classifier(config: ClassifierConfig, df: pd.DataFrame, epochs: int, b
     return model, metrics
 
 
-def _train_forecaster(config: ForecasterConfig, df: pd.DataFrame, epochs: int, batch_size: int, seed: int) -> tuple:
+def _train_forecaster(
+    config: ForecasterConfig, df: pd.DataFrame, epochs: int, batch_size: int, seed: int, teacher=None, distill_alpha: float = 0.5
+) -> tuple:
     channels = _channels_for_domain(df, config.domain, config.input_window)
     if not channels:
         raise ValueError(f"no channels found for domain {config.domain!r}")
@@ -134,7 +179,13 @@ def _train_forecaster(config: ForecasterConfig, df: pd.DataFrame, epochs: int, b
 
     model = build_forecaster(config, n_channels=len(channels))
     model.compile(optimizer="adam", loss="mse")
-    model.fit(X[idx_train], Y[idx_train], epochs=epochs, batch_size=batch_size, verbose=0)
+    if teacher is None:
+        Y_train_target = Y[idx_train]
+    else:
+        # Same input_window/horizon requirement as the classifier path above.
+        teacher_pred = teacher.predict(X[idx_train], verbose=0)
+        Y_train_target = _blend_regressor_targets(Y[idx_train], teacher_pred, distill_alpha)
+    model.fit(X[idx_train], Y_train_target, epochs=epochs, batch_size=batch_size, verbose=0)
 
     Y_pred = model.predict(X[idx_test], verbose=0) if len(idx_test) else np.empty((0, config.horizon, len(channels)))
     mse = float(np.mean((Y_pred - Y[idx_test]) ** 2)) if len(idx_test) else None
@@ -174,18 +225,37 @@ def _save_artifacts(run_dir: Path, config_path: Path, model, metrics: dict) -> N
         json.dump(metrics, f, indent=2)
 
 
-def train_from_config(config_path, dataset_path, epochs: int = 20, batch_size: int = 32, seed: int = 42) -> Path:
+def train_from_config(
+    config_path, dataset_path, epochs: int = 20, batch_size: int = 32, seed: int = 42,
+    distill: bool = False, distill_alpha: float = 0.5, registry_path: Path = DEFAULT_REGISTRY_PATH,
+) -> Path:
     """Loads config_path (classifier or forecaster, auto-detected), trains it against
     dataset_path (a Parquet file exported via driveflow.datagen.export_parquet), and saves the
-    run's artifacts. Returns the run directory."""
+    run's artifacts. Returns the run directory.
+
+    distill=True (Sec. 8 step 8) auto-resolves the promoted PC-tier run for this config's own
+    (domain, block) from driveflow.ai.registry (registry_path -- override for tests, see
+    tests/test_train_model.py) as teacher -- raises RegistryError if nothing is promoted there
+    yet. Ignored (with no error) if config.tier == "pc" itself -- a PC-tier config IS the teacher
+    for other tiers, distilling it from itself would be a no-op at best.
+    """
     config_path = Path(config_path)
     kind, config = _load_any_config(config_path)
     df = _load_domain_dataframe(Path(dataset_path), config.domain)
 
+    teacher = None
+    if distill and config.tier != "pc":
+        block = _KIND_TO_REGISTRY_BLOCK[kind]
+        teacher, _, _ = load_promoted_model(config.domain, "pc", block, registry_path=registry_path)
+
     if kind == "classifier":
-        model, metrics = _train_classifier(config, df, epochs, batch_size, seed)
+        model, metrics = _train_classifier(config, df, epochs, batch_size, seed, teacher=teacher, distill_alpha=distill_alpha)
     else:
-        model, metrics = _train_forecaster(config, df, epochs, batch_size, seed)
+        model, metrics = _train_forecaster(config, df, epochs, batch_size, seed, teacher=teacher, distill_alpha=distill_alpha)
+
+    if teacher is not None:
+        metrics["distilled_from"] = f"{config.domain}/pc/{_KIND_TO_REGISTRY_BLOCK[kind]}"
+        metrics["distill_alpha"] = distill_alpha
 
     run_dir = _next_run_dir(config_path)
     _save_artifacts(run_dir, config_path, model, metrics)
@@ -199,9 +269,17 @@ def main(argv=None) -> None:
     parser.add_argument("--epochs", type=int, default=20)
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--distill", action="store_true", help="Blend targets with the promoted PC-tier model's own predictions (Sec. 8 step 8).")
+    parser.add_argument("--distill-alpha", type=float, default=0.5, help="Weight on the true/direct target vs. the teacher's prediction.")
     args = parser.parse_args(argv)
 
-    run_dir = train_from_config(args.config, args.dataset, epochs=args.epochs, batch_size=args.batch_size, seed=args.seed)
+    try:
+        run_dir = train_from_config(
+            args.config, args.dataset, epochs=args.epochs, batch_size=args.batch_size, seed=args.seed,
+            distill=args.distill, distill_alpha=args.distill_alpha,
+        )
+    except RegistryError as exc:
+        raise SystemExit(f"--distill requires a promoted PC-tier run first (experiments/promote_run.py): {exc}") from exc
     print(f"Saved: {run_dir}")
 
 

@@ -1,0 +1,25 @@
+{
+  "kind": "classifier",
+  "domain": "dc_motor",
+  "tier": "esp32",
+  "channels": [
+    "acc_x",
+    "acc_y",
+    "acc_z",
+    "current_r",
+    "rpm",
+    "torque_nm"
+  ],
+  "classes": [
+    "inner_race",
+    "normal",
+    "outer_race"
+  ],
+  "n_train": 190,
+  "n_val": 57,
+  "n_test": 38,
+  "test_accuracy": 0.5,
+  "test_macro_f1": 0.30158730158730157,
+  "distilled_from": "dc_motor/pc/classifier",
+  "distill_alpha": 0.5
+}

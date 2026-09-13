@@ -475,3 +475,19 @@ No es necesario ni recomendable construir las 18 combinaciones en paralelo.
     artefactos son reales y funcionan, pero no son la entrega formal de Fase C/D.1 — ver la
     aclaración ya registrada en la nota del paso 5.
   Pasos 8–9 no iniciados.
+- **2026-09-13:** Paso 8 iniciado, solo clasificador, solo distillation (no export todavía):
+  bloques `dsconv1d` (DS-CNN) en `models/classifiers/schemas.py`/`builder.py` para el tier ESP32
+  (Sección 4.2), y una torre TCN causal en `models/regressors/builder.py` para
+  `recurrent_type: none` (reemplaza el `NotImplementedError` del paso 4). Flag
+  `--distill`/`--distill-alpha` nuevo en `experiments/train_model.py`. Presets nuevos:
+  `configs/classifiers/esp32_dscnn.yaml`, `rpi5_resnet1d_se.yaml`,
+  `configs/regressors/esp32_tiny.yaml`, `rpi5_edge.yaml`. Clasificador `dc_motor` distillado y
+  promovido para ambos tiers edge (~86.8% acc, ver `configs/registry.yaml`:
+  `dc_motor/esp32/classifier`, `dc_motor/rpi5/classifier`). Nuevo módulo
+  `src/driveflow/ai/tflite_export.py` (`export_float16`/`export_int8`) + CLI
+  `experiments/export_tflite.py`, testeados contra modelos sintéticos
+  (`tests/test_tflite_export.py`) pero **todavía no corridos contra los artefactos reales
+  promovidos** — ningún `model.tflite` existe aún en el repo.
+  **Pendiente dentro del propio paso 8:** el regresor `vsc_dpc` no tiene ninguna corrida
+  distillada a esp32/rpi5 todavía (`esp32_tiny.yaml`/`rpi5_edge.yaml` solo tienen config, sin
+  carpeta de run) — solo se distiló el clasificador. Paso 9 sigue sin iniciar.

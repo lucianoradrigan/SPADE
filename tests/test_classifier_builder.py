@@ -48,6 +48,13 @@ class TestConvBlockConfig:
         with pytest.raises(ClassifierConfigError, match="kernel_size"):
             ConvBlockConfig(filters=8, kernel_size=0)
 
+    def test_dsconv1d_block_type_constructs(self):
+        ConvBlockConfig(filters=8, kernel_size=3, block_type="dsconv1d")
+
+    def test_unknown_block_type_rejected(self):
+        with pytest.raises(ClassifierConfigError, match="block_type"):
+            ConvBlockConfig(filters=8, kernel_size=3, block_type="transformer")
+
 
 class TestClassifierConfigValidation:
     def test_valid_config_constructs(self):
@@ -125,3 +132,34 @@ class TestBuildClassifier:
         model = build_classifier(config, n_channels=5)
         out = model(tf.zeros((1, config.input_window, 5)))
         assert out.shape == (1, config.num_classes)
+
+    def test_dsconv1d_block_builds(self):
+        """Sec. 8 step 8: the DS-CNN-style block (depthwise + pointwise conv), for the ESP32 tier."""
+        config = ClassifierConfig(**_base_kwargs(blocks=(ConvBlockConfig(filters=8, kernel_size=5, block_type="dsconv1d"),)))
+        model = build_classifier(config, n_channels=3)
+        out = model(tf.zeros((1, config.input_window, 3)))
+        assert out.shape == (1, 3)
+        assert np.allclose(np.sum(out.numpy(), axis=1), 1.0, atol=1e-5)
+
+    def test_mixed_conv1d_and_dsconv1d_blocks_build(self):
+        config = ClassifierConfig(
+            **_base_kwargs(
+                blocks=(
+                    ConvBlockConfig(filters=8, kernel_size=3, block_type="conv1d"),
+                    ConvBlockConfig(filters=8, kernel_size=5, use_se=True, block_type="dsconv1d"),
+                )
+            )
+        )
+        model = build_classifier(config, n_channels=2)
+        out = model(tf.zeros((1, config.input_window, 2)))
+        assert out.shape == (1, 3)
+
+    def test_dsconv1d_is_smaller_than_equivalent_conv1d(self):
+        """Sanity check on WHY dsconv1d exists (Sec. 4.1/4.2: ESP32-class parameter budget) --
+        depthwise-separable must actually have fewer params than a plain Conv1D block of the same
+        filters/kernel_size, not just be a differently-named alias for it."""
+        conv_config = ClassifierConfig(**_base_kwargs(blocks=(ConvBlockConfig(filters=32, kernel_size=9, block_type="conv1d"),)))
+        ds_config = ClassifierConfig(**_base_kwargs(blocks=(ConvBlockConfig(filters=32, kernel_size=9, block_type="dsconv1d"),)))
+        conv_model = build_classifier(conv_config, n_channels=6)
+        ds_model = build_classifier(ds_config, n_channels=6)
+        assert ds_model.count_params() < conv_model.count_params()

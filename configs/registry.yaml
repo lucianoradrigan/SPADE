@@ -1,3 +1,5 @@
 entries:
+  dc_motor/esp32/classifier: configs/classifiers/esp32_dscnn/2026-09-01_run02
   dc_motor/pc/classifier: configs/classifiers/pc_server/2026-09-01_run01
+  dc_motor/rpi5/classifier: configs/classifiers/rpi5_resnet1d_se/2026-09-01_run01
   vsc_dpc/pc/regressor: configs/regressors/pc_full/2026-09-01_run01

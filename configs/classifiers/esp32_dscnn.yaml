@@ -1,0 +1,20 @@
+# ESP32-tier classifier config (docs/design_ai_layer_transversal.md Sec. 4.2/6.2, Sec. 8 step 8):
+# DS-CNN blocks (depthwise + pointwise conv, sensor.py's shape generalized into this config-driven
+# builder), sized for the ESP32-class ~4-8K param budget sensor.py itself targets. Trained by
+# distillation from the promoted dc_motor/pc/classifier run
+# (`python experiments/train_model.py --config configs/classifiers/esp32_dscnn.yaml
+# --dataset ... --distill`). input_window MUST match pc_server.yaml's (512), same reason as
+# rpi5_resnet1d_se.yaml.
+domain: dc_motor
+tier: esp32
+input_window: 512
+num_classes: 3
+blocks:
+  - type: dsconv1d
+    filters: 12
+    kernel_size: 9
+  - type: dsconv1d
+    filters: 12
+    kernel_size: 5
+dense_units: []
+dropout: 0.0

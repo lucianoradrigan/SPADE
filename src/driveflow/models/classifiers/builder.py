@@ -1,6 +1,6 @@
-"""Generic classifier construction from a ClassifierConfig (Sec. 6.1/6.2, Sec. 8 step 4): reads
-the config's block list and builds a plain Conv1D(+SE)-stack -> GAP -> dense-head model. Reuses
-classifiers.gateway.se_block rather than redefining squeeze-excite a second time.
+"""Generic classifier construction from a ClassifierConfig (Sec. 6.1/6.2, Sec. 8 steps 4/8): reads
+the config's block list and builds a Conv1D(+SE) or DSConv1D(+SE)-stack -> GAP -> dense-head
+model. Reuses classifiers.gateway.se_block rather than redefining squeeze-excite a second time.
 
 n_channels is a runtime argument, not a config field -- matching build_gateway/build_sensor's
 existing convention (models/classifiers/gateway.py, sensor.py): the live channel set is discovered
@@ -18,7 +18,11 @@ def build_classifier(config: ClassifierConfig, n_channels: int, name: str = "cla
     inp = keras.Input(shape=(config.input_window, n_channels), name="input")
     x = inp
     for i, block in enumerate(config.blocks):
-        x = keras.layers.Conv1D(block.filters, block.kernel_size, padding="same", name=f"block{i + 1}_conv")(x)
+        if block.block_type == "conv1d":
+            x = keras.layers.Conv1D(block.filters, block.kernel_size, padding="same", name=f"block{i + 1}_conv")(x)
+        else:  # "dsconv1d" -- sensor.py's depthwise + pointwise split, generalized (Sec. 8 step 8)
+            x = keras.layers.DepthwiseConv1D(block.kernel_size, padding="same", name=f"block{i + 1}_dw")(x)
+            x = keras.layers.Conv1D(block.filters, 1, padding="same", name=f"block{i + 1}_pw")(x)
         x = keras.layers.BatchNormalization(name=f"block{i + 1}_bn")(x)
         x = keras.layers.ReLU(name=f"block{i + 1}_relu")(x)
         if block.use_se:

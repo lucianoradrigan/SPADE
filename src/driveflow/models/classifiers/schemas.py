@@ -5,8 +5,11 @@ a fixed layer count -- adding a layer is adding a YAML list item, not editing Py
 
 Unlike regressors/schemas.py, there is no per-tier structural guardrail here: the design doc's
 per-tier constraint (Sec. 9's "no LSTM on ESP32") is specific to recurrent architectures, which
-this schema has none of -- only Conv1D(+SE) blocks, which are already cheap enough for every tier
-(sensor.py/gateway.py, both already ESP32/RPi5-deployed, are exactly that shape).
+this schema has none of -- only Conv1D(+SE)/DSConv1D(+SE) blocks, both already cheap enough for
+every tier (sensor.py's DS-CNN and gateway.py's Conv1D+SE, both already ESP32/RPi5-deployed, are
+exactly these two shapes -- "dsconv1d" (Sec. 8 step 8) is sensor.py's DepthwiseConv1D + pointwise
+Conv1D pattern, generalized into this config-driven builder the same way gateway.py's plain Conv1D
+already was in Sec. 8 step 4).
 """
 
 from __future__ import annotations
@@ -17,7 +20,7 @@ from pathlib import Path
 import yaml
 
 ALLOWED_TIERS = frozenset({"pc", "rpi5", "esp32"})
-ALLOWED_BLOCK_TYPES = frozenset({"conv1d"})
+ALLOWED_BLOCK_TYPES = frozenset({"conv1d", "dsconv1d"})
 
 
 class ClassifierConfigError(ValueError):
@@ -27,18 +30,25 @@ class ClassifierConfigError(ValueError):
 
 @dataclass(frozen=True)
 class ConvBlockConfig:
-    """One `blocks` list entry (Sec. 6.2): Conv1D + BatchNorm + ReLU, with an optional
-    squeeze-excite gate (classifiers.gateway.se_block)."""
+    """One `blocks` list entry (Sec. 6.2): either Conv1D + BatchNorm + ReLU ("conv1d") or
+    DepthwiseConv1D + pointwise Conv1D + BatchNorm + ReLU ("dsconv1d", Sec. 8 step 8 -- the
+    depthwise kernel uses `kernel_size`, the pointwise stage always projects to `filters`
+    channels, same split as sensor.py's dw/pw layer pairs) -- either way with an optional
+    squeeze-excite gate (classifiers.gateway.se_block). `block_type` defaults to "conv1d" so
+    existing direct-construction call sites (tests, mostly) don't need updating."""
 
     filters: int
     kernel_size: int
     use_se: bool = False
+    block_type: str = "conv1d"
 
     def __post_init__(self):
         if self.filters <= 0:
             raise ClassifierConfigError(f"block filters must be > 0, got {self.filters}")
         if self.kernel_size <= 0:
             raise ClassifierConfigError(f"block kernel_size must be > 0, got {self.kernel_size}")
+        if self.block_type not in ALLOWED_BLOCK_TYPES:
+            raise ClassifierConfigError(f"block_type {self.block_type!r} not in {sorted(ALLOWED_BLOCK_TYPES)}")
 
 
 @dataclass(frozen=True)
@@ -95,7 +105,7 @@ def load_classifier_config(path) -> ClassifierConfig:
         if block_type not in ALLOWED_BLOCK_TYPES:
             raise ClassifierConfigError(f"{path}: block type {block_type!r} not in {sorted(ALLOWED_BLOCK_TYPES)}")
         try:
-            blocks.append(ConvBlockConfig(**b))
+            blocks.append(ConvBlockConfig(block_type=block_type, **b))
         except TypeError as exc:
             raise ClassifierConfigError(f"{path}: malformed block entry {b!r}: {exc}") from exc
 
