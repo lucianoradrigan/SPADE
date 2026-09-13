@@ -19,13 +19,22 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from driveflow.ai.registry import RegistryError, load_promoted_model
+from driveflow.control.dpc.reference import GRID_OMEGA_RAD_S, REFERENCE_MAGNITUDE_V
 from driveflow.datagen import Scenario, run_scenario
+from driveflow.datagen.runner import _VSC_R_OHM
+from driveflow.datagen.scenario import CALIBRATED_MECHANICAL_SEVERITY
+from driveflow.sim.vsc_system import MIN_STABLE_LOAD_RESISTANCE_OHM
 from driveflow.viz.dpc_upload_validation import validate_dc_motor_upload, validate_vsc_dpc_forecast_upload
 
 _DOMAIN_LABELS = {"dc_motor": "Fase A -- DC motor diagnosis", "vsc_dpc": "Fase B -- VSC / DPC"}
 #: Only tier trained so far (Sec. 8 steps 4/5 scope was the PC tier) -- see design doc status note.
 _TIER = "pc"
 _PLOT_COLORS = ["#38BDF8", "#34D399", "#FB923C", "#F472B6", "#A78BFA", "#FBBF24"]
+#: Same fault vocabulary as dashboard.py's own _BUILTIN_FAULT_TYPES -- duplicated as a literal
+#: (not imported) to keep this module's dependency on dashboard.py at zero, per this file's own
+#: module docstring; custom fault combinations (dashboard.py's fault manager) are a Fase A sidebar
+#: feature, out of scope for this tab's "quick sample, not a live control surface" role.
+_BUILTIN_FAULT_TYPES = ["healthy", "outer_race", "inner_race", "ball", "cage"]
 
 
 @st.cache_resource
@@ -37,14 +46,51 @@ def _cached_promoted_model(domain: str, tier: str, block: str):
     return load_promoted_model(domain, tier, block)
 
 
-def _generate_sample_dataframe(domain: str) -> pd.DataFrame:
-    """A short default simulation run for the chosen domain, purely as a quick "try it without a
-    file" data source -- same simulation engine Fase A/B already use, not a new one."""
+def _generate_sample_dataframe(domain: str, **scenario_kwargs) -> pd.DataFrame:
+    """A short simulation run for the chosen domain, as a quick "try it without a file" data
+    source -- same simulation engine Fase A/B already use, not a new one. scenario_kwargs come
+    from the sidebar widgets _render_fase_ia builds below (fault/severity for dc_motor,
+    load/reference for vsc_dpc), so this is a real (if narrower than Fase A/B's own sidebar)
+    scenario, not a single hardcoded run."""
     if domain == "dc_motor":
-        records = run_scenario(Scenario(scenario_id="ai_tab_sample_dc", duration_s=0.3))
+        records = run_scenario(Scenario(scenario_id="ai_tab_sample_dc", **scenario_kwargs))
     else:
-        records = run_scenario(Scenario(scenario_id="ai_tab_sample_vsc", controller_type="DPC", plant_config_id="vsc_dpc_v1", duration_s=0.3))
+        records = run_scenario(Scenario(scenario_id="ai_tab_sample_vsc", controller_type="DPC", plant_config_id="vsc_dpc_v1", **scenario_kwargs))
     return pd.DataFrame.from_records(records)
+
+
+def _sample_run_controls(domain: str) -> dict:
+    """Sidebar widgets for the "Generate a sample run" data source -- a deliberately narrower
+    subset of Fase A/B's own scenario sidebar (no motor-characteristic overrides, no custom fault
+    combinations, no "Custom value" unbounded escape hatches): enough to exercise the model on
+    something other than one fixed default run, without duplicating the full A/B control surface
+    this tab is explicitly not supposed to be (Sec. 5.1)."""
+    duration_s = st.sidebar.slider("Duration (s)", 0.05, 1.0, 0.3, key="ia_duration")
+    seed = st.sidebar.number_input("Seed", value=0, step=1, key="ia_seed")
+    kwargs = {"duration_s": duration_s, "seed": int(seed)}
+
+    if domain == "dc_motor":
+        fault_label = st.sidebar.selectbox("Fault type", _BUILTIN_FAULT_TYPES, key="ia_fault_type")
+        fault_type = None if fault_label == "healthy" else fault_label
+        kwargs["fault_type"] = fault_type
+        if fault_type is not None:
+            kwargs["electrical_severity"] = st.sidebar.slider("Electrical severity (Nm)", 0.0, 20.0, 8.0, key="ia_elec_severity")
+            default_mech = float(CALIBRATED_MECHANICAL_SEVERITY.get(fault_type, 0.0))
+            kwargs["mechanical_severity"] = st.sidebar.slider("Mechanical severity", 0.0, 0.2, default_mech, format="%.3f", key="ia_mech_severity")
+    else:
+        load_resistance_ohm = st.sidebar.slider(
+            "Load resistance R (Ω)",
+            MIN_STABLE_LOAD_RESISTANCE_OHM,
+            20.0,
+            float(_VSC_R_OHM),
+            format="%.4f",
+            key="ia_load_r",
+            help=f"Floored at {MIN_STABLE_LOAD_RESISTANCE_OHM:.2f}Ω, the plant's own open-loop stability limit (Fase B sidebar has the full explanation) -- below it the closed loop is expected to diverge regardless of the controller.",
+        )
+        kwargs["load_resistance_ohm"] = load_resistance_ohm
+        kwargs["reference_magnitude_v"] = st.sidebar.slider("Reference magnitude |v_ref| (V)", 10.0, 150.0, float(REFERENCE_MAGNITUDE_V), key="ia_ref_mag")
+        kwargs["reference_omega_rad_s"] = st.sidebar.slider("Reference frequency ω (rad/s)", 50.0, 700.0, float(GRID_OMEGA_RAD_S), format="%.2f", key="ia_ref_omega")
+    return kwargs
 
 
 def _normalize_window(window: np.ndarray) -> tuple:
@@ -132,12 +178,16 @@ def _render_fase_ia():
 
     df = None
     if source == "Generate a sample run":
+        scenario_kwargs = _sample_run_controls(domain)
         if st.sidebar.button("Generate", type="primary", key="ia_generate"):
             with st.spinner("Simulating..."):
-                st.session_state["ia_df"] = _generate_sample_dataframe(domain)
+                st.session_state["ia_df"] = _generate_sample_dataframe(domain, **scenario_kwargs)
                 st.session_state["ia_df_domain"] = domain
+                st.session_state["ia_df_config"] = scenario_kwargs
         if st.session_state.get("ia_df_domain") == domain:
             df = st.session_state.get("ia_df")
+            if df is not None and st.session_state.get("ia_df_config") != scenario_kwargs:
+                st.sidebar.caption("⚠ Parameters changed since this run -- click Generate to refresh.")
         if df is None:
             _empty_state_ia()
             return
