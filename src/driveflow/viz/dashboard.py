@@ -405,6 +405,13 @@ def _build_system_diagram_figure() -> go.Figure:
         yaxis=dict(visible=False, range=[0, 9.3], scaleanchor="x", scaleratio=1, fixedrange=True),
         showlegend=False,
         dragmode=False,
+        # Plotly's own default clickmode is "event" -- a plain click (no drag) fires
+        # plotly_click but does NOT populate the selection Streamlit's on_select reads
+        # (plotly_selected), which needs "select" in clickmode. Found in Plotly.js's own bundled
+        # source (clickmode.indexOf("select")>-1 gating the select-on-click path) after box
+        # clicks in the running app produced nothing -- explicit here rather than trusting
+        # Streamlit's wrapper to set it for us.
+        clickmode="event+select",
     )
     return fig
 
