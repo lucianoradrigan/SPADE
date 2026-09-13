@@ -190,6 +190,33 @@ def _diagram_box(fig, cx, cy, w, h, text, color):
     fig.add_annotation(x=cx, y=cy, text=text, showarrow=False, font=dict(color=INK, size=11), align="center")
 
 
+#: Grid spacing (data units) for _diagram_click_target's invisible hit-target points -- small
+#: enough that no point inside the smallest box (2.7x0.85) is more than ~half a grid cell from
+#: its nearest marker.
+_CLICK_GRID_STEP = 0.3
+
+
+def _diagram_click_target(fig, cx, cy, w, h, component_key):
+    """Makes the rectangle at (cx, cy, w, h) clickable via Streamlit's plotly on_select, which
+    only sees DATA-TRACE points (Plotly's own click/selection events are point-proximity based),
+    not `add_shape` rectangles or annotations -- clicking a `fill="toself"` shape's interior isn't
+    reliably exposed through that API either. Standard workaround: a dense grid of invisible
+    marker points covering the box's area, one scatter trace per box, each point's `customdata`
+    carrying `component_key` so the click handler in _render_system_diagram knows which box was
+    hit regardless of which grid point ended up nearest the actual click."""
+    xs = np.arange(cx - w / 2, cx + w / 2 + 1e-9, _CLICK_GRID_STEP)
+    ys = np.arange(cy - h / 2, cy + h / 2 + 1e-9, _CLICK_GRID_STEP)
+    grid_x, grid_y = np.meshgrid(xs, ys)
+    n = grid_x.size
+    fig.add_trace(
+        go.Scatter(
+            x=grid_x.ravel(), y=grid_y.ravel(), mode="markers",
+            marker=dict(size=14, opacity=0), customdata=[component_key] * n,
+            hoverinfo="skip", showlegend=False, name=component_key,
+        )
+    )
+
+
 def _diagram_arrow(fig, x0, y0, x1, y1, dash=False):
     """One connector for _render_system_diagram -- solid for data/artifact flow (an annotation
     arrow, real arrowhead), dashed for the monitoring layer (Sec. 4.3: telemetry -> rule agent ->
@@ -298,44 +325,52 @@ _DIAGRAM_COMPONENT_DETAILS = {
 }
 
 
-def _render_system_diagram():
-    """A block diagram of the whole platform (not just the AI layer) -- both macro-phases'
+#: Single source of truth for the diagram's boxes -- (component_key, cx, cy, w, h, color,
+#: display_text). component_key must match a key in _DIAGRAM_COMPONENT_DETAILS (checked by
+#: tests/test_dashboard_landing.py); display_text is the multi-line label shown IN the box, while
+#: component_key is the short name used by the click handler/selectbox below the diagram.
+_DIAGRAM_LAYOUT = [
+    ("DC motor + PMSM (Fase A)", 2.3, 1.0, 3.8, 1.05, ACCENT, "DC motor + PMSM<br>(Fase A — physics simulation)"),
+    ("VSC + trained DPC network (Fase B)", 7.3, 1.0, 3.8, 1.05, NAIVE_COLOR, "VSC + trained DPC network<br>(Fase B — physics + real network)"),
+    ("Common data layer", 4.8, 2.6, 6.6, 0.95, INK_2, "Common data layer — Scenario · windowing · dataset<br>(domains never mixed, see design doc Sec. 1)"),
+    ("Classifier (CNN)", 3.0, 4.15, 3.2, 0.95, MTPA_COLOR, "Classifier (CNN)<br>tier: PC"),
+    ("Regressor (LSTM/GRU/TCN)", 6.6, 4.15, 3.6, 0.95, MTPA_COLOR, "Regressor (LSTM/GRU/TCN)<br>tier: PC"),
+    ("Model registry", 4.8, 5.65, 7.2, 0.95, ISOLINE_COLOR, "Model registry — ai/registry.py<br>(domain, tier, block) → promoted artifact"),
+    ("Raspberry Pi 5", 3.0, 7.1, 3.6, 0.95, INNER, "Raspberry Pi 5<br>distilled + TFLite float16"),
+    ("ESP32", 6.6, 7.1, 3.6, 0.95, INNER, "ESP32<br>distilled + TFLite int8"),
+    ("Dashboard — IA tab", 4.8, 8.55, 7.0, 0.95, ACCENT_2, "Dashboard — IA tab<br>classifier/regressor panels + status badges"),
+    ("ESP32 watchdog", 10.9, 1.0, 2.7, 0.85, REF_GREY, "ESP32 watchdog<br>hard thresholds, no ML"),
+    ("GatewayAgent — RPi5", 10.9, 3.3, 2.7, 0.85, REF_GREY, "GatewayAgent — RPi5<br>hysteresis + debounce"),
+    ("ServerAgent — PC", 10.9, 5.65, 2.7, 0.85, REF_GREY, "ServerAgent — PC<br>alert history + confidence drift"),
+]
+#: Self-enforcing instead of relying on a separate test to catch drift: every AppTest run of the
+#: landing page executes this at import/script-run time, so a mismatch surfaces immediately as
+#: `at.exception` rather than silently leaving a diagram box whose click has nowhere to go (or a
+#: selectbox entry no box ever points at).
+assert {row[0] for row in _DIAGRAM_LAYOUT} == set(_DIAGRAM_COMPONENT_DETAILS), (
+    f"diagram/detail key mismatch: {({row[0] for row in _DIAGRAM_LAYOUT} ^ set(_DIAGRAM_COMPONENT_DETAILS))}"
+)
+
+
+def _build_system_diagram_figure() -> go.Figure:
+    """Pure figure construction (no `st.*` calls) -- separated from _render_system_diagram so it
+    can be unit-tested directly (tests/test_dashboard_landing.py) without a Streamlit script
+    context. A block diagram of the whole platform (not just the AI layer): both macro-phases'
     physics/plants, the config-driven IA layer (docs/design_ai_layer_transversal.md), the model
     registry, edge-tier distillation, and the monitoring agents, laid out top-to-bottom the same
-    way data actually flows. Plotly shapes/annotations, not a new dependency (st.graphviz_chart
-    would need the `graphviz` package AND the system `dot` binary neither of which this project
-    already depends on; a JS-based Mermaid embed would need loading a script from a CDN at
-    runtime, which this offline-capable research tool avoids elsewhere too)."""
+    way data actually flows. Plotly shapes/annotations/traces, not a new dependency
+    (st.graphviz_chart would need the `graphviz` package AND the system `dot` binary neither of
+    which this project already depends on; a JS-based Mermaid embed would need loading a script
+    from a CDN at runtime, which this offline-capable research tool avoids elsewhere too).
+
+    Each box is clickable (_diagram_click_target's invisible marker grid) -- clicking one selects
+    it in the detail panel below, same as picking it from the selectbox; both write to the same
+    session_state key, so either path stays in sync with the other."""
     fig = go.Figure()
 
-    # Row 1: the two macro-phases' real plants/physics.
-    _diagram_box(fig, 2.3, 1.0, 3.8, 1.05, "DC motor + PMSM<br>(Fase A — physics simulation)", ACCENT)
-    _diagram_box(fig, 7.3, 1.0, 3.8, 1.05, "VSC + trained DPC network<br>(Fase B — physics + real network)", NAIVE_COLOR)
-
-    # Row 2: the common data layer both phases feed (Sec. 1 -- domains stay isolated, only the
-    # windowing/dataset MECHANISM is shared).
-    _diagram_box(fig, 4.8, 2.6, 6.6, 0.95, "Common data layer — Scenario · windowing · dataset<br>(domains never mixed, see design doc Sec. 1)", INK_2)
-
-    # Row 3: config-driven classifier/regressor, PC tier (Sec. 8 steps 4/5).
-    _diagram_box(fig, 3.0, 4.15, 3.2, 0.95, "Classifier (CNN)<br>tier: PC", MTPA_COLOR)
-    _diagram_box(fig, 6.6, 4.15, 3.6, 0.95, "Regressor (LSTM/GRU/TCN)<br>tier: PC", MTPA_COLOR)
-
-    # Row 4: the model registry -- single point of (domain, tier, block) -> promoted artifact
-    # resolution (Sec. 7/8 step 6).
-    _diagram_box(fig, 4.8, 5.65, 7.2, 0.95, "Model registry — ai/registry.py<br>(domain, tier, block) → promoted artifact", ISOLINE_COLOR)
-
-    # Row 5: edge tiers, distilled from the PC-tier teacher and exported to TFLite (Sec. 8 step 8).
-    _diagram_box(fig, 3.0, 7.1, 3.6, 0.95, "Raspberry Pi 5<br>distilled + TFLite float16", INNER)
-    _diagram_box(fig, 6.6, 7.1, 3.6, 0.95, "ESP32<br>distilled + TFLite int8", INNER)
-
-    # Row 6 (top): the dashboard's own IA tab, the one thing a user actually looks at.
-    _diagram_box(fig, 4.8, 8.55, 7.0, 0.95, "Dashboard — IA tab<br>classifier/regressor panels + status badges", ACCENT_2)
-
-    # Monitoring column (right side, Sec. 4.3/8 step 9) -- a parallel, rule-based path: no
-    # training, no shared weights, one agent per tier, escalating toward the PC tier.
-    _diagram_box(fig, 10.9, 1.0, 2.7, 0.85, "ESP32 watchdog<br>hard thresholds, no ML", REF_GREY)
-    _diagram_box(fig, 10.9, 3.3, 2.7, 0.85, "GatewayAgent — RPi5<br>hysteresis + debounce", REF_GREY)
-    _diagram_box(fig, 10.9, 5.65, 2.7, 0.85, "ServerAgent — PC<br>alert history + confidence drift", REF_GREY)
+    for _key, cx, cy, w, h, color, display_text in _DIAGRAM_LAYOUT:
+        _diagram_box(fig, cx, cy, w, h, display_text, color)
+        _diagram_click_target(fig, cx, cy, w, h, _key)
 
     # Data/artifact flow (solid).
     _diagram_arrow(fig, 2.3, 1.55, 4.0, 2.1)
@@ -365,11 +400,32 @@ def _render_system_diagram():
         yaxis=dict(visible=False, range=[0, 9.3], scaleanchor="x", scaleratio=1),
         showlegend=False,
     )
-    st.plotly_chart(fig, width="stretch", config={"staticPlot": True})
-    st.caption("Solid arrows: data/artifact flow (simulation → common data layer → classifier/regressor → registry → edge distillation → dashboard). Dashed arrows: the monitoring layer (Sec. 4.3) — domain telemetry into a tier-appropriate rule agent, escalating toward the PC tier, surfaced as a dashboard badge.")
+    return fig
+
+
+def _render_system_diagram():
+    fig = _build_system_diagram_figure()
+    event = st.plotly_chart(
+        fig, width="stretch", key="system_diagram_chart",
+        on_select="rerun", selection_mode="points",
+        config={"displayModeBar": False, "scrollZoom": False},
+    )
+    st.caption("Solid arrows: data/artifact flow (simulation → common data layer → classifier/regressor → registry → edge distillation → dashboard). Dashed arrows: the monitoring layer (Sec. 4.3) — domain telemetry into a tier-appropriate rule agent, escalating toward the PC tier, surfaced as a dashboard badge. Click a box above for detail, or pick one below.")
+
+    # Sync a diagram click into the selectbox's own session_state -- but only once per distinct
+    # click: Streamlit's plotly selection is sticky (persists across unrelated reruns, e.g. the
+    # user then changing the selectbox by hand), and PlotlySelectionState is explicitly read-only
+    # (can't be cleared from code), so re-asserting the same click's key every single rerun would
+    # make the selectbox unable to move away from whatever box was clicked last.
+    clicked_points = event.selection.points if event else []
+    if clicked_points:
+        clicked_key = clicked_points[0].get("customdata", [None])[0]
+        if clicked_key in _DIAGRAM_COMPONENT_DETAILS and clicked_key != st.session_state.get("_diagram_last_clicked"):
+            st.session_state["_diagram_last_clicked"] = clicked_key
+            st.session_state["diagram_component_detail"] = clicked_key
 
     selected = st.selectbox(
-        "Click a component below for more detail",
+        "Or choose a component here",
         list(_DIAGRAM_COMPONENT_DETAILS),
         key="diagram_component_detail",
     )
