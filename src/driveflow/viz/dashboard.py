@@ -207,6 +207,97 @@ def _diagram_arrow(fig, x0, y0, x1, y1, dash=False):
         )
 
 
+#: Per-component detail shown below the diagram (Plotly shapes have no reliable click-to-select
+#: in Streamlit -- fill/shape hit-testing isn't part of st.plotly_chart's on_select API, only
+#: data-trace points are -- so this is a selectbox + panel instead of an actual click-on-the-box
+#: interaction). Ordered the same top-to-bottom/left-to-right path the diagram itself reads in.
+_DIAGRAM_COMPONENT_DETAILS = {
+    "DC motor + PMSM (Fase A)": (
+        "Physics simulation, no ML yet at this stage: `DcPermanentlyExcitedMotor` under a native PI cascade "
+        "(speed or torque), plus a separate PMSM FOC/MTPA demo, with bearing-fault injection on two paths "
+        "(electrical/MCSA + synthetic vibration). This is domain `dc_motor`'s data source -- see tabs 01-03 "
+        "in Fase A."
+    ),
+    "VSC + trained DPC network (Fase B)": (
+        "Also physics, plus a separately pre-trained Direct Power Control network (ported from "
+        "DPC4PowerElectronics, not part of this AI layer's own training) tracking a rotating voltage "
+        "reference. This is domain `vsc_dpc`'s data source -- see Fase B's tabs."
+    ),
+    "Common data layer": (
+        "`models/common/windowing.py`: turns either domain's raw simulation rows into fixed-size windows "
+        "(for the classifier) or `(input_window, horizon)` forecast pairs (for the regressor). Enforces the "
+        "domain isolation design doc Sec. 1 requires -- dc_motor and vsc_dpc rows are never combined into "
+        "one training set, even though the mechanism (windowing code) is shared."
+    ),
+    "Classifier (CNN)": (
+        "`models/classifiers/builder.py` -- Conv1D+SE blocks, config-driven "
+        "(`configs/classifiers/pc_server.yaml` for this tier). Only trained for `dc_motor` so far (89.5% "
+        "test accuracy) -- `vsc_dpc`'s classifier is deliberately not built yet, blocked on a separability "
+        "verdict (Fase D.2, INSTRUCTIONS.md Sec. 6 Paso 0)."
+    ),
+    "Regressor (LSTM/GRU/TCN)": (
+        "`models/regressors/builder.py` -- stacked LSTM/GRU with optional attention, config-driven "
+        "(`configs/regressors/pc_full.yaml` for this tier). Trained for `vsc_dpc` (0.06 normalized test "
+        "RMSE) -- `dc_motor` has no regressor yet (no forecasting need identified for that domain so far)."
+    ),
+    "Model registry": (
+        "`ai/registry.py` -- one manifest (`configs/registry.yaml`) mapping `(domain, tier, block)` to the "
+        "promoted run folder (weights + the exact config that produced them + metrics). Promotion "
+        "(`experiments/promote_run.py`) is a deliberate, separate step from training -- a training run "
+        "existing doesn't mean it's live."
+    ),
+    "Raspberry Pi 5": (
+        "**Not trained from scratch.** Distilled from the promoted PC-tier model (the \"teacher\"): "
+        "`python experiments/train_model.py --config configs/classifiers/rpi5_resnet1d_se.yaml "
+        "--dataset ... --distill` blends the true label/value with the teacher's own prediction "
+        "(`--distill-alpha`, default 0.5 -- 1.0 would mean no distillation at all). The architecture itself "
+        "is also smaller: fewer/narrower Conv1D+SE blocks for the classifier, a single-layer GRU instead of "
+        "the PC tier's stacked LSTM for the regressor. Once promoted, exported to TFLite as **float16** "
+        "(`python -m experiments.export_tflite --tier rpi5 ...` -- halves weight size, no calibration data "
+        "needed, since RPi5 runs full Linux and can afford it). Current real numbers: dc_motor classifier "
+        "86.8% acc (vs. 89.5% teacher), vsc_dpc regressor 0.20 RMSE (vs. 0.06 teacher) -- the accuracy drop "
+        "is the expected cost of a smaller model, not a bug."
+    ),
+    "ESP32": (
+        "Same distillation idea as Raspberry Pi 5 (a smaller model, trained from the PC-tier teacher's "
+        "predictions via `--distill`), but two tiers stricter: **(1) no recurrent layers at all** -- the "
+        "config schema structurally forbids `recurrent_type: lstm`/`gru` here (a real guardrail, not just a "
+        "convention), so the regressor uses a small causal TCN instead (dilated Conv1D, `layers: [8, 8]`) "
+        "and the classifier uses DS-CNN blocks (depthwise+pointwise Conv1D) instead of RPi5's Conv1D+SE. "
+        "**(2) TFLite export is int8** (weights AND activations quantized), which needs REAL calibration "
+        "windows from an actual dataset (`--dataset data/....parquet`) -- calibrating against random noise "
+        "would badly misjudge the activation ranges the model actually sees. Current real numbers: dc_motor "
+        "classifier 86.8% acc, vsc_dpc regressor 0.56 RMSE -- notably worse than RPi5's 0.20 (a much smaller "
+        "TCN, and the first training attempt at this tier undertrained at 20 epochs -- 0.95 RMSE -- before "
+        "80 epochs got it to 0.56)."
+    ),
+    "ESP32 watchdog": (
+        "Not a model, not related to the \"ESP32\" box above's classifier/regressor -- this is the "
+        "**rule-based monitoring** tier (Sec. 4.3), pure hard-coded thresholds with zero ML: "
+        "`monitoring/rules/vsc_dpc.yaml` + a validated schema (`schema.py`), e.g. the R∈[1,3]Ω divergence "
+        "rule for vsc_dpc. No training, no distillation -- just YAML data plus an AST-checked boolean "
+        "condition (never `eval()`'d against arbitrary code)."
+    ),
+    "GatewayAgent — RPi5": (
+        "`monitoring/agents/agent_gateway.py` -- evaluates a domain's ruleset against a telemetry stream "
+        "with per-rule hysteresis (must hold N seconds before firing) and debounce (doesn't re-fire every "
+        "tick while still true). Can run without a connection to the PC tier below."
+    ),
+    "ServerAgent — PC": (
+        "`monitoring/agents/agent_server.py` -- aggregates the Alert events a GatewayAgent already produced "
+        "into a per-domain badge status + history, and separately tracks classifier confidence over time to "
+        "flag drift and suggest retraining. Does not evaluate telemetry itself."
+    ),
+    "Dashboard — IA tab": (
+        "`viz/ai_dashboard.py` -- what you actually interact with: pick a domain, generate a sample run or "
+        "upload a file, see the **PC-tier** classifier/regressor's live prediction. **Current limitation:** "
+        "it does not yet show the RPi5/ESP32 edge predictions above, nor the monitoring agents' badge "
+        "status -- both exist as real backend artifacts (registry entries, `.tflite` files, agent classes "
+        "with tests) but nothing in the frontend queries them yet."
+    ),
+}
+
+
 def _render_system_diagram():
     """A block diagram of the whole platform (not just the AI layer) -- both macro-phases'
     physics/plants, the config-driven IA layer (docs/design_ai_layer_transversal.md), the model
@@ -276,6 +367,13 @@ def _render_system_diagram():
     )
     st.plotly_chart(fig, width="stretch", config={"staticPlot": True})
     st.caption("Solid arrows: data/artifact flow (simulation → common data layer → classifier/regressor → registry → edge distillation → dashboard). Dashed arrows: the monitoring layer (Sec. 4.3) — domain telemetry into a tier-appropriate rule agent, escalating toward the PC tier, surfaced as a dashboard badge.")
+
+    selected = st.selectbox(
+        "Click a component below for more detail",
+        list(_DIAGRAM_COMPONENT_DETAILS),
+        key="diagram_component_detail",
+    )
+    st.info(_DIAGRAM_COMPONENT_DETAILS[selected])
 
 
 def _render_about_content():
