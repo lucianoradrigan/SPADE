@@ -521,5 +521,35 @@ No es necesario ni recomendable construir las 18 combinaciones en paralelo.
     runtime más pesada que un `.tflite` 100% builtin; no es un problema para ESP32 porque ese
     tier nunca usa capas recurrentes (guardarraíl de la Sección 6.3).
   - 334/334 tests pasan (`pytest tests/`).
-  Paso 9 (agentes de reglas con estado en tier PC/Raspberry Pi 5) sigue sin iniciar — es lo único
-  que queda pendiente del plan de la Sección 8.
+- **2026-09-13 (cont. 2):** Paso 9 implementado: `monitoring/agents/agent_gateway.py`
+  (`GatewayAgent`) y `monitoring/agents/agent_server.py` (`ServerAgent`).
+  - `GatewayAgent` (tier Raspberry Pi 5): evalúa un `RuleSet` contra un stream de lecturas de
+    telemetría vía `step(telemetry, timestamp)`. Estado por regla con histéresis (la condición
+    debe sostenerse `hysteresis_seconds` antes de disparar) y debounce (no vuelve a emitir
+    mientras la condición se mantenga True; solo emite en las transiciones dispara/limpia). No
+    depende del `ServerAgent` — puede operar sin conexión al PC (Sec. 4.3). Las condiciones ya
+    fueron validadas sintácticamente contra la lista blanca de nodos AST al cargar el `RuleSet`
+    (`schema.py`), así que compilarlas y evaluarlas acá contra el namespace de telemetría (con
+    `__builtins__` vaciado) es seguro.
+  - `ServerAgent` (tier PC): NO evalúa reglas — consume los `Alert` que ya produjo un
+    `GatewayAgent` por dominio (`record_alert`) para mantener una bitácora y un estado de badge
+    ("ok"/"alert") por dominio (Sec. 5.3), y lleva un historial de confianza del clasificador por
+    dominio (`record_classifier_confidence`) para detectar drift (`check_confidence_drift`):
+    compara la media de una ventana reciente contra la media del resto del historial retenido, y
+    sugiere reentrenamiento (`suggest_retraining`) si la caída supera `drift_threshold`. "Correlaciona
+    A y B" significa agregar las señales de ambos dominios en un solo lugar que puede verlas
+    juntas — nunca mezclar su telemetría o sus modelos (eso seguiría violando el aislamiento de
+    la Sección 1).
+  - Tests nuevos: `tests/test_monitoring_agents.py` (18 casos: histéresis con distintos umbrales,
+    debounce, reseteo del timer tras una lectura falsa, campo de telemetría faltante, agregación
+    de alertas multi-dominio, drift de confianza con historial insuficiente/estable/degradado,
+    dominios con historiales independientes).
+  - **No se hizo** (deliberadamente fuera de alcance de este paso, ver Sección 3): no hay
+    `monitoring/agents/watchdog_esp32.py` — ese tier ya está cubierto por la regla dura +
+    esquema del paso 1/2 sin necesitar un agente en código; no hay `monitoring/rules/dc_motor.yaml`
+    (dominio A) — ningún test ni caso real de este paso lo necesitaba, así que no se inventó un
+    umbral sin una fuente de verdad como la que sí existe para `vsc_dpc` (Patch 9); el badge de
+    la barra superior del frontend (Sec. 5.3) que consumiría `ServerAgent.domain_status()` no se
+    conectó a `viz/dashboard.py`/`viz/ai_dashboard.py` — eso es integración de frontend, no
+    "agente", y no estaba en el alcance pedido para este paso.
+  Con esto el plan completo de la Sección 8 (pasos 1-9) queda implementado.
