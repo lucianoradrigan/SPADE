@@ -203,7 +203,12 @@ def _diagram_click_target(fig, cx, cy, w, h, component_key):
     reliably exposed through that API either. Standard workaround: a dense grid of invisible
     marker points covering the box's area, one scatter trace per box, each point's `customdata`
     carrying `component_key` so the click handler in _render_system_diagram knows which box was
-    hit regardless of which grid point ended up nearest the actual click."""
+    hit regardless of which grid point ended up nearest the actual click.
+
+    `hoverinfo="none"`, NOT `"skip"` -- found by testing clicks in the actual running app and
+    getting nothing back: Plotly's docs distinguish the two ("skip": the trace is excluded from
+    hover AND click event handling entirely; "none": events still fire, only the tooltip itself
+    is suppressed). "skip" silently ate every click on these invisible points."""
     xs = np.arange(cx - w / 2, cx + w / 2 + 1e-9, _CLICK_GRID_STEP)
     ys = np.arange(cy - h / 2, cy + h / 2 + 1e-9, _CLICK_GRID_STEP)
     grid_x, grid_y = np.meshgrid(xs, ys)
@@ -212,7 +217,7 @@ def _diagram_click_target(fig, cx, cy, w, h, component_key):
         go.Scatter(
             x=grid_x.ravel(), y=grid_y.ravel(), mode="markers",
             marker=dict(size=14, opacity=0), customdata=[component_key] * n,
-            hoverinfo="skip", showlegend=False, name=component_key,
+            hoverinfo="none", showlegend=False, name=component_key,
         )
     )
 
