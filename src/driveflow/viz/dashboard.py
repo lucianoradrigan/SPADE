@@ -396,27 +396,31 @@ def _build_system_diagram_figure() -> go.Figure:
     fig.update_layout(
         height=560, margin=dict(l=10, r=10, t=10, b=10),
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-        xaxis=dict(visible=False, range=[0, 12.6]),
-        yaxis=dict(visible=False, range=[0, 9.3], scaleanchor="x", scaleratio=1),
+        xaxis=dict(visible=False, range=[0, 12.6], fixedrange=True),
+        yaxis=dict(visible=False, range=[0, 9.3], scaleanchor="x", scaleratio=1, fixedrange=True),
         showlegend=False,
+        dragmode=False,
     )
     return fig
 
 
 def _render_system_diagram():
+    """No selectbox -- click a box directly (Sec. "la barra... me incomoda"). `fixedrange` on
+    both axes plus `dragmode=False` keep the chart from panning/zooming on a click that drags a
+    few pixels, which is what "no quiero que el gráfico se mueva" was about; scrollZoom off in
+    the config below covers the mouse-wheel case the layout options don't."""
     fig = _build_system_diagram_figure()
     event = st.plotly_chart(
         fig, width="stretch", key="system_diagram_chart",
         on_select="rerun", selection_mode="points",
-        config={"displayModeBar": False, "scrollZoom": False},
+        config={"displayModeBar": False, "scrollZoom": False, "doubleClick": False},
     )
-    st.caption("Solid arrows: data/artifact flow (simulation → common data layer → classifier/regressor → registry → edge distillation → dashboard). Dashed arrows: the monitoring layer (Sec. 4.3) — domain telemetry into a tier-appropriate rule agent, escalating toward the PC tier, surfaced as a dashboard badge. Click a box above for detail, or pick one below.")
 
-    # Sync a diagram click into the selectbox's own session_state -- but only once per distinct
-    # click: Streamlit's plotly selection is sticky (persists across unrelated reruns, e.g. the
-    # user then changing the selectbox by hand), and PlotlySelectionState is explicitly read-only
-    # (can't be cleared from code), so re-asserting the same click's key every single rerun would
-    # make the selectbox unable to move away from whatever box was clicked last.
+    # Sync a diagram click into session_state -- but only once per distinct click: Streamlit's
+    # plotly selection is sticky (persists across unrelated reruns) and PlotlySelectionState is
+    # explicitly read-only (can't be cleared from code), so re-asserting the same click's key
+    # every single rerun would be harmless here (there's no other widget it could fight anymore)
+    # but is kept anyway -- cheap and avoids relying on that stickiness being harmless forever.
     clicked_points = event.selection.points if event else []
     if clicked_points:
         clicked_key = clicked_points[0].get("customdata", [None])[0]
@@ -424,12 +428,13 @@ def _render_system_diagram():
             st.session_state["_diagram_last_clicked"] = clicked_key
             st.session_state["diagram_component_detail"] = clicked_key
 
-    selected = st.selectbox(
-        "Or choose a component here",
-        list(_DIAGRAM_COMPONENT_DETAILS),
-        key="diagram_component_detail",
-    )
-    st.info(_DIAGRAM_COMPONENT_DETAILS[selected])
+    st.caption("Solid arrows: data/artifact flow (simulation → common data layer → classifier/regressor → registry → edge distillation → dashboard). Dashed arrows: the monitoring layer (Sec. 4.3) — domain telemetry into a tier-appropriate rule agent, escalating toward the PC tier, surfaced as a dashboard badge. Click a box above for its own detail.")
+
+    selected = st.session_state.get("diagram_component_detail")
+    if selected is None:
+        st.caption("👆 Click any box above to see what it does.")
+    else:
+        st.info(_DIAGRAM_COMPONENT_DETAILS[selected])
 
 
 def _render_about_content():
