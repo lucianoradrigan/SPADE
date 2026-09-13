@@ -14,6 +14,8 @@ from streamlit.testing.v1 import AppTest
 
 from driveflow.ai.registry import RegistryError, resolve
 from driveflow.sim.vsc_system import MIN_STABLE_LOAD_RESISTANCE_OHM
+from driveflow.viz.ai_dashboard import _channel_upload_template_df
+from driveflow.viz.dpc_upload_validation import validate_dc_motor_upload, validate_vsc_dpc_forecast_upload
 
 #: AppTest.from_file resolves a relative path against the CALLER's directory, not cwd -- absolute
 #: to avoid that surprise.
@@ -134,3 +136,38 @@ class TestSampleRunControlsAreReal:
         at.sidebar.button(key="ia_generate").click().run()
         assert not at.exception
         assert self._rows_caption_count(at) > rows_at_slider_max
+
+
+class TestUploadFormatHelp:
+    """Regression test for the "Upload a file" data source not specifying its expected format
+    or giving an example -- the gap flagged directly ("falta especificar el formato, o dar un
+    ejemplo de formato")."""
+
+    @pytest.mark.parametrize("domain", ["dc_motor", "vsc_dpc"])
+    def test_shows_format_expander_and_example_downloads(self, domain):
+        at = AppTest.from_file(DASHBOARD_PATH, default_timeout=60)
+        at.run()
+        at.button(key="enter_phase_IA").click().run()
+        at.selectbox(key="ia_domain").set_value(domain).run()
+        at.sidebar.radio(key="ia_source").set_value("Upload a file").run()
+        assert not at.exception
+        expander_labels = [el.label for el in at.sidebar.expander]
+        assert "Required format" in expander_labels
+        assert at.sidebar.download_button(key=f"ia_template_csv_{domain}") is not None
+        assert at.sidebar.download_button(key=f"ia_template_json_{domain}") is not None
+
+    @pytest.mark.parametrize(
+        "domain,validator",
+        [("dc_motor", validate_dc_motor_upload), ("vsc_dpc", validate_vsc_dpc_forecast_upload)],
+    )
+    def test_example_template_round_trips_through_its_own_validator(self, domain, validator):
+        """The example must itself be accepted by the exact validator the upload path runs --
+        otherwise "here's the format" would be actively misleading. Guards specifically against
+        including an always-NaN candidate channel (dc_motor's current_s/current_t, single-phase
+        model) in the template: that would make _coerce_numeric drop every row."""
+        template_df = _channel_upload_template_df(domain)
+        assert not template_df.empty
+        clean_df, _, messages = validator(template_df)
+        assert clean_df is not None, messages
+        assert len(clean_df) == len(template_df)
+        assert not any(level == "error" for level, _ in messages)

@@ -23,6 +23,8 @@ from driveflow.control.dpc.reference import GRID_OMEGA_RAD_S, REFERENCE_MAGNITUD
 from driveflow.datagen import Scenario, run_scenario
 from driveflow.datagen.runner import _VSC_R_OHM
 from driveflow.datagen.scenario import CALIBRATED_MECHANICAL_SEVERITY
+from driveflow.models.common.windowing import CANDIDATE_CHANNELS as _DC_MOTOR_CANDIDATE_CHANNELS
+from driveflow.models.common.windowing import VSC_DPC_CANDIDATE_CHANNELS as _VSC_DPC_CANDIDATE_CHANNELS
 from driveflow.sim.vsc_system import MIN_STABLE_LOAD_RESISTANCE_OHM
 from driveflow.viz.dpc_upload_validation import validate_dc_motor_upload, validate_vsc_dpc_forecast_upload
 
@@ -41,6 +43,11 @@ _BUILTIN_FAULT_TYPES = ["healthy", "outer_race", "inner_race", "ball", "cage"]
 #: below pass this explicitly instead of leaving omega_ref_rad_s unset, so a "healthy" dc_motor
 #: sample matches Fase A's own default operating point rather than silently landing on 150.0.
 _DC_MOTOR_DEFAULT_OMEGA_REF_RAD_S = 300.0
+#: Which of models.common.windowing's own channel lists validate_dc_motor_upload/
+#: validate_vsc_dpc_forecast_upload check an upload against, per domain (see that module's
+#: docstring: "at least one of these present" for both, not all-required like the DPC network's
+#: own fixed 15-column schema).
+_CANDIDATE_CHANNELS_BY_DOMAIN = {"dc_motor": _DC_MOTOR_CANDIDATE_CHANNELS, "vsc_dpc": _VSC_DPC_CANDIDATE_CHANNELS}
 
 
 def _slider_with_custom(container, label, min_value, max_value, value, step=None, format=None, help=None, key=None):
@@ -84,6 +91,48 @@ def _generate_sample_dataframe(domain: str, **scenario_kwargs) -> pd.DataFrame:
     else:
         records = run_scenario(Scenario(scenario_id="ai_tab_sample_vsc", controller_type="DPC", plant_config_id="vsc_dpc_v1", **scenario_kwargs))
     return pd.DataFrame.from_records(records)
+
+
+def _channel_upload_template_df(domain: str, n_rows: int = 5) -> pd.DataFrame:
+    """A genuine, physically-consistent example for the "Upload a file" format help below --
+    a short real Scenario run for `domain` (same principle as dashboard.py's own
+    _dpc_upload_template_df for the DPC network's upload tab), not hand-typed placeholder
+    numbers. Only channels that this particular run actually populated (dc_motor's
+    current_s/current_t stay NaN in the single-phase model this platform simulates -- see
+    runner.py -- and a template column that's all-NaN would make the file it's IN fail
+    validate_dc_motor_upload's own "no valid rows left" check, which is the opposite of helpful
+    for an example file)."""
+    channels = _CANDIDATE_CHANNELS_BY_DOMAIN[domain]
+    df = _generate_sample_dataframe(domain, duration_s=0.05, seed=0)
+    usable = [c for c in channels if c in df.columns and df[c].notna().all()]
+    return df[usable].head(n_rows).reset_index(drop=True)
+
+
+def _render_upload_format_help(domain: str):
+    """Sec. "no especifica el formato o un ejemplo" -- same "Required format" expander + example
+    download pattern as Fase B's own DPC upload tab (dashboard.py's _render_dpc_upload_eval), but
+    for validate_dc_motor_upload/validate_vsc_dpc_forecast_upload's own "at least one known
+    channel" schema (see _CANDIDATE_CHANNELS_BY_DOMAIN's comment) instead of the DPC network's
+    fixed 15-column one."""
+    channels = _CANDIDATE_CHANNELS_BY_DOMAIN[domain]
+    with st.sidebar.expander("Required format", expanded=False):
+        st.caption(f"At least one of these {len(channels)} column(s) must be present (any of them, not all): `{'`, `'.join(channels)}`.")
+        st.caption(
+            "CSV: a header row with these column names (any order -- matched by name, not "
+            "position). JSON: a list of objects with these keys, or an object of equal-length "
+            "arrays keyed by these names. Extra columns are ignored. Rows do NOT need to be a "
+            "time series -- the model windows over the LAST rows in the file, in file order."
+        )
+        template_df = _channel_upload_template_df(domain)
+        col_csv, col_json = st.columns(2)
+        col_csv.download_button(
+            "Example (CSV)", template_df.to_csv(index=False),
+            file_name=f"ia_{domain}_example.csv", key=f"ia_template_csv_{domain}",
+        )
+        col_json.download_button(
+            "Example (JSON)", template_df.to_json(orient="records", indent=2),
+            file_name=f"ia_{domain}_example.json", key=f"ia_template_json_{domain}",
+        )
 
 
 def _sample_run_controls(domain: str) -> dict:
@@ -230,6 +279,7 @@ def _render_fase_ia():
             _empty_state_ia()
             return
     else:
+        _render_upload_format_help(domain)
         uploaded = st.sidebar.file_uploader("Upload dataset", type=["csv", "json"], key="ia_upload")
         if uploaded is None:
             _empty_state_ia()
