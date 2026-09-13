@@ -178,10 +178,113 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+def _diagram_box(fig, cx, cy, w, h, text, color):
+    """One labeled rectangle for _render_system_diagram -- a filled shape (the box) plus a
+    centered annotation (the text), since Plotly shapes carry no text of their own. Fill is only
+    a ~15% tint of `color` over the page's dark background (not a solid fill), so INK (light
+    text) reads fine on every box regardless of which semantic `color` it uses."""
+    fig.add_shape(
+        type="rect", x0=cx - w / 2, y0=cy - h / 2, x1=cx + w / 2, y1=cy + h / 2,
+        line=dict(color=color, width=1.5), fillcolor=f"{color}26",
+    )
+    fig.add_annotation(x=cx, y=cy, text=text, showarrow=False, font=dict(color=INK, size=11), align="center")
+
+
+def _diagram_arrow(fig, x0, y0, x1, y1, dash=False):
+    """One connector for _render_system_diagram -- solid for data/artifact flow (an annotation
+    arrow, real arrowhead), dashed for the monitoring layer (Sec. 4.3: telemetry -> rule agent ->
+    aggregated alert, same -.-> convention the design doc's own Mermaid diagram uses). Dashed
+    ones are a `line` shape instead of an annotation arrow -- go.layout.Annotation has no dash
+    property on its arrow, only shapes do; direction is unambiguous anyway from the layout
+    (monitoring always flows left-to-right / bottom-to-top here, same as the solid arrows)."""
+    if dash:
+        fig.add_shape(type="line", x0=x0, y0=y0, x1=x1, y1=y1, line=dict(color=REF_GREY, width=1.3, dash="dot"))
+    else:
+        fig.add_annotation(
+            ax=x0, ay=y0, x=x1, y=y1, axref="x", ayref="y", xref="x", yref="y",
+            showarrow=True, arrowhead=2, arrowsize=1, arrowwidth=1.3, arrowcolor=REF_GREY,
+            opacity=0.9, standoff=4,
+        )
+
+
+def _render_system_diagram():
+    """A block diagram of the whole platform (not just the AI layer) -- both macro-phases'
+    physics/plants, the config-driven IA layer (docs/design_ai_layer_transversal.md), the model
+    registry, edge-tier distillation, and the monitoring agents, laid out top-to-bottom the same
+    way data actually flows. Plotly shapes/annotations, not a new dependency (st.graphviz_chart
+    would need the `graphviz` package AND the system `dot` binary neither of which this project
+    already depends on; a JS-based Mermaid embed would need loading a script from a CDN at
+    runtime, which this offline-capable research tool avoids elsewhere too)."""
+    fig = go.Figure()
+
+    # Row 1: the two macro-phases' real plants/physics.
+    _diagram_box(fig, 2.3, 1.0, 3.8, 1.05, "DC motor + PMSM<br>(Fase A — physics simulation)", ACCENT)
+    _diagram_box(fig, 7.3, 1.0, 3.8, 1.05, "VSC + trained DPC network<br>(Fase B — physics + real network)", NAIVE_COLOR)
+
+    # Row 2: the common data layer both phases feed (Sec. 1 -- domains stay isolated, only the
+    # windowing/dataset MECHANISM is shared).
+    _diagram_box(fig, 4.8, 2.6, 6.6, 0.95, "Common data layer — Scenario · windowing · dataset<br>(domains never mixed, see design doc Sec. 1)", INK_2)
+
+    # Row 3: config-driven classifier/regressor, PC tier (Sec. 8 steps 4/5).
+    _diagram_box(fig, 3.0, 4.15, 3.2, 0.95, "Classifier (CNN)<br>tier: PC", MTPA_COLOR)
+    _diagram_box(fig, 6.6, 4.15, 3.6, 0.95, "Regressor (LSTM/GRU/TCN)<br>tier: PC", MTPA_COLOR)
+
+    # Row 4: the model registry -- single point of (domain, tier, block) -> promoted artifact
+    # resolution (Sec. 7/8 step 6).
+    _diagram_box(fig, 4.8, 5.65, 7.2, 0.95, "Model registry — ai/registry.py<br>(domain, tier, block) → promoted artifact", ISOLINE_COLOR)
+
+    # Row 5: edge tiers, distilled from the PC-tier teacher and exported to TFLite (Sec. 8 step 8).
+    _diagram_box(fig, 3.0, 7.1, 3.6, 0.95, "Raspberry Pi 5<br>distilled + TFLite float16", INNER)
+    _diagram_box(fig, 6.6, 7.1, 3.6, 0.95, "ESP32<br>distilled + TFLite int8", INNER)
+
+    # Row 6 (top): the dashboard's own IA tab, the one thing a user actually looks at.
+    _diagram_box(fig, 4.8, 8.55, 7.0, 0.95, "Dashboard — IA tab<br>classifier/regressor panels + status badges", ACCENT_2)
+
+    # Monitoring column (right side, Sec. 4.3/8 step 9) -- a parallel, rule-based path: no
+    # training, no shared weights, one agent per tier, escalating toward the PC tier.
+    _diagram_box(fig, 10.9, 1.0, 2.7, 0.85, "ESP32 watchdog<br>hard thresholds, no ML", REF_GREY)
+    _diagram_box(fig, 10.9, 3.3, 2.7, 0.85, "GatewayAgent — RPi5<br>hysteresis + debounce", REF_GREY)
+    _diagram_box(fig, 10.9, 5.65, 2.7, 0.85, "ServerAgent — PC<br>alert history + confidence drift", REF_GREY)
+
+    # Data/artifact flow (solid).
+    _diagram_arrow(fig, 2.3, 1.55, 4.0, 2.1)
+    _diagram_arrow(fig, 7.3, 1.55, 5.6, 2.1)
+    _diagram_arrow(fig, 4.0, 3.1, 3.0, 3.65)
+    _diagram_arrow(fig, 5.6, 3.1, 6.6, 3.65)
+    _diagram_arrow(fig, 3.0, 4.65, 4.0, 5.15)
+    _diagram_arrow(fig, 6.6, 4.65, 5.6, 5.15)
+    _diagram_arrow(fig, 4.0, 6.15, 3.0, 6.6)
+    _diagram_arrow(fig, 5.6, 6.15, 6.6, 6.6)
+    _diagram_arrow(fig, 4.8, 6.15, 4.8, 8.05)
+
+    # Monitoring flow (dashed) -- domain telemetry into the tier-appropriate rule agent, alerts
+    # escalating PC-ward, and the aggregated status reaching the dashboard as a badge. Enters the
+    # column from the common data layer (both domains' own telemetry, simplified to one entry
+    # point) rather than from box 1/2 directly -- a straight line from either of those would cut
+    # across the OTHER domain's box, since both sit in the same row as the watchdog.
+    _diagram_arrow(fig, 7.5, 2.125, 10.9, 1.425, dash=True)
+    _diagram_arrow(fig, 10.9, 1.425, 10.9, 2.875, dash=True)
+    _diagram_arrow(fig, 10.9, 3.725, 10.9, 5.225, dash=True)
+    _diagram_arrow(fig, 10.9, 6.075, 8.3, 8.55, dash=True)
+
+    fig.update_layout(
+        height=560, margin=dict(l=10, r=10, t=10, b=10),
+        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+        xaxis=dict(visible=False, range=[0, 12.6]),
+        yaxis=dict(visible=False, range=[0, 9.3], scaleanchor="x", scaleratio=1),
+        showlegend=False,
+    )
+    st.plotly_chart(fig, width="stretch", config={"staticPlot": True})
+    st.caption("Solid arrows: data/artifact flow (simulation → common data layer → classifier/regressor → registry → edge distillation → dashboard). Dashed arrows: the monitoring layer (Sec. 4.3) — domain telemetry into a tier-appropriate rule agent, escalating toward the PC tier, surfaced as a dashboard badge.")
+
+
 def _render_about_content():
     """Always visible on the landing page (no click needed) -- what's simulated, inputs/outputs,
     how to read the charts, across all 3 systems this platform covers (Fase A's two plants, Fase
     B's one)."""
+    st.markdown("##### System diagram")
+    _render_system_diagram()
+    st.divider()
     st.markdown("##### About this platform — what's simulated, inputs/outputs, how to read the charts")
     col_dc, col_pmsm, col_vsc = st.columns(3)
     with col_dc:
