@@ -491,3 +491,35 @@ No es necesario ni recomendable construir las 18 combinaciones en paralelo.
   **Pendiente dentro del propio paso 8:** el regresor `vsc_dpc` no tiene ninguna corrida
   distillada a esp32/rpi5 todavía (`esp32_tiny.yaml`/`rpi5_edge.yaml` solo tienen config, sin
   carpeta de run) — solo se distiló el clasificador. Paso 9 sigue sin iniciar.
+- **2026-09-13 (cont.):** Paso 8 cerrado para las 4 combinaciones edge existentes
+  (`dc_motor`×{esp32,rpi5}/classifier, `vsc_dpc`×{esp32,rpi5}/regressor):
+  - Regresor `vsc_dpc` distillado y promovido en ambos tiers edge:
+    `configs/regressors/rpi5_edge/2026-09-13_run01` (GRU, RMSE 0.20, vs. 0.06 del maestro PC) y
+    `configs/regressors/esp32_tiny/2026-09-13_run02` (TCN, RMSE 0.56). El primer run de esp32
+    (`_run01`, 20 épocas, RMSE 0.95) quedó subentrenado — la torre TCN de este tier (`layers:
+    [8, 8]`) converge mucho más lento que el GRU de rpi5 bajo el `--epochs 20` por defecto;
+    `_run02` usó `--epochs 80` y es el que quedó promovido. `_run01` se deja sin promover como
+    registro del experimento, no se borró.
+  - Los 4 artefactos edge promovidos (2 clasificadores del commit anterior + los 2 regresores de
+    arriba) ya tienen su `model.tflite` real, generado con
+    `python -m experiments.export_tflite --domain ... --tier ... --block ...`
+    (int8 para esp32 con `--dataset`, float16 para rpi5).
+  - **Bug encontrado y corregido en `experiments/export_tflite.py`:** el docstring documentaba
+    `python experiments/export_tflite.py ...`, que falla con `ModuleNotFoundError: No module
+    named 'experiments'` porque el script importa `from experiments.train_model import
+    _load_domain_dataframe` — necesita correrse como módulo (`python -m
+    experiments.export_tflite ...`). Docstring corregido.
+  - **Bug encontrado y corregido en `src/driveflow/ai/tflite_export.py::export_float16`:**
+    fallaba con "Lowering tensor list ops is failed" al exportar el regresor GRU de rpi5 (el
+    kernel recurrente fusionado cae a un `while_loop` basado en `TensorList` que el lowering a
+    ops nativas de TFLite no soporta) — no ocurre con los clasificadores (sin capas recurrentes).
+    Corregido habilitando `SELECT_TF_OPS` como fallback y desactivando
+    `_experimental_lower_tensor_list_ops`, tal como sugiere el propio mensaje de error del
+    conversor, sin tocar la arquitectura del modelo. **Caveat operativo:** el `.tflite`
+    resultante para `vsc_dpc/rpi5/regressor` requiere el Flex delegate (Select TF ops) en tiempo
+    de ejecución — viable en Raspberry Pi 5 corriendo Linux completo, pero es una dependencia de
+    runtime más pesada que un `.tflite` 100% builtin; no es un problema para ESP32 porque ese
+    tier nunca usa capas recurrentes (guardarraíl de la Sección 6.3).
+  - 334/334 tests pasan (`pytest tests/`).
+  Paso 9 (agentes de reglas con estado en tier PC/Raspberry Pi 5) sigue sin iniciar — es lo único
+  que queda pendiente del plan de la Sección 8.

@@ -29,11 +29,19 @@ def _export_saved_model(model: keras.Model) -> Path:
 
 def export_float16(model: keras.Model, out_path) -> bytes:
     """Raspberry Pi 5 tier (Sec. 4.1/4.2's 'TFLite float16/int8' row -- float16 half): halves
-    weight storage with no representative-data calibration needed, unlike int8."""
+    weight storage with no representative-data calibration needed, unlike int8.
+
+    A GRU/LSTM regressor (rpi5_edge.yaml) fails the default converter with "Lowering tensor list
+    ops is failed" -- the fused recurrent kernel falls back to a TensorList-based while_loop that
+    the TFLite builtin lowering can't handle. Allowing SELECT_TF_OPS as a fallback and disabling
+    the tensor-list lowering pass (the converter error's own suggested fix) resolves it without
+    changing the model architecture; classifier models (no recurrent layers) are unaffected."""
     saved_path = _export_saved_model(model)
     converter = tf.lite.TFLiteConverter.from_saved_model(str(saved_path))
     converter.optimizations = [tf.lite.Optimize.DEFAULT]
     converter.target_spec.supported_types = [tf.float16]
+    converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS, tf.lite.OpsSet.SELECT_TF_OPS]
+    converter._experimental_lower_tensor_list_ops = False
     tflite_model = converter.convert()
     Path(out_path).write_bytes(tflite_model)
     return tflite_model

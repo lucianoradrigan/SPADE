@@ -2,9 +2,10 @@
 against real windows rebuilt from --dataset) for esp32 -- docs/design_ai_layer_transversal.md
 Sec. 4.1/4.2, Sec. 8 step 8. Saves alongside the run's existing artifacts as model.tflite.
 
-Usage:
-    python experiments/export_tflite.py --domain dc_motor --tier rpi5 --block classifier
-    python experiments/export_tflite.py --domain vsc_dpc --tier esp32 --block regressor --dataset data/vsc_dpc_dataset.parquet
+Usage (run as a module -- the script imports experiments.train_model, so a direct
+`python experiments/export_tflite.py` fails with "No module named 'experiments'"):
+    python -m experiments.export_tflite --domain dc_motor --tier rpi5 --block classifier
+    python -m experiments.export_tflite --domain vsc_dpc --tier esp32 --block regressor --dataset data/vsc_dpc_dataset.parquet
 """
 
 import argparse

@@ -1,0 +1,17 @@
+{
+  "kind": "forecaster",
+  "domain": "vsc_dpc",
+  "tier": "esp32",
+  "channels": [
+    "vc_real",
+    "vc_imag",
+    "i_f_real",
+    "i_f_imag"
+  ],
+  "n_train": 108,
+  "n_test": 27,
+  "test_mse": 0.9008143544197083,
+  "test_rmse": 0.9491124034695302,
+  "distilled_from": "vsc_dpc/pc/regressor",
+  "distill_alpha": 0.5
+}

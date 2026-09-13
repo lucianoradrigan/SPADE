@@ -1,0 +1,17 @@
+{
+  "kind": "forecaster",
+  "domain": "vsc_dpc",
+  "tier": "rpi5",
+  "channels": [
+    "vc_real",
+    "vc_imag",
+    "i_f_real",
+    "i_f_imag"
+  ],
+  "n_train": 108,
+  "n_test": 27,
+  "test_mse": 0.04052460566163063,
+  "test_rmse": 0.20130724195028513,
+  "distilled_from": "vsc_dpc/pc/regressor",
+  "distill_alpha": 0.5
+}
