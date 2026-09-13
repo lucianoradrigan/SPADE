@@ -213,6 +213,12 @@ def _render_edge_deployment(domain: str):
     (independent of the "generate a sample run"/"upload a file" choice below) -- downloading the
     model doesn't need any evaluation data first."""
     with st.expander("📦 Download for edge deployment (Raspberry Pi 5 / ESP32)", expanded=False):
+        st.caption(
+            "⚠ Fixed, already-trained artifacts -- NOT re-generated from the sidebar's 'Generate a sample run' "
+            "parameters below (fault type, load resistance, etc.). Those only make evaluation data for the "
+            "PC-tier model's live preview in the panels further down; they never retrain or reconfigure "
+            "anything. Every download here is the exact same file regardless of what you set there."
+        )
         any_available = False
         for block in ("classifier", "regressor"):
             for tier in _EDGE_TIERS:

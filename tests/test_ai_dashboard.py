@@ -196,6 +196,17 @@ class TestEdgeDeploymentDownloads:
         at.selectbox(key="ia_domain").set_value(domain).run()
         assert not at.exception
 
+    def test_warns_the_downloads_are_fixed_not_derived_from_the_sample_run_sidebar(self):
+        """Direct answer to "does the downloaded model depend on the sample-run parameters?" --
+        no, it's the fixed promoted artifact regardless of fault type/load resistance/etc.; that
+        must be stated in the UI itself, not just known by whoever built it."""
+        at = AppTest.from_file(DASHBOARD_PATH, default_timeout=60)
+        at.run()
+        at.button(key="enter_phase_IA").click().run()
+        assert not at.exception
+        caption_texts = " ".join(el.value for el in at.caption).lower()
+        assert "not re-generated from the sidebar" in caption_texts
+
     @pytest.mark.parametrize(
         "domain,tier,block",
         [(d, t, b) for d in ["dc_motor", "vsc_dpc"] for t in ["rpi5", "esp32"] for b in ["classifier", "regressor"]],
