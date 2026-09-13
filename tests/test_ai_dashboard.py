@@ -171,3 +171,45 @@ class TestUploadFormatHelp:
         assert clean_df is not None, messages
         assert len(clean_df) == len(template_df)
         assert not any(level == "error" for level, _ in messages)
+
+
+def _has_tflite(domain: str, tier: str, block: str) -> bool:
+    try:
+        run_dir = resolve(domain, tier, block)
+    except RegistryError:
+        return False
+    return (run_dir / "model.tflite").exists()
+
+
+class TestEdgeDeploymentDownloads:
+    """Regression test for the gap flagged directly: the real, distilled+exported .tflite
+    artifacts (Sec. 8 step 8) existed on disk but were never reachable from the tab -- a user
+    could evaluate the PC-tier model here but had no way to get the Raspberry Pi 5/ESP32 files
+    onto real hardware. Checked against whatever the registry actually has (like
+    TestGenerateSampleRun above), not a fixed assumption."""
+
+    @pytest.mark.parametrize("domain", ["dc_motor", "vsc_dpc"])
+    def test_renders_without_exceptions(self, domain):
+        at = AppTest.from_file(DASHBOARD_PATH, default_timeout=60)
+        at.run()
+        at.button(key="enter_phase_IA").click().run()
+        at.selectbox(key="ia_domain").set_value(domain).run()
+        assert not at.exception
+
+    @pytest.mark.parametrize(
+        "domain,tier,block",
+        [(d, t, b) for d in ["dc_motor", "vsc_dpc"] for t in ["rpi5", "esp32"] for b in ["classifier", "regressor"]],
+    )
+    def test_download_button_matches_real_tflite_availability(self, domain, tier, block):
+        at = AppTest.from_file(DASHBOARD_PATH, default_timeout=60)
+        at.run()
+        at.button(key="enter_phase_IA").click().run()
+        at.selectbox(key="ia_domain").set_value(domain).run()
+        assert not at.exception
+
+        button_key = f"ia_edge_dl_{domain}_{tier}_{block}"
+        buttons = {el.key: el for el in at.sidebar.download_button} | {el.key: el for el in at.download_button}
+        if _has_tflite(domain, tier, block):
+            assert button_key in buttons, f"expected a download button for {domain}/{tier}/{block}"
+        else:
+            assert button_key not in buttons

@@ -13,12 +13,14 @@ classifier). No Streamlit import in driveflow.ai.registry or the models/*/builde
 this module is the only place in this file that needs to be a real Streamlit session to run.
 """
 
+import json
+
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from driveflow.ai.registry import RegistryError, load_promoted_model
+from driveflow.ai.registry import RegistryError, load_promoted_model, resolve
 from driveflow.control.dpc.reference import GRID_OMEGA_RAD_S, REFERENCE_MAGNITUDE_V
 from driveflow.datagen import Scenario, run_scenario
 from driveflow.datagen.runner import _VSC_R_OHM
@@ -197,6 +199,48 @@ def _select_last_window(df: pd.DataFrame, channels: list, input_window: int):
     return df[channels].iloc[-input_window:].to_numpy(dtype=np.float32)
 
 
+#: The two tiers that get distilled from the PC-tier teacher and exported to TFLite (Sec. 8 step
+#: 8) -- "pc" itself runs the native keras.Model directly, no .tflite to download for it.
+_EDGE_TIERS = ["rpi5", "esp32"]
+_EDGE_TIER_LABELS = {"rpi5": "Raspberry Pi 5 (TFLite float16)", "esp32": "ESP32 (TFLite int8)"}
+
+
+def _render_edge_deployment(domain: str):
+    """The gap this closes: Sec. 8 step 8's real, distilled+exported .tflite artifacts sit on
+    disk (configs/{classifiers,regressors}/<tier config>/<run>/model.tflite) but nothing in this
+    tab ever surfaced them -- a user could evaluate the PC-tier model here, but had no way to
+    actually get the Raspberry Pi 5/ESP32 files to put on real hardware. Always rendered
+    (independent of the "generate a sample run"/"upload a file" choice below) -- downloading the
+    model doesn't need any evaluation data first."""
+    with st.expander("📦 Download for edge deployment (Raspberry Pi 5 / ESP32)", expanded=False):
+        any_available = False
+        for block in ("classifier", "regressor"):
+            for tier in _EDGE_TIERS:
+                try:
+                    run_dir = resolve(domain, tier, block)
+                except RegistryError:
+                    continue
+                tflite_path = run_dir / "model.tflite"
+                if not tflite_path.exists():
+                    st.caption(f"{block.capitalize()} — {_EDGE_TIER_LABELS[tier]}: promoted, but not exported to TFLite yet.")
+                    continue
+                any_available = True
+                with (run_dir / "metrics.json").open() as f:
+                    metrics = json.load(f)
+                headline = f"test accuracy {metrics['test_accuracy']:.1%}" if "test_accuracy" in metrics else f"test RMSE {metrics['test_rmse']:.3f} (normalized)"
+                tflite_bytes = tflite_path.read_bytes()
+                col_dl, col_info = st.columns([2, 3])
+                col_dl.download_button(
+                    f"{block.capitalize()} — {_EDGE_TIER_LABELS[tier]}",
+                    tflite_bytes,
+                    file_name=f"{domain}_{tier}_{block}.tflite",
+                    key=f"ia_edge_dl_{domain}_{tier}_{block}",
+                )
+                col_info.caption(f"{len(tflite_bytes) / 1024:.1f} KB · {headline} · distilled from the promoted PC-tier run ({run_dir.name})")
+        if not any_available:
+            st.caption(f"Nothing promoted and exported to TFLite yet for {_DOMAIN_LABELS[domain]} at the rpi5/esp32 tiers.")
+
+
 def _render_classifier_panel(domain: str, df: pd.DataFrame):
     st.markdown("##### Classifier")
     try:
@@ -261,6 +305,9 @@ def _render_fase_ia():
         unsafe_allow_html=True,
     )
     domain = st.sidebar.selectbox("Domain", list(_DOMAIN_LABELS), format_func=lambda d: _DOMAIN_LABELS[d], key="ia_domain")
+
+    _render_edge_deployment(domain)
+
     source = st.sidebar.radio("Data source", ["Generate a sample run", "Upload a file"], key="ia_source")
 
     df = None
