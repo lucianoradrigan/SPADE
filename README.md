@@ -20,14 +20,51 @@ Three physically distinct systems, unified under one interface:
 | **3. DPC / Voltage Source Converter** | VSC + LCL filter (power electronics, no rotating machinery) | Trained Direct Power Control (DPC) neural network, ported from [DPC4PowerElectronics](https://github.com/aipoweraau/DPC4PowerElectronics) | Off-distribution robustness probes (load resistance, reference magnitude/frequency) + a dataset-upload evaluator for your own data |
 
 System 1 also feeds a fault-injection/diagnosis data-generation pipeline (`src/driveflow/datagen/`)
-and the beginnings of an ML diagnosis stack (`src/driveflow/models/`) for training
-classifiers/regressors on simulated fault signatures.
+and a config-driven ML diagnosis stack (`src/driveflow/models/`, `src/driveflow/ai/`,
+`src/driveflow/monitoring/`) -- see the "AI layer" section below.
 
 **System 2 (PMSM) is not connected to this pipeline at all** -- not even for normal-operation
 data. It has no `plant_config_id` and is never dispatched through `Scenario`/`run_scenario`; the
 dq-frame FOC/MTPA controller (`control/classical/pmsm_foc.py`) is called directly by the dashboard
 for a standalone control-law comparison (MTPA vs. naive policy on short current steps), with no
 fault model and no dataset export path. See that module's own docstring for the same statement.
+
+## AI layer
+
+A config-driven classifier/regressor stack, a model registry, edge-tier deployment, and
+rule-based monitoring agents -- transversal to both domains (`dc_motor`, `vsc_dpc`) without ever
+mixing their data or models. Full design rationale in
+[`docs/design_ai_layer_transversal.md`](docs/design_ai_layer_transversal.md); this is the short
+version.
+
+**Classifiers & regressors** (`src/driveflow/models/{classifiers,regressors}/`): a YAML config
+(architecture, tier, domain) plus a generic builder (`build_classifier`/`build_forecaster`) --
+adding a layer or changing a kernel size means editing a config file, not touching Python. One
+script trains any of them:
+
+```bash
+python experiments/train_model.py --config configs/classifiers/pc_server.yaml --dataset data/diagnosis_dataset.parquet
+```
+
+**Model registry** (`src/driveflow/ai/registry.py`): a single manifest
+(`configs/registry.yaml`) resolving `(domain, tier, block)` to whichever trained run is promoted
+to production (`experiments/promote_run.py`) -- a deliberate, separate step from training.
+
+**Edge deployment** (Raspberry Pi 5, ESP32): the promoted PC-tier model is distilled into a
+smaller architecture per tier (`--distill` on the training script -- DS-CNN/TCN blocks for ESP32,
+which structurally can't use recurrent layers) and exported to TFLite (`experiments/export_tflite.py`
+-- float16 for Raspberry Pi 5, int8 calibrated against real data for ESP32). The dashboard's IA
+tab has a direct download for each promoted `.tflite` file.
+
+**Monitoring agents** (`src/driveflow/monitoring/`): a rule schema (`rules/schema.py`, validated
+YAML conditions, no `eval()`) plus one agent per tier -- ESP32 is pure hard-coded thresholds (no
+ML), a Raspberry Pi 5 `GatewayAgent` evaluates rules with hysteresis/debounce and can run
+disconnected from the PC tier, and a PC-tier `ServerAgent` aggregates alerts across domains and
+tracks classifier confidence over time to flag drift.
+
+Try it in the dashboard: pick the "IA" macro-phase, generate a sample run or upload a file, and
+see the trained classifier/regressor evaluate it live -- the landing page also has a clickable
+system diagram walking through how these pieces connect end to end.
 
 ## Quick start
 
@@ -51,9 +88,11 @@ Run the tests:
 pytest
 ```
 
-The `viz` extra (`streamlit`, `plotly`) is only needed for the dashboard; `dev` (`pytest`) only
-for the test suite. Core simulation/control code (`numpy`, `scipy`, `tensorflow`, ...) installs
-with the package itself.
+`dev` (`pytest`) and `viz` (`streamlit`, `plotly`) are both needed to run the full test suite --
+some tests drive the dashboard itself via `streamlit.testing.v1.AppTest`, so `viz` isn't only a
+dashboard-runtime dependency. `pip install -e ".[dev]"` alone will fail to even collect those
+test files. Core simulation/control code (`numpy`, `scipy`, `tensorflow`, ...) installs with the
+package itself.
 
 ## Repository layout
 
@@ -66,12 +105,16 @@ src/driveflow/
     mpc/          linear MPC (QP per step) for the DC motor -- interchangeable with PI, same plant
     dpc/          DPC network, model-based training loss, receding-horizon controller
   datagen/        Scenario dataclass + runner -- turns a config into a simulated dataset/trace
-  models/         ML diagnosis stack: windowing, dataset splits, classifiers, regressors
-  viz/            the Streamlit dashboard
-experiments/      standalone scripts: train/fine-tune/evaluate the DPC network, generate
-                  diagnosis datasets, calibrate the vibration module
+  models/         config-driven classifier/regressor builders + schemas, common windowing/splits
+  ai/             model registry (configs/registry.yaml) + TFLite export (edge deployment)
+  monitoring/     rule schema/YAML + the ESP32/Raspberry Pi 5/PC monitoring agents
+  viz/            dashboard.py (Fase A/B + landing page) and ai_dashboard.py (the IA tab)
+experiments/      standalone scripts: train/promote/export models, fine-tune/evaluate the DPC
+                  network, generate diagnosis datasets, calibrate the vibration module
 tests/            pytest suite
-configs/          the 3 shipped DPC checkpoints (see below) + vibration module calibration
+configs/          the 3 shipped DPC checkpoints (see below), promoted classifier/regressor runs
+                  (weights + config + metrics, some with a .tflite export), the model registry
+                  manifest, and vibration module calibration
 ```
 
 ## The DPC checkpoints
@@ -89,6 +132,19 @@ To retrain from scratch you'll need `Data4train.mat` from the original
 [DPC4PowerElectronics](https://github.com/aipoweraau/DPC4PowerElectronics) repository (not
 redistributed here) -- see `experiments/train_dpc.py --help` and `DATA.md` for the full dependency
 note (also covers the KAt-DataCenter/Paderborn bearing dataset the vibration module depends on).
+
+## Classifier/regressor artifacts
+
+`configs/{classifiers,regressors}/` also ships real, already-trained runs for the AI layer above
+(one directory per `(config, timestamp)`, each with its weights + the config that produced it +
+its metrics) -- the ones actually registered in `configs/registry.yaml` are what the dashboard's
+IA tab and edge-deployment downloads use, no local training run required either. Currently
+registered: a `dc_motor` classifier (PC/Raspberry Pi 5/ESP32 tiers) and a `vsc_dpc` regressor (same
+3 tiers) -- the `vsc_dpc` classifier is deliberately not built yet (blocked on a separability
+verdict, see the design doc), and `dc_motor` has no regressor yet. Retraining or adding a new
+`(domain, tier, block)` combination needs a real dataset first (`experiments/generate_diagnosis_dataset.py`
+/ `generate_vsc_dpc_dataset.py`, not committed -- see `.gitignore`), then
+`experiments/train_model.py --config ... --dataset ...` and `experiments/promote_run.py`.
 
 ## Design notes
 

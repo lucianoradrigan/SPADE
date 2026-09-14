@@ -1,7 +1,7 @@
 [project]
 name = "driveflow"
 version = "0.1.0"
-description = "A unified simulation, differentiable predictive control (DPC), and ML fault-diagnosis platform for electric drives -- ships as the 'driveflow' Python package."
+description = "A unified simulation, differentiable predictive control (DPC), and ML fault-diagnosis platform for electric drives -- config-driven classifiers/regressors with edge (Raspberry Pi 5/ESP32) deployment and rule-based monitoring agents, ships as the 'driveflow' Python package."
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
 license = { text = "MIT" }
