@@ -154,12 +154,109 @@ st.markdown(
         background-image: linear-gradient({BORDER} 1px, transparent 1px), linear-gradient(90deg, {BORDER} 1px, transparent 1px);
         background-size: 28px 28px; background-position: center;
     }}
-    .df-empty-icon {{ font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; color: {ACCENT}; margin-bottom: 0.5rem; }}
+    .df-empty-icon {{ font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; color: {ACCENT}; margin-bottom: 0.5rem; display: inline-block; animation: df-float 2.4s ease-in-out infinite; }}
     .df-empty-text {{ font-family: 'Inter', sans-serif; font-size: 0.88rem; color: {INK_2}; }}
     .df-empty-text b {{ color: {INK}; font-weight: 600; }}
+
+    /* ---- Motion: precise/technical transitions, not bouncy/playful ones ---------------- */
+    /* Custom dark scrollbar -- the default browser one breaks the workbench illusion. */
+    * {{ scrollbar-width: thin; scrollbar-color: {BORDER} {CANVAS}; }}
+    ::-webkit-scrollbar {{ width: 10px; height: 10px; }}
+    ::-webkit-scrollbar-track {{ background: {CANVAS}; }}
+    ::-webkit-scrollbar-thumb {{ background: {BORDER}; border-radius: 6px; }}
+    ::-webkit-scrollbar-thumb:hover {{ background: {ACCENT}; }}
+
+    /* Buttons: hover glow + a real press (mousedown) feedback, like a physical panel switch. */
+    .stButton button, .stDownloadButton button {{
+        transition: transform 0.1s ease, box-shadow 0.15s ease, filter 0.15s ease, border-color 0.15s ease;
+    }}
+    .stButton button:hover, .stDownloadButton button:hover {{ filter: brightness(1.12); box-shadow: 0 4px 14px -4px {ACCENT}66; }}
+    .stButton button:active, .stDownloadButton button:active {{ transform: scale(0.97); }}
+
+    /* Tabs: the existing highlight bar now slides instead of jump-cutting between tabs. */
+    div[data-baseweb="tab-highlight"] {{ transition: left 0.25s cubic-bezier(0.2, 0.7, 0.3, 1), width 0.25s cubic-bezier(0.2, 0.7, 0.3, 1) !important; }}
+    button[data-baseweb="tab"] {{ transition: background-color 0.15s ease, color 0.15s ease; }}
+
+    /* Live status badge: a small pulsing LED, like real instrument panels use for "armed/ready". */
+    .df-badge-live {{ position: relative; padding-left: 18px; }}
+    .df-badge-live::before {{
+        content: ''; position: absolute; left: 8px; top: 50%; width: 6px; height: 6px; margin-top: -3px;
+        border-radius: 50%; background: {ACCENT}; animation: df-pulse 1.8s ease-in-out infinite;
+    }}
+    @keyframes df-pulse {{
+        0%, 100% {{ box-shadow: 0 0 0 0 {ACCENT}66; }}
+        70% {{ box-shadow: 0 0 0 6px {ACCENT}00; }}
+    }}
+    @keyframes df-float {{ 0%, 100% {{ transform: translateY(0); }} 50% {{ transform: translateY(-4px); }} }}
+
+    /* Landing-page phase cards ONLY (a stable, per-card key -- see _render_landing_page -- keeps
+       this off every other bordered container in the app; those re-render on every sidebar
+       interaction elsewhere and would replay the entrance animation on each one). */
+    @keyframes df-card-in {{ from {{ opacity: 0; transform: translateY(10px); }} to {{ opacity: 1; transform: translateY(0); }} }}
+    [class*="st-key-landing_card_"] {{
+        animation: df-card-in 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+        transition: transform 0.18s cubic-bezier(0.2, 0.7, 0.3, 1), box-shadow 0.18s ease, border-color 0.18s ease;
+    }}
+    [class*="st-key-landing_card_"]:hover {{
+        transform: translateY(-4px);
+        box-shadow: 0 10px 28px -10px {ACCENT}55, 0 0 0 1px {ACCENT}66;
+        border-color: {ACCENT} !important;
+    }}
+    .st-key-landing_card_B {{ animation-delay: 0.08s; }}
+    .st-key-landing_card_IA {{ animation-delay: 0.16s; }}
     </style>
     """,
     unsafe_allow_html=True,
+)
+
+st.components.v1.html(
+    f"""
+    <style>html, body {{ margin:0; padding:0; background:{CANVAS}; overflow:hidden; }}</style>
+    <canvas id="df-scope" style="display:block; width:100%; height:40px;"></canvas>
+    <script>
+    (function() {{
+        const canvas = document.getElementById('df-scope');
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        function resize() {{
+            canvas.width = canvas.clientWidth * dpr;
+            canvas.height = canvas.clientHeight * dpr;
+        }}
+        resize();
+        window.addEventListener('resize', resize);
+        let t = 0;
+        function draw() {{
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            ctx.strokeStyle = '{BORDER}';
+            ctx.lineWidth = 1 * dpr;
+            ctx.beginPath();
+            ctx.moveTo(0, h / 2);
+            ctx.lineTo(w, h / 2);
+            ctx.stroke();
+            // A traveling waveform, amplitude-enveloped to zero at both edges (sin(frac*PI)) so
+            // it reads as a live oscilloscope sweep, not a plain repeating sine strip.
+            ctx.strokeStyle = '{ACCENT}';
+            ctx.lineWidth = 1.4 * dpr;
+            ctx.beginPath();
+            const n = 220;
+            for (let i = 0; i <= n; i++) {{
+                const frac = i / n;
+                const x = frac * w;
+                const envelope = Math.sin(frac * Math.PI);
+                const y = h / 2 + Math.sin(frac * 26 - t) * (h * 0.32) * envelope;
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }}
+            ctx.stroke();
+            t += 0.05;
+            requestAnimationFrame(draw);
+        }}
+        draw();
+    }})();
+    </script>
+    """,
+    height=40,
+    scrolling=False,
 )
 
 st.markdown(
@@ -573,7 +670,12 @@ def _render_landing_page():
     for col, phase_id in zip(cols, _PHASES):
         phase = _PHASES[phase_id]
         with col:
-            card = st.container(border=True)
+            # key="landing_card_*" gives this specific container a stable ".st-key-landing_card_*"
+            # class (Streamlit's own convention for a keyed container) -- the hover-lift/entrance
+            # animation in the injected CSS above targets that class specifically, NOT every
+            # st.container(border=True) in the app (sidebar scenario cards rerun on every slider
+            # tweak; animating those would replay constantly instead of once per landing view).
+            card = st.container(border=True, key=f"landing_card_{phase_id}")
             card.markdown(f"##### {phase['title']}")
             card.markdown(phase["description"])
             if card.button(f"Enter Fase {phase_id} →", key=f"enter_phase_{phase_id}", type="primary", width="stretch"):
