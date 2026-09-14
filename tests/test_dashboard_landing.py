@@ -73,3 +73,36 @@ class TestSystemDiagram:
             at.run()
             assert not at.exception, f"selecting {key!r} raised: {at.exception}"
             assert list(at.info), f"selecting {key!r} produced no detail panel"
+
+
+class TestThemeToggle:
+    """Direct feedback: bring back a light/dark option (there used to be one, replaced by a
+    fixed dark theme -- now reversed). theme_mode lives in session_state, defaulting to dark."""
+
+    def test_defaults_to_dark_and_button_offers_switching_to_light(self):
+        at = AppTest.from_file(DASHBOARD_PATH, default_timeout=60)
+        at.run()
+        assert not at.exception
+        assert "theme_mode" not in at.session_state or at.session_state["theme_mode"] == "dark"
+        assert at.button(key="theme_toggle").label == "☀️ Light"
+
+    def test_clicking_the_toggle_switches_to_light_and_back(self):
+        at = AppTest.from_file(DASHBOARD_PATH, default_timeout=60)
+        at.run()
+        at.button(key="theme_toggle").click().run()
+        assert not at.exception
+        assert at.session_state["theme_mode"] == "light"
+        assert at.button(key="theme_toggle").label == "🌙 Dark"
+
+        at.button(key="theme_toggle").click().run()
+        assert not at.exception
+        assert at.session_state["theme_mode"] == "dark"
+
+    def test_renders_without_exceptions_in_light_mode_on_a_phase_page_too(self):
+        """Not just the landing page -- entering a macro-phase (sidebar cards, tabs, charts, all
+        theme-token-driven) must also survive light mode without exploding."""
+        at = AppTest.from_file(DASHBOARD_PATH, default_timeout=60)
+        at.session_state["theme_mode"] = "light"
+        at.run()
+        at.button(key="enter_phase_IA").click().run()
+        assert not at.exception

@@ -20,13 +20,17 @@ Plotly's title and a top-anchored legend both fight for the same vertical space 
 overlap; keeping the two title mechanisms apart sidesteps that entirely rather than fine-tuning
 coordinates against it.
 
-Visual identity: a fixed dark "industrial workbench" theme (Grafana / JetBrains UI / LabVIEW
-Modern UI, not a generic light AI-template look) -- driven by ../../../.streamlit/config.toml
-(Streamlit's native theme system, so built-in widgets get correct dark styling for free) plus the
-CSS injected below for the pieces native theming can't express (segmented-control tabs, sidebar
-cards, sticky header, grid-pattern empty states). This replaced an earlier browser-theme-adaptive
-light/dark token system -- a deliberate one-way switch, not an oversight, per an explicit design
-directive to commit to one coherent tool identity rather than following the OS/browser theme.
+Visual identity: an "industrial workbench" theme (Grafana / JetBrains UI / LabVIEW Modern UI, not
+a generic AI-template look) in dark OR light mode, picked at runtime by the toggle button next to
+the header (persisted in st.session_state["theme_mode"], defaulting to dark) -- reversing an
+earlier commit to a single fixed dark theme, per explicit later feedback that a light option was
+wanted back. CANVAS/SURFACE/BORDER/etc. below are no longer fixed hex constants: they're resolved
+from _PALETTES[theme_mode] once per script run, so every one of their ~100 usage sites throughout
+this file (the CSS injected below, every Plotly figure's colors) automatically follows the current
+mode with no per-site changes needed. .streamlit/config.toml's [theme] is left on the dark values
+as a static fallback for whatever native-widget chrome the CSS overrides below don't reach (some
+deep BaseWeb internals aren't practically targetable -- see the CSS block's own "native widget
+re-theme" comment); it cannot itself switch at runtime without a server restart.
 
 Run with:
     streamlit run src/driveflow/viz/dashboard.py
@@ -61,26 +65,42 @@ from driveflow.sim.vsc_system import MIN_STABLE_LOAD_RESISTANCE_OHM
 st.set_page_config(page_title="driveflow", layout="wide", page_icon="📈")
 
 # ---------------------------------------------------------------------------
-# Design tokens -- numerically identical to .streamlit/config.toml's [theme] block (that file
-# drives native-widget colors; these drive Plotly charts and the CSS injected below). Keep both
-# in sync by hand if either changes.
+# Design tokens -- two full palettes (dark/light), not fixed hex constants. dark's values stay
+# numerically identical to .streamlit/config.toml's [theme] block (that file can't itself switch
+# at runtime, see module docstring); light is a fresh set with the same semantic roles, darkened
+# where needed (ACCENT/INNER/MTPA_COLOR/NAIVE_COLOR/ISOLINE_COLOR/REF_GREY) for contrast against
+# a white surface instead of a dark one.
 # ---------------------------------------------------------------------------
-CANVAS = "#0F172A"  # page/app background
-SURFACE = "#1E293B"  # cards, sidebar, plot backgrounds
-BORDER = "#334155"  # hairline borders/separators
-INK = "#E2E8F0"  # primary text
-INK_2 = "#94A3B8"  # secondary/muted text
-ACCENT = "#0EA5E9"  # cyan -- primary interactive (sliders, active tab, primary buttons)
-ACCENT_2 = "#2563EB"  # blue -- secondary accent (hover states)
-GRID = "#293548"  # chart gridlines
+_PALETTES = {
+    "dark": dict(
+        CANVAS="#0F172A", SURFACE="#1E293B", BORDER="#334155", INK="#E2E8F0", INK_2="#94A3B8",
+        ACCENT="#0EA5E9", ACCENT_2="#2563EB", GRID="#293548",
+        INNER="#F472B6", REF_GREY="#64748B", MTPA_COLOR="#34D399", NAIVE_COLOR="#A78BFA", ISOLINE_COLOR="#FB923C",
+    ),
+    "light": dict(
+        CANVAS="#F8FAFC", SURFACE="#FFFFFF", BORDER="#CBD5E1", INK="#0F172A", INK_2="#64748B",
+        ACCENT="#0284C7", ACCENT_2="#2563EB", GRID="#E2E8F0",
+        INNER="#DB2777", REF_GREY="#475569", MTPA_COLOR="#059669", NAIVE_COLOR="#7C3AED", ISOLINE_COLOR="#EA580C",
+    ),
+}
+theme_mode = st.session_state.get("theme_mode", "dark")
+_palette = _PALETTES[theme_mode]
+CANVAS = _palette["CANVAS"]  # page/app background
+SURFACE = _palette["SURFACE"]  # cards, sidebar, plot backgrounds
+BORDER = _palette["BORDER"]  # hairline borders/separators
+INK = _palette["INK"]  # primary text
+INK_2 = _palette["INK_2"]  # secondary/muted text
+ACCENT = _palette["ACCENT"]  # primary interactive (sliders, active tab, primary buttons)
+ACCENT_2 = _palette["ACCENT_2"]  # secondary accent (hover states)
+GRID = _palette["GRID"]  # chart gridlines
 PLOT_BG = SURFACE
 
 HEALTHY = ACCENT  # main measured trace (current/rpm/torque/acc, operating-envelope trajectory)
-INNER = "#F472B6"  # current-limit reference line
-REF_GREY = "#64748B"  # dashed reference/limit lines
-MTPA_COLOR = "#34D399"  # FOC+MTPA point cloud
-NAIVE_COLOR = "#A78BFA"  # FOC naive (i_d=0) point cloud
-ISOLINE_COLOR = "#FB923C"  # analytic MTPA locus
+INNER = _palette["INNER"]  # current-limit reference line
+REF_GREY = _palette["REF_GREY"]  # dashed reference/limit lines
+MTPA_COLOR = _palette["MTPA_COLOR"]  # FOC+MTPA point cloud
+NAIVE_COLOR = _palette["NAIVE_COLOR"]  # FOC naive (i_d=0) point cloud
+ISOLINE_COLOR = _palette["ISOLINE_COLOR"]  # analytic MTPA locus
 
 st.markdown(
     f"""
@@ -204,15 +224,41 @@ st.markdown(
     }}
     .st-key-landing_card_B {{ animation-delay: 0.08s; }}
     .st-key-landing_card_IA {{ animation-delay: 0.16s; }}
+
+    /* The theme-toggle button's own row -- pulled up tight against the header markdown right
+       below it (a real st.button can't live INSIDE that header's raw HTML, see the comment at
+       its call site) so it reads as one header unit instead of two stacked blocks. */
+    .df-theme-toggle-row {{ margin-bottom: -2.75rem; position: relative; z-index: 1000; }}
+    .df-theme-toggle-row .stButton button {{
+        font-size: 0.7rem; padding: 0.15rem 0.6rem; min-height: 0;
+        background: {SURFACE}; border: 1px solid {BORDER}; color: {INK_2};
+    }}
+    .df-theme-toggle-row .stButton button:hover {{ color: {INK}; border-color: {ACCENT}; }}
+
+    /* ---- Native-widget re-theme: config.toml's [theme] is fixed on dark (it can't itself
+       switch at runtime, see module docstring) -- these overrides make the page/sidebar
+       background and the most visible native controls follow theme_mode too. Some deep BaseWeb
+       internals (e.g. a checkbox's own tick glyph) aren't practically reachable here and may
+       still assume dark; flag anything that looks wrong in light mode. ------------------------ */
+    .stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"], [data-testid="stHeader"] {{
+        background-color: {CANVAS} !important;
+    }}
+    section[data-testid="stSidebar"] {{ background-color: {SURFACE} !important; }}
+    .stApp, .stApp p, .stApp span, .stApp label, .stMarkdown, [data-testid="stMarkdownContainer"] {{ color: {INK}; }}
+    [data-testid="stAlert"] {{ background-color: {SURFACE}; border: 1px solid {BORDER}; }}
+    .stSlider [data-baseweb="slider"] div {{ background-color: {BORDER}; }}
+    div[data-baseweb="select"] > div, .stTextInput input, .stNumberInput input {{
+        background-color: {SURFACE} !important; border-color: {BORDER} !important; color: {INK} !important;
+    }}
+    div[data-testid="stExpander"] {{ border-color: {BORDER} !important; }}
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-st.components.v1.html(
+st.html(
     f"""
-    <style>html, body {{ margin:0; padding:0; background:{CANVAS}; overflow:hidden; }}</style>
-    <canvas id="df-scope" style="display:block; width:100%; height:40px;"></canvas>
+    <canvas id="df-scope" style="display:block; width:100%; height:40px; background:{CANVAS};"></canvas>
     <script>
     (function() {{
         const canvas = document.getElementById('df-scope');
@@ -255,9 +301,21 @@ st.components.v1.html(
     }})();
     </script>
     """,
-    height=40,
-    scrolling=False,
+    unsafe_allow_javascript=True,
 )
+
+# Real st.button (a raw HTML button inside the header's own unsafe_allow_html markdown below
+# has no way to run Python -- Streamlit widgets are always separate DOM nodes in the normal
+# document flow), right-aligned via st.columns and pulled up against the header underneath it
+# by the .df-theme-toggle-row CSS above -- reads as "part of" the header row without literally
+# being nested inside its markup.
+st.markdown('<div class="df-theme-toggle-row">', unsafe_allow_html=True)
+_toggle_col_spacer, _toggle_col_button = st.columns([0.92, 0.08])
+with _toggle_col_button:
+    if st.button("☀️ Light" if theme_mode == "dark" else "🌙 Dark", key="theme_toggle", help="Switch between light and dark theme", width="stretch"):
+        st.session_state["theme_mode"] = "light" if theme_mode == "dark" else "dark"
+        st.rerun()
+st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown(
     f"""
