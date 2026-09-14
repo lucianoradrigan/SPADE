@@ -216,7 +216,11 @@ def _diagram_click_target(fig, cx, cy, w, h, component_key):
     fig.add_trace(
         go.Scatter(
             x=grid_x.ravel(), y=grid_y.ravel(), mode="markers",
-            marker=dict(size=14, opacity=0), customdata=[component_key] * n,
+            # opacity=0 (fully transparent), not just a low value -- some rendering paths skip
+            # hit-testing entirely for a fully-transparent element even though Plotly's own docs
+            # say opacity shouldn't affect event handling; 0.02 keeps every point visually
+            # invisible against the dark canvas while guaranteeing it isn't treated as absent.
+            marker=dict(size=14, opacity=0.02), customdata=[component_key] * n,
             hoverinfo="none", showlegend=False, name=component_key,
         )
     )
@@ -404,7 +408,11 @@ def _build_system_diagram_figure() -> go.Figure:
         xaxis=dict(visible=False, range=[0, 12.6], fixedrange=True),
         yaxis=dict(visible=False, range=[0, 9.3], scaleanchor="x", scaleratio=1, fixedrange=True),
         showlegend=False,
-        dragmode=False,
+        # NOT dragmode=False -- fixedrange=True on both axes above already makes pan/zoom
+        # impossible (that alone was "no quiero que el gráfico se mueva"), and dragmode=False
+        # risks disabling more of Plotly's pointer-event handling than just dragging (the same
+        # bundled-source click/select gating referenced below sits near dragmode-related code
+        # paths). Leaving dragmode at its default keeps click-to-select unambiguous.
         # Plotly's own default clickmode is "event" -- a plain click (no drag) fires
         # plotly_click but does NOT populate the selection Streamlit's on_select reads
         # (plotly_selected), which needs "select" in clickmode. Found in Plotly.js's own bundled
