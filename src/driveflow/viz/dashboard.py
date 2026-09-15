@@ -53,6 +53,7 @@ from driveflow.control.dpc import COLUMNS as DPC_COLUMNS
 from driveflow.control.dpc import HORIZON as DPC_HORIZON
 from driveflow.control.dpc import build_dpc_network, simulate_horizon
 from driveflow.viz.ai_dashboard import _render_fase_ia
+from driveflow.viz.transfer_learning_dashboard import _render_fase_tl
 from driveflow.viz.dpc_upload_validation import DPC_AUTOFILL_COLUMNS, DPC_REQUIRED_COLUMNS, validate_dpc_upload
 from driveflow.control.dpc.reference import GRID_OMEGA_RAD_S, REFERENCE_MAGNITUDE_V, RotatingReference
 from driveflow.datagen.runner import _DPC_WEIGHTS_PATH, _VSC_R_OHM
@@ -224,6 +225,7 @@ st.markdown(
     }}
     .st-key-landing_card_B {{ animation-delay: 0.08s; }}
     .st-key-landing_card_IA {{ animation-delay: 0.16s; }}
+    .st-key-landing_card_TL {{ animation-delay: 0.24s; }}
 
     /* The theme-toggle button's own row -- pulled up tight against the header markdown right
        below it (a real st.button can't live INSIDE that header's raw HTML, see the comment at
@@ -710,6 +712,16 @@ _PHASES = {
             "sharing training data across Fase A/B (docs/design_ai_layer_transversal.md) -- against a sample "
             "simulation run or an uploaded file. A consumer of data, not a live control surface: no sidebar "
             "controls here re-run Fase A/B's own simulations."
+        ),
+    ),
+    "TL": dict(
+        title="Transfer Learning — Fine-tune a promoted model",
+        summary="Fine-tune an already-promoted PC-tier model against new (simulated + external) data.",
+        description=(
+            "Loads whichever PC-tier model is currently promoted for a domain, fine-tunes it against a mix "
+            "of freshly-simulated and (optionally) uploaded data using one of three strategies (feature "
+            "extractor, discriminative LR, adapter), and -- if validation passes -- promotes the result as a "
+            "new run, ready for the existing --distill path to push down to Raspberry Pi 5/ESP32."
         ),
     ),
 }
@@ -2083,5 +2095,7 @@ if _selected_phase == "A":
         _render_advanced_flow()
 elif _selected_phase == "B":
     _render_fase_b()
-else:
+elif _selected_phase == "IA":
     _render_fase_ia()
+else:
+    _render_fase_tl()

@@ -112,3 +112,28 @@ class TestSaveCheckpoint:
         fresh.load_weights(str(path))
         X = _tiny_classification_data(n=1)["X"]
         np.testing.assert_allclose(model(X, training=False).numpy(), fresh(X, training=False).numpy())
+
+
+class TestOnEpochEndHook:
+    """train_config["on_epoch_end"] -- a live-progress hook (e.g. a Streamlit progress bar,
+    Phase 3) that must fire once per epoch on BOTH training paths, not just the plain fit() one."""
+
+    def test_fires_once_per_epoch_on_the_fit_path(self):
+        seen = []
+        pipeline = TransferLearningPipeline.from_loaded_model(
+            _tiny_classifier(), strategy=FineTuneStrategy.FEATURE_EXTRACTOR,
+            train_config={"on_epoch_end": lambda epoch, logs: seen.append(epoch)},
+        )
+        pipeline.train(_tiny_classification_data(n=16), _tiny_classification_data(n=4), epochs=4, batch_size=8)
+        assert seen == [0, 1, 2, 3]
+
+    def test_fires_once_per_epoch_on_the_discriminative_lr_path(self):
+        seen = []
+        model = _tiny_classifier()
+        pipeline = TransferLearningPipeline.from_loaded_model(
+            model, strategy=FineTuneStrategy.DISCRIMINATIVE_LR,
+            train_config={"on_epoch_end": lambda epoch, logs: seen.append(epoch)},
+        )
+        pipeline.apply_discriminative_lr(base_lr=1e-2, layer_multipliers={})
+        pipeline.train(_tiny_classification_data(n=16), _tiny_classification_data(n=4), epochs=3, batch_size=8)
+        assert seen == [0, 1, 2]

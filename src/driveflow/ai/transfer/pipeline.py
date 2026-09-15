@@ -106,21 +106,27 @@ class TransferLearningPipeline:
             for layer in weighted_layers[-n_adapter:]:
                 layer.trainable = True
 
+        # Optional per-epoch hook (e.g. a Streamlit progress bar) -- called identically for both
+        # training paths below (a plain fit() callback for the standard path, invoked by hand at
+        # the end of each epoch for the manual DISCRIMINATIVE_LR loop, which fit() never runs).
+        on_epoch_end = self.train_config.get("on_epoch_end")
+
         if self.strategy is FineTuneStrategy.DISCRIMINATIVE_LR:
-            history = self._train_discriminative_lr(X_train, y_train, X_val, y_val, epochs, batch_size, is_clf)
+            history = self._train_discriminative_lr(X_train, y_train, X_val, y_val, epochs, batch_size, is_clf, on_epoch_end)
         else:
             lr = self.train_config.get("learning_rate", 1e-3)
             loss = "sparse_categorical_crossentropy" if is_clf else "mse"
             metrics = ["accuracy"] if is_clf else None
             self.model.compile(optimizer=keras.optimizers.Adam(learning_rate=lr), loss=loss, metrics=metrics)
             validation_data = (X_val, y_val) if X_val is not None and len(X_val) else None
-            fit_history = self.model.fit(X_train, y_train, validation_data=validation_data, epochs=epochs, batch_size=batch_size, verbose=0)
+            callbacks = [keras.callbacks.LambdaCallback(on_epoch_end=lambda epoch, logs: on_epoch_end(epoch, logs))] if on_epoch_end else None
+            fit_history = self.model.fit(X_train, y_train, validation_data=validation_data, epochs=epochs, batch_size=batch_size, verbose=0, callbacks=callbacks)
             history = {k: [float(v) for v in vals] for k, vals in fit_history.history.items()}
 
         self.history = history
         return history
 
-    def _train_discriminative_lr(self, X_train, y_train, X_val, y_val, epochs: int, batch_size: int, is_clf: bool) -> dict:
+    def _train_discriminative_lr(self, X_train, y_train, X_val, y_val, epochs: int, batch_size: int, is_clf: bool, on_epoch_end=None) -> dict:
         if self._discriminative_lr is None:
             raise ValueError("call apply_discriminative_lr() before train() with strategy=DISCRIMINATIVE_LR")
         base_lr = self._discriminative_lr["base_lr"]
@@ -138,7 +144,7 @@ class TransferLearningPipeline:
 
         n = len(X_train)
         history = {"loss": [], "val_loss": []}
-        for _ in range(epochs):
+        for epoch in range(epochs):
             epoch_losses = []
             for start in range(0, n, batch_size):
                 xb = X_train[start : start + batch_size]
@@ -157,6 +163,8 @@ class TransferLearningPipeline:
             if X_val is not None and len(X_val):
                 val_preds = self.model(X_val, training=False)
                 history["val_loss"].append(float(loss_fn(y_val, val_preds)))
+            if on_epoch_end:
+                on_epoch_end(epoch, {"loss": history["loss"][-1], "val_loss": history["val_loss"][-1] if history["val_loss"] else None})
         return history
 
     def save_checkpoint(self, path: str) -> None:
