@@ -25,5 +25,10 @@ jobs:
       - name: Install package (dev + viz extras)
         run: pip install -e ".[dev,viz]"
 
+      - name: Check Transfer Learning / Agents scaffolding imports
+        run: |
+          python -c "from driveflow.ai.transfer import ModelLoader, DataMerger, TransferLearningPipeline, ModelValidator"
+          python -c "from driveflow.agents import SimulationBasedAgent, DCMotorAnomalyDetector, VSCDPCAnomalyDetector, AnomalyDetector, AnomalyExplainer"
+
       - name: Run pytest
         run: pytest -v

@@ -1,0 +1,39 @@
+# Phase 1 scaffolding (Transfer Learning Workbench, docs/design_ai_layer_transversal.md's AI
+# layer is the existing prior art this extends). Not consumed by any code yet -- Phase 2/3 wire
+# this to ai/transfer/pipeline.py. Tier constraints below must stay consistent with the REAL
+# guardrail already enforced in code: models/regressors/schemas.py's RECURRENT_TYPES_BY_TIER
+# forbids recurrent_type: lstm/gru for esp32 (not "discouraged", structurally rejected).
+architectures:
+  cnn:
+    name: "1D Convolutional Neural Network"
+    params:
+      conv_layers: {type: int, range: [1, 6], default: 3}
+      filters_per_layer: {type: "list[int]", default: [64, 128, 256]}
+      kernel_size: {type: int, range: [3, 7], default: 3}
+      activation: {type: enum, values: [relu, swish, tanh], default: relu}
+      dropout: {type: float, range: [0.0, 0.5], default: 0.3}
+    tier_overrides:
+      esp32: {max_conv_layers: 2, max_filters: 128}
+      raspberry_pi: {max_conv_layers: 4, max_filters: 256}
+      pc: {no_constraints: true}
+
+  lstm:
+    name: "LSTM Sequence Model"
+    params:
+      lstm_layers: {type: int, range: [1, 3], default: 2}
+      units_per_layer: {type: "list[int]", default: [64, 32]}
+      dropout: {type: float, range: [0.0, 0.5], default: 0.2}
+      bidirectional: {type: bool, default: true}
+    tier_constraints:
+      esp32: {forbidden: true, alternative: "tcn"}
+      raspberry_pi: {requires_flex_delegate: true}
+      pc: {no_constraints: true}
+
+  tcn:
+    name: "Temporal Convolutional Network (ESP32-friendly)"
+    params:
+      tcn_layers: {type: int, range: [2, 4], default: 3}
+      filters: {type: "list[int]", default: [32, 32, 16]}
+      kernel_size: {type: int, range: [3, 5], default: 3}
+      dilation_rates: {type: "list[int]", default: [1, 2, 4]}
+      dropout: {type: float, range: [0.0, 0.3], default: 0.2}

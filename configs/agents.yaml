@@ -1,0 +1,28 @@
+# Phase 1 scaffolding (Simulation-Based Agents, src/driveflow/agents/). Not consumed by any code
+# yet -- Phase 4/5 wire this to agents/dc_motor_agent.py and agents/vsc_agent.py. Distinct from
+# monitoring/rules/*.yaml (the existing rule-based agents' hard thresholds) -- these are
+# simulation-comparison detectors, a different mechanism entirely.
+simulation_based_agents:
+  dc_motor:
+    anomaly_detector:
+      type: "simulation_based"
+      detector_metrics: [dtw, euclidean]
+      preferred_metric: dtw
+      monitored_features: [i_a, rpm, acc_x, acc_y, acc_z]
+      window_size_seconds: 10
+      step_size_seconds: 2
+
+      scenarios:
+        baseline: {fault_type: null, fault_severity: 0.0}
+        incipient: {fault_type: [outer_race, inner_race], fault_severity: 0.2}
+        moderate: {fault_type: [outer_race, inner_race], fault_severity: 0.5}
+        severe: {fault_type: [outer_race, inner_race], fault_severity: 0.8}
+
+      thresholds:
+        incipient: 0.80
+        moderate: 0.60
+        severe: 0.40
+
+      anomaly_alert_threshold: 0.70
+
+      cache: {enabled: true, ttl_seconds: 300}

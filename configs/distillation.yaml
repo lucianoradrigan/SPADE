@@ -1,0 +1,33 @@
+# Phase 1 scaffolding (Transfer Learning Workbench). Not consumed by any code yet -- Phase 2/3
+# wire this to ai/transfer/pipeline.py. Distinct from the REAL, already-working distillation this
+# repo ships today (experiments/train_model.py --distill, soft-target blending via
+# --distill-alpha) -- this file's knobs (temperature, layer_adaptation, quantization_calibration)
+# are a more elaborate scheme for the transfer-learning workbench specifically, not yet
+# implemented anywhere.
+distillation:
+  teacher_to_rpi:
+    quantization: float16
+    temperature: 4.0
+    alpha: 0.7
+    batch_size: 32
+    epochs: 50
+    learning_rate: 1e-4
+    layer_adaptation:
+      strategy: "channel_reduction"
+      reduction_factor: 0.6
+
+  teacher_to_esp32:
+    quantization: int8
+    temperature: 5.0
+    alpha: 0.8
+    batch_size: 16
+    epochs: 100
+    learning_rate: 5e-5
+    architecture_adaptation:
+      strategy: "structural_simplification"
+      max_layers: 3
+      remove_recurrent: true
+      depthwise_separable: true
+    quantization_calibration:
+      calibration_data: "real_samples"
+      sample_count: 5000
