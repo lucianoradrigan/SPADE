@@ -7,6 +7,7 @@ the vsc_dpc rule's hysteresis actually gates firing across two runs.
 import time
 from pathlib import Path
 
+import pandas as pd
 from streamlit.testing.v1 import AppTest
 
 DASHBOARD_PATH = str(Path(__file__).resolve().parents[1] / "src" / "driveflow" / "viz" / "dashboard.py")
@@ -75,3 +76,53 @@ class TestRuleHysteresis:
         assert not at.exception
         assert any("Status: ALERT" in e.value for e in at.error)
         assert any("fired" in e.value for e in at.error)
+
+
+class TestClassifierConfidenceDrift:
+    """The third Agent Consensus pillar (Sec. 1.2: rule-based + simulation-based + ML confidence
+    drift). dc_motor has a real promoted PC-tier classifier to test against; vsc_dpc doesn't
+    (Sec. 8's own status note), which must be reported clearly, not silently skipped.
+
+    The "eventually reports drift" behaviour needs > confidence_window (20) recorded
+    confidence points, which would mean 22 full AppTest reruns (each re-executing the whole
+    dashboard script, including a real physics simulation) if driven through the UI -- too slow
+    for a test suite (timed out past 180s the first time this was tried). So that part is
+    exercised directly against _record_classifier_confidence_if_available + a real ServerAgent,
+    no Streamlit involved, and only a single UI run is checked through AppTest as a smoke test
+    that the wiring itself doesn't crash and renders the right widgets."""
+
+    def test_dc_motor_accumulates_confidence_and_eventually_reports_drift(self):
+        from driveflow.datagen import Scenario, run_scenario
+        from driveflow.monitoring.agents.agent_server import ServerAgent
+        from driveflow.viz.live_monitoring_dashboard import _record_classifier_confidence_if_available
+
+        server_agent = ServerAgent()
+        confidence = None
+        for i in range(22):  # > ServerAgent's default confidence_window (20)
+            records = run_scenario(Scenario(scenario_id=f"drift_{i}", fault_type=None, duration_s=0.15, seed=i))
+            df = pd.DataFrame.from_records(records)
+            confidence = _record_classifier_confidence_if_available("dc_motor", df, server_agent)
+        assert confidence is not None
+        drift = server_agent.check_confidence_drift("dc_motor")
+        assert drift is not None
+        assert 0.0 <= drift.baseline_mean <= 1.0
+        assert 0.0 <= drift.recent_mean <= 1.0
+
+    def test_dc_motor_ui_smoke_renders_confidence_metric_on_a_single_run(self):
+        at = AppTest.from_file(DASHBOARD_PATH, default_timeout=120)
+        at.run()
+        at.button(key="enter_phase_LM").click().run()
+        at.sidebar.button(key="lm_run_button").click().run()
+        assert not at.exception
+        metric_values = [m.value for m in at.metric]
+        assert any("%" in v for v in metric_values)  # "This run's confidence"
+
+    def test_vsc_dpc_reports_no_classifier_available(self):
+        at = AppTest.from_file(DASHBOARD_PATH, default_timeout=120)
+        at.run()
+        at.button(key="enter_phase_LM").click().run()
+        at.sidebar.selectbox(key="lm_domain").set_value("vsc_dpc").run()
+        at.sidebar.button(key="lm_run_button").click().run()
+        assert not at.exception
+        caption_texts = " ".join(c.value for c in at.caption)
+        assert "No promoted PC-tier classifier" in caption_texts

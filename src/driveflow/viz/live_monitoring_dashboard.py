@@ -17,12 +17,14 @@ converted to an Alert via _alert_from_anomaly_score below, not a new integration
 import time
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import streamlit as st
 
 from driveflow.agents.dc_motor_agent import DCMotorAnomalyDetector
 from driveflow.agents.explainer import AnomalyExplainer
 from driveflow.agents.vsc_agent import VSCDPCAnomalyDetector
+from driveflow.ai.registry import RegistryError, load_promoted_model
 from driveflow.datagen import Scenario, run_scenario
 from driveflow.datagen.runner import _VSC_R_OHM
 from driveflow.monitoring.agents.agent_gateway import Alert, GatewayAgent
@@ -115,6 +117,33 @@ def _render_sample_controls(domain: str) -> dict:
     return {"controller_type": "DPC", "plant_config_id": "vsc_dpc_v1", "load_resistance_ohm": load_resistance_ohm, "duration_s": 0.05, "seed": 0}
 
 
+def _record_classifier_confidence_if_available(domain: str, df: pd.DataFrame, server_agent: ServerAgent) -> float | None:
+    """The third pillar of Agent Consensus (Sec. 1.2's own architecture: rule-based +
+    simulation-based + "ML Classifier Confidence Drift Monitor (Exist)") -- whichever PC-tier
+    classifier is currently promoted for `domain` (a from-scratch run, OR one promoted by the
+    Transfer Learning tab: this reads the registry, not a specific run, so a fine-tuned model
+    "just works" here with no separate wiring) predicts on the tail of this run's own telemetry,
+    and its confidence feeds ServerAgent.record_classifier_confidence -- the same rolling-window
+    drift detector Sec. 4.3 describes. Returns the confidence recorded, or None if there's no
+    promoted classifier for this domain (today: vsc_dpc has none) or not enough rows for one
+    window."""
+    try:
+        model, config, metrics = load_promoted_model(domain, "pc", "classifier")
+    except RegistryError:
+        return None
+    channels = metrics["channels"]
+    if len(df) < config.input_window or any(c not in df.columns for c in channels):
+        return None
+    window = df[channels].iloc[-config.input_window :].to_numpy(dtype=np.float32)
+    mu, sigma = window.mean(axis=0), window.std(axis=0)
+    sigma = np.where(sigma > 1e-6, sigma, 1.0)
+    window_n = (window - mu) / sigma
+    probs = model(window_n[np.newaxis, ...], training=False).numpy()[0]
+    confidence = float(np.max(probs))
+    server_agent.record_classifier_confidence(domain, confidence)
+    return confidence
+
+
 def _render_fase_lm():
     st.sidebar.markdown(
         '<div class="df-sidebar-title">Live Monitoring</div>'
@@ -147,9 +176,11 @@ def _render_fase_lm():
             for event in rule_events:
                 server_agent.record_alert(domain, event)
 
+        confidence = _record_classifier_confidence_if_available(domain, df, server_agent)
+
         st.session_state["lm_result"] = {
             "domain": domain, "score": score, "diagnosis": diagnosis, "explanation": explanation,
-            "rule_events": rule_events, "hypotheses": list(agent.HYPOTHESES),
+            "rule_events": rule_events, "hypotheses": list(agent.HYPOTHESES), "confidence": confidence,
         }
 
     st.markdown(f"##### Agent Consensus -- {_DOMAIN_LABELS[domain]}")
@@ -160,7 +191,7 @@ def _render_fase_lm():
 
     result = st.session_state.get("lm_result")
     if result is not None and result["domain"] == domain:
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(3)
         with col1:
             st.markdown("##### Simulation-based detector")
             st.metric("Anomaly score", f"{result['score']:.2f}", help=f"Closest hypothesis: {result['diagnosis']} (of {result['hypotheses']})")
@@ -179,6 +210,21 @@ def _render_fase_lm():
                     "(2s for the vsc_dpc divergence rule). Click 'Run monitoring' again a couple seconds later "
                     "with the same value to see it actually fire."
                 )
+        with col3:
+            st.markdown("##### Classifier confidence drift")
+            if result["confidence"] is None:
+                st.caption("No promoted PC-tier classifier for this domain (or not enough rows for one window).")
+            else:
+                st.metric("This run's confidence", f"{result['confidence']:.1%}")
+                drift = server_agent.check_confidence_drift(domain)
+                if drift is None:
+                    st.caption("Not enough history yet for a drift report -- click 'Run monitoring' repeatedly (needs > confidence_window points).")
+                else:
+                    st.caption(f"Baseline {drift.baseline_mean:.1%} vs. recent {drift.recent_mean:.1%}")
+                    if drift.suggest_retraining:
+                        st.warning("Confidence has drifted down -- consider fine-tuning (Transfer Learning tab).")
+                    else:
+                        st.success("No significant drift.")
 
     st.markdown("##### Alert history (this session)")
     history = server_agent.alert_history(domain)

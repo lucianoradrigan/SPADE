@@ -1,6 +1,7 @@
 # SPADE / driveflow — Qué hace la plataforma hoy
 
-Snapshot funcional completo, generado el 2026-09-14. Para el diseño detallado de la capa de IA ver
+Snapshot funcional completo, actualizado el 2026-09-15 tras completar las 6 fases del Transfer
+Learning Workbench + Simulation-Based Agents. Para el diseño detallado de la capa de IA ver
 [`design_ai_layer_transversal.md`](design_ai_layer_transversal.md); para el roadmap de fases
 A/B/C/D/E ver [`INSTRUCTIONS.md`](INSTRUCTIONS.md). Este documento es una foto del estado actual,
 no un plan — va a quedar desactualizado a medida que el proyecto avance.
@@ -110,16 +111,59 @@ Plan completo (9 pasos) implementado — ver la nota de estado al final de
 - **Tier PC** (`ServerAgent`): no evalúa reglas — agrega los `Alert` que ya produjo cada
   `GatewayAgent` en una bitácora + estado "ok"/"alert" por dominio, y rastrea la confianza del
   clasificador en el tiempo para detectar drift y sugerir reentrenamiento.
-- **Pendiente**: el badge de estado en el frontend (Sección 5.3 del design doc) no está conectado
-  todavía — los agentes existen y están testeados, pero el dashboard no los consulta aún.
+- El badge de estado, la bitácora de alertas y el drift de confianza SÍ están conectados al
+  frontend — ver 3.6 (pestaña LM) más abajo.
+
+## 2.5 Transfer Learning Workbench (`src/driveflow/ai/transfer/`)
+
+Adaptar un modelo ya promovido (tier PC) a un dataset externo/real vía fine-tuning, en vez de
+entrenar desde cero — implementado en las Fases 2-3 del "Documento maestro" TL+Agents.
+
+- **`loader.py`**: carga un modelo promovido + su `TrainConfig`/métricas desde el registry, listo
+  para fine-tuning.
+- **`data_merger.py`**: mezcla datos simulados + datos externos subidos por el usuario según un
+  `mix_ratio` configurable (bug real encontrado y corregido: el tamaño objetivo del merge estaba
+  mal calculado y ninguneaba el `mix_ratio`).
+- **`pipeline.py`** (`TransferLearningPipeline`): 3 estrategias de fine-tuning —
+  `FEATURE_EXTRACTOR` (congela las primeras N capas, `model.fit()` estándar),
+  `DISCRIMINATIVE_LR` (loop manual con `tf.GradientTape`, un optimizador Adam por grupo de capas
+  con learning rate distinto), `ADAPTER` (congela todo menos las últimas N capas).
+- **`validator.py`**: compara métricas del modelo base vs. el fine-tuneado antes de permitir
+  promoción.
+- **UI** (pestaña **TL** del dashboard): selección de modelo base, fuente de datos (simulada +
+  upload externo con `mix_ratio`), controles de estrategia, 3 sub-tabs (entrenamiento,
+  comparación base-vs-fine-tuned, promoción a producción). Promover desde acá registra el nuevo
+  run en `configs/registry.yaml` igual que un entrenamiento desde cero — se puede servir en vivo
+  en la pestaña IA o consultar desde el drift de confianza de la pestaña LM sin wiring adicional.
+
+## 2.6 Simulation-Based Agents (`src/driveflow/agents/`)
+
+Segundo detector de anomalías, complementario al basado en reglas: en vez de umbrales fijos,
+simula el escenario "esperado" para cada hipótesis (sano / falla incipiente / falla moderada,
+etc.) y mide qué tan lejos está la telemetría real de cada hipótesis simulada — implementado en la
+Fase 4.
+
+- **`base.py`** (`SimulationBasedAgent`): patrón template-method — `detect_anomaly()` es
+  compartido y concreto (recorre `HYPOTHESES`, simula cada una, mide distancia, cachea), solo
+  `simulate_scenario()` es abstracto por subclase.
+- **DTW propio, sin dependencia externa**: `detector.py` implementa Dynamic Time Warping desde
+  cero (programación dinámica O(n·m)), para 1D y multi-feature.
+- **`dc_motor_agent.py`** / **`vsc_agent.py`**: hipótesis concretas por dominio (severidades reales
+  de falla eléctrica/mecánica para `dc_motor`; resistencia de carga alejada del punto de
+  entrenamiento para `vsc_dpc`).
+- **`explainer.py`** (`AnomalyExplainer`): explica qué feature contribuyó más a la distancia contra
+  la hipótesis más cercana (feature importance normalizada a 1.0).
+- **`cache.py`** (`SimulationCache`): evita re-simular la misma hipótesis repetidamente dentro de
+  una sesión (TTL configurable).
 
 ## 3. Dashboard (Streamlit)
 
 ### 3.1 Página de inicio
 
-- 3 tarjetas de macro-fase (A, B, IA) con hover/entrada animada.
+- 5 tarjetas de macro-fase (A, B, IA, TL, LM) con hover/entrada animada.
 - Diagrama del sistema completo (Plotly, con click sobre cada caja para ver el detalle de ese
-  componente — sigue en debugging si el click realmente registra en el navegador).
+  componente — verificado funcionando en navegador real tras corregir 3 bugs de detección de click
+  de Plotly).
 - Toggle de tema claro/oscuro (`☀️ Light` / `🌙 Dark`), persistido en la sesión.
 - Franja tipo osciloscopio animada (canvas JS) debajo del header.
 - Texto "About this platform" con el detalle de los 3 sistemas.
@@ -151,12 +195,42 @@ Plan completo (9 pasos) implementado — ver la nota de estado al final de
   muestras) para el tier **PC únicamente** — los tiers edge no se evalúan en vivo acá, solo se
   descargan.
 
+### 3.5 Pestaña TL (Transfer Learning Workbench)
+
+- Sidebar: selección de modelo base promovido (dominio/bloque), fuente de datos (corrida simulada
+  + upload externo opcional con `mix_ratio`), estrategia de fine-tuning y sus hiperparámetros.
+- 3 sub-tabs: entrenamiento (curva de loss en vivo), comparación de métricas base-vs-fine-tuned,
+  promoción a producción (registra el nuevo run, disponible de inmediato en la pestaña IA y en el
+  drift de confianza de la pestaña LM).
+
+### 3.6 Pestaña LM (Live Monitoring / Agent Consensus)
+
+- Sidebar: dominio (`dc_motor`/`vsc_dpc`), controles de muestra (falla/severidad o resistencia de
+  carga con escape hatch de valor custom), botón "Run monitoring".
+- Corre, sobre una misma corrida de telemetría, **3 pilares** de "Agent Consensus" en paralelo,
+  agregados por un `ServerAgent` de sesión (Sec. 5.3 del design doc):
+  1. **Agente basado en simulación** (`driveflow.agents`): score de anomalía + hipótesis más
+     cercana + explicación de feature importance.
+  2. **Agente basado en reglas** (`GatewayAgent`, hoy solo `vsc_dpc` tiene YAML de reglas): con
+     histéresis real (2s) y debounce — un solo click con el valor fuera de rango no dispara la
+     alerta todavía, hay que sostenerlo entre dos clicks separados por >2s.
+  3. **Drift de confianza del clasificador** (tier PC promovido, el que esté activo — incluye uno
+     recién promovido desde la pestaña TL, sin wiring adicional): cada corrida registra la
+     confianza de la predicción; tras acumular más de `confidence_window` (20) puntos en la
+     sesión, compara la media reciente vs. la media base y sugiere reentrenamiento si cayó más del
+     umbral. `vsc_dpc` no tiene clasificador promovido todavía, así que este panel lo reporta
+     explícitamente en vez de fallar en silencio.
+- Badge de estado por dominio ("OK"/"ALERT") y bitácora de alertas acumulada durante la sesión.
+
 ## 4. Tests
 
-- 380 tests, `pytest`. Incluye tests dirigidos por `streamlit.testing.v1.AppTest` que corren el
-  dashboard completo sin navegador.
+- 466+ tests, `pytest`. Incluye tests dirigidos por `streamlit.testing.v1.AppTest` que corren el
+  dashboard completo sin navegador, y tests con timing real (no mockeado) para verificar la
+  histéresis del `GatewayAgent`.
 - CI (GitHub Actions, `.github/workflows/tests.yml`) corre en Python 3.11 y 3.12 contra push/PR a
-  `main`.
+  `main` — verificado en verde tras corregir un `conftest.py` faltante en la raíz (pytest no
+  agregaba el repo al `sys.path` bajo invocación `pytest -v` directa, solo bajo `python -m
+  pytest`).
 
 ## 5. Cómo correrlo
 
@@ -171,14 +245,17 @@ pytest                                         # suite completa
 
 ## 6. Pendientes / gaps conocidos
 
-- **CI en GitHub Actions está fallando** en el commit más reciente (`05f4352`) por una causa
-  todavía no identificada — se descartó que sea la falta del extra `viz` (ya corregido), pero el
-  fallo persiste en el runner real y no se pudo reproducir localmente en dos intentos distintos.
-  Pendiente de acceso a los logs reales (`gh auth login`) para diagnosticar.
-- Clasificador `vsc_dpc` bloqueado por el veredicto de separabilidad pendiente (Fase D.2).
+- Clasificador `vsc_dpc` bloqueado por el veredicto de separabilidad pendiente (Fase D.2) — por
+  eso el panel de drift de confianza de la pestaña LM reporta "no hay clasificador promovido" para
+  ese dominio en vez de mostrar datos.
 - Regresor `dc_motor` no existe (sin necesidad identificada todavía).
-- El badge de estado de los agentes de monitoreo no está conectado al frontend.
 - Los paneles de la pestaña IA solo evalúan el tier PC en vivo — los tiers edge se pueden
   descargar pero no se prueban dentro del dashboard.
+- No hay una utilidad de trazado de linaje que siga el puntero `fine_tuned_from` en los
+  `metrics.json` de corridas fine-tuneadas por la pestaña TL de vuelta hasta el modelo base
+  original (el puntero se guarda, pero nada en la UI lo recorre todavía).
 - `assets/landing.png` (la captura en el README) es de antes de la capa de IA, el diagrama del
-  sistema y el toggle de tema — desactualizada.
+  sistema, el toggle de tema y las pestañas TL/LM — desactualizada.
+- Remover "Claude" como colaborador del repo en GitHub sigue pendiente — es una acción manual del
+  usuario en GitHub Settings, no algo que se pueda automatizar desde acá (`gh auth login` nunca se
+  completó localmente).
