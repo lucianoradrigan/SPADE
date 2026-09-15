@@ -6,7 +6,11 @@ driveflow.monitoring.agents, que evalúa reglas de umbral duro sobre telemetría
 Los dos tipos de agente son complementarios: monitoring.agents.ServerAgent es quien terminaría
 agregando las alertas de ambos (Phase 6 conecta esa integración; no está hecha todavía).
 
-Phase 1: solo scaffolding -- las clases están definidas pero sin implementación.
+Phase 4: implementación real -- detector.py tiene DTW/Euclidean/Mahalanobis de verdad (sin
+librería externa, este proyecto no depende de ninguna), y dc_motor_agent.py/vsc_agent.py simulan
+hipótesis reales (Scenario/run_scenario) para compararlas contra telemetría. SimulationCache
+(cache.py) es el mecanismo de caché real que usa SimulationBasedAgent -- no un dict plano
+paralelo. Sin UI todavía (Phase 5) ni conexión con monitoring.agents.ServerAgent (Phase 6).
 """
 
 from driveflow.agents.base import SimulationBasedAgent
