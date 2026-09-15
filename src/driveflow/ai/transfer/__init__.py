@@ -1,9 +1,12 @@
 """Transfer Learning Workbench for SPADE/driveflow.
 
-Fine-tuning de modelos ya promovidos en el registry con datos nuevos (simulados o externos), y
-despliegue automático a los tres tiers (PC, Raspberry Pi 5, ESP32). Phase 1: solo scaffolding --
-las clases están definidas pero sin implementación (ver NotImplementedError en cada método);
-Phase 2 las completa.
+Fine-tuning de modelos ya promovidos en el registry con datos nuevos (simulados o externos).
+Phase 2: loader/data_merger/pipeline/validator implementados de verdad, sobre la API real de
+ai/registry.py y models/*/builder.py -- no una copia paralela de esos módulos. Despliegue
+automático a los tres tiers (distillation + TFLite export) sigue siendo trabajo de
+experiments/train_model.py --distill + experiments/export_tflite.py (ya existentes, Sec. 8 step
+8) invocados sobre el checkpoint que este módulo produce -- Phase 3 conecta eso a una UI, no está
+hecho todavía. La pestaña del dashboard (Phase 3) tampoco.
 """
 
 from driveflow.ai.transfer.loader import ModelLoader
