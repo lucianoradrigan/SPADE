@@ -53,6 +53,7 @@ from driveflow.control.dpc import COLUMNS as DPC_COLUMNS
 from driveflow.control.dpc import HORIZON as DPC_HORIZON
 from driveflow.control.dpc import build_dpc_network, simulate_horizon
 from driveflow.viz.ai_dashboard import _render_fase_ia
+from driveflow.viz.live_monitoring_dashboard import _render_fase_lm
 from driveflow.viz.transfer_learning_dashboard import _render_fase_tl
 from driveflow.viz.dpc_upload_validation import DPC_AUTOFILL_COLUMNS, DPC_REQUIRED_COLUMNS, validate_dpc_upload
 from driveflow.control.dpc.reference import GRID_OMEGA_RAD_S, REFERENCE_MAGNITUDE_V, RotatingReference
@@ -226,6 +227,7 @@ st.markdown(
     .st-key-landing_card_B {{ animation-delay: 0.08s; }}
     .st-key-landing_card_IA {{ animation-delay: 0.16s; }}
     .st-key-landing_card_TL {{ animation-delay: 0.24s; }}
+    .st-key-landing_card_LM {{ animation-delay: 0.32s; }}
 
     /* The theme-toggle button's own row -- pulled up tight against the header markdown right
        below it (a real st.button can't live INSIDE that header's raw HTML, see the comment at
@@ -722,6 +724,16 @@ _PHASES = {
             "of freshly-simulated and (optionally) uploaded data using one of three strategies (feature "
             "extractor, discriminative LR, adapter), and -- if validation passes -- promotes the result as a "
             "new run, ready for the existing --distill path to push down to Raspberry Pi 5/ESP32."
+        ),
+    ),
+    "LM": dict(
+        title="Live Monitoring — Agent Consensus",
+        summary="Simulation-based + rule-based agents, aggregated by one ServerAgent into a per-domain status.",
+        description=(
+            "Runs a domain's simulation-based anomaly detector (compares telemetry against simulated healthy/"
+            "fault hypotheses) alongside its rule-based GatewayAgent where one exists, feeds both into a "
+            "session-scoped ServerAgent, and shows the resulting status badge, alert history, and a "
+            "feature-importance explanation for the simulation-based score."
         ),
     ),
 }
@@ -2097,5 +2109,7 @@ elif _selected_phase == "B":
     _render_fase_b()
 elif _selected_phase == "IA":
     _render_fase_ia()
-else:
+elif _selected_phase == "TL":
     _render_fase_tl()
+else:
+    _render_fase_lm()
