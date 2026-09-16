@@ -157,26 +157,33 @@ def _render_fase_lm():
     gateway_agent = _get_gateway_agent(domain)
 
     if st.sidebar.button("Run monitoring", type="primary", key="lm_run_button"):
-        scenario_id = "lm_dc" if domain == "dc_motor" else "lm_vsc"
-        records = run_scenario(Scenario(scenario_id=scenario_id, **scenario_kwargs))
-        df = pd.DataFrame.from_records(records)
+        # Found by driving this button through a real browser while recording a demo video: with
+        # no spinner here, detect_anomaly()'s own hypothesis simulations (one run_scenario per
+        # HYPOTHESES entry, e.g. 3 for dc_motor) plus the classifier confidence check's model load
+        # add up to ~15-20s of real wall-clock work with zero on-page feedback -- easy to mistake
+        # for a hang. The other tabs (IA's "Simulating...", Fase A/B's own spinners) already avoid
+        # this; this one just hadn't been driven end-to-end in a real browser before.
+        with st.spinner("Running simulation-based + rule-based + classifier-confidence agents (several physics simulations + a model load, ~15-20s)..."):
+            scenario_id = "lm_dc" if domain == "dc_motor" else "lm_vsc"
+            records = run_scenario(Scenario(scenario_id=scenario_id, **scenario_kwargs))
+            df = pd.DataFrame.from_records(records)
 
-        agent = _AGENT_CLASS_BY_DOMAIN[domain]()
-        telemetry = {feat: df[feat].to_numpy(dtype=float) for feat in agent.monitored_features if feat in df.columns}
-        score, diagnosis = agent.detect_anomaly(telemetry)
-        hypothesis_sim = agent.cache.get((diagnosis, round(len(next(iter(telemetry.values()))) * 1e-4, 6)))
-        explanation = AnomalyExplainer(score, diagnosis).explain(telemetry, hypothesis_sim) if hypothesis_sim else None
+            agent = _AGENT_CLASS_BY_DOMAIN[domain]()
+            telemetry = {feat: df[feat].to_numpy(dtype=float) for feat in agent.monitored_features if feat in df.columns}
+            score, diagnosis = agent.detect_anomaly(telemetry)
+            hypothesis_sim = agent.cache.get((diagnosis, round(len(next(iter(telemetry.values()))) * 1e-4, 6)))
+            explanation = AnomalyExplainer(score, diagnosis).explain(telemetry, hypothesis_sim) if hypothesis_sim else None
 
-        now = time.time()
-        server_agent.record_alert(domain, _alert_from_anomaly_score("simulation_based_anomaly", score, now))
+            now = time.time()
+            server_agent.record_alert(domain, _alert_from_anomaly_score("simulation_based_anomaly", score, now))
 
-        rule_events = []
-        if gateway_agent is not None and domain == "vsc_dpc":
-            rule_events = gateway_agent.step({"load_resistance_ohm": scenario_kwargs["load_resistance_ohm"]}, timestamp=now)
-            for event in rule_events:
-                server_agent.record_alert(domain, event)
+            rule_events = []
+            if gateway_agent is not None and domain == "vsc_dpc":
+                rule_events = gateway_agent.step({"load_resistance_ohm": scenario_kwargs["load_resistance_ohm"]}, timestamp=now)
+                for event in rule_events:
+                    server_agent.record_alert(domain, event)
 
-        confidence = _record_classifier_confidence_if_available(domain, df, server_agent)
+            confidence = _record_classifier_confidence_if_available(domain, df, server_agent)
 
         st.session_state["lm_result"] = {
             "domain": domain, "score": score, "diagnosis": diagnosis, "explanation": explanation,
