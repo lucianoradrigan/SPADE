@@ -10,6 +10,8 @@ output of a real simulation, run fresh each time you click Generate.
 
 ![SPADE dashboard -- landing page](assets/landing.png)
 
+**Demo video:** [SPADE on YouTube](https://youtu.be/bc8clLOeSbo)
+
 ## What's inside
 
 Three physically distinct systems, unified under one interface:
