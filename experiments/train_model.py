@@ -41,6 +41,7 @@ import pandas as pd
 import yaml
 from sklearn.metrics import f1_score
 
+from driveflow.ai.provenance import file_sha256, run_metadata, set_global_seed
 from driveflow.ai.registry import DEFAULT_REGISTRY_PATH, RegistryError, load_promoted_model
 from driveflow.models.classifiers.builder import build_classifier
 from driveflow.models.classifiers.schemas import ClassifierConfig, load_classifier_config
@@ -240,6 +241,9 @@ def train_from_config(
     for other tiers, distilling it from itself would be a no-op at best.
     """
     config_path = Path(config_path)
+    # AUDIT AI-11: the seed used to reach only the data split; weight init / dropout / shuffling
+    # drew from unseeded global RNGs, so the same command did not reproduce the same model.
+    seed_info = set_global_seed(seed)
     kind, config = _load_any_config(config_path)
     df = _load_domain_dataframe(Path(dataset_path), config.domain)
 
@@ -259,6 +263,10 @@ def train_from_config(
 
     run_dir = _next_run_dir(config_path)
     _save_artifacts(run_dir, config_path, model, metrics)
+    # Provenance sidecar (metrics.json's schema is unchanged): commit, library versions, seed and
+    # the dataset's content hash -- what "seed + commit + env + data" reproducibility needs.
+    with (run_dir / "run_metadata.json").open("w") as f:
+        json.dump({**run_metadata(), "seed": seed_info, "epochs": epochs, "batch_size": batch_size, "dataset_path": str(dataset_path), "dataset_sha256": file_sha256(dataset_path), "distill": bool(teacher is not None)}, f, indent=2)
     return run_dir
 
 

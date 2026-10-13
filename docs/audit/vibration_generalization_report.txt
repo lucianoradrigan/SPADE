@@ -1,0 +1,9 @@
+RMSE of log10 PSD, held-out bearing (lower is better); null = flat PSD
+  holdout K001: model 0.424 vs null 0.070  ratio 6.05  worse than null
+  holdout K005: model 0.563 vs null 0.319  ratio 1.76  worse than null
+  holdout K006: model 0.416 vs null 0.071  ratio 5.87  worse than null
+  holdout K002: model 0.477 vs null 0.145  ratio 3.28  worse than null
+  holdout K003: model 0.081 vs null 0.052  ratio 1.56  worse than null
+  holdout K004: model 0.885 vs null 0.265  ratio 3.35  worse than null
+model beats null in 0/6 folds; mean ratio 3.64 (bootstrap 95% CI 2.25-5.08)
+6 folds over 6 bearings of one dataset (KAt-DataCenter), one measured axis -- the interval reflects fold-to-fold spread only, not machine/load/speed variability.

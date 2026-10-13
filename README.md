@@ -8,7 +8,14 @@ covering transfer learning on already-promoted models and a live multi-agent mon
 Nothing on the dashboard is pre-generated or looked up from a table -- every chart is the direct
 output of a real simulation, run fresh each time you click Generate.
 
-![SPADE dashboard -- landing page](assets/landing.png)
+![SPADE -- Overview page (real screenshot of the running app)](assets/landing.png)
+
+> **Status of the evidence.** Every signal in SPADE is simulated; there is no hardware ingestion.
+> Edge `.tflite` files are exported, not hardware-verified. The vibration model is a coarse,
+> one-axis calibration that does not generalise per bearing. See
+> [`AUDIT_ANSWERS.md`](AUDIT_ANSWERS.md) (Q01–Q30) and
+> [`CHANGELOG_IMPLEMENTATION.md`](CHANGELOG_IMPLEMENTATION.md) for the audit of the AI layer and
+> what was changed.
 
 **Demo video:** [SPADE on YouTube](https://youtu.be/bc8clLOeSbo)
 
@@ -32,15 +39,21 @@ dq-frame FOC/MTPA controller (`control/classical/pmsm_foc.py`) is called directl
 for a standalone control-law comparison (MTPA vs. naive policy on short current steps), with no
 fault model and no dataset export path. See that module's own docstring for the same statement.
 
-The dashboard exposes all of this as five macro-phases, picked from the landing page:
+The dashboard is a multipage Streamlit app (*SPADE · Engineering Workbench*, `src/driveflow/viz/app.py`)
+with native navigation; the five original macro-phases map onto its sections:
 
-| Phase | What it does |
-|---|---|
-| **A** -- DC Motor Diagnosis | DC motor under PI/MPC with bearing-fault injection (MCSA + vibration), single runs or multi-segment Advanced Flows, plus the PMSM FOC/MTPA control-law demo |
-| **B** -- DPC Voltage Source Converter | The trained DPC network tracking a rotating voltage reference, in time and in the complex plane, with off-distribution robustness probes |
-| **IA** -- Cross-domain classifiers & regressors | Evaluates the promoted per-domain classifier/regressor against a sample run or an uploaded file; edge (`.tflite`) downloads |
-| **TL** -- Transfer Learning | Fine-tunes a promoted PC-tier model on simulated + external data and promotes the result -- see below |
-| **LM** -- Live Monitoring | Agent Consensus: simulation-based detector + rule-based gateway + classifier confidence drift, aggregated into one per-domain status -- see below |
+| Section / page | Former phase | What it does |
+|---|---|---|
+| Workspace · **Overview** | landing | Real workspace checks, engineering workflow, this session's runs, motor status (UNKNOWN until monitored), clickable system diagram |
+| Simulation · **DC Motor** | A | PI or MPC, bearing-fault injection (MCSA + synthetic vibration), KPIs, time signals, spectrum (FFT) with simulator-computed BPFO/BPFI markers, AI suggestion, operating envelope, provenance + export; Advanced Flow mode |
+| Simulation · **PMSM / FOC** | A | FOC/MTPA control-law demo -- explicitly *no diagnosis* |
+| Simulation · **VSC / DPC** | B | Trained DPC network tracking, complex plane, dataset-upload evaluator |
+| Intelligence · **AI Diagnostics** | IA | Promoted classifier/forecaster on a sample run or upload, labelled as AI suggestions with model version |
+| Intelligence · **Transfer Learning** | TL | 4-step gated wizard (Data → Setup → Validate → Promote) -- see below |
+| Intelligence · **Model Registry** | IA | Every run on disk: status from evidence, lineage, gate, artifacts with SHA-256, edge-export lifecycle, rollback |
+| Operations · **Monitoring** | LM | SIMULATED monitoring: agent consensus, status from *all* active alerts, motor status, acknowledge |
+| Operations · **Alert History** | LM | Filterable, exportable alert log |
+| Help · **Documentation** | -- | Status semantics, data formats, known limitations |
 
 A full, phase-by-phase snapshot of what the platform does today is kept in
 [`docs/plataforma_estado_actual.md`](docs/plataforma_estado_actual.md).
@@ -90,25 +103,40 @@ Fine-tuning a model that is already promoted, without retraining it from scratch
 - **`loader.py`** wraps the existing registry API (`resolve`/`load_promoted_model`) -- no parallel
   YAML schema and no registry format change. `load_by_generation()` additionally loads *any* past
   run directory by path (promoted or not), so a fine-tune can be stacked on a previous fine-tune.
-- **`data_merger.py`** merges freshly-simulated data with external/uploaded data by `mix_ratio`,
-  optionally stratified on the dataset's real `label` column.
+- **`data_merger.py`** merges freshly-simulated data with external data by **whole acquisitions**
+  (`source_file`), never individual rows; `mix_ratio` is measured in training windows and the
+  realized ratio is reported. IDs are prefixed `sim::`/`ext::`; groups with out-of-order
+  timestamps or a sampling rate other than 10 kHz are excluded, never re-sorted or resampled.
+- **`dataset_validation.py`** is the *training* contract for uploads (keeps `label`, `source_file`,
+  `timestamp_s` and other metadata; base-model channels and class vocabulary required) -- distinct
+  from the inference-only validators used by AI Diagnostics.
 - **`pipeline.py`** implements three fine-tune strategies for real: `FEATURE_EXTRACTOR` (freeze the
   first N layers, then a normal `fit()`), `DISCRIMINATIVE_LR` (a manual per-layer-group
   `tf.GradientTape` loop -- Keras `fit()` has no per-layer learning rate), and `ADAPTER` (freeze
   everything but the last N trainable layers; a deliberately simplified, architecture-agnostic
   reading of parameter-efficient fine-tuning, *not* LoRA). An `on_epoch_end` hook feeds the
   dashboard's live loss chart and fires identically on both paths.
-- **`validator.py`** backs the Promote tab's checks: accuracy vs. the base model and vs. an
-  absolute floor, loss convergence, and prediction mode collapse.
+  The pipeline always fine-tunes a **clone** of the base model and verifies the base weights'
+  SHA-256 fingerprint afterwards.
+- **`validator.py`** is task-specific: classification (accuracy, macro-F1, per-class recall,
+  confusion matrix, mode collapse) and regression (MAE, RMSE per horizon step, finiteness,
+  constant-output detection, vs. base and vs. a persistence baseline), plus convergence. Each check
+  is PASS / FAIL / NOT_APPLICABLE / INCOMPLETE; INCOMPLETE blocks.
+- **`workflow.py`** runs the whole path without Streamlit: grouped train/val/test split by
+  acquisition (no leaky fallback), single evaluation of base *and* candidate on the same test set,
+  lineage, candidate saving.
+- **`../promotion.py`** is the fail-closed `PromotionGate` (dataset integrity, split
+  independence, single test evaluation, validation checks, base unchanged, lineage, human
+  approval). `ai/registry.py`'s `promote()` re-evaluates the persisted evidence of any
+  transfer-learning run and refuses it unless approved; promotions are atomic, appended to
+  `configs/registry_history.yaml`, and reversible with `rollback()`.
 
-In the dashboard the phase is three tabs -- *Training*, *Comparison*, *Promote & Deploy*: pick a
-domain with a promoted PC-tier model, generate simulated data and/or upload your own (run through
-the same upload validators the IA tab uses), choose a strategy, train with a live loss chart,
-compare base-vs-fine-tuned metrics, then review the validation checks and promote. Promotion is
-not hard-gated -- a failed check shows an explicit warning that promoting anyway replaces whatever
-is currently in production for that `(domain, tier, block)`. A fine-tuned run is written as a
-sibling `<config>_tl/<date>_runNN/` directory, so it stays visually distinct from from-scratch
-runs of the same config, and its weights are downloadable right there. Pushing the new run down to
+In the dashboard the page is a 4-step wizard: **Data** (simulate + optionally upload, prepare
+dataset → hash, split manifest, integrity checks), **Setup** (strategy, epochs, proposed
+thresholds flagged as requiring confirmation, train), **Validate** (loss curves, base vs.
+fine-tuned on the same independent test set, checks), **Promote** (gate decision; *Save as
+candidate* writes `<config>_tl/<date>_runNN/` without touching the registry; *Promote* is enabled
+only when the gate is APPROVED, and the registry re-checks it anyway). Pushing the new run down to
 Raspberry Pi 5/ESP32 reuses the existing `--distill` flag on `experiments/train_model.py`; it is
 not a separate mechanism.
 
@@ -137,7 +165,8 @@ to the nearest fault hypothesis.
 - **`explainer.py`** returns feature importance for the score -- which channels explain most of the
   distance between the telemetry and the closest hypothesis.
 
-The **"Live Monitoring" macro-phase** (`viz/live_monitoring_dashboard.py`) is where the three
+The **Monitoring page** (`viz/views/monitoring.py`, labelled *SIMULATED MONITORING* -- each pass
+synthesises telemetry with `run_scenario()`) is where the three
 detection mechanisms meet as one **Agent Consensus**, all feeding a single session-scoped
 `ServerAgent`:
 
@@ -148,14 +177,16 @@ detection mechanisms meet as one **Agent Consensus**, all feeding a single sessi
    wiring), records its confidence, and reports baseline-vs-recent drift once enough history has
    accumulated.
 
-The output is a per-domain status badge (`ServerAgent.domain_status`), an alert history table
+The output is a per-domain status (`ServerAgent.domain_health`: the highest severity among
+**all** active alerts, keyed by `(domain, rule, source)`; UNKNOWN until the domain has been
+evaluated, never HEALTHY by default), an alert history table
 (`ServerAgent.alert_history`), and the feature-importance explanation for the simulation-based
 score. Agent state lives in `st.session_state`, not `st.cache_resource` -- the latter is shared
 across every session on the same Streamlit server process, which for a stateful agent (alert
 history, hysteresis timers) would leak one user's monitoring history into another's.
 
 Note on the `vsc_dpc` rule: it only fires for load resistance in [1, 3] ohm and carries a 2-second
-hysteresis, so a single "Run monitoring" click showing *Status: OK* with R in range is expected --
+hysteresis, so a single "Run monitoring" click not firing the rule with R in range is expected --
 the condition has to hold across consecutive clicks, not fire instantly.
 
 ## Quick start
@@ -168,11 +199,16 @@ source .venv/bin/activate
 uv pip install -e ".[dev,viz]"
 ```
 
-Run the dashboard:
+Run the dashboard (either command opens the same multipage app):
 
 ```bash
-streamlit run src/driveflow/viz/dashboard.py
+streamlit run src/driveflow/viz/app.py
+streamlit run src/driveflow/viz/dashboard.py   # legacy command, still supported
 ```
+
+The exact environment the test suite was verified in is pinned in `requirements-lock.txt`
+(`uv pip install -r requirements-lock.txt && uv pip install -e . --no-deps`). Light and dark
+themes are both native (app menu ⋮ → Settings → Theme); the app follows the OS preference.
 
 Run the tests:
 
@@ -205,8 +241,12 @@ src/driveflow/
                   DTW/Euclidean/Mahalanobis metrics, TTL simulation cache, feature-importance
                   explainer
   monitoring/     rule schema/YAML + the ESP32/Raspberry Pi 5/PC monitoring agents
-  viz/            dashboard.py (Fase A/B + landing page), ai_dashboard.py (IA),
-                  transfer_learning_dashboard.py (TL) and live_monitoring_dashboard.py (LM)
+  analysis/       display-grade spectrum (Hann-windowed amplitude spectrum, peak)
+  viz/            app.py (navigation) + dashboard.py (legacy entry); pages/ (thin page scripts),
+                  views/ (page UI), components/ (header, KPI, charts, motor status, presets),
+                  theme/ (tokens, scoped CSS, Plotly conventions), adapters/ (orchestration over
+                  the library -- no numerics); ai_/transfer_learning_/live_monitoring_dashboard.py
+                  are compatibility shims
 experiments/      standalone scripts: train/promote/export models, fine-tune/evaluate the DPC
                   network, generate diagnosis datasets, calibrate the vibration module
 tests/            pytest suite

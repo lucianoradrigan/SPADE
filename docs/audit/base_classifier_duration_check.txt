@@ -1,0 +1,19 @@
+Observed experiment (2026-10-12, branch feature/ai-audit-gui-refactor) -- NOT a re-evaluation of the
+recorded metrics, which are left untouched in configs/classifiers/pc_server/2026-09-01_run01/metrics.json.
+
+Promoted dc_motor/pc/classifier evaluated on FRESH simulated runs (seeds 100-108, 3 per class:
+healthy/outer_race/inner_race, default severities, omega_ref = 150 rad/s Scenario default), windows
+built exactly as in training (build_classification_windows, input_window 512, base channels/classes):
+
+  duration 0.15 s : 18 windows   accuracy 0.222  macro-F1 0.127
+  duration 1.0  s : 171 windows  accuracy 0.579  macro-F1 0.484
+  duration 3.0  s : 522 windows  accuracy 0.638  macro-F1 0.532
+
+Recorded at training time: test accuracy 0.895 / macro-F1 0.894 on n_test = 38 windows
+(dataset: 5.0 s runs, seeds 0-9, experiments/generate_diagnosis_dataset.py).
+
+Reading: (1) short runs are dominated by the start-up transient (speed settles in ~0.45 s), far
+from the 5 s training runs -> the legacy TL default (0.15 s) fine-tuned on out-of-distribution data;
+(2) even on settled runs from unseen seeds the classifier is well below its recorded test score,
+which was measured on a small (38-window) test set. This is a finding to investigate (seed-to-seed
+variability, transient windows, test-set size), not a corrected number.

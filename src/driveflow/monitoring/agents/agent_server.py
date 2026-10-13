@@ -17,12 +17,40 @@ classifier confidence scores, and reasons across domains and time:
 Correlating "between A and B" (Sec. 4.3) means aggregating each domain's own alerts/confidence
 into one place that can see both -- NOT mixing their telemetry or models, which would violate the
 domain isolation Sec. 1 requires.
+
+Concurrent alerts (AUDIT AI-08): the badge used to be `"ok" if alert.resolved else "alert"` of the
+LAST event received, so resolving alert A while B was still firing showed the domain as healthy.
+Active alerts are now tracked individually, keyed by (domain, rule_name, source_id), and the
+domain's status is derived from ALL of them: domain_health() = the highest severity among active
+alerts; HEALTHY only when the domain has actually reported (record_evaluation / heartbeat) and no
+alert is active; UNKNOWN when nothing has been reported; OFFLINE when a connected source's
+heartbeat is older than its timeout. Acknowledging an alert (operator has seen it) does NOT change
+health; only a resolution does.
 """
 
 from __future__ import annotations
 
 from collections import deque
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+
+#: Rule/agent severity vocabulary -> health level. "low" maps to WARNING on purpose: an active,
+#: unresolved alert of any severity is never HEALTHY. Configurable per ServerAgent.
+DEFAULT_SEVERITY_LEVELS = {"critical": "CRITICAL", "high": "CRITICAL", "medium": "WARNING", "warning": "WARNING", "low": "WARNING", "info": "WARNING"}
+_HEALTH_RANK = {"HEALTHY": 0, "WARNING": 1, "CRITICAL": 2}
+
+
+@dataclass
+class ActiveAlert:
+    domain: str
+    rule_name: str
+    source_id: str
+    severity: str
+    level: str
+    first_seen: float
+    last_seen: float
+    action: str
+    acknowledged_by: str | None = None
+    notes: list = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -35,7 +63,7 @@ class ConfidenceDriftReport:
 
 
 class ServerAgent:
-    def __init__(self, confidence_window: int = 20, baseline_window: int = 100, drift_threshold: float = 0.15):
+    def __init__(self, confidence_window: int = 20, baseline_window: int = 100, drift_threshold: float = 0.15, severity_levels: dict | None = None):
         """confidence_window: how many of the most recent predictions count as "recent".
         baseline_window: how many predictions of history to retain in total (older ones are
         dropped); the baseline mean is computed over whatever of that history isn't in the
@@ -48,29 +76,89 @@ class ServerAgent:
         self._drift_threshold = drift_threshold
         self._confidence_history: dict = {}
         self._alert_log: list = []
-        self._domain_status: dict = {}
+        self._severity_levels = {**DEFAULT_SEVERITY_LEVELS, **(severity_levels or {})}
+        self._active: dict = {}  # (domain, rule_name, source_id) -> ActiveAlert
+        self._last_report: dict = {}  # domain -> (timestamp, source_mode)
+        self._heartbeat: dict = {}  # domain -> (timestamp, timeout_s)
 
-    def record_alert(self, domain: str, alert) -> None:
-        """Ingest one Alert emitted by `domain`'s GatewayAgent.step(). Updates that domain's
-        badge status (Sec. 5.3) and appends to the alert log -- `alert` needs only rule_name/
-        severity/action/timestamp/resolved attributes, so this also accepts an
-        agent_gateway.Alert or any duck-typed equivalent (e.g. a future ESP32 watchdog event)."""
+    def _level(self, severity: str) -> str:
+        return self._severity_levels.get(str(severity).lower(), "WARNING")
+
+    def record_alert(self, domain: str, alert, source_id: str = "default") -> None:
+        """Ingest one Alert emitted by `domain`'s GatewayAgent.step(). Updates the set of active
+        alerts and appends to the alert log -- `alert` needs only rule_name/severity/action/
+        timestamp/resolved attributes, so this also accepts an agent_gateway.Alert or any
+        duck-typed equivalent (e.g. a future ESP32 watchdog event). A resolution only clears the
+        alert with the SAME (rule_name, source_id); every other active alert stays active."""
+        key = (domain, alert.rule_name, source_id)
         self._alert_log.append(
             {
                 "domain": domain,
                 "rule_name": alert.rule_name,
+                "source_id": source_id,
                 "severity": alert.severity,
                 "action": alert.action,
                 "timestamp": alert.timestamp,
                 "resolved": alert.resolved,
             }
         )
-        self._domain_status[domain] = "ok" if alert.resolved else "alert"
+        self._last_report[domain] = (alert.timestamp, self._last_report.get(domain, (None, None))[1])
+        if alert.resolved:
+            self._active.pop(key, None)
+            return
+        existing = self._active.get(key)
+        if existing is None:
+            self._active[key] = ActiveAlert(domain, alert.rule_name, source_id, alert.severity, self._level(alert.severity), alert.timestamp, alert.timestamp, alert.action)
+        else:
+            existing.last_seen = alert.timestamp
+            existing.severity, existing.level = alert.severity, self._level(alert.severity)
+
+    def record_evaluation(self, domain: str, timestamp: float, source_mode: str = "simulated") -> None:
+        """Marks that `domain` WAS evaluated at `timestamp` (e.g. one monitoring pass ran), even if
+        it raised no alert -- required before the domain can be reported HEALTHY."""
+        self._last_report[domain] = (timestamp, source_mode)
+
+    def record_heartbeat(self, domain: str, timestamp: float, timeout_s: float) -> None:
+        """For a CONNECTED telemetry source: the last time it delivered data, and how long silence
+        is tolerated before the domain is reported OFFLINE."""
+        self._heartbeat[domain] = (timestamp, timeout_s)
+        self.record_evaluation(domain, timestamp, source_mode="connected")
+
+    def active_alerts(self, domain: str | None = None) -> list:
+        return [a for a in self._active.values() if domain is None or a.domain == domain]
+
+    def acknowledge(self, domain: str, rule_name: str, by: str, source_id: str = "default", note: str | None = None) -> bool:
+        """Operator has SEEN the alert. Does not resolve it and does not change health."""
+        alert = self._active.get((domain, rule_name, source_id))
+        if alert is None:
+            return False
+        alert.acknowledged_by = by
+        if note:
+            alert.notes.append(note)
+        self._alert_log.append({"domain": domain, "rule_name": rule_name, "source_id": source_id, "severity": alert.severity, "action": "acknowledged", "timestamp": alert.last_seen, "resolved": False, "by": by})
+        return True
+
+    def domain_health(self, domain: str, now: float | None = None) -> str:
+        """HEALTHY / WARNING / CRITICAL / OFFLINE / UNKNOWN -- see module docstring."""
+        hb = self._heartbeat.get(domain)
+        if hb is not None and now is not None and now - hb[0] > hb[1]:
+            return "OFFLINE"
+        active = self.active_alerts(domain)
+        if active:
+            return max((a.level for a in active), key=lambda lvl: _HEALTH_RANK.get(lvl, 1))
+        if domain not in self._last_report or self._last_report[domain][0] is None:
+            return "UNKNOWN"
+        return "HEALTHY"
+
+    def last_report(self, domain: str) -> tuple:
+        """(timestamp, source_mode) of the last evaluation/alert for `domain`, or (None, None)."""
+        return self._last_report.get(domain, (None, None))
 
     def domain_status(self, domain: str) -> str:
-        """"ok" until the first unresolved alert for `domain` is recorded; "alert" until it is
-        resolved. A domain with no alerts recorded yet is "ok"."""
-        return self._domain_status.get(domain, "ok")
+        """Legacy two-state badge kept for existing callers: "alert" while ANY alert of `domain`
+        is active, else "ok". Unlike domain_health() it cannot express UNKNOWN -- new code (the
+        dashboard, the motor status view) must use domain_health()."""
+        return "alert" if self.active_alerts(domain) else "ok"
 
     def alert_history(self, domain: str | None = None) -> list:
         """Full log in recording order (Sec. 5.3's bitácora), optionally filtered to one domain."""

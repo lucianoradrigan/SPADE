@@ -93,9 +93,11 @@ class TestDiscriminativeLrStrategy:
 class TestAdapterStrategy:
     def test_only_the_last_layer_stays_trainable_after_training(self):
         model = _tiny_classifier()
-        weighted = [layer for layer in model.layers if layer.weights]
         pipeline = TransferLearningPipeline.from_loaded_model(model, strategy=FineTuneStrategy.ADAPTER, train_config={"adapter_layers": 1})
+        # The pipeline trains a clone (AUDIT AI-04) -- inspect the model it actually trained.
+        weighted = [layer for layer in pipeline.model.layers if layer.weights]
         pipeline.train(_tiny_classification_data(n=24, seed=7), _tiny_classification_data(n=6, seed=8), epochs=2, batch_size=8)
+        assert pipeline.verify_base_unchanged()
         assert weighted[-1].trainable is True
         assert weighted[0].trainable is False
 

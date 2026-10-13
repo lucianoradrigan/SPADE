@@ -1,0 +1,64 @@
+"""Inference-only access to promoted models.
+
+Caching a keras.Model with st.cache_resource is correct HERE and only here: these instances are
+used for prediction and are never trained (transfer learning loads its own private copy and
+fine-tunes a clone -- AUDIT AI-04). RegistryError is not cached, so a later promotion is picked
+up on the next call."""
+
+from __future__ import annotations
+
+import json
+
+import numpy as np
+import streamlit as st
+
+from driveflow.ai.registry import RegistryError, load_promoted_model, resolve
+
+
+@st.cache_resource(show_spinner=False)
+def cached_promoted_model(domain: str, tier: str, block: str, run_dir_key: str = ""):
+    # run_dir_key is part of the cache key on purpose (no leading underscore: Streamlit does not
+    # hash underscore-prefixed arguments).
+    del run_dir_key
+    return load_promoted_model(domain, tier, block)
+
+
+def promoted_model(domain: str, tier: str, block: str):
+    """(model, config, metrics, run_dir) -- keyed on the resolved run directory, so promoting or
+    rolling back a model invalidates the cached instance instead of serving the old one."""
+    run_dir = resolve(domain, tier, block)
+    model, config, metrics = cached_promoted_model(domain, tier, block, str(run_dir))
+    return model, config, metrics, run_dir
+
+
+def normalize_window(window: np.ndarray) -> tuple:
+    """Per-window, per-channel z-score -- the same normalisation windowing.py applied at training
+    time (statistics of the window itself, never of other data)."""
+    mu, sigma = window.mean(axis=0), window.std(axis=0)
+    sigma = np.where(sigma > 1e-6, sigma, 1.0)
+    return (window - mu) / sigma, mu, sigma
+
+
+def classify_last_window(domain: str, df) -> dict | None:
+    """AI suggestion on the last input_window rows of df, or None if no classifier is promoted /
+    channels are missing / too few rows. Returns probabilities with the model's identity."""
+    try:
+        model, config, metrics, run_dir = promoted_model(domain, "pc", "classifier")
+    except RegistryError:
+        return None
+    channels = metrics["channels"]
+    if len(df) < config.input_window or any(c not in df.columns or df[c].isna().all() for c in channels):
+        return None
+    window = df[channels].iloc[-config.input_window :].to_numpy(dtype=np.float32)
+    window_n, _, _ = normalize_window(window)
+    probs = model(window_n[np.newaxis, ...], training=False).numpy()[0]
+    k = int(np.argmax(probs))
+    return {
+        "classes": list(metrics["classes"]), "probs": [float(p) for p in probs], "predicted": metrics["classes"][k], "confidence": float(probs[k]),
+        "model_id": f"{run_dir.parent.name}/{run_dir.name}", "test_macro_f1": metrics.get("test_macro_f1"), "n_test": metrics.get("n_test"),
+    }
+
+
+def run_metrics(run_dir) -> dict:
+    with (run_dir / "metrics.json").open() as f:
+        return json.load(f)

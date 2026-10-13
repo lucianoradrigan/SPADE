@@ -1,0 +1,7 @@
+[AI-01] REPRODUCED -- 398 non-increasing timestamp steps inside merged groups (rows sampled individually); source_file collision sim/ext in one group: True
+[AI-02] REPRODUCED -- columns lost after validate_dc_motor_upload: ['label', 'source_file', 'timestamp_s']
+[AI-03] REPRODUCED -- _prepare_windows regression branch builds 'val' and 'test' from the same idx_test
+[AI-04] REPRODUCED -- pipeline.model is the cached base object: True; base weights changed: True
+[AI-05] REPRODUCED -- NaN regressor passed=True ({'mode_collapse_ok': True}); constant regressor passed=True; TL calls check_convergence: False
+[AI-06] REPRODUCED -- Promote button has no disabled= gate: True; registry.promote() accepted a run whose metrics say checks FAILED: True; threshold used in TL: max_accuracy_drop=1.0 present: True
+[AI-08] REPRODUCED -- A+B active, resolve A -> domain_status='ok' (B is still active); never-seen domain -> 'ok'

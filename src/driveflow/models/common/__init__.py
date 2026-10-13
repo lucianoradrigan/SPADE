@@ -1,5 +1,6 @@
 from .dataset import DIAGNOSIS_PLANT_CONFIG_IDS, filter_diagnosis_domain, load_diagnosis_dataset
-from .splits import grouped_split, prepare_classification_splits
+from .acquisitions import AcquisitionCheck, check_acquisitions, contiguous_segments, window_starts
+from .splits import InsufficientGroupsError, SplitManifest, grouped_split, grouped_train_val_test_split, prepare_classification_splits
 from .windowing import (
     CANDIDATE_CHANNELS,
     VSC_DPC_CANDIDATE_CHANNELS,
@@ -16,7 +17,14 @@ __all__ = [
     "DIAGNOSIS_PLANT_CONFIG_IDS",
     "filter_diagnosis_domain",
     "load_diagnosis_dataset",
+    "AcquisitionCheck",
+    "check_acquisitions",
+    "contiguous_segments",
+    "window_starts",
+    "InsufficientGroupsError",
+    "SplitManifest",
     "grouped_split",
+    "grouped_train_val_test_split",
     "prepare_classification_splits",
     "CANDIDATE_CHANNELS",
     "VSC_DPC_CANDIDATE_CHANNELS",

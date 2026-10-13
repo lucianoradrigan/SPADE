@@ -14,6 +14,12 @@ models.common.windowing.build_classification_windows/build_direct_forecast_windo
 Windowing itself is the caller's job (DataMerger only merges rows; a real training script would
 window the merged DataFrame the same way experiments/train_model.py already does), not this
 pipeline's.
+
+Model isolation (AUDIT AI-04): from_loaded_model() fine-tunes a CLONE of the model it is given
+(same architecture, weights copied) and records the original's weights_fingerprint. The original
+object -- typically a cached, shared, "this is production" instance -- is never trained, so the
+base model stays a valid baseline for the before/after comparison and for every other session.
+verify_base_unchanged() re-checks the fingerprint after training.
 """
 
 from __future__ import annotations
@@ -23,6 +29,8 @@ from enum import Enum
 import keras
 import numpy as np
 import tensorflow as tf
+
+from driveflow.ai.provenance import set_global_seed, weights_fingerprint
 
 
 class FineTuneStrategy(Enum):
@@ -38,6 +46,17 @@ def _is_classifier_target(y: np.ndarray) -> bool:
     return np.issubdtype(np.asarray(y).dtype, np.integer)
 
 
+def clone_for_finetuning(model: keras.Model) -> keras.Model:
+    """Fresh layers with the same architecture and a COPY of model's weights -- training the clone
+    can never write into `model` (clone_model rebuilds every layer from its config; set_weights
+    copies values, it does not share variables)."""
+    clone = keras.models.clone_model(model)
+    clone.set_weights([w.copy() for w in model.get_weights()])
+    for src, dst in zip(model.layers, clone.layers):
+        dst.trainable = src.trainable
+    return clone
+
+
 class TransferLearningPipeline:
     """Orquesta el fine-tune de un modelo ya cargado. Cargar el modelo base
     (transfer.loader.ModelLoader) y fusionar los datos (transfer.data_merger.DataMerger) son
@@ -50,15 +69,29 @@ class TransferLearningPipeline:
         self.model: keras.Model | None = None
         self.history: dict | None = None
         self._discriminative_lr: dict | None = None
+        self.base_model: keras.Model | None = None
+        self.base_fingerprint: str | None = None
 
     @classmethod
-    def from_loaded_model(cls, model: keras.Model, strategy: FineTuneStrategy = FineTuneStrategy.FEATURE_EXTRACTOR, train_config: dict | None = None, base_model_path: str = "") -> "TransferLearningPipeline":
+    def from_loaded_model(cls, model: keras.Model, strategy: FineTuneStrategy = FineTuneStrategy.FEATURE_EXTRACTOR, train_config: dict | None = None, base_model_path: str = "", clone: bool = True) -> "TransferLearningPipeline":
         """Normal entry point: wrap a keras.Model a ModelLoader.load_*() call already built and
         loaded weights into. base_model_path is only used as save_checkpoint()'s implicit
-        source-of-truth label, not re-loaded here."""
+        source-of-truth label, not re-loaded here.
+
+        clone=True (default, AUDIT AI-04) trains a copy -- see module docstring. clone=False
+        restores the historical in-place behaviour and exists only for callers that already own
+        a private, disposable instance."""
         pipeline = cls(base_model_path=base_model_path, strategy=strategy, train_config=train_config)
-        pipeline.model = model
+        pipeline.base_model = model
+        pipeline.base_fingerprint = weights_fingerprint(model)
+        pipeline.model = clone_for_finetuning(model) if clone else model
         return pipeline
+
+    def verify_base_unchanged(self) -> bool:
+        """True iff the base model's weights are bit-identical to when the pipeline was built."""
+        if self.base_model is None or self.base_fingerprint is None:
+            return False
+        return weights_fingerprint(self.base_model) == self.base_fingerprint
 
     def load_base_model(self) -> None:
         """Carga los pesos guardados en base_model_path sobre self.model. self.model debe tener
@@ -92,6 +125,9 @@ class TransferLearningPipeline:
     def train(self, train_data: dict, val_data: dict, epochs: int = 50, batch_size: int = 32) -> dict:
         if self.model is None:
             raise ValueError("no model loaded -- call from_loaded_model() first")
+
+        if self.train_config.get("seed") is not None:
+            set_global_seed(int(self.train_config["seed"]))
 
         X_train, y_train = np.asarray(train_data["X"]), np.asarray(train_data["y"])
         X_val = np.asarray(val_data["X"]) if val_data.get("X") is not None else None

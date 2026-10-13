@@ -17,15 +17,26 @@ already that history).
 Built now (Sec. 8 step 6) only once a real trained artifact exists to register -- see
 docs/design_ai_layer_transversal.md's status note for which run is registered and how it was
 produced.
+
+Safety additions (AUDIT AI-06): writes are atomic (temp file + os.replace, so a crash can never
+leave a half-written registry.yaml); every promotion / rollback is appended to an audit history
+(<registry>_history.yaml next to the registry -- registry.yaml's own format is unchanged); and a
+run produced by transfer learning is only accepted if its persisted gate_report.json is APPROVED
+(driveflow.ai.promotion). The history is what makes a promotion reversible (rollback()).
 """
 
 from __future__ import annotations
 
+import datetime as dt
 import json
+import os
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
 import yaml
+
+from driveflow.ai.promotion import APPROVED, LINEAGE_FILE, is_transfer_learning_run, load_gate_report, reevaluate_persisted
 
 from driveflow.models.classifiers.builder import build_classifier
 from driveflow.models.classifiers.schemas import load_classifier_config
@@ -42,6 +53,10 @@ class RegistryError(ValueError):
     """No promoted run exists for the requested (domain, tier, block), or the registry file / a
     run directory is malformed -- raised so a caller gets a clear "not available" signal instead
     of a raw KeyError/FileNotFoundError."""
+
+
+class PromotionRejected(RegistryError):
+    """A transfer-learning run without an APPROVED gate report was offered for promotion."""
 
 
 @dataclass(frozen=True)
@@ -77,16 +92,57 @@ def _load_index(registry_path: Path) -> dict:
     return dict(raw.get("entries", {}))
 
 
+def _atomic_write_yaml(path: Path, payload) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w") as f:
+            yaml.safe_dump(payload, f, sort_keys=True)
+        os.replace(tmp, path)
+    except BaseException:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+        raise
+
+
 def _save_index(registry_path: Path, entries: dict) -> None:
-    registry_path.parent.mkdir(parents=True, exist_ok=True)
-    with registry_path.open("w") as f:
-        yaml.safe_dump({"entries": entries}, f, sort_keys=True)
+    _atomic_write_yaml(registry_path, {"entries": entries})
 
 
-def promote(run_dir, registry_path: Path = DEFAULT_REGISTRY_PATH) -> RegistryEntry:
+def history_path(registry_path: Path = DEFAULT_REGISTRY_PATH) -> Path:
+    registry_path = Path(registry_path)
+    return registry_path.with_name(f"{registry_path.stem}_history.yaml")
+
+
+def registry_history(registry_path: Path = DEFAULT_REGISTRY_PATH) -> list:
+    path = history_path(registry_path)
+    if not path.exists():
+        return []
+    with path.open() as f:
+        return list((yaml.safe_load(f) or {}).get("events", []))
+
+
+def _append_history(registry_path: Path, event: dict) -> None:
+    events = registry_history(registry_path)
+    events.append({"utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"), **event})
+    _atomic_write_yaml(history_path(registry_path), {"events": events})
+
+
+def _rel(run_dir: Path) -> str:
+    try:
+        return str(run_dir.relative_to(REPO_ROOT))
+    except ValueError:
+        return str(run_dir)
+
+
+def promote(run_dir, registry_path: Path = DEFAULT_REGISTRY_PATH, promoted_by: str | None = None, override: dict | None = None) -> RegistryEntry:
     """Marks run_dir (a directory produced by experiments/train_model.py -- config.yaml +
     model.weights.h5 + metrics.json) as the production run for its (domain, tier, block), the
-    latter two read from the run's own config.yaml/metrics.json, not passed by the caller."""
+    latter two read from the run's own config.yaml/metrics.json, not passed by the caller.
+
+    Transfer-learning runs (driveflow.ai.promotion.is_transfer_learning_run) additionally need an
+    APPROVED gate_report.json -- otherwise PromotionRejected, and registry.yaml is not touched.
+    `override={"reason": ..., "by": ...}` is the only, audited bypass (never shown as validated)."""
     run_dir = Path(run_dir).resolve()
     config_path = run_dir / "config.yaml"
     if not config_path.exists():
@@ -103,15 +159,65 @@ def promote(run_dir, registry_path: Path = DEFAULT_REGISTRY_PATH) -> RegistryEnt
         raise RegistryError(f"{config_path}: missing domain/tier")
     block = _detect_block(raw)
 
+    gate_status = None
+    action = "promote"
+    if is_transfer_learning_run(run_dir):
+        gate = load_gate_report(run_dir)
+        # Re-derive the decision from the persisted evidence; a stored "APPROVED" string whose
+        # evidence no longer supports it (edited file, missing report) is not accepted.
+        recomputed = reevaluate_persisted(run_dir)
+        gate_status = gate.get("status") if gate else None
+        if gate_status == APPROVED and (recomputed is None or not recomputed.approved):
+            gate_status = "STALE_OR_UNSUPPORTED"
+        if gate_status != APPROVED:
+            reason = str((override or {}).get("reason", "")).strip()
+            by = str((override or {}).get("by", "")).strip()
+            if not (reason and by):
+                raise PromotionRejected(
+                    f"{run_dir}: transfer-learning run has no APPROVED gate report (status={gate_status!r}) -- "
+                    "promotion refused; registry unchanged. Fix the failing checks, or pass an explicit, audited override."
+                )
+            action = "promote_override"
+
     key = _key(domain, tier, block)
     entries = _load_index(registry_path)
-    try:
-        rel_path = str(run_dir.relative_to(REPO_ROOT))
-    except ValueError:
-        rel_path = str(run_dir)
+    previous = entries.get(key)
+    rel_path = _rel(run_dir)
     entries[key] = rel_path
     _save_index(registry_path, entries)
+    _append_history(registry_path, {
+        "action": action, "key": key, "previous": previous, "new": rel_path, "by": promoted_by or (override or {}).get("by"),
+        "gate_status": gate_status, "override_reason": (override or {}).get("reason") if action == "promote_override" else None,
+    })
+    lineage_path = run_dir / LINEAGE_FILE
+    if lineage_path.exists():
+        lineage = json.loads(lineage_path.read_text())
+        lineage["status"] = "promoted" if action == "promote" else "promoted_override"
+        lineage_path.write_text(json.dumps(lineage, indent=2, default=str))
     return RegistryEntry(domain=domain, tier=tier, block=block, run_dir=run_dir)
+
+
+def rollback(domain: str, tier: str, block: str, registry_path: Path = DEFAULT_REGISTRY_PATH, by: str | None = None, reason: str | None = None) -> str | None:
+    """Restores the entry that was active before the most recent promotion of (domain, tier,
+    block), per the audit history. Returns the restored path (None = the key is removed because
+    nothing was promoted before). Raises RegistryError if there is no promotion to undo."""
+    key = _key(domain, tier, block)
+    entries = _load_index(registry_path)
+    events = [e for e in registry_history(registry_path) if e.get("key") == key]
+    current = entries.get(key)
+    # The latest promotion that installed the CURRENT entry -- after an earlier rollback this
+    # walks further back in history instead of re-undoing the rollback itself.
+    target_event = next((e for e in reversed(events) if e.get("action", "").startswith("promote") and e.get("new") == current), None)
+    if target_event is None:
+        raise RegistryError(f"no recorded promotion of {key!r} to roll back")
+    restored = target_event.get("previous")
+    if restored is None:
+        entries.pop(key, None)
+    else:
+        entries[key] = restored
+    _save_index(registry_path, entries)
+    _append_history(registry_path, {"action": "rollback", "key": key, "previous": current, "new": restored, "by": by, "reason": reason})
+    return restored
 
 
 def resolve(domain: str, tier: str, block: str, registry_path: Path = DEFAULT_REGISTRY_PATH) -> Path:

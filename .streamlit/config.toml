@@ -1,17 +1,30 @@
-# Fixed dark "industrial workbench" theme (Grafana/JetBrains-UI inspired) -- driveflow deliberately
-# commits to one visual identity rather than adapting to the browser's light/dark preference, same
-# spirit as Grafana/LabVIEW shipping their own consistent tool chrome. Using Streamlit's native
-# theme system (not just CSS) so built-in widgets -- sliders, checkboxes, alerts, inputs, tabs --
-# get theme-appropriate colors/contrast/hover states for free, instead of hand-overriding every
-# internal BaseWeb class name (fragile across Streamlit versions). viz/dashboard.py's own SURFACE/
-# BORDER/ACCENT/etc. Python constants (used for Plotly charts and bespoke CSS) are kept numerically
-# in sync with the values below by hand -- if you change one, change the other.
+# SPADE design tokens for Streamlit's native widgets. Single source of truth is
+# src/driveflow/viz/theme/tokens.py (DARK / LIGHT); tests/test_theme_tokens.py checks these values
+# stay identical to it. Both themes are native, so the user can switch in the app menu
+# (⋮ -> Settings -> Theme) without any CSS override of Streamlit internals.
 [theme]
 base = "dark"
-primaryColor = "#0EA5E9"
-backgroundColor = "#0F172A"
-secondaryBackgroundColor = "#1E293B"
+font = "sans-serif"
+baseRadius = "medium"
+
+[theme.dark]
+primaryColor = "#38BDF8"
+backgroundColor = "#0B1525"
+secondaryBackgroundColor = "#12263B"
 textColor = "#E2E8F0"
-borderColor = "#334155"
-linkColor = "#0EA5E9"
-font = "sans serif"
+borderColor = "#2B465D"
+linkColor = "#38BDF8"
+
+[theme.dark.sidebar]
+backgroundColor = "#081321"
+
+[theme.light]
+primaryColor = "#0369A1"
+backgroundColor = "#F5F8FB"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#0F1E2E"
+borderColor = "#C9D6E3"
+linkColor = "#0369A1"
+
+[theme.light.sidebar]
+backgroundColor = "#EAF0F6"

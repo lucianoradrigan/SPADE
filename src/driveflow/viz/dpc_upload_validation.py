@@ -187,3 +187,17 @@ def validate_vsc_dpc_forecast_upload(df_raw: pd.DataFrame):
     control network's fixed 15-column input row, not this domain's general state channels -- see
     VSC_DPC_CANDIDATE_CHANNELS' own comment in windowing.py for why the two schemas differ."""
     return _validate_channel_based_upload(df_raw, VSC_DPC_CANDIDATE_CHANNELS)
+
+
+def validate_inference_upload(df_raw: pd.DataFrame, domain: str):
+    """Explicit name for the INFERENCE contract (AUDIT AI-02): keeps only the numeric channel
+    block, which is all a model needs to be run on a file. Not for training -- labels, acquisition
+    IDs and timestamps are dropped here by design; transfer learning must use
+    driveflow.ai.transfer.dataset_validation.validate_training_dataset, which preserves them.
+    Bounds stay the generic sentinel (not per-channel) on purpose: off-distribution stress tests
+    are a legitimate use of inference uploads (see test_reasonable_off_distribution_values_are_not_rejected)."""
+    if domain == "dc_motor":
+        return validate_dc_motor_upload(df_raw)
+    if domain == "vsc_dpc":
+        return validate_vsc_dpc_forecast_upload(df_raw)
+    raise ValueError(f"unknown domain {domain!r}")

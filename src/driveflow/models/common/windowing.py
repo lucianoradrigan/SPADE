@@ -17,6 +17,8 @@ import math
 import numpy as np
 import pandas as pd
 
+from driveflow.models.common.acquisitions import TIME_COL, window_starts
+
 WINDOW_S = 0.5
 
 #: driveflow's schema subset of paper_federative's CANDIDATE_CHANNELS (canonical order) --
@@ -104,11 +106,17 @@ def build_classification_windows(
     cap_per_class: int = 500,
     group_col: str = "source_file",
     label_col: str = "label",
+    time_col: str = TIME_COL,
 ) -> tuple:
     """Adapted from load_dataset(): windows a labeled DataFrame into (X, y_str, groups).
     `groups` = group_col's value for each window (a driveflow scenario run is already
     single-label for its whole duration, unlike the original's per-file mixed-label case, so
     grouping is simpler here -- no need to filter df by label within a group first).
+
+    Temporal continuity (AUDIT AI-01/Q02): if `time_col` is present, a window is only taken where
+    all of its rows lie inside one uniformly-sampled segment of the group (acquisitions.
+    window_starts) -- a gap left by dropped rows is never bridged. On a clean single-segment
+    recording the windows are exactly the historical non-overlapping ones.
 
     Returns (None, None, None) if no windows could be built at all.
     """
@@ -129,12 +137,14 @@ def build_classification_windows(
             n_rows = len(sub)
             if n_rows < window_samples:
                 continue
-            n_wins = min(win_per_group, n_rows // window_samples, cap_per_class - collected)
+            t = sub[time_col].to_numpy(dtype=float) if time_col in sub.columns else None
+            starts = window_starts(n_rows, window_samples, t)
+            n_wins = min(win_per_group, len(starts), cap_per_class - collected)
 
             col_values = {c: sub[c].to_numpy() for c in channels if c in sub.columns and sub[c].notna().all()}
 
-            for i in range(n_wins):
-                sl = slice(i * window_samples, (i + 1) * window_samples)
+            for start in starts[:n_wins]:
+                sl = slice(start, start + window_samples)
                 chans = []
                 for c in channels:
                     if c in col_values:
@@ -165,6 +175,7 @@ def build_forecast_windows(
     n_bins: int,
     cap_per_group: int = 60,
     group_col: str = "source_file",
+    time_col: str = TIME_COL,
 ) -> tuple:
     """Adapted from load_forecast_envelope(): (context window, future RMS-per-bin envelope)
     pairs for the envelope forecaster. Unlike build_classification_windows, this ignores
@@ -187,9 +198,12 @@ def build_forecast_windows(
             continue
         col_values = {c: sub[c].to_numpy() for c in present_cols}
 
-        n_segments = min(cap_per_group, n_rows // seg_len)
-        for i in range(n_segments):
-            sl = slice(i * seg_len, i * seg_len + seg_len)
+        # Same gap-aware placement as build_classification_windows (context + horizon must both
+        # sit inside one contiguous segment -- a forecast target across a gap is meaningless).
+        t = sub[time_col].to_numpy(dtype=float) if time_col in sub.columns else None
+        starts = window_starts(n_rows, seg_len, t)
+        for start in starts[:cap_per_group]:
+            sl = slice(start, start + seg_len)
             ctx_chans, env_chans = [], []
             for c in channels:
                 raw = col_values[c][sl].astype(np.float32)
@@ -221,6 +235,7 @@ def build_direct_forecast_windows(
     horizon_samples: int,
     cap_per_group: int = 60,
     group_col: str = "source_file",
+    time_col: str = TIME_COL,
 ) -> tuple:
     """Like build_forecast_windows, but the target Y is the raw (normalized) future signal itself
     -- (n, horizon_samples, C) -- not an RMS-per-bin envelope. Used by
@@ -244,9 +259,12 @@ def build_direct_forecast_windows(
             continue
         col_values = {c: sub[c].to_numpy() for c in present_cols}
 
-        n_segments = min(cap_per_group, n_rows // seg_len)
-        for i in range(n_segments):
-            sl = slice(i * seg_len, i * seg_len + seg_len)
+        # Same gap-aware placement as build_classification_windows (context + horizon must both
+        # sit inside one contiguous segment -- a forecast target across a gap is meaningless).
+        t = sub[time_col].to_numpy(dtype=float) if time_col in sub.columns else None
+        starts = window_starts(n_rows, seg_len, t)
+        for start in starts[:cap_per_group]:
+            sl = slice(start, start + seg_len)
             ctx_chans, fut_chans = [], []
             for c in channels:
                 raw = col_values[c][sl].astype(np.float32)
