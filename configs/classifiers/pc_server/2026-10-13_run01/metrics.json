@@ -1,0 +1,103 @@
+{
+  "kind": "classifier",
+  "domain": "dc_motor",
+  "tier": "pc",
+  "channels": [
+    "acc_x",
+    "acc_y",
+    "acc_z",
+    "current_r",
+    "rpm",
+    "torque_nm"
+  ],
+  "classes": [
+    "inner_race",
+    "normal",
+    "outer_race"
+  ],
+  "n_train": 1050,
+  "n_val": 300,
+  "n_test": 150,
+  "test_accuracy": 0.96,
+  "test_macro_f1": 0.9602122635995979,
+  "test_per_class_recall": {
+    "inner_race": 0.94,
+    "normal": 1.0,
+    "outer_race": 0.94
+  },
+  "split": {
+    "method": "grouped_by_acquisition_per_class",
+    "seed": 42,
+    "fractions": {
+      "train": 0.7,
+      "val": 0.2,
+      "test": 0.1
+    },
+    "n_windows": {
+      "train": 1050,
+      "val": 300,
+      "test": 150
+    },
+    "n_groups": {
+      "train": 21,
+      "val": 6,
+      "test": 3
+    },
+    "group_hashes": {
+      "train": [
+        "00335056d579",
+        "015d91643486",
+        "052af814229a",
+        "09f7df65460e",
+        "1818c1278f4c",
+        "324aca66f4b8",
+        "33a08834b810",
+        "3bdd62d37fbf",
+        "4d08f90d474e",
+        "4f02f9427f1c",
+        "557c2c16c040",
+        "670766422631",
+        "6b2a320bbb0e",
+        "76e12609285f",
+        "7acfd1114d6b",
+        "7e7d0447143b",
+        "80427349ae56",
+        "b68d4df97ffa",
+        "d1ff1d600f84",
+        "d33419448a2e",
+        "fc488ea53301"
+      ],
+      "val": [
+        "0fa043ee0650",
+        "5919c32ba27c",
+        "79ee3fbe38b4",
+        "b0382405a9aa",
+        "d0f67030e0f3",
+        "d2465ff953ce"
+      ],
+      "test": [
+        "362c6b5b725e",
+        "92c857eae8bb",
+        "f485ef9691dc"
+      ]
+    },
+    "class_counts": {
+      "train": {
+        "0": 350,
+        "1": 350,
+        "2": 350
+      },
+      "val": {
+        "0": 100,
+        "1": 100,
+        "2": 100
+      },
+      "test": {
+        "0": 50,
+        "1": 50,
+        "2": 50
+      }
+    },
+    "disjoint": true
+  }
+}

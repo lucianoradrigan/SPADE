@@ -84,6 +84,25 @@ def test_registry_lists_only_existing_artifacts_with_correct_hashes():
         assert r["hardware_verified"] is False  # no deployment evidence exists in the repo
 
 
+def test_recorded_metric_is_never_listed_without_its_audit_finding():
+    # AUDIT Q15: the promoted dc_motor classifier's 0.895 never measured inner_race.
+    promoted = [r for r in list_runs() if r.get("status") == "Promoted" and r["domain"] == "dc_motor" and r["block"] == "classifier"]
+    assert promoted
+    for r in promoted:
+        assert r["audit_findings"], r["run"]
+        assert "audit_findings.json" in {a["file"] for a in artifacts(r["run_dir"])}
+
+
+def test_flex_ops_in_an_export_are_reported():
+    # AUDIT Q22: the rpi5 GRU regressor was exported with SELECT_TF_OPS and does not run on a
+    # builtin-only interpreter; every ESP32 export must stay builtin-only (TFLite Micro).
+    by_run = {r["run"]: r for r in list_runs() if r.get("exported")}
+    assert by_run["rpi5_edge/2026-09-13_run01"]["deployment"]["artifact"]["flex_ops"]
+    for r in by_run.values():
+        if r["tier"] == "esp32":
+            assert r["deployment"]["artifact"]["flex_ops"] == [], r["run"]
+
+
 def test_dc_export_matches_the_displayed_run():
     at = _page("dc_motor")
     at.slider(key="dc_duration_slider").set_value(0.1).run()

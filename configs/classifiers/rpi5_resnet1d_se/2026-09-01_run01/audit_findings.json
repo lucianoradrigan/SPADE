@@ -1,0 +1,11 @@
+{
+  "findings": [
+    {
+      "id": "Q15-teacher-and-test-split",
+      "severity": "high",
+      "date": "2026-10-13",
+      "summary": "Distilled from dc_motor/pc/classifier, which never predicts inner_race, and evaluated on the same 2-run test split without an inner_race run: the recorded 0.868 does not cover that class. Accuracy over all 285 windows of its own dataset is 0.579.",
+      "evidence": "docs/audit/tflite_parity_report.txt, docs/audit/classifier_generalization_report.txt"
+    }
+  ]
+}

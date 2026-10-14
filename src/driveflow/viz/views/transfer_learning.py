@@ -35,7 +35,9 @@ from driveflow.models.common.dataset import filter_diagnosis_domain
 from driveflow.models.common.splits import InsufficientGroupsError
 from driveflow.viz.adapters.session import record_run
 from driveflow.viz.components.metric_cards import check_list, kpi_row
+from driveflow.viz.components.model_comparison import model_comparison
 from driveflow.viz.components.page_header import badge_html, page_header, provenance_table, status_badge_html
+from driveflow.viz.components.promotion_gate import promotion_gate
 from driveflow.viz.theme.plotly import PLOTLY_CONFIG, series_color, style_figure
 from driveflow.viz.theme.tokens import SERIES
 
@@ -257,20 +259,6 @@ def _loss_figure(history: dict) -> go.Figure:
 
 
 # ----------------------------------------------------------------------------------- step 3
-def _metric_rows(report: dict) -> list:
-    m, b = report["metrics"], report["baseline_metrics"]
-    if report["task"] == "classification":
-        keys = [("Accuracy", "accuracy"), ("Macro-F1", "macro_f1")]
-    else:
-        keys = [("RMSE (normalized)", "rmse"), ("MAE (normalized)", "mae")]
-    rows = [{"Metric": label, "Base (same test set)": b.get(k), "Fine-tuned": m.get(k)} for label, k in keys]
-    if report["task"] == "classification":
-        rows.append({"Metric": "Majority-class predictor macro-F1", "Base (same test set)": m.get("majority_baseline_macro_f1"), "Fine-tuned": None})
-    if report["task"] == "regression":
-        rows.append({"Metric": "Persistence baseline RMSE", "Base (same test set)": m.get("persistence_rmse"), "Fine-tuned": None})
-    return rows
-
-
 def _step_validate(base: dict) -> None:
     result = st.session_state.get("tl_result")
     if result is None:
@@ -284,20 +272,7 @@ def _step_validate(base: dict) -> None:
             st.plotly_chart(_loss_figure(result.history), width="stretch", config=PLOTLY_CONFIG, key="tl_loss_validate")
             st.caption("No early stopping or checkpoint selection: the final epoch is the candidate, so no decision is taken on validation or test data.")
         with st.container(border=True):
-            st.markdown("##### Base vs. fine-tuned — independent test set")
-            st.dataframe(pd.DataFrame(_metric_rows(rep)), hide_index=True, width="stretch")
-            t = result.test_evaluation
-            st.caption(f"{t['n_test_windows']} test windows, evaluated once after training ({'same' if t['same_test_for_base'] else 'DIFFERENT'} windows and preprocessing for both models).")
-            if rep["task"] == "classification" and rep["metrics"].get("confusion_matrix"):
-                classes = sorted(base["metrics"].get("classes") or [])
-                st.markdown("Confusion matrix (fine-tuned; rows = true, columns = predicted)")
-                st.dataframe(pd.DataFrame(rep["metrics"]["confusion_matrix"], index=classes, columns=classes), width="stretch")
-            if rep["task"] == "regression" and rep["metrics"].get("rmse_per_step"):
-                fig = go.Figure(go.Scatter(y=rep["metrics"]["rmse_per_step"], mode="lines", name="fine-tuned", line=dict(color=series_color("candidate"))))
-                if rep["baseline_metrics"].get("rmse_per_step"):
-                    fig.add_trace(go.Scatter(y=rep["baseline_metrics"]["rmse_per_step"], mode="lines", name="base", line=dict(color=series_color("base"), dash="dash")))
-                style_figure(fig, height=240, x_title="Forecast horizon step", y_title="RMSE (normalized)")
-                st.plotly_chart(fig, width="stretch", config=PLOTLY_CONFIG, key="tl_rmse_horizon")
+            model_comparison(rep, result.test_evaluation, sorted(base["metrics"].get("classes") or []), key="tl_rmse_horizon")
     with right:
         with st.container(border=True):
             st.markdown("##### Validation checks")
@@ -324,11 +299,7 @@ def _step_promote(domain: str, block: str) -> None:
     decision = wf.gate_decision(ds, result, human)
     with right:
         with st.container(border=True):
-            st.markdown("##### Promotion readiness")
-            st.html('<div class="spade-root spade-badges">' + status_badge_html("approved" if decision.approved else "blocked") + "</div>")
-            if not decision.approved:
-                st.error("Cannot promote yet — " + "; ".join(f"{i.name}: {i.status}" for i in decision.blocking), icon=":material/block:")
-            check_list([(i.name.replace("validation:", "validation · ").replace("_", " "), i.status.lower(), i.detail) for i in decision.items])
+            promotion_gate(decision)
     c1, c2, c3 = st.columns(3)
     saved = st.session_state.get("tl_candidate_dir")
     if c1.button("Save as candidate", key="tl_save_candidate", disabled=saved is not None, width="stretch", icon=":material/save:", help="Writes weights + lineage + gate report under configs/<block>s/<base>_tl/. Does not touch the registry."):

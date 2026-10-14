@@ -13,6 +13,7 @@ import pytest
 
 from driveflow.ai.registry import RegistryError, promote
 from driveflow.datagen import Scenario, export_parquet, run_scenario
+from driveflow.models.common import InsufficientGroupsError
 from experiments.train_model import train_from_config
 
 CLASSIFIER_CONFIG_YAML = """\
@@ -115,6 +116,31 @@ class TestTrainClassifierFromConfig:
         run_dir_2 = train_from_config(config_path, dc_motor_dataset_path, epochs=1, batch_size=4, seed=0)
         assert run_dir_1 != run_dir_2
         assert run_dir_1.exists() and run_dir_2.exists()
+
+    def test_every_class_is_in_the_test_set(self, tmp_path, dc_motor_dataset_path):
+        # AUDIT Q15: the shipped dc_motor run's 38-window test set had no inner_race run at all.
+        config_path = tmp_path / "configs" / "classifiers" / "tiny_pc.yaml"
+        config_path.parent.mkdir(parents=True)
+        config_path.write_text(CLASSIFIER_CONFIG_YAML)
+
+        run_dir = train_from_config(config_path, dc_motor_dataset_path, epochs=1, batch_size=4, seed=0)
+
+        metrics = json.loads((run_dir / "metrics.json").read_text())
+        split = metrics["split"]
+        assert split["disjoint"]
+        assert set(split["class_counts"]["test"]) == {"0", "1"}
+        assert set(metrics["test_per_class_recall"]) == set(metrics["classes"])
+
+    def test_class_without_a_test_run_is_refused(self, tmp_path):
+        scenarios = [Scenario(scenario_id=f"short_{fault}_{seed}", fault_type=fault, duration_s=0.1, seed=seed) for fault, seeds in ((None, (0, 1, 2)), ("outer_race", (0, 1))) for seed in seeds]
+        dataset_path = tmp_path / "dc_motor_short.parquet"
+        export_parquet([r for s in scenarios for r in run_scenario(s)], dataset_path)
+        config_path = tmp_path / "configs" / "classifiers" / "tiny_pc.yaml"
+        config_path.parent.mkdir(parents=True)
+        config_path.write_text(CLASSIFIER_CONFIG_YAML)
+
+        with pytest.raises(InsufficientGroupsError, match="outer_race"):
+            train_from_config(config_path, dataset_path, epochs=1, batch_size=4, seed=0)
 
 
 class TestTrainForecasterFromConfig:

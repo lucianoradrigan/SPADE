@@ -28,7 +28,14 @@ dist/
 !configs/classifiers/rpi5_resnet1d_se/2026-09-01_run01/model.weights.h5
 !configs/regressors/rpi5_edge/2026-09-13_run01/model.weights.h5
 !configs/regressors/esp32_tiny/2026-09-13_run02/model.weights.h5
+# Corrected dc_motor classifier candidate (AUDIT Q15) -- trained, NOT promoted; shipped so it can be
+# promoted with experiments/promote_run.py after review.
+!configs/classifiers/pc_server/2026-10-13_run01/model.weights.h5
 
 # Motor-characteristic profiles a user saves locally from viz/dashboard.py -- personal
 # experimentation state, not versioned calibration.
 configs/motor_profiles.json
+
+# Local demo-recording output (videos/subtitles from artifacts/spade_demo/capture_demo.py) --
+# the published demo is linked from the README, the ~28 MB of mp4 files are not versioned.
+/artifacts/

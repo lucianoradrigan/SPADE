@@ -40,6 +40,7 @@ import numpy as np
 import pandas as pd
 import yaml
 from sklearn.metrics import f1_score
+from sklearn.preprocessing import LabelEncoder
 
 from driveflow.ai.provenance import file_sha256, run_metadata, set_global_seed
 from driveflow.ai.registry import DEFAULT_REGISTRY_PATH, RegistryError, load_promoted_model
@@ -47,12 +48,13 @@ from driveflow.models.classifiers.builder import build_classifier
 from driveflow.models.classifiers.schemas import ClassifierConfig, load_classifier_config
 from driveflow.models.common import (
     VSC_DPC_CANDIDATE_CHANNELS,
+    InsufficientGroupsError,
     build_classification_windows,
     build_direct_forecast_windows,
     discover_channels,
     grouped_split,
+    grouped_train_val_test_split,
     load_diagnosis_dataset,
-    prepare_classification_splits,
 )
 from driveflow.models.regressors.builder import build_forecaster
 from driveflow.models.regressors.schemas import ForecasterConfig, load_forecaster_config
@@ -128,7 +130,18 @@ def _train_classifier(
     if X is None:
         raise ValueError("no classification windows could be built -- dataset too short for input_window")
 
-    X_train, X_val, X_test, y_train, y_val, y_test, le = prepare_classification_splits(X, y_str, classes, groups, seed=seed)
+    # AUDIT Q15: the legacy prepare_classification_splits drew the test fold from StratifiedGroupKFold
+    # over very few runs, so the shipped dc_motor run's test set (2 runs) held no inner_race window
+    # at all and its 0.895 accuracy never measured that class. Groups are now allocated per class
+    # (every class in train, val AND test), and a class that cannot reach the test set is an error.
+    le = LabelEncoder().fit(classes)
+    y = le.transform(y_str)
+    split = grouped_train_val_test_split(groups, val_frac=0.2, test_frac=0.1, seed=seed, y=y)
+    missing = sorted(set(le.classes_) - {str(le.classes_[k]) for k in np.unique(y[split.test_idx])})
+    if missing:
+        raise InsufficientGroupsError(f"classes {missing} have no run in the test set (each class needs >= 3 runs) -- refusing to report a test score that never measured them")
+    X_train, X_val, X_test = X[split.train_idx], X[split.val_idx], X[split.test_idx]
+    y_train, y_val, y_test = y[split.train_idx], y[split.val_idx], y[split.test_idx]
 
     model = build_classifier(config, n_channels=len(channels))
     if teacher is None:
@@ -158,6 +171,8 @@ def _train_classifier(
         "n_test": int(len(X_test)),
         "test_accuracy": float(np.mean(y_pred == y_test)) if len(y_test) else None,
         "test_macro_f1": float(f1_score(y_test, y_pred, average="macro")) if len(y_test) else None,
+        "test_per_class_recall": {str(c): float(np.mean(y_pred[y_test == k] == k)) for k, c in enumerate(le.classes_)},
+        "split": split.to_dict(),
     }
     return model, metrics
 

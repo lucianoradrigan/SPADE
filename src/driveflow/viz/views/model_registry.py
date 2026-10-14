@@ -10,7 +10,8 @@ import pandas as pd
 import streamlit as st
 
 from driveflow.ai.registry import RegistryError, registry_history, rollback
-from driveflow.viz.adapters.registry_adapter import artifacts, list_runs
+from driveflow.viz.adapters.registry_adapter import list_runs
+from driveflow.viz.components.artifact_table import artifact_table
 from driveflow.viz.components.metric_cards import check_list, kpi_row
 from driveflow.viz.components.page_header import badge_html, page_header, provenance_table
 
@@ -37,7 +38,7 @@ def render() -> None:
     f_tier = c2.multiselect("Platform / tier", sorted({r["tier"] for r in ok_rows}), key="reg_f_tier")
     f_status = c3.multiselect("Status", sorted({r["status"] for r in rows}), key="reg_f_status")
     shown = [r for r in rows if (not f_domain or r["domain"] in f_domain) and (not f_tier or r["tier"] in f_tier) and (not f_status or r["status"] in f_status)]
-    table = pd.DataFrame([{"run": r.get("run", str(r["run_dir"])), "domain": r["domain"], "tier": r["tier"], "block": r["block"], "status": r["status"], "validation gate": r.get("validation"), "origin": r.get("origin"), "export": r.get("quantization") or "—", "test metric": r.get("headline", r.get("error"))} for r in shown])
+    table = pd.DataFrame([{"run": r.get("run", str(r["run_dir"])), "domain": r["domain"], "tier": r["tier"], "block": r["block"], "status": r["status"], "validation gate": r.get("validation"), "origin": r.get("origin"), "export": r.get("quantization") or "—", "test metric": r.get("headline", r.get("error")), "audit": f"⚠ {len(r['audit_findings'])} finding(s)" if r.get("audit_findings") else "—"} for r in shown])
     left, right = st.columns([1.5, 1], gap="medium")
     with left:
         st.markdown(f"##### Models ({len(shown)})")
@@ -77,15 +78,14 @@ def _detail(r: dict) -> None:
             st.error(f"Unreadable run directory: {r['error']}")
             return
         st.html('<div class="spade-root spade-badges">' + badge_html(r["status"], _STATUS_TONE.get(r["status"], "unknown")) + badge_html(f"gate: {r['validation']}", "healthy" if r["validation"] == "APPROVED" else "unknown") + badge_html(r["tier"].upper(), "training") + "</div>")
+        for f in r.get("audit_findings", []):
+            st.warning(f"**Audit finding ({f.get('date') or 'undated'}):** {f.get('summary')}  \nEvidence: `{f.get('evidence')}`", icon=":material/warning:")
         tabs = st.tabs(["Overview", "Artifacts", "Metrics", "Lineage", "Deployment"])
         m = r["metrics"]
         with tabs[0]:
             provenance_table({"Domain / block": f"{r['domain']} / {r['block']}", "Origin": r["origin"], "Input channels": ", ".join(m.get("channels", [])), "Classes": ", ".join(m.get("classes", []) or []) or "— (regressor)", "Train / val / test windows": f"{m.get('n_train', '?')} / {m.get('n_val', '—')} / {m.get('n_test', '?')}", "Headline": r["headline"], "Evaluation set": "simulated windows, grouped-by-run test split (see metrics.json)"})
         with tabs[1]:
-            for a in artifacts(r["run_dir"]):
-                c1, c2 = st.columns([3, 2])
-                c1.download_button(a["file"], a["path"].read_bytes(), file_name=f"{r['run'].replace('/', '_')}_{a['file']}", key=f"reg_dl_{r['run']}_{a['file']}")
-                c2.caption(f"{a['size_bytes'] / 1024:.1f} KB · sha256 {a['sha256'][:16]}…")
+            artifact_table(r["run_dir"], r["run"])
         with tabs[2]:
             st.json(m, expanded=False)
         with tabs[3]:
@@ -98,5 +98,7 @@ def _detail(r: dict) -> None:
             check_list([(s.replace("_", " "), "pass" if v == "done" else ("not_applicable" if v == "not_exported" else "pending"), "evidence recorded" if v == "done" else ("no .tflite" if v == "not_exported" else "no evidence recorded")) for s, v in stages.items()])
             art = r["deployment"].get("artifact")
             if art:
-                st.caption(f"Quantization (read from the file): {art.get('quantization')} · input {art.get('input_dtypes')} · {art['size_bytes'] / 1024:.1f} KB. Latency, RAM/Flash and post-quantization accuracy on hardware: not measured.")
+                st.caption(f"Quantization (read from the file): {art.get('quantization')} · input {art.get('input_dtypes')} · {art['size_bytes'] / 1024:.1f} KB. Latency, RAM/Flash and post-quantization accuracy on hardware: not measured; host-CPU parity vs. Keras in docs/audit/tflite_parity_report.txt.")
+                if art.get("flex_ops"):
+                    st.warning(f"Contains TF Select (Flex) ops {art['flex_ops']}: needs the Flex delegate — not runnable on TFLite Micro or the plain tflite-runtime/LiteRT interpreter.", icon=":material/warning:")
             st.caption("To record hardware evidence, add deployment_evidence.json to the run directory (see Documentation).")

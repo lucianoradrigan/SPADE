@@ -15,6 +15,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from driveflow.ai.audit_findings import load_audit_findings
 from driveflow.ai.registry import RegistryError, resolve
 from driveflow.control.dpc.reference import GRID_OMEGA_RAD_S, REFERENCE_MAGNITUDE_V
 from driveflow.datagen import Scenario, run_scenario
@@ -138,7 +139,9 @@ def _classifier_panel(domain: str, df: pd.DataFrame) -> None:
     style_figure(fig, height=260, x_title="Class", y_title="Probability", legend=False)
     fig.update_yaxes(range=[0, 1])
     st.plotly_chart(fig, width="stretch", config=PLOTLY_CONFIG, key=f"ia_clf_probs_{domain}")
-    st.caption(f"Tier: {config.tier}. Channels: {', '.join(metrics['channels'])}. Test macro-F1 {metrics.get('test_macro_f1')} / accuracy {metrics.get('test_accuracy')} on n={metrics.get('n_test')} simulated windows (grouped-by-run split). No calibration or out-of-distribution abstention is implemented.")
+    for f in load_audit_findings(run_dir):
+        st.warning(f"**Audit finding:** {f.get('summary')}  \nEvidence: `{f.get('evidence')}`", icon=":material/warning:")
+    st.caption(f"Tier: {config.tier}. Channels: {', '.join(metrics['channels'])}. Recorded test macro-F1 {metrics.get('test_macro_f1')} / accuracy {metrics.get('test_accuracy')} on n={metrics.get('n_test')} simulated windows (grouped-by-run split). No calibration or out-of-distribution abstention is implemented.")
 
 
 def _regressor_panel(domain: str, df: pd.DataFrame) -> None:

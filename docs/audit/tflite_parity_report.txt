@@ -1,0 +1,20 @@
+$ python experiments/report_tflite_parity.py   (2026-10-13)
+Measured on: host CPU, tf.lite.Interpreter 2.21.0 -- NOT target hardware
+
+dc_motor/esp32/classifier  (configs/classifiers/esp32_dscnn/2026-09-01_run02, 10 KiB, host median 0.02 ms/window)
+  ops: 7 distinct, all builtin
+  test ( 38 windows): accuracy keras 0.868 -> tflite 0.868   macro-F1 0.866 -> 0.866   top-1 agreement 1.000   max |dp| 0.010
+  all  (285 windows): accuracy keras 0.579 -> tflite 0.579   macro-F1 0.487 -> 0.487   top-1 agreement 1.000   max |dp| 0.011
+
+dc_motor/rpi5/classifier  (configs/classifiers/rpi5_resnet1d_se/2026-09-01_run01, 26 KiB, host median 0.05 ms/window)
+  ops: 12 distinct, all builtin
+  test ( 38 windows): accuracy keras 0.868 -> tflite 0.868   macro-F1 0.866 -> 0.866   top-1 agreement 1.000   max |dp| 0.000
+  all  (285 windows): accuracy keras 0.579 -> tflite 0.579   macro-F1 0.487 -> 0.487   top-1 agreement 1.000   max |dp| 0.000
+
+vsc_dpc/esp32/regressor  (configs/regressors/esp32_tiny/2026-09-13_run02, 18 KiB, host median 0.03 ms/window)
+  ops: 12 distinct, all builtin
+  test ( 27 windows): RMSE keras 0.5629 -> tflite 0.5598   RMSE(tflite, keras) 0.0136   max |diff| 0.0591
+  all  (135 windows): RMSE keras 0.5646 -> tflite 0.5628   RMSE(tflite, keras) 0.0146   max |diff| 0.0591
+
+vsc_dpc/rpi5/regressor  (configs/regressors/rpi5_edge/2026-09-13_run01): not_runnable_builtin_interpreter -- Select TensorFlow op(s), included in the given model, is(are) not supported by this interpreter. Make sure you apply/link the Flex delegate before inference. For the Android, it can be resolved by adding "org.tensorflow:tensorflow-lite-select-tf-ops" dependency.
+  ops: ['ADD', 'DEQUANTIZE', 'FILL', 'FULLY_CONNECTED', 'FlexTensorListReserve', 'FlexTensorListSetItem', 'FlexTensorListStack', 'GATHER', 'LESS', 'LOGICAL_AND', 'LOGISTIC', 'MUL', 'PACK', 'RESHAPE', 'SHAPE', 'SPLIT', 'STRIDED_SLICE', 'SUB', 'TANH', 'TRANSPOSE', 'WHILE']

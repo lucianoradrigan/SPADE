@@ -1,0 +1,11 @@
+{
+  "findings": [
+    {
+      "id": "Q15-inner-race-never-predicted",
+      "severity": "high",
+      "date": "2026-10-13",
+      "summary": "Never predicts inner_race (recall 0.00 on 24 fresh runs; always outer_race). The recorded 0.895 test accuracy comes from 2 test runs (normal + outer_race) with no inner_race run, so it never measured that class. Fresh runs: accuracy 0.58 (first 1 s) / 0.67 (steady state) vs. 0.33 majority baseline.",
+      "evidence": "docs/audit/classifier_generalization_report.txt (experiments/report_classifier_generalization.py)"
+    }
+  ]
+}

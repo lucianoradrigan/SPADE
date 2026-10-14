@@ -1,0 +1,21 @@
+$ python experiments/train_model.py --config configs/classifiers/pc_server.yaml --dataset data/diagnosis_dataset_c1_5s.parquet --epochs 15
+  (dataset: experiments/generate_diagnosis_dataset.py defaults -- 30 runs x 5.0 s, seeds 0-9; per-class grouped split)
+$ python experiments/report_classifier_generalization.py --run-dir configs/classifiers/pc_server/2026-10-13_run01   (same fresh runs, seeds 100-107)
+Model: configs/classifiers/pc_server/2026-10-13_run01
+Recorded: test accuracy 0.960 / macro-F1 0.960 on n_test = 150 windows
+  split: grouped_by_acquisition_per_class, groups {'train': 21, 'val': 6, 'test': 3}, test class counts {'0': 50, '1': 50, '2': 50}; recorded per-class recall {'inner_race': 0.94, 'normal': 1.0, 'outer_race': 0.94}
+Fresh seeds 100-107, first 1.0 s (training-like, transient included): 24 runs / 456 windows
+  accuracy 0.895 (95% CI over runs 0.895-0.895)   macro-F1 0.896 (0.896-0.896)
+  majority-class baseline 0.333   recall: inner_race 0.84, normal 1.00, outer_race 0.84
+  confusion (rows = true ['inner_race', 'normal', 'outer_race']): [[128, 16, 8], [0, 152, 0], [0, 24, 128]]
+Fresh seeds 100-107, t >= 0.5 s of 3.0 s runs (steady state): 24 runs / 1152 windows
+  accuracy 1.000 (95% CI over runs 1.000-1.000)   macro-F1 1.000 (1.000-1.000)
+  majority-class baseline 0.333   recall: inner_race 1.00, normal 1.00, outer_race 1.00
+  confusion (rows = true ['inner_race', 'normal', 'outer_race']): [[384, 0, 0], [0, 384, 0], [0, 0, 384]]
+
+Caveat (measured 2026-10-13 on these fresh runs): the scenario seed only changes the vibration
+channels. current_r and rpm of two runs with the same condition and different seeds are identical
+(correlation 1.0000, std of difference 0.0000); acc_x is uncorrelated (corr < 0.07). "Unseen seeds"
+are therefore NOT independent operating conditions, which is why the run-level bootstrap intervals
+collapse to a point. These numbers show what the model learned on this simulator at one speed and
+one severity per fault; they say nothing about other speeds, loads, severities or real machines.

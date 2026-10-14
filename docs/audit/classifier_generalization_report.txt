@@ -1,0 +1,24 @@
+$ python experiments/report_classifier_generalization.py   (2026-10-13; TF/numpy warnings stripped)
+Promoted model: configs/classifiers/pc_server/2026-09-01_run01
+Recorded: test accuracy 0.895 / macro-F1 0.894 on n_test = 38 windows
+Training dataset: data/diagnosis_dataset.parquet -- 15 runs x 1.0 s, seeds [0, 1, 2, 3, 4]; split rebuilt matches recorded counts: True
+  train: 190 windows from 10 runs, classes ['inner_race', 'normal', 'outer_race'], accuracy 0.532
+  val  :  57 windows from 3 runs, classes ['inner_race', 'normal', 'outer_race'], accuracy 0.561
+  test :  38 windows from 2 runs, classes ['normal', 'outer_race'], accuracy 0.895
+
+Fresh seeds 100-107, first 1.0 s (training-like, transient included): 24 runs / 456 windows
+  accuracy 0.581 (95% CI over runs 0.572-0.590)   macro-F1 0.485 (0.478-0.491)
+  majority-class baseline 0.333   recall: inner_race 0.00, normal 0.81, outer_race 0.93
+  confusion (rows = true ['inner_race', 'normal', 'outer_race']): [[0, 4, 148], [0, 123, 29], [0, 10, 142]]
+
+Fresh seeds 100-107, t >= 0.5 s of 3.0 s runs (steady state): 24 runs / 1152 windows
+  accuracy 0.667 (95% CI over runs 0.667-0.667)   macro-F1 0.556 (0.556-0.556)
+  majority-class baseline 0.333   recall: inner_race 0.00, normal 1.00, outer_race 1.00
+  confusion (rows = true ['inner_race', 'normal', 'outer_race']): [[0, 0, 384], [0, 384, 0], [0, 0, 384]]
+
+Caveat (measured 2026-10-13 on these fresh runs): the scenario seed only changes the vibration
+channels. current_r and rpm of two runs with the same condition and different seeds are identical
+(correlation 1.0000, std of difference 0.0000); acc_x is uncorrelated (corr < 0.07). "Unseen seeds"
+are therefore NOT independent operating conditions, which is why the run-level bootstrap intervals
+collapse to a point. These numbers show what the model learned on this simulator at one speed and
+one severity per fault; they say nothing about other speeds, loads, severities or real machines.

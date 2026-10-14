@@ -18,6 +18,7 @@ from driveflow.monitoring.motor_status import derive_motor_view
 from driveflow.sim.vsc_system import MIN_STABLE_LOAD_RESISTANCE_OHM
 from driveflow.viz.adapters.monitoring_adapter import gateway_agent, run_monitoring_pass
 from driveflow.viz.adapters.session import record_run, server_agent
+from driveflow.viz.components.alerts_table import alert_log_frame, alerts_table
 from driveflow.viz.components.inputs import slider_with_custom
 from driveflow.viz.components.metric_cards import check_list, kpi_row
 from driveflow.viz.components.motor_status import render_motor_status
@@ -145,7 +146,7 @@ def render() -> None:
         st.markdown("##### Alert history (this session)")
         history = sa.alert_history(domain)
         if history:
-            st.dataframe(pd.DataFrame(history), width="stretch", hide_index=True)
+            alerts_table(alert_log_frame(history))
         else:
             st.caption("Nothing recorded yet — click Run monitoring.")
         st.page_link("pages/alert_history.py", label="Open the full alert history", icon=":material/list_alt:")

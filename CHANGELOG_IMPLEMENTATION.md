@@ -62,7 +62,10 @@ Respuestas Q01–Q30: [`AUDIT_ANSWERS.md`](AUDIT_ANSWERS.md).
 | Estado con A,B activas y A resuelta | "ok" | WARNING/CRITICAL | repro H0 / `TestAI08` |
 | Pesos base tras fine-tuning | modificados | huella idéntica | repro H0 / `TestAI04` |
 | Clasificador promovido sobre corridas nuevas (seeds 100–108) | registrado: acc 0.895 (n=38) | medido: 0.222 (0.15 s) / 0.579 (1 s) / 0.638 (3 s) | `docs/audit/base_classifier_duration_check.txt` — hallazgo, no corrección |
-| Métricas de modelos tras TL, latencia/RAM edge, precisión tras cuantizar | — | *not evaluated* | — |
+| Clasificador promovido: recall `inner_race` | registrado: no medido (test de 2 corridas sin inner_race) | **0.00** en 24 corridas nuevas | `docs/audit/classifier_generalization_report.txt` |
+| Candidato `pc_server/2026-10-13_run01` (no promovido) | — | test 0.960 (3 corridas); nuevas 0.895 (1 s) / 1.000 (estacionario) | `docs/audit/classifier_candidate_report.txt` |
+| Paridad `.tflite` vs Keras (host CPU) | *not evaluated* | clasificadores idénticos (acuerdo 1.000); regresor ESP32 ΔRMSE −0.003; regresor RPi5 no ejecutable sin delegado Flex | `docs/audit/tflite_parity_report.txt` |
+| Métricas de modelos tras TL, latencia/RAM en hardware edge | — | *not evaluated* | — |
 
 ## 5. Comparación con los mockups (`figures/gui/concept_v2/`)
 
@@ -79,7 +82,8 @@ Respuestas Q01–Q30: [`AUDIT_ANSWERS.md`](AUDIT_ANSWERS.md).
 
 - Diagnóstico de **PMSM** (sin modelo de falla, dataset, clasificador ni registro).
 - **Ingesta de hardware / telemetría conectada** (API `record_heartbeat` lista; sin fuente).
-- **Despliegue físico** en Raspberry Pi 5 / ESP32 y paridad numérica de `.tflite`.
+- **Despliegue físico** en Raspberry Pi 5 / ESP32 (la paridad de `.tflite` en host ya está medida; el regresor RPi5 necesita re-exportarse sin ops Flex).
+- **Clasificador dc_motor promovido** sin reemplazar: existe un candidato corregido sin promover (decisión del investigador).
 - Calibración de probabilidades, abstención OOD, IC entre seeds/máquinas.
 - Resampleo con antialias para datos externos a otra frecuencia.
 - `docs/plataforma_estado_actual.md` describe la estructura anterior del dashboard; no se reescribió (el README y este documento describen la actual).
@@ -87,3 +91,10 @@ Respuestas Q01–Q30: [`AUDIT_ANSWERS.md`](AUDIT_ANSWERS.md).
 ## 7. Requiere confirmación del investigador
 
 Ver la tabla final de `AUDIT_ANSWERS.md` (umbrales de aceptación, métrica primaria, tipo de split, unidad de mezcla, autoridad de promoción/override, cotas físicas, umbrales del detector, tema por defecto, motor 3D).
+
+## 8. Seguimiento 2026-10-13
+
+- **Causa del 0.895 vs 0.64** (`experiments/report_classifier_generalization.py`): test de 2 corridas sin `inner_race`; el modelo nunca predice esa clase. `experiments/train_model.py` pasa a split por clase con rechazo si falta una clase en test (`metrics.json` gana `test_per_class_recall` y `split`). Hallazgo persistido como `audit_findings.json` (`ai/audit_findings.py`) y mostrado en Model Registry, AI Diagnostics y el diagrama del sistema. Nota previa `base_classifier_duration_check.txt` corregida (decía 5 s × seeds 0–9).
+- **Paridad `.tflite`** (`experiments/report_tflite_parity.py`): medida en host; detección de ops Flex en `ai/deployment_status.py` y aviso en el Registry.
+- **Componentes §5.1**: `components/model_comparison.py`, `promotion_gate.py`, `artifact_table.py`, `alerts_table.py` extraídos de las vistas TL / Registry / Monitoring / Alert History (Monitoring muestra ahora el mismo formato de log que Alert History).
+- **Repo**: `/artifacts/` ignorado (salida local del video demo); rama `feature/ai-audit-gui-refactor` eliminada (idéntica a `main`).

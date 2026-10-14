@@ -10,10 +10,16 @@ built exactly as in training (build_classification_windows, input_window 512, ba
   duration 3.0  s : 522 windows  accuracy 0.638  macro-F1 0.532
 
 Recorded at training time: test accuracy 0.895 / macro-F1 0.894 on n_test = 38 windows
-(dataset: 5.0 s runs, seeds 0-9, experiments/generate_diagnosis_dataset.py).
+(dataset: CORRECTED 2026-10-13 -- data/diagnosis_dataset.parquet, 15 runs x 1.0 s, seeds 0-4, the
+reduced version of experiments/generate_diagnosis_dataset.py; this note first said "5.0 s runs, seeds
+0-9", which is the script's default, not what the shipped model was trained on).
 
 Reading: (1) short runs are dominated by the start-up transient (speed settles in ~0.45 s), far
 from the 5 s training runs -> the legacy TL default (0.15 s) fine-tuned on out-of-distribution data;
 (2) even on settled runs from unseen seeds the classifier is well below its recorded test score,
 which was measured on a small (38-window) test set. This is a finding to investigate (seed-to-seed
 variability, transient windows, test-set size), not a corrected number.
+
+Follow-up 2026-10-13: docs/audit/classifier_generalization_report.txt finds the cause -- the model never
+predicts inner_race (recall 0.00 on fresh runs) and the recorded 38-window test set (2 runs) held no
+inner_race run, so the 0.895 never measured that class.

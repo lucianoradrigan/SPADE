@@ -10,6 +10,9 @@ Status vocabulary (each one needs its own evidence; none implies another):
                      experiments/train_model.py have no gate and are shown as "Not gated".
 - Exported        -- model.tflite exists (quantization read from the file itself).
 - Hardware verified -- only with a deployment_evidence.json saying so (none exists today).
+
+Audit findings (audit_findings.json, ai/audit_findings.py) are listed with the run whenever they
+exist: a recorded test metric is never shown without the measured evidence that qualifies it.
 """
 
 from __future__ import annotations
@@ -20,13 +23,14 @@ from pathlib import Path
 
 import yaml
 
+from driveflow.ai.audit_findings import load_audit_findings
 from driveflow.ai.deployment_status import deployment_status
 from driveflow.ai.promotion import is_transfer_learning_run, load_gate_report
 from driveflow.ai.provenance import file_sha256
 from driveflow.ai.registry import DEFAULT_REGISTRY_PATH, REPO_ROOT, _detect_block, _load_index, registry_history
 
 CONFIG_ROOTS = (REPO_ROOT / "configs" / "classifiers", REPO_ROOT / "configs" / "regressors")
-ARTIFACT_NAMES = ("config.yaml", "metrics.json", "model.weights.h5", "model.tflite", "lineage.json", "gate_report.json", "validation_report.json", "run_metadata.json", "split_manifest.json")
+ARTIFACT_NAMES = ("config.yaml", "metrics.json", "model.weights.h5", "model.tflite", "lineage.json", "gate_report.json", "validation_report.json", "run_metadata.json", "split_manifest.json", "audit_findings.json")
 
 
 @lru_cache(maxsize=256)
@@ -95,6 +99,7 @@ def list_runs(registry_path: Path = DEFAULT_REGISTRY_PATH) -> list:
                 "quantization": ((dep.get("artifact") or {}).get("quantization")) if dep["stages"]["exported"] == "done" else None,
                 "hardware_verified": dep["stages"]["hardware_verified"] == "done",
                 "headline": _headline(metrics),
+                "audit_findings": load_audit_findings(run_dir),
                 "metrics": metrics,
                 "config": raw_cfg,
                 "lineage": lineage,

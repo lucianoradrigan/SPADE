@@ -100,7 +100,8 @@ _DIAGRAM_COMPONENT_DETAILS = {
     "Classifier (CNN)": (
         "`models/classifiers/builder.py` -- Conv1D+SE blocks, config-driven "
         "(`configs/classifiers/pc_server.yaml` for this tier). Only trained for `dc_motor` so far (89.5% "
-        "test accuracy) -- `vsc_dpc`'s classifier is deliberately not built yet, blocked on a separability "
+        "recorded test accuracy, but on a 2-run test set without any inner_race run -- the audit found it "
+        "never predicts inner_race, see the Model Registry) -- `vsc_dpc`'s classifier is deliberately not built yet, blocked on a separability "
         "verdict (Fase D.2, INSTRUCTIONS.md Sec. 6 Paso 0)."
     ),
     "Regressor (LSTM/GRU/TCN)": (
@@ -124,7 +125,8 @@ _DIAGRAM_COMPONENT_DETAILS = {
         "(`python -m experiments.export_tflite --tier rpi5 ...` -- halves weight size, no calibration data "
         "needed, since RPi5 runs full Linux and can afford it). Current real numbers: dc_motor classifier "
         "86.8% acc (vs. 89.5% teacher), vsc_dpc regressor 0.20 RMSE (vs. 0.06 teacher) -- the accuracy drop "
-        "is the expected cost of a smaller model, not a bug."
+        "is the expected cost of a smaller model, not a bug. Both classifier numbers share the teacher's "
+        "2-run test split without inner_race (see the audit finding in the Model Registry)."
     ),
     "ESP32": (
         "Same distillation idea as Raspberry Pi 5 (a smaller model, trained from the PC-tier teacher's "

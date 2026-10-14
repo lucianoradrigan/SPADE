@@ -24,6 +24,21 @@ STAGES = ("exported", "static_compatibility_passed", "bench_verified", "hardware
 EVIDENCE_FILE = "deployment_evidence.json"
 
 
+def tflite_op_names(path) -> list:
+    """Distinct operator names in a .tflite file. 'Flex*' ops need the TF Select delegate: absent
+    from TFLite Micro (ESP32) and from the plain tflite-runtime / LiteRT wheels."""
+    from tensorflow.lite.python import schema_py_generated as schema
+
+    m = schema.ModelT.InitFromObj(schema.Model.GetRootAsModel(Path(path).read_bytes(), 0))
+    by_code = {v: k for k, v in vars(schema.BuiltinOperator).items() if not k.startswith("_")}
+    names = set()
+    for sub in m.subgraphs:
+        for op in sub.operators or []:
+            code = m.operatorCodes[op.opcodeIndex]
+            names.add(code.customCode.decode() if code.customCode else by_code.get(max(code.builtinCode, code.deprecatedBuiltinCode), "?"))
+    return sorted(names)
+
+
 @lru_cache(maxsize=64)
 def _inspect_tflite(path: str, mtime: float) -> dict:
     try:
@@ -41,7 +56,11 @@ def _inspect_tflite(path: str, mtime: float) -> dict:
         quant = "FP16 weights (float32 I/O)"
     else:
         quant = "FP32 or dynamic-range (not full-integer)"
-    return {"readable": True, "input_dtypes": ins, "output_dtypes": outs, "quantization": quant}
+    try:
+        flex = [o for o in tflite_op_names(path) if o.startswith("Flex")]
+    except Exception:
+        flex = None
+    return {"readable": True, "input_dtypes": ins, "output_dtypes": outs, "quantization": quant, "flex_ops": flex}
 
 
 def deployment_status(run_dir) -> dict:
