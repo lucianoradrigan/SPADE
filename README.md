@@ -17,7 +17,7 @@ output of a real simulation, run fresh each time you click Generate.
 > [`CHANGELOG_IMPLEMENTATION.md`](CHANGELOG_IMPLEMENTATION.md) for the audit of the AI layer and
 > what was changed.
 
-**Demo video:** [SPADE on YouTube](https://youtu.be/bc8clLOeSbo)
+**Demo video:** [SPADE on YouTube](https://www.youtube.com/watch?v=qoHtqhicAgY)
 
 ## What's inside
 
