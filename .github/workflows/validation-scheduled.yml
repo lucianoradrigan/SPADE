@@ -1,0 +1,47 @@
+name: validation (scheduled)
+
+# Expensive evidence: the `slow` tests (MPC closed loops, 20 s simulations, speed-generalization
+# check), the simulation stability battery and the classifier evaluation report. Weekly and on
+# demand. Results are uploaded as artifacts, so they can be compared with docs/audit/.
+on:
+  schedule:
+    - cron: "0 4 * * 1"   # Mondays 04:00 UTC
+  workflow_dispatch:
+
+jobs:
+  slow-and-reports:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install the verified lock + package
+        run: |
+          pip install -r requirements-lock.txt
+          pip install -e . --no-deps
+
+      - name: Slow tests
+        env:
+          TF_CPP_MIN_LOG_LEVEL: "2"
+        run: pytest -m slow -v --durations=0
+
+      - name: Simulation stability battery
+        env:
+          TF_CPP_MIN_LOG_LEVEL: "2"
+        run: python experiments/run_stability_battery.py --no-figures --out-dir ci_out/stability
+
+      - name: Classifier evaluation report
+        env:
+          TF_CPP_MIN_LOG_LEVEL: "2"
+        run: python experiments/report_classifier_evaluation.py --workers 4 --out-dir ci_out/ai
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: validation-evidence
+          path: ci_out/

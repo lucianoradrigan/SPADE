@@ -1,0 +1,10 @@
+# Constraints for Intel (x86_64) Macs -- docs/INSTALL_MACOS.md.
+# TensorFlow publishes no x86_64 macOS wheel after 2.16.2, and TF 2.16 is built against NumPy 1.x.
+# Without these pins the resolver produces a set that does not import (measured with
+# `uv pip compile --python-platform x86_64-apple-darwin`): on Python 3.11 it falls back to
+# TF 2.14 + Keras 2 (incompatible with the Keras-3 code), on Python 3.12 it pairs NumPy 1.26
+# with pyarrow 26, which refuses to import without NumPy 2.
+# Use with Python 3.12:  pip install -e ".[dev,viz]" -c constraints/macos-intel.txt
+tensorflow==2.16.2
+numpy<2
+pyarrow<25
