@@ -1,0 +1,12 @@
+# PC-tier forecaster config (docs/design_ai_layer_transversal.md Sec. 4.1/6.3, Sec. 8 step 4).
+# LSTM+attention, unrestricted -- distillation targets (rpi5/esp32 presets) are deferred to
+# Sec. 8 step 8, not authored yet. NOT wired to Fase D.1's dpc_tracking_forecaster, which adapts
+# regressors/envelope_forecaster.py directly (see builder.py's module docstring) -- this is the
+# sibling config-driven LSTM/GRU family Sec. 4.1 describes for the PC tier.
+domain: vsc_dpc
+tier: pc
+input_window: 256
+horizon: 64
+recurrent_type: lstm
+layers: [128, 64]
+use_attention: false

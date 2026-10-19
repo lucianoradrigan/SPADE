@@ -1,0 +1,26 @@
+{
+  "kind": "forecaster",
+  "domain": "vsc_dpc",
+  "tier": "pc",
+  "channels": [
+    "vc_real",
+    "vc_imag",
+    "i_f_real",
+    "i_f_imag"
+  ],
+  "n_train": 252,
+  "n_test": 72,
+  "test_mse": 0.005325593985617161,
+  "test_rmse": 0.07297666740552874,
+  "persistence_test_rmse": 1.0560150268851012,
+  "test_groups": [
+    "vsc_grid_R10_V100",
+    "vsc_grid_R20_V75",
+    "vsc_grid_R5_V75",
+    "vsc_grid_R6_V100",
+    "vsc_grid_R6_V30",
+    "vsc_grid_R7_V100",
+    "vsc_grid_R7_V75",
+    "vsc_grid_R8.0064_V75"
+  ]
+}

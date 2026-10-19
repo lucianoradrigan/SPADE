@@ -1,0 +1,15 @@
+# Raspberry Pi 5-tier forecaster config (docs/design_ai_layer_transversal.md Sec. 4.1/6.3,
+# Sec. 8 step 8): "GRU compacto (1 capa, pocas unidades)" -- the lighter of the two RPi5
+# alternatives Sec. 4.1 names (vs. a pruned LSTM, which would need a pruning API this project
+# doesn't depend on -- tensorflow_model_optimization). Trained by distillation from the promoted
+# vsc_dpc/pc/regressor run (`python experiments/train_model.py
+# --config configs/regressors/rpi5_edge.yaml --dataset ... --distill`). input_window/horizon MUST
+# match pc_full.yaml's (256/64): distillation reuses the same windows for both teacher and
+# student forward passes.
+domain: vsc_dpc
+tier: rpi5
+input_window: 256
+horizon: 64
+recurrent_type: gru
+layers: [32]
+use_attention: false

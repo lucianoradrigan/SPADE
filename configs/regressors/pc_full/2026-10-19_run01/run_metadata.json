@@ -1,0 +1,30 @@
+{
+  "created_utc": "2026-10-19T05:41:48+00:00",
+  "git_commit": "1842121f5d3aee27de943da5b52223aff47ff72a",
+  "git_dirty": true,
+  "git_note": null,
+  "python": "3.11.15",
+  "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "machine": "x86_64",
+  "packages": {
+    "numpy": "2.4.6",
+    "pandas": "3.0.5",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.0",
+    "tensorflow": "2.21.0",
+    "keras": "3.15.1",
+    "streamlit": "1.62.0",
+    "plotly": "7.0.0"
+  },
+  "seed": {
+    "seed": 42,
+    "python_numpy_tf_seeded": true,
+    "deterministic_ops": false
+  },
+  "epochs": 20,
+  "batch_size": 32,
+  "dataset_path": "data/vsc_dpc_grid_dataset.parquet",
+  "dataset_sha256": "6d64447e977aa3ad2b653dc7e37e792b008fb5b95ad5243156237da0e4d92482",
+  "distill": false,
+  "cap_per_class": 500
+}

@@ -1,0 +1,15 @@
+# ESP32-tier forecaster config (docs/design_ai_layer_transversal.md Sec. 4.1/6.3, Sec. 8 step 8):
+# "Conv1D causal dilatada pequeña" -- recurrent_type: none, `layers` reinterpreted as per-layer
+# filter counts for a small TCN (models/regressors/builder.py). NOT the "predictor estadístico
+# simple" alternative Sec. 4.1 also names -- that is a non-learned filter, out of scope for this
+# keras.Model-returning builder (see builder.py's module docstring). Trained by distillation from
+# the promoted vsc_dpc/pc/regressor run (`python experiments/train_model.py
+# --config configs/regressors/esp32_tiny.yaml --dataset ... --distill`). input_window/horizon MUST
+# match pc_full.yaml's (256/64), same reason as rpi5_edge.yaml.
+domain: vsc_dpc
+tier: esp32
+input_window: 256
+horizon: 64
+recurrent_type: none
+layers: [8, 8]
+use_attention: false
