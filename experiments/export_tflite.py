@@ -11,6 +11,8 @@ Usage (run as a module -- the script imports experiments.train_model, so a direc
 import argparse
 from pathlib import Path
 
+import numpy as np
+
 from driveflow.ai.registry import load_promoted_model, resolve
 from driveflow.ai.tflite_export import export_float16, export_int8
 from driveflow.models.common import build_classification_windows, build_direct_forecast_windows
@@ -21,12 +23,14 @@ def _representative_windows(domain: str, block: str, dataset_path: Path, config,
     df = _load_domain_dataframe(dataset_path, domain)
     channels = metrics["channels"]
     if block == "classifier":
-        X, _, _ = build_classification_windows(df, metrics["classes"], channels, config.input_window)
+        X, _, _ = build_classification_windows(df, metrics["classes"], channels, config.input_window, cap_per_class=10_000, level_scaling=metrics.get("level_scaling"))
     else:
         X, _, _ = build_direct_forecast_windows(df, channels, config.input_window, config.horizon)
     if X is None:
         raise ValueError(f"could not build any representative windows from {dataset_path} for {domain}/{block}")
-    return X[:n]
+    # A seeded random subset: the builder returns windows grouped by class, so the first n would
+    # calibrate the int8 ranges on one class only.
+    return X[np.random.default_rng(0).choice(len(X), size=min(n, len(X)), replace=False)]
 
 
 def main(argv=None) -> None:
@@ -35,7 +39,7 @@ def main(argv=None) -> None:
     parser.add_argument("--tier", required=True, choices=["rpi5", "esp32"], help="pc has no TFLite export -- it runs the native keras.Model.")
     parser.add_argument("--block", required=True, choices=["classifier", "regressor"])
     parser.add_argument("--dataset", type=Path, help="Required for --tier esp32 (int8 calibration data); ignored for rpi5.")
-    parser.add_argument("--n-calibration-samples", type=int, default=100)
+    parser.add_argument("--n-calibration-samples", type=int, default=1000)
     args = parser.parse_args(argv)
 
     model, config, metrics = load_promoted_model(args.domain, args.tier, args.block)
@@ -49,7 +53,7 @@ def main(argv=None) -> None:
         if args.dataset is None:
             raise SystemExit("--dataset is required for --tier esp32 (int8 calibration needs real windows).")
         windows = _representative_windows(args.domain, args.block, args.dataset, config, metrics, args.n_calibration_samples)
-        export_int8(model, windows, out_path)
+        export_int8(model, windows, out_path, n_calibration_samples=len(windows))
         print(f"Exported int8 TFLite: {out_path}")
 
 

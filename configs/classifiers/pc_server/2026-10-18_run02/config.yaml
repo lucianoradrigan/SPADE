@@ -1,0 +1,22 @@
+# PC-tier classifier config (docs/design_ai_layer_transversal.md Sec. 4.2/6.2, Sec. 8 step 4).
+# "Modelo maestro" for the dc_motor domain -- no resource restriction, distillation targets
+# (rpi5/esp32 presets) are deferred to Sec. 8 step 8, not authored yet.
+domain: dc_motor
+tier: pc
+input_window: 512
+num_classes: 3
+blocks:
+  - type: conv1d
+    filters: 32
+    kernel_size: 7
+    use_se: true
+  - type: conv1d
+    filters: 64
+    kernel_size: 5
+    use_se: true
+  - type: conv1d
+    filters: 64
+    kernel_size: 3
+    use_se: true
+dense_units: [64]
+dropout: 0.3

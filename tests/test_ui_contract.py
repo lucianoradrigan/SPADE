@@ -85,7 +85,8 @@ def test_registry_lists_only_existing_artifacts_with_correct_hashes():
 
 
 def test_recorded_metric_is_never_listed_without_its_audit_finding():
-    # AUDIT Q15: the promoted dc_motor classifier's 0.895 never measured inner_race.
+    # AUDIT Q15: the promoted dc_motor classifier's 0.895 never measured inner_race. Since then every
+    # promoted classifier ships its known limits (e.g. 2026-10-18: no ball class, simulated data only).
     promoted = [r for r in list_runs() if r.get("status") == "Promoted" and r["domain"] == "dc_motor" and r["block"] == "classifier"]
     assert promoted
     for r in promoted:

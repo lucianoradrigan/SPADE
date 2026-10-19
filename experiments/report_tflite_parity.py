@@ -11,6 +11,7 @@ Usage:  python experiments/report_tflite_parity.py [--json]
 """
 
 import argparse
+import hashlib
 import json
 import time
 from pathlib import Path
@@ -29,12 +30,23 @@ EDGE_RUNS = (("dc_motor", "esp32", "classifier"), ("dc_motor", "rpi5", "classifi
 TRAIN_SEED = 42  # experiments/train_model.py default, used for every shipped run
 
 
-def _load_df(domain: str):
+def _dataset_path(domain: str, run_dir: Path) -> Path:
+    """The dataset the run was trained on (run_metadata.json), else the domain's historical one."""
+    meta = run_dir / "run_metadata.json"
+    if meta.exists():
+        p = Path(json.loads(meta.read_text()).get("dataset_path", ""))
+        p = p if p.is_absolute() else REPO_ROOT / p
+        if p.is_file():
+            return p
+    return DATASETS[domain]
+
+
+def _load_df(domain: str, path: Path):
     if domain == "dc_motor":
-        return load_diagnosis_dataset(DATASETS[domain])
+        return load_diagnosis_dataset(path)
     import pandas as pd
 
-    df = pd.read_parquet(DATASETS[domain])
+    df = pd.read_parquet(path)
     return df[df["plant_config_id"] == "vsc_dpc_v1"].reset_index(drop=True)
 
 
@@ -71,10 +83,15 @@ def _op_names(path: Path) -> list:
 
 def _classifier_parity(model, tfl: Path, metrics: dict, df) -> dict:
     classes = metrics["classes"]
-    X, y_str, groups = build_classification_windows(df, classes, metrics["channels"], model.input_shape[1])
+    X, y_str, groups = build_classification_windows(df, classes, metrics["channels"], model.input_shape[1], cap_per_class=10_000, level_scaling=metrics.get("level_scaling"))
     y = np.array([classes.index(c) for c in y_str])
     idx = np.arange(len(X))
-    idx_tv, idx_test = grouped_split(idx, y, groups, 0.10, TRAIN_SEED)
+    recorded = (metrics.get("split") or {}).get("group_hashes", {}).get("test")
+    if recorded:  # train/val/test split recorded since AUDIT Q15: use exactly its test runs
+        hashed = np.array([hashlib.sha256(str(g).encode()).hexdigest()[:12] for g in groups])
+        idx_test = idx[np.isin(hashed, recorded)]
+    else:
+        idx_tv, idx_test = grouped_split(idx, y, groups, 0.10, TRAIN_SEED)
     p_keras = model.predict(X, verbose=0)
     p_tfl, ms = _tflite_predict(tfl, X)
     k, t = p_keras.argmax(1), p_tfl.argmax(1)
@@ -121,7 +138,7 @@ def report() -> dict:
             rows[key] = {"status": "not_exported"}
             continue
         model, config, metrics = load_promoted_model(domain, tier, block)
-        df = _load_df(domain)
+        df = _load_df(domain, _dataset_path(domain, run_dir))
         base = {"run": str(run_dir.relative_to(REPO_ROOT)), "tflite_bytes": tfl.stat().st_size, "ops": _op_names(tfl)}
         try:
             r = _classifier_parity(model, tfl, metrics, df) if block == "classifier" else _regressor_parity(model, tfl, metrics, df, config)

@@ -48,8 +48,8 @@ _LIMITS = """
 - **Vibration is synthetic_approximate.** Module B was calibrated against one measured accelerometer axis (KAt-DataCenter); y/z use assumed scale factors. Leave-bearing-out CV shows the calibration does **not** generalise to unseen bearings (model RMSE > flat baseline in 6/6 folds, `configs/vibration_module_b.yaml`).
 - **PMSM** is a stand-alone FOC/MTPA control demo: no fault model, dataset, classifier or registry entry.
 - **Edge (.tflite)** artifacts are exported (quantization read from the files) but never executed on a Raspberry Pi 5 / ESP32 by this project.
-- **Classifier confidence** is an uncalibrated softmax; no out-of-distribution abstention is implemented.
-- **Thresholds** (TL acceptance, anomaly score 0.70/0.85, plausibility bounds) are proposed defaults that require researcher confirmation.
+- **Classifier confidence** of the promoted dc_motor classifier is temperature-calibrated on its validation split, and windows below its abstention threshold are reported as *uncertain*. This does not cover unseen fault types: ball faults are still called outer_race with high confidence (docs/AI_TECHNICAL_AUDIT.md §7.2).
+- **Thresholds** (TL acceptance, plausibility bounds) are proposed defaults that require researcher confirmation. The anomaly-score thresholds 0.70/0.85 have a measured operating point on simulated runs only (AUC 1.0, no false alarm or missed detection at 0.70; docs/audit/ai/anomaly_agent_roc.json).
 - **Theme:** dark by default; switch to light in the app menu (⋮ → Settings → Theme).
 """
 

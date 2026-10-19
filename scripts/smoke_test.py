@@ -107,6 +107,7 @@ def check_inference():
     import numpy as np
     import pandas as pd
 
+    from driveflow.ai.calibration import decide
     from driveflow.ai.registry import load_promoted_model, resolve
     from driveflow.datagen import Scenario, run_scenario
     from driveflow.models.common import normalize_window_like_training
@@ -114,12 +115,15 @@ def check_inference():
     model, config, metrics = load_promoted_model("dc_motor", "pc", "classifier")
     df = pd.DataFrame.from_records(run_scenario(Scenario(scenario_id="smoke_inf", fault_type="outer_race", duration_s=0.06)))
     window = df[metrics["channels"]].to_numpy(np.float32)[-config.input_window :]
-    x, _, _ = normalize_window_like_training(window)
+    # The run's own preprocessing (level_scaling) and calibration, as the GUI applies them.
+    x, _, _ = normalize_window_like_training(window, metrics["channels"], metrics.get("level_scaling"))
     probs = model(x[np.newaxis], training=False).numpy()[0]
     if probs.shape != (len(metrics["classes"]),) or not np.all(np.isfinite(probs)) or abs(float(probs.sum()) - 1.0) > 1e-4:
         raise AssertionError(f"invalid probability vector {probs}")
     run = resolve("dc_motor", "pc", "classifier")
-    return f"{run.parent.name}/{run.name} -> {metrics['classes'][int(np.argmax(probs))]} ({probs.max():.2f}, uncalibrated)"
+    label, cal = decide(probs, list(metrics["classes"]), metrics)
+    kind = "calibrated" if "calibration" in metrics else "uncalibrated"
+    return f"{run.parent.name}/{run.name} -> {label} ({cal.max():.2f}, {kind})"
 
 
 @check("2. application starts (Overview page renders)")

@@ -42,11 +42,13 @@ import yaml
 from sklearn.metrics import f1_score
 from sklearn.preprocessing import LabelEncoder
 
+from driveflow.ai.calibration import fit_calibration
 from driveflow.ai.provenance import file_sha256, run_metadata, set_global_seed
 from driveflow.ai.registry import DEFAULT_REGISTRY_PATH, RegistryError, load_promoted_model
 from driveflow.models.classifiers.builder import build_classifier
 from driveflow.models.classifiers.schemas import ClassifierConfig, load_classifier_config
 from driveflow.models.common import (
+    RPM_LEVEL_SCALING,
     VSC_DPC_CANDIDATE_CHANNELS,
     InsufficientGroupsError,
     build_classification_windows,
@@ -119,14 +121,16 @@ def _blend_regressor_targets(y_true: np.ndarray, teacher_pred: np.ndarray, alpha
 
 
 def _train_classifier(
-    config: ClassifierConfig, df: pd.DataFrame, epochs: int, batch_size: int, seed: int, teacher=None, distill_alpha: float = 0.5
+    config: ClassifierConfig, df: pd.DataFrame, epochs: int, batch_size: int, seed: int, teacher=None, distill_alpha: float = 0.5,
+    level_scaling: dict | None = None, cap_per_class: int = 500,
 ) -> tuple:
     channels = _channels_for_domain(df, config.domain, config.input_window)
     if not channels:
         raise ValueError(f"no live channels found for domain {config.domain!r} at input_window={config.input_window}")
     classes = sorted(df["label"].unique())
 
-    X, y_str, groups = build_classification_windows(df, classes, channels, config.input_window)
+    level_scaling = {c: v for c, v in (level_scaling or {}).items() if c in channels}
+    X, y_str, groups = build_classification_windows(df, classes, channels, config.input_window, cap_per_class=cap_per_class, level_scaling=level_scaling)
     if X is None:
         raise ValueError("no classification windows could be built -- dataset too short for input_window")
 
@@ -160,6 +164,8 @@ def _train_classifier(
         model.fit(X_train, y_train_blend, epochs=epochs, batch_size=batch_size, verbose=0)
 
     y_pred = np.argmax(model.predict(X_test, verbose=0), axis=1)
+    # AI-N12: temperature + abstention threshold fitted on the validation split only.
+    calibration = fit_calibration(model.predict(X_val, verbose=0), y_val) if len(X_val) else None
     metrics = {
         "kind": "classifier",
         "domain": config.domain,
@@ -174,6 +180,10 @@ def _train_classifier(
         "test_per_class_recall": {str(c): float(np.mean(y_pred[y_test == k] == k)) for k, c in enumerate(le.classes_)},
         "split": split.to_dict(),
     }
+    if level_scaling:
+        metrics["level_scaling"] = level_scaling
+    if calibration is not None:
+        metrics["calibration"] = calibration
     return model, metrics
 
 
@@ -205,6 +215,9 @@ def _train_forecaster(
 
     Y_pred = model.predict(X[idx_test], verbose=0) if len(idx_test) else np.empty((0, config.horizon, len(channels)))
     mse = float(np.mean((Y_pred - Y[idx_test]) ** 2)) if len(idx_test) else None
+    # AI-N11: the naive baseline every forecaster must beat -- repeat the last context sample over
+    # the horizon (same normalized space as test_rmse).
+    persistence_mse = float(np.mean((np.repeat(X[idx_test][:, -1:, :], config.horizon, axis=1) - Y[idx_test]) ** 2)) if len(idx_test) else None
     metrics = {
         "kind": "forecaster",
         "domain": config.domain,
@@ -214,6 +227,8 @@ def _train_forecaster(
         "n_test": int(len(idx_test)),
         "test_mse": mse,
         "test_rmse": float(np.sqrt(mse)) if mse is not None else None,
+        "persistence_test_rmse": float(np.sqrt(persistence_mse)) if persistence_mse is not None else None,
+        "test_groups": sorted(str(g) for g in np.unique(groups[idx_test])),
     }
     return model, metrics
 
@@ -244,6 +259,7 @@ def _save_artifacts(run_dir: Path, config_path: Path, model, metrics: dict) -> N
 def train_from_config(
     config_path, dataset_path, epochs: int = 20, batch_size: int = 32, seed: int = 42,
     distill: bool = False, distill_alpha: float = 0.5, registry_path: Path = DEFAULT_REGISTRY_PATH,
+    level_scaling: dict | None = None, cap_per_class: int = 500,
 ) -> Path:
     """Loads config_path (classifier or forecaster, auto-detected), trains it against
     dataset_path (a Parquet file exported via driveflow.datagen.export_parquet), and saves the
@@ -254,6 +270,12 @@ def train_from_config(
     tests/test_train_model.py) as teacher -- raises RegistryError if nothing is promoted there
     yet. Ignored (with no error) if config.tier == "pc" itself -- a PC-tier config IS the teacher
     for other tiers, distilling it from itself would be a no-op at best.
+
+    level_scaling (classifiers only, AI-N07): {channel: [center, scale]} keeps those channels'
+    absolute level instead of z-scoring each window; recorded in metrics.json so inference applies
+    the same rule. A distilled student inherits its teacher's level_scaling (both must see the same
+    windows). cap_per_class: max windows per class (the historical default 500 drops most runs of
+    a large grid dataset).
     """
     config_path = Path(config_path)
     # AUDIT AI-11: the seed used to reach only the data split; weight init / dropout / shuffling
@@ -265,10 +287,14 @@ def train_from_config(
     teacher = None
     if distill and config.tier != "pc":
         block = _KIND_TO_REGISTRY_BLOCK[kind]
-        teacher, _, _ = load_promoted_model(config.domain, "pc", block, registry_path=registry_path)
+        teacher, _, teacher_metrics = load_promoted_model(config.domain, "pc", block, registry_path=registry_path)
+        if kind == "classifier":
+            level_scaling = teacher_metrics.get("level_scaling")
 
     if kind == "classifier":
-        model, metrics = _train_classifier(config, df, epochs, batch_size, seed, teacher=teacher, distill_alpha=distill_alpha)
+        model, metrics = _train_classifier(
+            config, df, epochs, batch_size, seed, teacher=teacher, distill_alpha=distill_alpha, level_scaling=level_scaling, cap_per_class=cap_per_class
+        )
     else:
         model, metrics = _train_forecaster(config, df, epochs, batch_size, seed, teacher=teacher, distill_alpha=distill_alpha)
 
@@ -281,7 +307,7 @@ def train_from_config(
     # Provenance sidecar (metrics.json's schema is unchanged): commit, library versions, seed and
     # the dataset's content hash -- what "seed + commit + env + data" reproducibility needs.
     with (run_dir / "run_metadata.json").open("w") as f:
-        json.dump({**run_metadata(), "seed": seed_info, "epochs": epochs, "batch_size": batch_size, "dataset_path": str(dataset_path), "dataset_sha256": file_sha256(dataset_path), "distill": bool(teacher is not None)}, f, indent=2)
+        json.dump({**run_metadata(), "seed": seed_info, "epochs": epochs, "batch_size": batch_size, "dataset_path": str(dataset_path), "dataset_sha256": file_sha256(dataset_path), "distill": bool(teacher is not None), "cap_per_class": cap_per_class}, f, indent=2)
     return run_dir
 
 
@@ -294,12 +320,15 @@ def main(argv=None) -> None:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--distill", action="store_true", help="Blend targets with the promoted PC-tier model's own predictions (Sec. 8 step 8).")
     parser.add_argument("--distill-alpha", type=float, default=0.5, help="Weight on the true/direct target vs. the teacher's prediction.")
+    parser.add_argument("--keep-rpm-level", action="store_true", help="Classifiers: keep the rpm channel's absolute level (fixed scaling) instead of z-scoring it per window (AI-N07).")
+    parser.add_argument("--cap-per-class", type=int, default=500, help="Classifiers: max windows per class.")
     args = parser.parse_args(argv)
 
     try:
         run_dir = train_from_config(
             args.config, args.dataset, epochs=args.epochs, batch_size=args.batch_size, seed=args.seed,
             distill=args.distill, distill_alpha=args.distill_alpha,
+            level_scaling=RPM_LEVEL_SCALING if args.keep_rpm_level else None, cap_per_class=args.cap_per_class,
         )
     except RegistryError as exc:
         raise SystemExit(f"--distill requires a promoted PC-tier run first (experiments/promote_run.py): {exc}") from exc

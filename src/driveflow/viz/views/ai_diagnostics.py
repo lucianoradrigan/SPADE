@@ -23,6 +23,7 @@ from driveflow.datagen.runner import _VSC_R_OHM
 from driveflow.datagen.scenario import CALIBRATED_MECHANICAL_SEVERITY
 from driveflow.models.common.windowing import CANDIDATE_CHANNELS, VSC_DPC_CANDIDATE_CHANNELS
 from driveflow.sim.vsc_system import MIN_STABLE_LOAD_RESISTANCE_OHM
+from driveflow.ai.calibration import UNCERTAIN, decide
 from driveflow.viz.adapters.ai_adapter import normalize_window, promoted_model, run_metrics
 from driveflow.viz.adapters.session import record_run
 from driveflow.viz.components.inputs import slider_with_custom
@@ -129,19 +130,22 @@ def _classifier_panel(domain: str, df: pd.DataFrame) -> None:
     window = _last_window(df, metrics["channels"], config.input_window)
     if window is None:
         return
-    wn, _, _ = normalize_window(window)
-    probs = model(wn[np.newaxis, ...], training=False).numpy()[0]
+    wn, _, _ = normalize_window(window, metrics)
     classes = metrics["classes"]
+    decision, probs = decide(model(wn[np.newaxis, ...], training=False).numpy()[0], classes, metrics)
     k = int(np.argmax(probs))
+    calibrated = "calibration" in metrics
     st.html('<div class="spade-root spade-badges">' + badge_html("AI SUGGESTION — REQUIRES VERIFICATION", "warning", "▲") + badge_html(f"{run_dir.parent.name}/{run_dir.name}", "training") + "</div>")
-    st.metric("Predicted class", classes[k], f"{probs[k] * 100:.1f}% confidence (uncalibrated softmax)", delta_color="off")
+    st.metric("Predicted class", decision, f"{probs[k] * 100:.1f}% confidence ({'temperature-calibrated' if calibrated else 'uncalibrated softmax'})", delta_color="off")
+    if decision == UNCERTAIN:
+        st.info(f"Top class **{classes[k]}** is below the abstention threshold ({metrics['calibration']['abstain_below']:.2f}) fitted on the validation split, so no class is suggested.", icon=":material/help:")
     fig = go.Figure(go.Bar(x=classes, y=probs, marker_color=[series_color("candidate") if i == k else series_color("base") for i in range(len(classes))]))
     style_figure(fig, height=260, x_title="Class", y_title="Probability", legend=False)
     fig.update_yaxes(range=[0, 1])
     st.plotly_chart(fig, width="stretch", config=PLOTLY_CONFIG, key=f"ia_clf_probs_{domain}")
     for f in load_audit_findings(run_dir):
         st.warning(f"**Audit finding:** {f.get('summary')}  \nEvidence: `{f.get('evidence')}`", icon=":material/warning:")
-    st.caption(f"Tier: {config.tier}. Channels: {', '.join(metrics['channels'])}. Recorded test macro-F1 {metrics.get('test_macro_f1')} / accuracy {metrics.get('test_accuracy')} on n={metrics.get('n_test')} simulated windows (grouped-by-run split). No calibration or out-of-distribution abstention is implemented.")
+    st.caption(f"Tier: {config.tier}. Channels: {', '.join(metrics['channels'])}. Recorded test macro-F1 {metrics.get('test_macro_f1')} / accuracy {metrics.get('test_accuracy')} on n={metrics.get('n_test')} simulated windows (grouped-by-run split). " + (f"Confidence is temperature-calibrated on the validation split (T = {metrics['calibration']['temperature']:.2f}); calibration fitted in-distribution does not make out-of-distribution inputs safe." if calibrated else "No calibration or abstention for this model."))
 
 
 def _regressor_panel(domain: str, df: pd.DataFrame) -> None:
@@ -155,7 +159,7 @@ def _regressor_panel(domain: str, df: pd.DataFrame) -> None:
     window = _last_window(df, channels, config.input_window)
     if window is None:
         return
-    wn, mu, sigma = normalize_window(window)
+    wn, mu, sigma = normalize_window(window, metrics)
     forecast = model(wn[np.newaxis, ...], training=False).numpy()[0] * sigma + mu
     st.html('<div class="spade-root spade-badges">' + badge_html("MODEL FORECAST", "training", "◆") + badge_html(f"{run_dir.parent.name}/{run_dir.name}", "training") + "</div>")
     fig = go.Figure()

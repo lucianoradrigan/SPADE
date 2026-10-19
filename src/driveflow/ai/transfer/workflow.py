@@ -67,12 +67,12 @@ class TLResult:
     thresholds: dict
 
 
-def _window(block: str, df: pd.DataFrame, channels: list, classes: list | None, input_window: int, horizon: int | None):
+def _window(block: str, df: pd.DataFrame, channels: list, classes: list | None, input_window: int, horizon: int | None, level_scaling: dict | None = None):
     missing = [c for c in channels if c not in df.columns or df[c].isna().all()]
     if missing:
         raise ValueError(f"Missing channel(s) the base model needs: {', '.join(missing)}.")
     if block == "classifier":
-        X, y_str, groups = build_classification_windows(df, classes, channels, input_window)
+        X, y_str, groups = build_classification_windows(df, classes, channels, input_window, level_scaling=level_scaling)
         if X is None:
             raise ValueError("No classification windows could be built -- generate more/longer scenarios.")
         index = {c: i for i, c in enumerate(sorted(classes))}  # LabelEncoder order used at training time
@@ -105,7 +105,8 @@ def prepare_dataset(
     seg_len = input_window + (horizon or 0) if block == "regressor" else input_window
     merger = DataMerger(simulated_df, external_df, mix_ratio=mix_ratio, window_samples=seg_len, expected_fs_hz=SIM_FS_HZ)
     merged = merger.merge(seed=seed)
-    X, y, groups = _window(block, merged, channels, classes, input_window, horizon)
+    # The base model's own preprocessing (AI-N07 level_scaling), so fine-tuning sees its windows.
+    X, y, groups = _window(block, merged, channels, classes, input_window, horizon, level_scaling=base_metrics.get("level_scaling"))
     manifest = grouped_train_val_test_split(groups, val_frac=val_frac, test_frac=test_frac, seed=seed, y=y if block == "classifier" else None)
     windows = {name: {"X": X[idx], "y": y[idx]} for name, idx in (("train", manifest.train_idx), ("val", manifest.val_idx), ("test", manifest.test_idx))}
 
@@ -217,7 +218,9 @@ def save_candidate(result: TLResult, base: dict, decision: GateDecision, run_dir
     shutil.copyfile(Path(base["run_dir"]) / "config.yaml", run_dir / "config.yaml")
     result.pipeline.save_checkpoint(str(run_dir / "model.weights.h5"))
     m = result.report["metrics"]
-    metrics = {k: base["metrics"][k] for k in ("kind", "domain", "tier", "channels", "classes") if k in base["metrics"]}
+    # level_scaling is preprocessing and carries over; the base's calibration does not (the
+    # fine-tuned weights have their own confidence behaviour), so the candidate is uncalibrated.
+    metrics = {k: base["metrics"][k] for k in ("kind", "domain", "tier", "channels", "classes", "level_scaling") if k in base["metrics"]}
     if result.report["task"] == "classification":
         metrics.update({"test_accuracy": m.get("accuracy"), "test_macro_f1": m.get("macro_f1")})
     else:

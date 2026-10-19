@@ -12,6 +12,7 @@ import json
 import numpy as np
 import streamlit as st
 
+from driveflow.ai.calibration import UNCERTAIN, decide
 from driveflow.ai.registry import RegistryError, load_promoted_model, resolve
 from driveflow.models.common import normalize_window_like_training
 
@@ -32,14 +33,19 @@ def promoted_model(domain: str, tier: str, block: str):
     return model, config, metrics, run_dir
 
 
-def normalize_window(window: np.ndarray) -> tuple:
+def normalize_window(window: np.ndarray, metrics: dict | None = None) -> tuple:
     """Per-window, per-channel normalisation, delegated to the training pipeline's own rule
     (windowing.normalize_window_like_training): z-score of a live channel with the window's own
     statistics, zeros for a dead/near-constant one. This used a different rule before (sigma
     floor 1e-6, no dead-channel zeroing), so a near-constant channel -- e.g. current_r/torque_nm
     of a healthy motor in steady state -- reached the model as amplified noise in the GUI but as
-    zeros at training time (docs/AI_TECHNICAL_AUDIT.md, AI-N01)."""
-    return normalize_window_like_training(window)
+    zeros at training time (docs/AI_TECHNICAL_AUDIT.md, AI-N01).
+
+    metrics: the run's metrics.json; its channels + level_scaling (AI-N07) select the same
+    per-channel rule the run was trained with. None = the original rule for every channel."""
+    if metrics is None:
+        return normalize_window_like_training(window)
+    return normalize_window_like_training(window, metrics["channels"], metrics.get("level_scaling"))
 
 
 def classify_last_window(domain: str, df) -> dict | None:
@@ -53,11 +59,13 @@ def classify_last_window(domain: str, df) -> dict | None:
     if len(df) < config.input_window or any(c not in df.columns or df[c].isna().all() for c in channels):
         return None
     window = df[channels].iloc[-config.input_window :].to_numpy(dtype=np.float32)
-    window_n, _, _ = normalize_window(window)
-    probs = model(window_n[np.newaxis, ...], training=False).numpy()[0]
+    window_n, _, _ = normalize_window(window, metrics)
+    raw = model(window_n[np.newaxis, ...], training=False).numpy()[0]
+    label, probs = decide(raw, list(metrics["classes"]), metrics)
     k = int(np.argmax(probs))
     return {
         "classes": list(metrics["classes"]), "probs": [float(p) for p in probs], "predicted": metrics["classes"][k], "confidence": float(probs[k]),
+        "decision": label, "abstained": label == UNCERTAIN, "calibrated": "calibration" in metrics,
         "model_id": f"{run_dir.parent.name}/{run_dir.name}", "test_macro_f1": metrics.get("test_macro_f1"), "n_test": metrics.get("n_test"),
     }
 

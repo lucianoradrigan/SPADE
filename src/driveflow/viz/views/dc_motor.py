@@ -177,7 +177,7 @@ def _single() -> None:
             {"label": "Speed (steady state)", "value": "—" if rpm is None else f"{rpm:,.0f}", "unit": "rpm", "sub": f"target {target_rpm:,.0f} rpm" if target_rpm else "torque mode — speed free-running", "tone": "primary"},
             {"label": "Armature current", "value": "—" if cur is None else f"{cur:.1f}", "unit": "A", "sub": f"nominal {sim.dc_defaults()['nominal']['i']} A", "tone": "training"},
             {"label": "Shaft torque", "value": "—" if torque is None else f"{torque:.2f}", "unit": "N·m", "sub": f"nominal {sim.dc_defaults()['nominal']['torque']} N·m", "tone": "healthy"},
-            {"label": "AI suggestion", "value": ai["predicted"] if ai else "n/a", "sub": (f"p={ai['confidence']:.2f} · requires verification" if ai else "no promoted classifier / not enough rows"), "tone": "warning" if ai else "unknown"},
+            {"label": "AI suggestion", "value": (ai.get("decision") or ai["predicted"]) if ai else "n/a", "sub": (f"p={ai['confidence']:.2f}{' calibrated' if ai.get('calibrated') else ''}{' · below abstention threshold' if ai.get('abstained') else ''} · requires verification" if ai else "no promoted classifier / not enough rows"), "tone": "warning" if ai else "unknown"},
         ])
         st.html('<div class="spade-root spade-badges">' + badge_html(f"Injected condition (simulation input): {p['fault_label']}", "unknown", "◆") + source_badge_html("simulated") + "</div>")
 
@@ -219,7 +219,7 @@ def _single() -> None:
                 st.html('<div class="spade-root spade-badges">' + badge_html("REQUIRES VERIFICATION", "warning", "▲", "A model output on simulated data, not a certified diagnosis.") + badge_html(f"model {ai['model_id']}", "training") + "</div>")
                 order = np.argsort(ai["probs"])
                 fig = go.Figure(go.Bar(x=[ai["probs"][i] for i in order], y=[ai["classes"][i] for i in order], orientation="h", marker_color=[series_color("candidate") if ai["classes"][i] == ai["predicted"] else series_color("base") for i in order], text=[f"{ai['probs'][i]:.0%}" for i in order], textposition="auto"))
-                style_figure(fig, height=60 + 48 * len(order), x_title="Class probability (softmax, uncalibrated)", legend=False)
+                style_figure(fig, height=60 + 48 * len(order), x_title=("Class probability (temperature-calibrated)" if ai.get("calibrated") else "Class probability (softmax, uncalibrated)"), legend=False)
                 fig.update_xaxes(range=[0, 1])
                 st.plotly_chart(fig, width="stretch", config=PLOTLY_CONFIG, key="dc_ai_probs")
                 f1 = ai.get("test_macro_f1")

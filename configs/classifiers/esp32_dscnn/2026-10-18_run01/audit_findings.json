@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "AI-N12-ood-ball",
+      "severity": "high",
+      "date": "2026-10-19",
+      "summary": "No class for ball or cage faults: ball-fault windows are called outer_race with mean calibrated confidence 0.99 and are never withheld by the abstention threshold; cage-fault windows are 54 % withheld, the rest called normal.",
+      "evidence": "docs/audit/ai/classifier_evaluation.md (unseen fault types), docs/AI_TECHNICAL_AUDIT.md Sec. 7.2"
+    },
+    {
+      "id": "sim-only",
+      "severity": "medium",
+      "date": "2026-10-19",
+      "summary": "Trained and evaluated on simulated data only (speed x severity x noise x plant-drift grid). Held-out simulated conditions reach 1.000 accuracy in steady state, 0.969 at 100 % noise and 0.815 in the start-up transient; no real-machine validation exists.",
+      "evidence": "docs/audit/ai/classifier_evaluation.md, docs/AI_TECHNICAL_AUDIT.md Sec. 7.1"
+    },
+    {
+      "id": "distilled-int8",
+      "severity": "medium",
+      "date": "2026-10-19",
+      "summary": "Distilled from dc_motor/pc/classifier 2026-10-18_run01 (test accuracy 0.901). INT8 TFLite on the test runs: accuracy 0.940 -> 0.942 but top-1 agreement with Keras only 0.977 (host CPU, not target hardware).",
+      "evidence": "docs/audit/tflite_parity_report.txt"
+    }
+  ]
+}

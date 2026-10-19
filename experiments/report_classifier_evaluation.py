@@ -49,6 +49,12 @@ CONDITIONS = {
     "noise_20pct": ({"electrical_noise_pct": 20.0, "mechanical_noise_pct": 20.0}, 1.0, "steady"),
     "noise_100pct": ({"electrical_noise_pct": 100.0, "mechanical_noise_pct": 100.0}, 1.0, "steady"),
     "plant_drift_psi-10pct_J+50pct": ({"motor_parameter_overrides": {"psi_e": 0.165 * 0.9, "j_rotor": 0.025 * 1.5}}, 1.0, "steady"),
+    # Held out of experiments/generate_diagnosis_grid_dataset.py's grid (AI-N07): two speeds between
+    # its levels, one beyond its 220 rad/s maximum, and a severity between its 0.5 and 0.75 levels.
+    "unseen_speed_115_rad_s": ({"omega_ref_rad_s": 115.0}, 1.0, "steady"),
+    "unseen_speed_190_rad_s": ({"omega_ref_rad_s": 190.0}, 1.0, "steady"),
+    "extrapolated_speed_250_rad_s": ({"omega_ref_rad_s": 250.0}, 1.0, "steady"),
+    "unseen_severity_x0.6": ({"electrical_severity": 4.8}, 0.6, "steady"),
 }
 #: conditions that share the nominal simulation (only the time window differs)
 _SHARES_NOMINAL = {"startup_transient": "nominal_steady_state"}
@@ -99,35 +105,65 @@ def _load_run(run_dir: Path):
     return model, metrics
 
 
-def _windows(df: pd.DataFrame, classes: list, channels: list, window: int):
+def _windows(df: pd.DataFrame, classes: list, channels: list, window: int, level_scaling: dict | None = None):
     from driveflow.models.common import build_classification_windows
 
-    return build_classification_windows(df, classes, channels, window, cap_per_class=10_000)
+    return build_classification_windows(df, classes, channels, window, cap_per_class=10_000, level_scaling=level_scaling)
+
+
+def _abstention(probs_cal: np.ndarray, y: np.ndarray | None, metrics: dict) -> dict | None:
+    """Share of windows withheld by the run's abstention threshold, and accuracy on the rest."""
+    cal = metrics.get("calibration")
+    if not cal:
+        return None
+    keep = probs_cal.max(axis=1) >= cal["abstain_below"]
+    out = {"threshold": cal["abstain_below"], "abstained_share": float(1 - keep.mean())}
+    if y is not None:
+        pred = probs_cal.argmax(axis=1)
+        out["accuracy_on_answered"] = float(np.mean(pred[keep] == y[keep])) if keep.any() else None
+        wrong = pred != y
+        out["share_of_errors_withheld"] = float(np.mean(~keep[wrong])) if wrong.any() else None
+    return out
 
 
 def evaluate_run(run_dir: Path, data: pd.DataFrame, window: int = 512) -> dict:
+    from driveflow.ai.calibration import apply_calibration
     from driveflow.ai.evaluation import classification_metrics, ood_confidence_summary, reliability_curve
 
     model, metrics = _load_run(run_dir)
     classes, channels = metrics["classes"], metrics["channels"]
-    out = {"run": str(run_dir.relative_to(REPO_ROOT)), "classes": classes, "channels": channels, "recorded": {k: metrics.get(k) for k in ("test_accuracy", "test_macro_f1", "n_test")}, "conditions": {}}
+    ls = metrics.get("level_scaling")
+    out = {"run": str(run_dir.relative_to(REPO_ROOT)), "classes": classes, "channels": channels, "level_scaling": ls, "calibration": metrics.get("calibration"),
+           "recorded": {k: metrics.get(k) for k in ("test_accuracy", "test_macro_f1", "n_test")}, "conditions": {}}
     for cond, (_o, _s, win) in CONDITIONS.items():
         src = _SHARES_NOMINAL.get(cond, cond)
         df = data[data["condition"] == src]
         df = df[df["timestamp_s"] >= SETTLE_S] if win == "steady" else df[df["timestamp_s"] < SETTLE_S]
-        X, y_str, _g = _windows(df, classes, channels, window)
+        X, y_str, _g = _windows(df, classes, channels, window, ls)
         y = np.array([classes.index(c) for c in y_str])
-        probs = model.predict(X, verbose=0)
+        # Metrics on the probabilities the GUI shows: calibrated if the run has a calibration.
+        probs = apply_calibration(model.predict(X, verbose=0), metrics)
         m = classification_metrics(y, probs, classes)
         m["reliability"] = reliability_curve(probs, y)
+        m["abstention"] = _abstention(probs, y, metrics)
         out["conditions"][cond] = m
     ood = {}
     df_ood = data[(data["condition"] == "ood_unseen_fault_type") & (data["timestamp_s"] >= SETTLE_S)]
     for fault in OOD_FAULTS:
-        X, _y, _g = _windows(df_ood, [fault], channels, window)
-        ood[fault] = ood_confidence_summary(model.predict(X, verbose=0), classes)
+        X, _y, _g = _windows(df_ood, [fault], channels, window, ls)
+        probs = apply_calibration(model.predict(X, verbose=0), metrics)
+        ood[fault] = ood_confidence_summary(probs, classes)
+        ood[fault]["abstention"] = _abstention(probs, None, metrics)
     out["ood_unseen_fault_types"] = ood
     return out
+
+
+def _fmt_abst(a: dict | None) -> str:
+    if not a:
+        return "-"
+    acc = "-" if a.get("accuracy_on_answered") is None else f"{a['accuracy_on_answered']:.3f}"
+    wh = "-" if a.get("share_of_errors_withheld") is None else f"{a['share_of_errors_withheld']:.2f}"
+    return f"{a['abstained_share']:.2f} / {acc} / {wh}"
 
 
 def _md(report: dict) -> str:
@@ -136,9 +172,12 @@ def _md(report: dict) -> str:
         lines.append(f"### `{r['run']}`\n")
         rec = r["recorded"]
         lines.append(f"Recorded at training time: test accuracy {rec['test_accuracy']:.3f}, macro-F1 {rec['test_macro_f1']:.3f} (n_test = {rec['n_test']} windows).\n")
+        cal = r.get("calibration")
+        lines.append(f"Preprocessing: rpm level {'kept (' + str(r['level_scaling']) + ')' if r.get('level_scaling') else 'z-scored per window'}. "
+                     + (f"Calibration: temperature T = {cal['temperature']:.3f}, abstain below {cal['abstain_below']:.3f} (fitted on validation). Metrics below use calibrated probabilities.\n" if cal else "Uncalibrated softmax.\n"))
         cls = r["classes"]
-        lines.append("| Condition | n | Accuracy | Balanced acc. | Macro-F1 | " + " | ".join(f"Recall {c}" for c in cls) + " | False-alarm rate | Missed-detection rate | ECE | Conf. correct / incorrect |")
-        lines.append("|---" * (8 + len(cls)) + "|")
+        lines.append("| Condition | n | Accuracy | Balanced acc. | Macro-F1 | " + " | ".join(f"Recall {c}" for c in cls) + " | False-alarm rate | Missed-detection rate | ECE | Conf. correct / incorrect | Abstained / acc. answered / errors withheld |")
+        lines.append("|---" * (9 + len(cls)) + "|")
         for cond, m in r["conditions"].items():
             fd = m["fault_detection"]
             cc = m["mean_confidence_correct"]
@@ -147,15 +186,16 @@ def _md(report: dict) -> str:
                 f"| {cond} | {m['n']} | {m['accuracy']:.3f} | {m['balanced_accuracy']:.3f} | {m['macro_f1']:.3f} | "
                 + " | ".join(f"{m['per_class'][c]['recall']:.2f}" for c in cls)
                 + f" | {fd['false_alarm_rate']:.3f} | {fd['missed_detection_rate']:.3f} | {m['ece']:.3f} | "
-                + f"{'-' if cc is None else f'{cc:.2f}'} / {'-' if ci is None else f'{ci:.2f}'} |"
+                + f"{'-' if cc is None else f'{cc:.2f}'} / {'-' if ci is None else f'{ci:.2f}'} | {_fmt_abst(m.get('abstention'))} |"
             )
         lines.append("")
         lines.append("Unseen fault types (no class in the model's vocabulary):\n")
-        lines.append("| Fault | n | Predicted as | Mean confidence | Share conf. > 0.9 |")
-        lines.append("|---|---|---|---|---|")
+        lines.append("| Fault | n | Predicted as | Mean confidence | Share conf. > 0.9 | Abstained |")
+        lines.append("|---|---|---|---|---|---|")
         for fault, o in r["ood_unseen_fault_types"].items():
             share = ", ".join(f"{c} {v:.2f}" for c, v in o["predicted_share"].items())
-            lines.append(f"| {fault} | {o['n']} | {share} | {o['mean_confidence']:.3f} | {o['share_confidence_above_0.9']:.2f} |")
+            ab = o.get("abstention")
+            lines.append(f"| {fault} | {o['n']} | {share} | {o['mean_confidence']:.3f} | {o['share_confidence_above_0.9']:.2f} | {'-' if not ab else round(ab['abstained_share'], 2)} |")
         lines.append("")
         cm = r["conditions"]["nominal_steady_state"]["confusion_matrix_rows_true"]
         lines.append(f"Confusion matrix, nominal steady state (rows = true {cls}, columns = predicted): `{cm}`\n")
@@ -170,7 +210,7 @@ def main(argv=None):
     ap.add_argument("--workers", type=int, default=max(1, min(8, (mp.cpu_count() or 2) - 1)))
     ap.add_argument("--cache", type=Path, default=None, help="parquet to reuse/save the simulated runs")
     ap.add_argument("--out-dir", type=Path, default=REPO_ROOT / "docs" / "audit" / "ai")
-    ap.add_argument("--run-dir", type=Path, action="append", default=None, help="model run(s) to evaluate; default: promoted pc classifier + 2026-10-13 candidate")
+    ap.add_argument("--run-dir", type=Path, action="append", default=None, help="model run(s) to evaluate; default: promoted pc classifier, its no-rpm-level ablation, the 2026-10-13 candidate and the pre-2026-10-18 production run")
     args = ap.parse_args(argv)
 
     t0 = time.time()
@@ -186,7 +226,10 @@ def main(argv=None):
 
     from driveflow.ai.registry import resolve
 
-    runs = args.run_dir or [resolve("dc_motor", "pc", "classifier"), REPO_ROOT / "configs" / "classifiers" / "pc_server" / "2026-10-13_run01"]
+    pc = REPO_ROOT / "configs" / "classifiers" / "pc_server"
+    # The production model, the ablation without the rpm level (same grid), the single-operating-
+    # point candidate of 2026-10-13 and the production model before 2026-10-18 (AI-N06).
+    runs = args.run_dir or [resolve("dc_motor", "pc", "classifier"), pc / "2026-10-18_run02", pc / "2026-10-13_run01", pc / "2026-09-01_run01"]
     models = [evaluate_run(Path(r).resolve(), data) for r in runs]
     report = {
         "command": "python experiments/report_classifier_evaluation.py " + " ".join(argv or []),

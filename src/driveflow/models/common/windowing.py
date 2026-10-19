@@ -53,21 +53,49 @@ def is_live_window(w: np.ndarray) -> bool:
     return sigma > 1e-3 * (abs(mu) + 1e-6)
 
 
-def normalize_window_like_training(window: np.ndarray) -> tuple:
+#: Fixed (center, scale) for the rpm channel when a model keeps the speed LEVEL instead of
+#: z-scoring it away (AI-N07): 1432.4 rpm = 150 rad/s, 477.5 rpm = 50 rad/s.
+RPM_LEVEL_SCALING = {"rpm": [1432.4, 477.5]}
+
+
+def _normalize_channel(w: np.ndarray, level: list | None) -> tuple:
+    """(normalized, mu, sigma) of one channel's window. level = [center, scale] keeps the absolute
+    level ((w - center) / scale); otherwise a live channel is z-scored with its own window
+    statistics and a dead/near-constant one becomes zeros with sigma = 1."""
+    if level is not None:
+        center, scale = float(level[0]), float(level[1])
+        return (w - center) / scale, center, scale
+    if is_live_window(w):
+        mu, sigma = w.mean(), w.std()
+        return (w - mu) / sigma, mu, sigma
+    return np.zeros_like(w), w.mean(), 1.0
+
+
+def normalize_window_like_training(window: np.ndarray, channels: list | None = None, level_scaling: dict | None = None) -> tuple:
     """Per-channel normalisation of ONE (n_samples, n_channels) window with exactly the rule the
     window builders below apply at training time: a live channel (is_live_window) is z-scored
     with its own window statistics; a dead/near-constant one is set to zeros (returned sigma = 1,
     so `y * sigma + mu` maps a zero forecast back to the channel's level). Inference must use
     this, not a different sigma floor -- see docs/AI_TECHNICAL_AUDIT.md (AI-N01).
 
+    level_scaling ({channel: [center, scale]}, from a run's metrics.json) keeps those channels'
+    absolute level instead; it needs `channels` (the window's column names). None = the original
+    rule for every channel, which is what every run trained before AI-N07 expects.
+
     Returns (normalized float32 window, mu per channel, sigma per channel)."""
     window = np.asarray(window, dtype=np.float32)
+    level_scaling = level_scaling or {}
+    if level_scaling and channels is None:
+        raise ValueError("level_scaling needs the window's channel names")
     out = np.zeros_like(window)
     mu = window.mean(axis=0)
     sigma = np.ones(window.shape[1], dtype=np.float32)
     for j in range(window.shape[1]):
         w = window[:, j]
-        if is_live_window(w):
+        level = level_scaling.get(channels[j]) if channels is not None else None
+        if level is not None:
+            out[:, j], mu[j], sigma[j] = _normalize_channel(w, level)
+        elif is_live_window(w):
             sigma[j] = w.std()
             out[:, j] = (w - mu[j]) / sigma[j]
     return out, mu, sigma
@@ -127,6 +155,7 @@ def build_classification_windows(
     group_col: str = "source_file",
     label_col: str = "label",
     time_col: str = TIME_COL,
+    level_scaling: dict | None = None,
 ) -> tuple:
     """Adapted from load_dataset(): windows a labeled DataFrame into (X, y_str, groups).
     `groups` = group_col's value for each window (a driveflow scenario run is already
@@ -137,6 +166,9 @@ def build_classification_windows(
     all of its rows lie inside one uniformly-sampled segment of the group (acquisitions.
     window_starts) -- a gap left by dropped rows is never bridged. On a clean single-segment
     recording the windows are exactly the historical non-overlapping ones.
+
+    level_scaling: see normalize_window_like_training; None keeps the per-window z-score for
+    every channel.
 
     Returns (None, None, None) if no windows could be built at all.
     """
@@ -168,12 +200,7 @@ def build_classification_windows(
                 chans = []
                 for c in channels:
                     if c in col_values:
-                        w = col_values[c][sl].astype(np.float32)
-                        if is_live_window(w):
-                            mu, sigma = w.mean(), w.std()
-                            w = (w - mu) / sigma
-                        else:
-                            w = np.zeros_like(w)
+                        w, _, _ = _normalize_channel(col_values[c][sl].astype(np.float32), (level_scaling or {}).get(c))
                     else:
                         w = np.zeros(window_samples, dtype=np.float32)
                     chans.append(w)

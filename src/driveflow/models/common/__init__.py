@@ -3,6 +3,7 @@ from .acquisitions import AcquisitionCheck, check_acquisitions, contiguous_segme
 from .splits import InsufficientGroupsError, SplitManifest, grouped_split, grouped_train_val_test_split, prepare_classification_splits
 from .windowing import (
     CANDIDATE_CHANNELS,
+    RPM_LEVEL_SCALING,
     VSC_DPC_CANDIDATE_CHANNELS,
     WINDOW_S,
     build_classification_windows,
@@ -28,6 +29,7 @@ __all__ = [
     "grouped_train_val_test_split",
     "prepare_classification_splits",
     "CANDIDATE_CHANNELS",
+    "RPM_LEVEL_SCALING",
     "VSC_DPC_CANDIDATE_CHANNELS",
     "WINDOW_S",
     "build_classification_windows",
