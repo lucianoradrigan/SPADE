@@ -30,3 +30,11 @@ packages = ["src/driveflow"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Category markers (docs/VALIDATION_SUMMARY.md): select with -m, e.g. `pytest -m "simulation and not slow"`.
+markers = [
+    "simulation: numerical stability / reproducibility of the plant models (tests/simulation)",
+    "control: closed-loop controller performance against reference models (tests/control)",
+    "ai: classifier evaluation, monitoring agents and alerts (tests/ai)",
+    "compat: installation smoke checks that must pass on Linux, Windows and macOS (tests/compat)",
+    "slow: > ~20 s each; excluded from the per-commit CI job, run by the scheduled/manual workflow",
+]
