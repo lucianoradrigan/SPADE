@@ -125,7 +125,7 @@ def run_pmsm_open_loop(omega_mech: float, duration_s: float = 0.4, ode_solver=No
         motor=PermanentMagnetSynchronousMotor(motor_parameter=mp),
         load=ConstantSpeedLoad(omega_fixed=omega_mech),
         supply=IdealVoltageSupply(u_nominal=pmsm_foc.U_SUPPLY),
-        ode_solver=ode_solver if ode_solver is not None else EulerSolver(),
+        ode_solver=ode_solver if ode_solver is not None else pmsm_foc.default_ode_solver(),
         tau=tau,
         control_space="dq",
     )

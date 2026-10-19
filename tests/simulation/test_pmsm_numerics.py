@@ -1,16 +1,17 @@
 """Numerical stability of the PMSM / FOC model -- docs/SIMULATION_STABILITY_REPORT.md Sec. 3.
 
-Key result (S-01): with forward Euler at tau = 1e-4 s the open-loop dq electrical dynamics leave
-the method's stability region above ~266 rad/s mechanical -- inside the motor's own nominal speed
-(314 rad/s). The physical system is damped there (RK45 converges to the analytic short-circuit
-current); the Euler trajectory grows without bound. A numerical, not a physical, instability.
+Key result (S-01): with ONE forward-Euler step per tau = 1e-4 s the open-loop dq electrical
+dynamics leave the method's stability region above ~266 rad/s mechanical -- inside the motor's own
+nominal speed (314 rad/s). The physical system is damped there (RK45 converges to the analytic
+short-circuit current); the Euler trajectory grows without bound. A numerical, not a physical,
+instability. Fixed: pmsm_foc.default_ode_solver() uses EULER_NSTEPS = 3 substeps (limit ~460 rad/s).
 """
 
 import numpy as np
 import pytest
 
-from driveflow.control.classical.pmsm_foc import MOTOR_PARAMS, generate_mtpa_vs_naive_cloud, mtpa_id_iq
-from driveflow.sim.solvers import ScipySolveIvpSolver
+from driveflow.control.classical.pmsm_foc import EULER_NSTEPS, MOTOR_PARAMS, generate_mtpa_vs_naive_cloud, mtpa_id_iq
+from driveflow.sim.solvers import EulerSolver, ScipySolveIvpSolver
 from driveflow.validation import euler_max_stable_speed_pmsm, euler_spectral_radius, pmsm_dq_matrix, run_pmsm_current_step, run_pmsm_open_loop
 from driveflow.validation.benches import pmsm_short_circuit_current
 
@@ -48,15 +49,28 @@ def test_rk45_reaches_the_analytic_short_circuit_current_at_300_rad_s():
     assert lo == pytest.approx(np.hypot(i_d, i_q), rel=2e-3) and hi == pytest.approx(np.hypot(i_d, i_q), rel=2e-3)
 
 
-def test_euler_diverges_at_300_rad_s_although_the_physics_is_stable():
-    lo, hi = _tail_magnitude(run_pmsm_open_loop(300.0))
+def test_single_step_euler_diverges_at_300_rad_s_although_the_physics_is_stable():
+    lo, hi = _tail_magnitude(run_pmsm_open_loop(300.0, ode_solver=EulerSolver()))
     analytic = np.hypot(*pmsm_short_circuit_current(300.0))
     assert hi > 5 * analytic  # measured ~5700 A vs 178 A analytic
 
 
+def test_default_solver_is_stable_with_margin_above_the_nominal_speed():
+    """S-01 fix: the substepped default keeps the whole nominal range (plus 40 %) inside Euler's
+    stability region."""
+    assert euler_max_stable_speed_pmsm(MOTOR_PARAMS, TAU / EULER_NSTEPS, 5000.0) > 1.4 * NOMINAL_SPEED
+
+
+@pytest.mark.parametrize("omega", [300.0, NOMINAL_SPEED])
+def test_default_solver_reaches_the_analytic_short_circuit_current_at_high_speed(omega):
+    lo, hi = _tail_magnitude(run_pmsm_open_loop(omega))
+    analytic = np.hypot(*pmsm_short_circuit_current(omega))
+    assert lo == pytest.approx(analytic, rel=0.01) and hi == pytest.approx(analytic, rel=0.01)
+
+
 def test_euler_is_accurate_well_inside_its_stability_region():
     """At 100 rad/s (rho(I + tau A) well below 1) Euler and the analytic value agree to 1 %."""
-    lo, hi = _tail_magnitude(run_pmsm_open_loop(100.0, duration_s=0.6))
+    lo, hi = _tail_magnitude(run_pmsm_open_loop(100.0, duration_s=0.6, ode_solver=EulerSolver()))
     analytic = np.hypot(*pmsm_short_circuit_current(100.0))
     assert lo == pytest.approx(analytic, rel=0.01) and hi == pytest.approx(analytic, rel=0.01)
 

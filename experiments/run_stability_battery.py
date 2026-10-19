@@ -26,7 +26,7 @@ from scipy import signal
 warnings.simplefilter("ignore")
 
 from driveflow.control.classical import PICascadeController  # noqa: E402
-from driveflow.control.classical.pmsm_foc import MOTOR_PARAMS, mtpa_id_iq  # noqa: E402
+from driveflow.control.classical.pmsm_foc import EULER_NSTEPS, MOTOR_PARAMS, mtpa_id_iq  # noqa: E402
 from driveflow.datagen import Scenario, run_scenario  # noqa: E402
 from driveflow.sim import EulerSolver  # noqa: E402
 from driveflow.sim.solvers import ScipySolveIvpSolver  # noqa: E402
@@ -178,15 +178,18 @@ def reproducibility():
 def pmsm_open_loop():
     rows, traces = [], {}
     w_lim = euler_max_stable_speed_pmsm(MOTOR_PARAMS, 1e-4)
-    for w in (100.0, 200.0, 250.0, 260.0, 270.0, 300.0):
+    w_lim_default = euler_max_stable_speed_pmsm(MOTOR_PARAMS, 1e-4 / EULER_NSTEPS, 5000.0)
+    for w in (100.0, 200.0, 250.0, 260.0, 270.0, 300.0, 3e3 * np.pi / 30):
         a = pmsm_dq_matrix(w * MOTOR_PARAMS["p"], MOTOR_PARAMS["r_s"], MOTOR_PARAMS["l_d"], MOTOR_PARAMS["l_q"])
-        e = run_pmsm_open_loop(w, duration_s=0.4)
+        e = run_pmsm_open_loop(w, duration_s=0.4, ode_solver=EulerSolver())
+        d = run_pmsm_open_loop(w, duration_s=0.4)
         k = run_pmsm_open_loop(w, duration_s=0.4, ode_solver=ScipySolveIvpSolver(method="RK45", rtol=1e-8, atol=1e-8))
-        me, mk = np.hypot(e["i_d"], e["i_q"])[-500:], np.hypot(k["i_d"], k["i_q"])[-500:]
+        me, mk, md = np.hypot(e["i_d"], e["i_q"])[-500:], np.hypot(k["i_d"], k["i_q"])[-500:], np.hypot(d["i_d"], d["i_q"])[-500:]
         rows.append({"omega_mech_rad_s": w, "rho_euler": euler_spectral_radius(a, 1e-4), "analytic_A": float(np.hypot(*pmsm_short_circuit_current(w))),
-                     "rk45_tail_min_max_A": [float(mk.min()), float(mk.max())], "euler_tail_min_max_A": [float(me.min()), float(me.max())]})
-        traces[w] = (e, k)
-    return {"euler_stable_up_to_rad_s": w_lim, "nominal_speed_rad_s": 3e3 * np.pi / 30, "rows": rows}, traces
+                     "rk45_tail_min_max_A": [float(mk.min()), float(mk.max())], "euler_tail_min_max_A": [float(me.min()), float(me.max())],
+                     "default_solver_tail_min_max_A": [float(md.min()), float(md.max())]})
+        traces[w] = (e, k, d)
+    return {"euler_stable_up_to_rad_s": w_lim, "default_solver_nsteps": EULER_NSTEPS, "default_solver_stable_up_to_rad_s": w_lim_default, "nominal_speed_rad_s": 3e3 * np.pi / 30, "rows": rows}, traces
 
 
 def pmsm_closed_loop():
@@ -258,12 +261,13 @@ def figures(out, res, load_traces, pmsm_traces):
     f.update_xaxes(range=[0, 150])
     _style(f, "PI speed loop, 2 rad/s step: simulation vs design model (~15 % overshoot)", "Time after step (ms)", "Speed (rad/s)").write_image(out / "dc_small_step_vs_linear.png")
 
-    e, k = pmsm_traces[300.0]
+    e, k, d = pmsm_traces[300.0]
     f = go.Figure()
     f.add_trace(go.Scatter(x=k["t"], y=np.hypot(k["i_d"], k["i_q"]), mode="lines", name="RK45 (reference)", line=dict(color=COLORS[0], width=2)))
-    f.add_trace(go.Scatter(x=e["t"], y=np.hypot(e["i_d"], e["i_q"]), mode="lines", name="Euler, τ = 1e-4 s", line=dict(color=COLORS[1], width=2, dash="dash")))
+    f.add_trace(go.Scatter(x=e["t"], y=np.hypot(e["i_d"], e["i_q"]), mode="lines", name="Euler, 1 step per τ = 1e-4 s", line=dict(color=COLORS[1], width=2, dash="dash")))
+    f.add_trace(go.Scatter(x=d["t"], y=np.hypot(d["i_d"], d["i_q"]), mode="lines", name=f"Euler, {EULER_NSTEPS} substeps (default)", line=dict(color=COLORS[2], width=2, dash="dot")))
     f.add_hline(y=float(np.hypot(*pmsm_short_circuit_current(300.0))), line=dict(color=MUTED, width=1, dash="dot"), annotation_text="analytic", annotation_font_color=INK)
-    _style(f, "PMSM at 300 rad/s, zero voltage: Euler diverges, the physics does not", "Time (s)", "|i_dq| (A)").write_image(out / "pmsm_euler_vs_rk45_300rads.png")
+    _style(f, "PMSM at 300 rad/s, zero voltage: single-step Euler diverges, the physics does not", "Time (s)", "|i_dq| (A)").write_image(out / "pmsm_euler_vs_rk45_300rads.png")
 
     _vsc_figure(out, res)
 
@@ -309,9 +313,9 @@ def _md(res) -> str:
     L += ["## Reproducibility (3 repeated runs, same parameters and seed)\n", "| Scenario | identical | SHA-256 prefix |", "|---|---|---|"]
     L += [f"| {r['scenario']} | {r['identical']} | `{r['sha256_prefix']}` |" for r in res["reproducibility"]]
     p = res["pmsm"]["open_loop"]
-    L += [f"\n## PMSM -- open-loop dq dynamics at held speed, zero voltage (0.4 s)\n\nEuler at τ=1e-4 s is stable up to {p['euler_stable_up_to_rad_s']:.1f} rad/s; motor nominal speed {p['nominal_speed_rad_s']:.1f} rad/s.\n",
-          "| ω (rad/s) | ρ(I+τA) | analytic |i| (A) | RK45 tail min/max (A) | Euler tail min/max (A) |", "|---|---|---|---|---|"]
-    L += [f"| {r['omega_mech_rad_s']:.0f} | {r['rho_euler']:.5f} | {r['analytic_A']:.2f} | {r['rk45_tail_min_max_A'][0]:.2f} / {r['rk45_tail_min_max_A'][1]:.2f} | {r['euler_tail_min_max_A'][0]:.4g} / {r['euler_tail_min_max_A'][1]:.4g} |" for r in p["rows"]]
+    L += [f"\n## PMSM -- open-loop dq dynamics at held speed, zero voltage (0.4 s)\n\nOne Euler step per τ=1e-4 s is stable up to {p['euler_stable_up_to_rad_s']:.1f} rad/s; the default solver ({p['default_solver_nsteps']} substeps) up to {p['default_solver_stable_up_to_rad_s']:.1f} rad/s; motor nominal speed {p['nominal_speed_rad_s']:.1f} rad/s.\n",
+          "| ω (rad/s) | ρ(I+τA), 1 step | analytic |i| (A) | RK45 tail min/max (A) | Euler 1 step tail min/max (A) | default solver tail min/max (A) |", "|---|---|---|---|---|---|"]
+    L += [f"| {r['omega_mech_rad_s']:.0f} | {r['rho_euler']:.5f} | {r['analytic_A']:.2f} | {r['rk45_tail_min_max_A'][0]:.2f} / {r['rk45_tail_min_max_A'][1]:.2f} | {r['euler_tail_min_max_A'][0]:.4g} / {r['euler_tail_min_max_A'][1]:.4g} | {r['default_solver_tail_min_max_A'][0]:.2f} / {r['default_solver_tail_min_max_A'][1]:.2f} |" for r in p["rows"]]
     L += ["\n## PMSM -- closed-loop MTPA current steps (30 ms, rotor near standstill)\n", "| i_s (A) | max |Euler − RK45| (A) | final |error| (A) | finite |", "|---|---|---|---|"]
     L += [f"| {r['i_s_A']:.0f} | {r['max_euler_vs_rk45_A']:.4f} | {r['final_error_A']:.3f} | {r['finite']} |" for r in res["pmsm"]["closed_loop"]]
     L += ["\n## VSC + DPC -- load-resistance sweep (0.2 s, |v_ref| = 50 V)\n", "| R (Ω) | open-loop ρ | finite | settled RMSE (V) | max |v_c| (V) | wall (s) |", "|---|---|---|---|---|---|"]

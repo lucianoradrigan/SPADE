@@ -33,6 +33,15 @@ U_SUPPLY = 330.0  # 10% headroom over the motor's own u limit (300V), same ratio
 #: this predates Fase C; found by direct simulation earlier this session (j_load=0.01 let the
 #: rotor run away mid-step; j_load=5.0 keeps omega_el's decoupling term negligible for ~30ms).
 LOAD_INERTIA = 5.0
+#: Euler substeps per TAU (S-01, docs/SIMULATION_STABILITY_REPORT.md). A single forward-Euler step
+#: of TAU leaves the open-loop dq dynamics' stability region above ~266 rad/s mechanical, below the
+#: motor's nominal 314 rad/s; 3 substeps move that limit to ~460 rad/s (1.47x nominal), checked by
+#: driveflow.validation.euler_max_stable_speed_pmsm(MOTOR_PARAMS, TAU / EULER_NSTEPS).
+EULER_NSTEPS = 3
+
+
+def default_ode_solver() -> EulerSolver:
+    return EulerSolver(nsteps=EULER_NSTEPS)
 
 
 def mtpa_id_iq(i_s: float, mp: dict = MOTOR_PARAMS) -> tuple:
@@ -95,17 +104,16 @@ class DqCurrentController:
 
 
 def build_pmsm_system(mp: dict = MOTOR_PARAMS, u_supply: float = U_SUPPLY, ode_solver=None) -> SynchronousMotorSystem:
-    """ode_solver: None (default) = EulerSolver() at TAU, the original behaviour. Forward Euler is
-    only valid here while the rotor stays slow -- above ~265 rad/s mechanical the open-loop dq
-    dynamics are outside its stability region at TAU=1e-4 (driveflow.validation.numerics,
-    docs/SIMULATION_STABILITY_REPORT.md); the demos below keep omega ~ 0 via LOAD_INERTIA."""
+    """ode_solver: None (default) = default_ode_solver(), forward Euler with EULER_NSTEPS substeps
+    per TAU -- stable up to ~460 rad/s mechanical. A plain EulerSolver() (one step per TAU) is
+    unstable above ~266 rad/s, inside the nominal range (S-01)."""
     load = PolynomialStaticLoad(load_parameter=dict(a=0.0, b=0.0, c=0.0, j_load=LOAD_INERTIA))
     return SynchronousMotorSystem(
         converter=ContB6BridgeConverter(),
         motor=PermanentMagnetSynchronousMotor(motor_parameter=mp),
         load=load,
         supply=IdealVoltageSupply(u_nominal=u_supply),
-        ode_solver=ode_solver if ode_solver is not None else EulerSolver(),
+        ode_solver=ode_solver if ode_solver is not None else default_ode_solver(),
         tau=TAU,
         control_space="dq",
     )
