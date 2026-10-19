@@ -96,7 +96,9 @@ New evidence scripts:
 | macOS Apple Silicon | no | resolution OK (TF 2.21); CI job `macos-latest` | Pending |
 | macOS Intel | no | unpinned resolution **broken**; constrained set emulated on Linux: [smoke 6/6; non-slow suite 631 passed, 3 failed](audit/install/macos_intel_emulated_on_linux.txt). The 3 failures are specific to that set: a TFLite size heuristic, and a Transfer Learning `AppTest` flow under Streamlit 1.60, which is capped there by protobuf | Pending (constraints shipped) |
 
-**CI (`.github/workflows/`).** Nothing has run on GitHub yet: the workflows only start once they are pushed.
+**CI (`.github/workflows/`).** First GitHub run (commit `1842121`, 2026-10-19):
+- the **smoke jobs passed on `windows-latest`, `macos-latest` (Apple Silicon) and `ubuntu-latest`**, Python 3.12. This is the first execution of the install path on Windows and macOS. It is CI, not a manual run of the guides.
+- the `pytest` jobs failed on one test, `test_registry_lists_only_existing_artifacts_with_correct_hashes`. Two historical runs (`esp32_dscnn/2026-09-01_run01`, `esp32_tiny/2026-09-13_run01`) had been committed without their `model.weights.h5`, because `*.h5` is git-ignored. This had made CI red since `a6f8894`. Reproduced in a clean checkout and fixed by adding the two weight files.
 
 | Workflow | Trigger | What it runs |
 |---|---|---|
