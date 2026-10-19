@@ -94,24 +94,28 @@ class DqCurrentController:
         return action, (i_d, i_q)
 
 
-def build_pmsm_system(mp: dict = MOTOR_PARAMS, u_supply: float = U_SUPPLY) -> SynchronousMotorSystem:
+def build_pmsm_system(mp: dict = MOTOR_PARAMS, u_supply: float = U_SUPPLY, ode_solver=None) -> SynchronousMotorSystem:
+    """ode_solver: None (default) = EulerSolver() at TAU, the original behaviour. Forward Euler is
+    only valid here while the rotor stays slow -- above ~265 rad/s mechanical the open-loop dq
+    dynamics are outside its stability region at TAU=1e-4 (driveflow.validation.numerics,
+    docs/SIMULATION_STABILITY_REPORT.md); the demos below keep omega ~ 0 via LOAD_INERTIA."""
     load = PolynomialStaticLoad(load_parameter=dict(a=0.0, b=0.0, c=0.0, j_load=LOAD_INERTIA))
     return SynchronousMotorSystem(
         converter=ContB6BridgeConverter(),
         motor=PermanentMagnetSynchronousMotor(motor_parameter=mp),
         load=load,
         supply=IdealVoltageSupply(u_nominal=u_supply),
-        ode_solver=EulerSolver(),
+        ode_solver=ode_solver if ode_solver is not None else EulerSolver(),
         tau=TAU,
         control_space="dq",
     )
 
 
-def run_current_step(i_d_ref: float, i_q_ref: float, duration_s: float = 0.03, seed: int = 0, mp: dict = MOTOR_PARAMS, u_supply: float = U_SUPPLY) -> list:
+def run_current_step(i_d_ref: float, i_q_ref: float, duration_s: float = 0.03, seed: int = 0, mp: dict = MOTOR_PARAMS, u_supply: float = U_SUPPLY, ode_solver=None) -> list:
     """Runs one current-step transient (system.reset() -> repeatedly control()+simulate()) and
     returns the [(i_d, i_q), ...] trajectory -- the raw material for the id/iq point-cloud plot.
     """
-    system = build_pmsm_system(mp=mp, u_supply=u_supply)
+    system = build_pmsm_system(mp=mp, u_supply=u_supply, ode_solver=ode_solver)
     controller = DqCurrentController(system, mp=mp)
     system.seed(np.random.SeedSequence(seed))
     state = system.reset()

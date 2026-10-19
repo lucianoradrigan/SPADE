@@ -39,8 +39,11 @@ class PICascadeController:
             speed_bandwidth_rad_s: Desired closed speed-loop natural frequency (rad/s). Must stay
                 well below the current loop's implicit bandwidth (~1/(2*tau), i.e. tens of kHz for
                 a typical tau=1e-4) for the "ideal inner loop" approximation below to hold.
-            speed_damping: Desired closed speed-loop damping ratio (0.9 -> essentially no
-                overshoot).
+            speed_damping: Damping ratio of the closed speed loop's POLES (0.9). This does not by
+                itself mean "no overshoot": the PI zero at s = -ki/kp adds ~15 % overshoot to a
+                small, unsaturated reference step (measured and matched to the linear design
+                model in tests/control/test_controller_performance.py). Large steps show almost
+                none only because the current cap and the conditional anti-windup take over.
             current_safety_margin: Fraction of the current limit the speed loop is allowed to
                 command as a reference (keeps the operating point away from the motor's absolute
                 current limit).

@@ -8,10 +8,15 @@
 # unmitigated gap in the dashboard -- it is the same safeguard expressed as data (not UI code) for
 # any path that bypasses the dashboard, e.g. a scripted Scenario(load_resistance_ohm=...) run or a
 # future monitoring agent (Sec. 4.3) watching a live rollout.
+#
+# Threshold (docs/AI_TECHNICAL_AUDIT.md, AI-N03): the condition used to be "R in [1.0, 3.0]",
+# which left two open-loop-unstable bands unwatched -- R < 1.0 (spectral radius up to ~12) and
+# 3.0 < R < R* (3.0 < R < 3.3707). It now covers the whole unstable region R < R*, which
+# tests/ai/test_monitoring_alerts.py checks against sim.vsc_system.load_feedback_spectral_radius.
 domain: vsc_dpc
 rules:
   - name: dpc_load_resistance_divergence
-    condition: "load_resistance_ohm >= 1.0 and load_resistance_ohm <= 3.0"
+    condition: "load_resistance_ohm < 3.3707"
     severity: high
     hysteresis_seconds: 2
     action: alert

@@ -4,6 +4,7 @@ malformed rule must fail at load time -- same pattern as
 tests/test_diagnosis_dataset_filter.py for the Fase C domain filter.
 """
 
+import re
 from pathlib import Path
 
 import pytest
@@ -32,7 +33,8 @@ class TestShippedRuleFiles:
         can't silently drift out of sync with sim.vsc_system's own stability floor."""
         ruleset = load_ruleset(RULES_DIR / "vsc_dpc.yaml")
         rule = next(r for r in ruleset.rules if r.name == "dpc_load_resistance_divergence")
-        upper_bound = float(rule.condition.split("<=")[-1].strip())
+        # "R < 3.3707" since AI-N03 (was "... and R <= 3.0"); accept either operator.
+        upper_bound = float(re.split(r"<=?", rule.condition)[-1].strip())
         assert upper_bound < MIN_STABLE_LOAD_RESISTANCE_OHM
 
 

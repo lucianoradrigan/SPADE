@@ -10,6 +10,7 @@ from .windowing import (
     build_forecast_windows,
     discover_channels,
     is_live_window,
+    normalize_window_like_training,
     window_samples_for,
 )
 
@@ -34,5 +35,6 @@ __all__ = [
     "build_forecast_windows",
     "discover_channels",
     "is_live_window",
+    "normalize_window_like_training",
     "window_samples_for",
 ]

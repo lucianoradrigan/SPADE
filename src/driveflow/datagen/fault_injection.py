@@ -82,6 +82,13 @@ class BearingFaultLoad(MechanicalLoad):
         # carried over explicitly since we do not re-run base_load's __init__.
         self._limits.update(base_load.limits)
         self._nominal_values.update(base_load.nominal_values)
+        # Unit "limit" for the phase bookkeeping states: without one SCMLSystem used inf, so the
+        # normalized state held phase/inf = 0 and every `state * system.limits` produced 0*inf =
+        # NaN in that slot (plus a RuntimeWarning on every step) -- SIMULATION_STABILITY_REPORT S-06.
+        # With 1.0 the normalized and physical values are both the phase itself (rad).
+        for name in phase_names:
+            self._limits[name] = 1.0
+            self._nominal_values[name] = 1.0
         self.base_load = base_load
         self.fault_type = fault_type
         self.geometry = geometry

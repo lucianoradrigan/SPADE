@@ -38,7 +38,7 @@ def _controls(domain: str) -> dict:
             kwargs["mechanical_severity"] = st.slider("Mechanical severity", 0.0, 0.2, 0.05, format="%.3f", key="lm_mech_severity")
         return kwargs
     r = slider_with_custom(st, "Load resistance R (Ω)", MIN_STABLE_LOAD_RESISTANCE_OHM, 20.0, float(_VSC_R_OHM), format="%.4f", key="lm_load_r",
-                           help="The rule-based agent watches R directly; use 'Custom value' to enter [1, 3] Ω (below the slider floor) and see the divergence rule fire after its 2 s hysteresis.")
+                           help="The rule-based agent watches R directly; use 'Custom value' to enter R < R* ≈ 3.37 Ω (below the slider floor, the open-loop-unstable region) and see the divergence rule fire after its 2 s hysteresis.")
     return {"controller_type": "DPC", "plant_config_id": "vsc_dpc_v1", "load_resistance_ohm": r, "duration_s": 0.05, "seed": 0}
 
 

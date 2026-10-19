@@ -14,8 +14,10 @@ from driveflow.agents.base import DetectorMetric, SimulationBasedAgent
 from driveflow.datagen import Scenario, run_scenario
 
 #: Same channel vocabulary as models.common.windowing.CANDIDATE_CHANNELS' physical subset --
-#: current, speed, and 3-axis vibration.
-_DEFAULT_FEATURES = ["i_a", "rpm", "acc_x", "acc_y", "acc_z"]
+#: current, speed, and 3-axis vibration. The armature current is the "current_r" column of the
+#: telemetry schema (datagen/runner.py); this list used to say "i_a", a name no telemetry frame
+#: carries, so detect_anomaly() silently dropped the current channel (AI_TECHNICAL_AUDIT AI-N05).
+_DEFAULT_FEATURES = ["current_r", "rpm", "acc_x", "acc_y", "acc_z"]
 
 _HYPOTHESES = {
     "healthy": {"fault_type": None},

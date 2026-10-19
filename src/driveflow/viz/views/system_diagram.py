@@ -144,7 +144,7 @@ _DIAGRAM_COMPONENT_DETAILS = {
     "ESP32 watchdog": (
         "Not a model, not related to the \"ESP32\" box above's classifier/regressor -- this is the "
         "**rule-based monitoring** tier (Sec. 4.3), pure hard-coded thresholds with zero ML: "
-        "`monitoring/rules/vsc_dpc.yaml` + a validated schema (`schema.py`), e.g. the R∈[1,3]Ω divergence "
+        "`monitoring/rules/vsc_dpc.yaml` + a validated schema (`schema.py`), e.g. the R < R* ≈ 3.37 Ω divergence "
         "rule for vsc_dpc. No training, no distillation -- just YAML data plus an AST-checked boolean "
         "condition (never `eval()`'d against arbitrary code)."
     ),

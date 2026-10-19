@@ -3,6 +3,8 @@ fault type -- per INSTRUCTIONS.md A.4). Kept deliberately small/explicit rather 
 config-object soup, since Macro-fase A only needs to vary a handful of things (Sec. A.4).
 """
 
+import math
+import numbers
 from dataclasses import dataclass
 
 #: Per-fault-type Module B impulse amplitude that best matches real Paderborn separability
@@ -148,6 +150,43 @@ class Scenario:
         if self.mechanical_severity is None:
             default = CALIBRATED_MECHANICAL_SEVERITY.get(self.fault_type, 0.0)
             object.__setattr__(self, "mechanical_severity", default)  # frozen dataclass
+        self._validate_numeric_fields()
+
+    #: Motor parameters that must be strictly positive for the DC model to be physical (a zero
+    #: l_a divides by zero in the electrical ODE; a negative r_a or j_rotor makes the plant
+    #: unstable/meaningless -- measured: r_a < 0 drove the motor to 1.5e17 rpm with no error).
+    _POSITIVE_MOTOR_PARAMETERS = ("r_a", "l_a", "psi_e", "j_rotor")
+
+    def _validate_numeric_fields(self):
+        """Reject inputs that cannot describe a physical run, instead of silently returning an
+        empty record list or NaN/inf trajectories (docs/SIMULATION_STABILITY_REPORT.md, S-03).
+        Physically legal but unstable operating points (e.g. VSC load R below R* ~= 3.37 ohm, or a
+        speed reference the one-quadrant converter cannot reach) are NOT rejected: those are
+        real behaviours the platform exists to show."""
+
+        def finite(name, value, minimum=None, strict=False):
+            if value is None:
+                return
+            if isinstance(value, bool) or not isinstance(value, numbers.Real) or not math.isfinite(value):
+                raise ValueError(f"Scenario.{name} must be a finite number, got {value!r}")
+            if minimum is not None and (value <= minimum if strict else value < minimum):
+                raise ValueError(f"Scenario.{name} must be {'>' if strict else '>='} {minimum}, got {value!r}")
+
+        finite("duration_s", self.duration_s, 0.0, strict=True)
+        finite("omega_ref_rad_s", self.omega_ref_rad_s)
+        finite("electrical_severity", self.electrical_severity, 0.0)
+        finite("mechanical_severity", self.mechanical_severity, 0.0)
+        finite("electrical_noise_pct", self.electrical_noise_pct, 0.0)
+        finite("mechanical_noise_pct", self.mechanical_noise_pct, 0.0)
+        finite("torque_ref_nm", self.torque_ref_nm)
+        finite("fault_order_override", self.fault_order_override, 0.0, strict=True)
+        finite("load_resistance_ohm", self.load_resistance_ohm, 0.0, strict=True)
+        finite("reference_magnitude_v", self.reference_magnitude_v, 0.0)
+        finite("reference_omega_rad_s", self.reference_omega_rad_s)
+        for key, value in (self.motor_parameter_overrides or {}).items():
+            finite(f"motor_parameter_overrides[{key!r}]", value, 0.0, strict=key in self._POSITIVE_MOTOR_PARAMETERS)
+        for i, (_ft, order) in enumerate(self.extra_faults or []):
+            finite(f"extra_faults[{i}] order_override", order, 0.0, strict=True)
 
     @property
     def label(self) -> str:

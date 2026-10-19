@@ -53,6 +53,26 @@ def is_live_window(w: np.ndarray) -> bool:
     return sigma > 1e-3 * (abs(mu) + 1e-6)
 
 
+def normalize_window_like_training(window: np.ndarray) -> tuple:
+    """Per-channel normalisation of ONE (n_samples, n_channels) window with exactly the rule the
+    window builders below apply at training time: a live channel (is_live_window) is z-scored
+    with its own window statistics; a dead/near-constant one is set to zeros (returned sigma = 1,
+    so `y * sigma + mu` maps a zero forecast back to the channel's level). Inference must use
+    this, not a different sigma floor -- see docs/AI_TECHNICAL_AUDIT.md (AI-N01).
+
+    Returns (normalized float32 window, mu per channel, sigma per channel)."""
+    window = np.asarray(window, dtype=np.float32)
+    out = np.zeros_like(window)
+    mu = window.mean(axis=0)
+    sigma = np.ones(window.shape[1], dtype=np.float32)
+    for j in range(window.shape[1]):
+        w = window[:, j]
+        if is_live_window(w):
+            sigma[j] = w.std()
+            out[:, j] = (w - mu[j]) / sigma[j]
+    return out, mu, sigma
+
+
 def discover_channels(
     df: pd.DataFrame, window_samples: int, min_frac: float = 0.5, min_live_frac: float = 0.5, group_col: str = "source_file"
 ) -> list:

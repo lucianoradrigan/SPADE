@@ -13,6 +13,7 @@ import numpy as np
 import streamlit as st
 
 from driveflow.ai.registry import RegistryError, load_promoted_model, resolve
+from driveflow.models.common import normalize_window_like_training
 
 
 @st.cache_resource(show_spinner=False)
@@ -32,11 +33,13 @@ def promoted_model(domain: str, tier: str, block: str):
 
 
 def normalize_window(window: np.ndarray) -> tuple:
-    """Per-window, per-channel z-score -- the same normalisation windowing.py applied at training
-    time (statistics of the window itself, never of other data)."""
-    mu, sigma = window.mean(axis=0), window.std(axis=0)
-    sigma = np.where(sigma > 1e-6, sigma, 1.0)
-    return (window - mu) / sigma, mu, sigma
+    """Per-window, per-channel normalisation, delegated to the training pipeline's own rule
+    (windowing.normalize_window_like_training): z-score of a live channel with the window's own
+    statistics, zeros for a dead/near-constant one. This used a different rule before (sigma
+    floor 1e-6, no dead-channel zeroing), so a near-constant channel -- e.g. current_r/torque_nm
+    of a healthy motor in steady state -- reached the model as amplified noise in the GUI but as
+    zeros at training time (docs/AI_TECHNICAL_AUDIT.md, AI-N01)."""
+    return normalize_window_like_training(window)
 
 
 def classify_last_window(domain: str, df) -> dict | None:

@@ -16,6 +16,7 @@ possible, so compiling and eval()'ing them here against a telemetry namespace wi
 from __future__ import annotations
 
 import ast
+import math
 from dataclasses import dataclass
 
 from driveflow.monitoring.rules.schema import RuleSet
@@ -27,6 +28,17 @@ class TelemetryFieldMissing(KeyError):
 
 def _compile_condition(condition: str):
     return compile(ast.parse(condition, mode="eval"), "<rule-condition>", "eval")
+
+
+def _condition_fields(condition: str) -> tuple:
+    return tuple(sorted({node.id for node in ast.walk(ast.parse(condition, mode="eval")) if isinstance(node, ast.Name)}))
+
+
+def _is_non_finite(value) -> bool:
+    try:
+        return not math.isfinite(value)
+    except TypeError:
+        return False
 
 
 @dataclass(frozen=True)
@@ -44,11 +56,12 @@ class Alert:
 
 
 class _RuleState:
-    __slots__ = ("condition_since", "active")
+    __slots__ = ("condition_since", "active", "indeterminate_since")
 
     def __init__(self):
         self.condition_since = None
         self.active = False
+        self.indeterminate_since = None
 
 
 class GatewayAgent:
@@ -57,6 +70,7 @@ class GatewayAgent:
     def __init__(self, ruleset: RuleSet):
         self.ruleset = ruleset
         self._compiled = {rule.name: _compile_condition(rule.condition) for rule in ruleset.rules}
+        self._fields = {rule.name: _condition_fields(rule.condition) for rule in ruleset.rules}
         self._state = {rule.name: _RuleState() for rule in ruleset.rules}
 
     def step(self, telemetry: dict, timestamp: float) -> list:
@@ -66,13 +80,25 @@ class GatewayAgent:
         tick, in rule-declaration order; usually empty."""
         events = []
         for rule in self.ruleset.rules:
+            state = self._state[rule.name]
+            # A NaN/inf reading (sensor dropout, diverged simulation) makes every comparison
+            # False, which used to CLEAR an active alert and let the domain read HEALTHY
+            # (AI_TECHNICAL_AUDIT AI-N04). Such a tick is indeterminate: nothing fires, nothing
+            # clears, and the hysteresis timer of a not-yet-active rule restarts (continuity of
+            # the condition was not observed).
+            if any(f in telemetry and _is_non_finite(telemetry[f]) for f in self._fields[rule.name]):
+                if state.indeterminate_since is None:
+                    state.indeterminate_since = timestamp
+                if not state.active:
+                    state.condition_since = None
+                continue
+            state.indeterminate_since = None
             try:
                 truthy = bool(eval(self._compiled[rule.name], {"__builtins__": {}}, dict(telemetry)))
             except NameError as exc:
                 raise TelemetryFieldMissing(
                     f"rule {rule.name!r} condition {rule.condition!r} needs a telemetry field this reading doesn't have: {exc}"
                 ) from exc
-            state = self._state[rule.name]
             if truthy:
                 if state.condition_since is None:
                     state.condition_since = timestamp
@@ -85,6 +111,11 @@ class GatewayAgent:
                 state.condition_since = None
                 state.active = False
         return events
+
+    def indeterminate_rules(self) -> list:
+        """Rule names whose last evaluated reading was non-finite (see step()) -- the caller should
+        surface this as a data-quality problem, not as HEALTHY."""
+        return [name for name, state in self._state.items() if state.indeterminate_since is not None]
 
     def active_alerts(self) -> list:
         """Rule names currently in the alerting state (survives across step() calls -- e.g. for a

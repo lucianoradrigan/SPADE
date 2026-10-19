@@ -8,7 +8,7 @@ simulation_based_agents:
       type: "simulation_based"
       detector_metrics: [dtw, euclidean]
       preferred_metric: dtw
-      monitored_features: [i_a, rpm, acc_x, acc_y, acc_z]
+      monitored_features: [current_r, rpm, acc_x, acc_y, acc_z]
       window_size_seconds: 10
       step_size_seconds: 2
 
