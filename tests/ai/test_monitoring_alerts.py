@@ -58,13 +58,55 @@ class TestHysteresisAndDebounce:
         events = [e for k in range(200) for e in g.step({"x": 5.0 if (k // 5) % 2 == 0 else 0.0}, k * 0.1)]
         assert events == []
 
-    def test_one_clean_sample_clears_an_active_alert(self):
-        """Documents the absence of a clear-delay (AI-N08): resolution is immediate."""
+    def test_without_off_delay_one_clean_sample_clears_an_active_alert(self):
+        """clear_hysteresis_seconds = 0 (the schema default) keeps the original behaviour."""
         g = _gateway()
         g.step({"x": 5.0}, 0.0)
         g.step({"x": 5.0}, 2.0)
         events = g.step({"x": 0.5}, 2.1)
         assert len(events) == 1 and events[0].resolved
+
+
+class TestOffDelay:
+    """AI-N08 (fixed): an optional clear_hysteresis_seconds keeps an active alert until the
+    condition has been false for that long."""
+
+    def _g(self):
+        return GatewayAgent(RuleSet("t", (Rule("high_x", "x > 1.0", "high", 2.0, "alert", clear_hysteresis_seconds=1.0),)))
+
+    def test_short_clean_gap_does_not_resolve(self):
+        g = self._g()
+        g.step({"x": 5.0}, 0.0)
+        assert g.step({"x": 5.0}, 2.0)[0].resolved is False
+        assert g.step({"x": 0.5}, 2.1) == [] and g.step({"x": 0.5}, 2.9) == []
+        assert g.step({"x": 5.0}, 3.0) == []  # the condition came back: still the same alert
+        assert g.active_alerts() == ["high_x"]
+
+    def test_clean_for_the_off_delay_resolves_once(self):
+        g = self._g()
+        g.step({"x": 5.0}, 0.0)
+        g.step({"x": 5.0}, 2.0)
+        events = [e for k in range(30) for e in g.step({"x": 0.5}, 2.1 + 0.05 * k)]
+        assert len(events) == 1 and events[0].resolved and events[0].timestamp == pytest.approx(3.1)
+        assert g.active_alerts() == []
+
+    def test_negative_off_delay_is_rejected(self):
+        from driveflow.monitoring.rules.schema import RuleValidationError
+
+        with pytest.raises(RuleValidationError, match="clear_hysteresis_seconds"):
+            Rule("r", "x > 0", "low", 0.0, "alert", clear_hysteresis_seconds=-1.0)
+
+
+class TestShippedVscRuleTiming:
+    """AI-N02 (fixed): evaluated on telemetry time, the shipped rule fires within one 0.05 s
+    dashboard run (500 samples at tau = 1e-4 s)."""
+
+    def test_fires_within_one_dashboard_run(self):
+        ruleset = load_ruleset(RULES)
+        g = GatewayAgent(ruleset)
+        events = [e for k in range(500) for e in g.step({"load_resistance_ohm": 2.0}, k * 1e-4)]
+        assert len(events) == 1 and not events[0].resolved
+        assert events[0].timestamp <= 0.05
 
 
 class TestNonFiniteTelemetry:

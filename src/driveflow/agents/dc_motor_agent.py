@@ -8,6 +8,7 @@ datagen/scenario.py: severity is two independent physical parameters, not one no
 
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
 
 from driveflow.agents.base import DetectorMetric, SimulationBasedAgent
@@ -23,6 +24,10 @@ _HYPOTHESES = {
     "healthy": {"fault_type": None},
     "incipient": {"fault_type": "outer_race", "electrical_severity": 3.0, "mechanical_severity": 0.02},
     "moderate": {"fault_type": "outer_race", "electrical_severity": 8.0, "mechanical_severity": 0.05},
+    # Inner-race hypotheses (AI-N10): with outer_race ones only, inner_race runs scored 0.64-0.71,
+    # half of them under the 0.70 alert threshold (docs/audit/ai/anomaly_agent_roc.json).
+    "inner_race_incipient": {"fault_type": "inner_race", "electrical_severity": 3.0, "mechanical_severity": 0.01},
+    "inner_race_moderate": {"fault_type": "inner_race", "electrical_severity": 8.0, "mechanical_severity": 0.02},
 }
 
 
@@ -32,9 +37,26 @@ class DCMotorAnomalyDetector(SimulationBasedAgent):
     falla a distinta severidad."""
 
     HYPOTHESES = _HYPOTHESES
+    #: The bearing signature lives in the spectrum of vibration and current (AI-N10); the speed
+    #: trajectory is compared sample by sample.
+    SPECTRAL_FEATURES = ("acc_x", "acc_y", "acc_z", "current_r")
+    #: rpm is smooth (the mechanical time constant is tens of ms), so its DTW runs on every 10th
+    #: sample: 100x fewer cells for the same trajectory shape.
+    TIME_DOMAIN_DECIMATION = 10
 
     def __init__(self, detector_metric: DetectorMetric = DetectorMetric.DTW):
         super().__init__(domain="dc_motor", detector_metric=detector_metric, monitored_features=list(_DEFAULT_FEATURES))
+
+    def operating_point(self, telemetry_window: dict) -> dict:
+        """Speed setpoint estimated from the last 10 % of the rpm trajectory, rounded to 1 rad/s
+        so repeated runs at one setpoint share cached hypotheses (AI-N09). The PI loop holds the
+        speed at its reference in steady state, faulted or not."""
+        rpm = np.asarray(telemetry_window.get("rpm", []), dtype=float)
+        rpm = rpm[np.isfinite(rpm)]
+        if len(rpm) == 0:
+            return {}
+        tail = rpm[-max(1, len(rpm) // 10):]
+        return {"omega_ref_rad_s": float(round(float(np.mean(tail)) * np.pi / 30.0))}
 
     def simulate_scenario(self, scenario_config: dict) -> dict:
         scenario = Scenario(scenario_id="agent_hypothesis", **scenario_config)

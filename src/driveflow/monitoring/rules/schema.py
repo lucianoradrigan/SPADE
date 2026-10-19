@@ -87,6 +87,9 @@ class Rule:
         severity: One of ALLOWED_SEVERITIES.
         hysteresis_seconds: How long the condition must hold before an agent acts on it (debounce
             -- Sec. 4.3's "histéresis, debounce" for the Raspberry Pi 5 tier). Must be >= 0.
+        clear_hysteresis_seconds: Off-delay (AI_TECHNICAL_AUDIT AI-N08): how long the condition
+            must stay false before an ACTIVE alert is resolved. 0 (default, the original
+            behaviour) resolves on the first clean reading. Must be >= 0.
         action: Free-form label naming what an agent should do when the rule fires (e.g. "alert").
             Deliberately not a closed enum here: the set of actions an agent can take is a
             property of the agent implementation (not built yet, Sec. 8 order step 9), not of the
@@ -98,6 +101,7 @@ class Rule:
     severity: str
     hysteresis_seconds: float
     action: str
+    clear_hysteresis_seconds: float = 0.0
 
     def __post_init__(self):
         if not self.name:
@@ -106,6 +110,8 @@ class Rule:
             raise RuleValidationError(f"rule {self.name!r}: severity {self.severity!r} not in {sorted(ALLOWED_SEVERITIES)}")
         if self.hysteresis_seconds < 0:
             raise RuleValidationError(f"rule {self.name!r}: hysteresis_seconds must be >= 0, got {self.hysteresis_seconds}")
+        if self.clear_hysteresis_seconds < 0:
+            raise RuleValidationError(f"rule {self.name!r}: clear_hysteresis_seconds must be >= 0, got {self.clear_hysteresis_seconds}")
         if not self.action:
             raise RuleValidationError(f"rule {self.name!r}: action must be non-empty")
         _validate_condition_syntax(self.condition, self.name)

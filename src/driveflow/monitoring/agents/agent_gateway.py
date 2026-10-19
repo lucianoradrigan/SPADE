@@ -1,7 +1,8 @@
 """Raspberry Pi 5 tier monitoring agent (docs/design_ai_layer_transversal.md Sec. 4.3, Sec. 8
 step 9): evaluates one domain's RuleSet (monitoring.rules.schema) against a stream of telemetry
 readings. Bounded, stateful rule engine -- per-rule hysteresis (a condition must hold continuously
-for `hysteresis_seconds` before it fires) and debounce (a firing rule doesn't re-fire on every
+for `hysteresis_seconds` before it fires; an active alert resolves only once the condition has been
+false for `clear_hysteresis_seconds`, AI-N08) and debounce (a firing rule doesn't re-fire on every
 subsequent tick while it stays true; only the true->alerting and alerting->cleared transitions
 produce an Alert). No dependency on the PC tier's ServerAgent -- matches Sec. 4.3's "puede operar
 sin conexión al PC"; feeding its Alert events to a ServerAgent (agent_server.py) is the caller's
@@ -56,12 +57,13 @@ class Alert:
 
 
 class _RuleState:
-    __slots__ = ("condition_since", "active", "indeterminate_since")
+    __slots__ = ("condition_since", "active", "indeterminate_since", "clear_since")
 
     def __init__(self):
         self.condition_since = None
         self.active = False
         self.indeterminate_since = None
+        self.clear_since = None
 
 
 class GatewayAgent:
@@ -100,16 +102,21 @@ class GatewayAgent:
                     f"rule {rule.name!r} condition {rule.condition!r} needs a telemetry field this reading doesn't have: {exc}"
                 ) from exc
             if truthy:
+                state.clear_since = None
                 if state.condition_since is None:
                     state.condition_since = timestamp
                 if not state.active and (timestamp - state.condition_since) >= rule.hysteresis_seconds:
                     state.active = True
                     events.append(Alert(rule.name, rule.severity, rule.action, timestamp))
             else:
-                if state.active:
-                    events.append(Alert(rule.name, rule.severity, rule.action, timestamp, resolved=True))
                 state.condition_since = None
-                state.active = False
+                if state.active:
+                    if state.clear_since is None:
+                        state.clear_since = timestamp
+                    if (timestamp - state.clear_since) >= rule.clear_hysteresis_seconds:
+                        events.append(Alert(rule.name, rule.severity, rule.action, timestamp, resolved=True))
+                        state.active = False
+                        state.clear_since = None
         return events
 
     def indeterminate_rules(self) -> list:

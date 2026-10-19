@@ -4,7 +4,6 @@ one ServerAgent) for both domains, plus a real (if slow -- see the module's own 
 the vsc_dpc rule's hysteresis actually gates firing across two runs.
 """
 
-import time
 from pathlib import Path
 
 import pandas as pd
@@ -50,13 +49,12 @@ class TestRunMonitoring:
 
 
 class TestRuleHysteresis:
-    """Real timing, not mocked -- confirms the vsc_dpc divergence rule (hysteresis_seconds: 2)
-    genuinely doesn't fire on the very first observation of an out-of-range value, and does once
-    it's held for >= 2 real seconds across two 'Run monitoring' clicks -- exactly why a user
-    clicking once with R in [1, 3]Ω and seeing "Status: OK" is expected, not broken (the module's
-    own caption says as much)."""
+    """AI_TECHNICAL_AUDIT AI-N02: the gateway runs on the simulated run's own timeline, so a single
+    'Run monitoring' click with R < R* fires the vsc_dpc divergence rule (10 ms hysteresis inside a
+    0.05 s run) regardless of how long the operator waits between clicks. It used to need a second
+    click at least 2 wall-clock seconds later. A following pass with a stable R resolves it."""
 
-    def test_does_not_fire_on_the_first_observation_but_does_on_the_second(self):
+    def test_fires_on_the_first_pass_and_resolves_on_a_stable_pass(self):
         at = _open()
         at.selectbox(key="lm_domain").set_value("vsc_dpc").run()
         at.checkbox(key="lm_load_r_custom").set_value(True).run()
@@ -64,13 +62,13 @@ class TestRuleHysteresis:
 
         at.button(key="lm_run_button").click().run()
         assert not at.exception
-        assert not any("dpc_load_resistance_divergence: fired" in e.value for e in at.error)
-
-        time.sleep(2.2)
-        at.button(key="lm_run_button").click().run()
-        assert not at.exception
         assert any("dpc_load_resistance_divergence: fired" in e.value for e in at.error)
         assert "CRITICAL" in _kpi_text(at)  # severity high -> CRITICAL, from the active-alert set
+
+        at.number_input(key="lm_load_r_custom_input").set_value(8.0064).run()
+        at.button(key="lm_run_button").click().run()
+        assert not at.exception
+        assert "CRITICAL" not in _kpi_text(at)
 
 
 class TestClassifierConfidenceDrift:
@@ -109,7 +107,7 @@ class TestClassifierConfidenceDrift:
         assert not at.exception
         metric_values = [m.value for m in at.metric]
         assert any("%" in v for v in metric_values)  # "This run's confidence"
-        assert "uncalibrated softmax" in _kpi_text(at)
+        assert "temperature-calibrated" in _kpi_text(at)  # the promoted run records its calibration (AI-N12)
 
     def test_vsc_dpc_reports_no_classifier_available(self):
         at = _open()

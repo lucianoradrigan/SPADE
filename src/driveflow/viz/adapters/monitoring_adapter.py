@@ -12,6 +12,7 @@ signal if it actually emitted an event in this pass.
 
 from __future__ import annotations
 
+import dataclasses
 import time
 from pathlib import Path
 
@@ -68,6 +69,23 @@ def record_classifier_confidence_if_available(domain: str, df: pd.DataFrame, ser
     return out
 
 
+def step_gateway_over_run(gateway: GatewayAgent, domain: str, df: pd.DataFrame, telemetry: dict) -> list:
+    """Evaluates the rules on every sample of this run, on TELEMETRY time (AI_TECHNICAL_AUDIT
+    AI-N02): the run's own timestamps, offset by the simulated time of this domain's earlier passes
+    so the clock keeps increasing across clicks. Hysteresis is therefore measured on the process,
+    not on how long the operator waits between clicks. `telemetry` holds the fields that are
+    constant during the run (e.g. the configured load resistance)."""
+    clock_key = f"lm_gateway_clock_{domain}"
+    offset = float(st.session_state.get(clock_key, 0.0))
+    t = df["timestamp_s"].to_numpy(dtype=float) if "timestamp_s" in df.columns else np.arange(len(df)) * 1e-4
+    events = []
+    for ts in t:
+        events.extend(gateway.step(telemetry, timestamp=offset + float(ts)))
+    dt = float(np.median(np.diff(t))) if len(t) > 1 else 0.0
+    st.session_state[clock_key] = offset + (float(t[-1]) + dt if len(t) else 0.0)
+    return events
+
+
 def run_monitoring_pass(domain: str, scenario_kwargs: dict, server_agent: ServerAgent) -> dict:
     scenario_id = "lm_dc" if domain == "dc_motor" else "lm_vsc"
     records = run_scenario(Scenario(scenario_id=scenario_id, **scenario_kwargs))
@@ -75,8 +93,10 @@ def run_monitoring_pass(domain: str, scenario_kwargs: dict, server_agent: Server
 
     agent = AGENT_CLASS_BY_DOMAIN[domain]()
     telemetry = {feat: df[feat].to_numpy(dtype=float) for feat in agent.monitored_features if feat in df.columns}
-    score, diagnosis = agent.detect_anomaly(telemetry)
-    hypothesis_sim = agent.cache.get((diagnosis, round(len(next(iter(telemetry.values()))) * 1e-4, 6)))
+    # The setpoint is known here, so the hypotheses use it instead of an estimate (AI-N09).
+    operating_point = {"omega_ref_rad_s": float(scenario_kwargs.get("omega_ref_rad_s", Scenario.omega_ref_rad_s))} if domain == "dc_motor" else {}
+    score, diagnosis = agent.detect_anomaly(telemetry, operating_point=operating_point)
+    hypothesis_sim = agent.hypothesis_simulation(diagnosis, len(next(iter(telemetry.values()))))
     explanation = AnomalyExplainer(score, diagnosis).explain(telemetry, hypothesis_sim) if hypothesis_sim else None
 
     now = time.time()
@@ -87,9 +107,11 @@ def run_monitoring_pass(domain: str, scenario_kwargs: dict, server_agent: Server
     gateway = gateway_agent(domain)
     rule_events = []
     if gateway is not None and domain == "vsc_dpc":
-        rule_events = gateway.step({"load_resistance_ohm": scenario_kwargs["load_resistance_ohm"]}, timestamp=now)
+        rule_events = step_gateway_over_run(gateway, domain, df, {"load_resistance_ohm": scenario_kwargs["load_resistance_ohm"]})
         for event in rule_events:
-            server_agent.record_alert(domain, event, source_id="gateway")
+            # The ServerAgent tracks staleness on the wall clock; the telemetry time stays in
+            # the gateway's own state.
+            server_agent.record_alert(domain, dataclasses.replace(event, timestamp=now), source_id="gateway")
 
     classifier = record_classifier_confidence_if_available(domain, df, server_agent)
     tail = df.iloc[int(len(df) * 0.8):]

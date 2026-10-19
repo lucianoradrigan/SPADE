@@ -13,10 +13,19 @@
 # which left two open-loop-unstable bands unwatched -- R < 1.0 (spectral radius up to ~12) and
 # 3.0 < R < R* (3.0 < R < 3.3707). It now covers the whole unstable region R < R*, which
 # tests/ai/test_monitoring_alerts.py checks against sim.vsc_system.load_feedback_spectral_radius.
+#
+# Timing (AI-N02/AI-N08): the gateway is stepped on telemetry time (every sample of a run), not on
+# wall-clock time between dashboard clicks. The on-delay used to be 2 s, more than 1000x the time
+# the plant needs to diverge below R* (spectral radius 1.25 per 0.1 ms step at R = 3 ohm) and 40x
+# the 0.05 s dashboard run, so a single pass could never alert. R is a configured or slowly
+# estimated parameter, not a noisy fast measurement: 10 ms (100 samples at tau = 1e-4 s) rejects
+# isolated glitches of an estimate and fires within one 0.05 s pass. The same 10 ms off-delay keeps
+# one clean reading from resolving an active alert.
 domain: vsc_dpc
 rules:
   - name: dpc_load_resistance_divergence
     condition: "load_resistance_ohm < 3.3707"
     severity: high
-    hysteresis_seconds: 2
+    hysteresis_seconds: 0.01
+    clear_hysteresis_seconds: 0.01
     action: alert

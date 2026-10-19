@@ -32,13 +32,13 @@ def _controls(domain: str) -> dict:
     if domain == "dc_motor":
         label = st.selectbox("Fault condition", ["healthy", "outer_race", "inner_race"], key="lm_fault_type")
         fault = None if label == "healthy" else label
-        kwargs = {"fault_type": fault, "duration_s": 0.15, "seed": 0}
+        kwargs = {"fault_type": fault, "duration_s": 0.6, "seed": 0}
         if fault is not None:
             kwargs["electrical_severity"] = st.slider("Electrical severity (N·m)", 0.0, 20.0, 8.0, key="lm_elec_severity")
             kwargs["mechanical_severity"] = st.slider("Mechanical severity", 0.0, 0.2, 0.05, format="%.3f", key="lm_mech_severity")
         return kwargs
     r = slider_with_custom(st, "Load resistance R (Ω)", MIN_STABLE_LOAD_RESISTANCE_OHM, 20.0, float(_VSC_R_OHM), format="%.4f", key="lm_load_r",
-                           help="The rule-based agent watches R directly; use 'Custom value' to enter R < R* ≈ 3.37 Ω (below the slider floor, the open-loop-unstable region) and see the divergence rule fire after its 2 s hysteresis.")
+                           help="The rule-based agent watches R directly; use 'Custom value' to enter R < R* ≈ 3.37 Ω (below the slider floor, the open-loop-unstable region) and see the divergence rule fire: it is evaluated on every sample of the run and fires once the condition has held for its 10 ms hysteresis.")
     return {"controller_type": "DPC", "plant_config_id": "vsc_dpc_v1", "load_resistance_ohm": r, "duration_s": 0.05, "seed": 0}
 
 
@@ -78,7 +78,7 @@ def render() -> None:
         kpi_row([
             {"label": "Overall domain status", "value": health, "sub": "max severity of active alerts" if active else ("evaluated, no active alert" if health == "HEALTHY" else "not evaluated yet"), "tone": _TONE[health]},
             {"label": "Active alerts", "value": str(len(active)), "sub": ", ".join(a.rule_name for a in active) or "none", "tone": "critical" if active else "unknown"},
-            {"label": "Classifier confidence", "value": "—" if conf is None else f"{conf:.1%}", "sub": "uncalibrated softmax; not a health probability" if conf is not None else "no promoted classifier for this domain", "tone": "training"},
+            {"label": "Classifier confidence", "value": "—" if conf is None else f"{conf:.1%}", "sub": (("temperature-calibrated" if (result.get("classifier") or {}).get("calibrated") else "uncalibrated softmax") + "; not a health probability") if conf is not None else "no promoted classifier for this domain", "tone": "training"},
             {"label": "Confidence drift", "value": "—" if drift is None else f"{drift.drift:+.3f}", "sub": "needs > 20 passes" if drift is None else ("suggests retraining" if drift.suggest_retraining else "no significant drift"), "tone": "warning" if drift and drift.suggest_retraining else "unknown"},
         ])
         st.caption(f"Last evaluation: {_ts(sa.last_report(domain)[0])} · source: SIMULATED")
@@ -110,7 +110,7 @@ def render() -> None:
                         for e in result["rule_events"]:
                             (st.error if not e.resolved else st.success)(f"{e.rule_name}: {'fired' if not e.resolved else 'cleared'} ({e.severity})")
                     else:
-                        st.caption("No rule transition this pass. A rule must hold for its hysteresis_seconds (2 s for the vsc_dpc divergence rule) before firing — run again a couple of seconds later with the same value.")
+                        st.caption("No rule transition this pass. Rules are evaluated on the run's own timeline: a condition must hold for its hysteresis_seconds of simulated time (10 ms for the vsc_dpc divergence rule) before firing, and an active alert resolves after the condition has been false for its clear_hysteresis_seconds.")
                 with st.container(border=True):
                     st.markdown("##### Classifier confidence drift")
                     if result["confidence"] is None:

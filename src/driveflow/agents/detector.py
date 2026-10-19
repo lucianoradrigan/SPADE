@@ -2,7 +2,7 @@
 
 Phase 4: real implementations. No DTW library is a project dependency (checked
 pyproject.toml -- no dtaidistance/tslearn/fastdtw), so dtw_distance is a standard O(n*m)
-dynamic-programming DTW written directly against numpy, not a hand-wave. It accepts both 1D
+dynamic-programming DTW written directly against numpy, vectorized per row (AI-N10). It accepts both 1D
 (single-feature) and 2D (n_samples, n_features) sequences, unlike euclidean_distance, which
 requires equal-length/shape sequences (DTW's whole point is tolerating length mismatches; a plain
 Euclidean distance has no sensible definition when the two sequences disagree in length).
@@ -33,14 +33,23 @@ class AnomalyDetector:
         if n == 0 or m == 0:
             raise ValueError("dtw_distance needs non-empty sequences")
 
-        cost = np.full((n + 1, m + 1), np.inf)
-        cost[0, 0] = 0.0
+        # Row-vectorized exact DTW (AI_TECHNICAL_AUDIT AI-N10; the double Python loop took ~1 s per
+        # 1500x1500 pair). Within row i the recurrence
+        #   C[i, j] = d[j] + min(C[i-1, j], C[i-1, j-1], C[i, j-1])
+        # unrolls, with t[j] = d[j] + min(C[i-1, j], C[i-1, j-1]) and S = cumsum(d), to
+        #   C[i, j] = S[j] + min_{k <= j} (t[k] - S[k]),
+        # a running minimum (np.minimum.accumulate) -- same values, O(m) numpy work per row.
+        prev = np.full(m + 1, np.inf)
+        prev[0] = 0.0
         for i in range(1, n + 1):
-            diffs = a[i - 1] - b  # (m, n_features) -- vectorized over j
-            point_costs = np.linalg.norm(diffs, axis=-1)
-            for j in range(1, m + 1):
-                cost[i, j] = point_costs[j - 1] + min(cost[i - 1, j], cost[i, j - 1], cost[i - 1, j - 1])
-        return float(cost[n, m])
+            d = np.linalg.norm(a[i - 1] - b, axis=-1)
+            t = d + np.minimum(prev[1:], prev[:-1])
+            csum = np.cumsum(d)
+            row = np.empty(m + 1)
+            row[0] = np.inf
+            row[1:] = csum + np.minimum.accumulate(t - csum)
+            prev = row
+        return float(prev[m])
 
     @staticmethod
     def euclidean_distance(seq1, seq2) -> float:
