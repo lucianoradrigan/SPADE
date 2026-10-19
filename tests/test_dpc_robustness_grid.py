@@ -16,7 +16,8 @@ the dashboard itself exposes these as 3 independent sliders, so a one-axis-at-a-
 how a user actually explores it, not a hypothetical worst-case combination of all three at once).
 
 Thresholds are NOT arbitrary: each carries >=1.4x margin over the settled RMSE actually measured
-against dpc_trained_v3_closed_loop.weights.h5 (n_steps=2000, tau=1e-4s, first 50 steps excluded as
+against the shipped checkpoint -- re-measured on 2026-10-19 for dpc_trained_v4_r_range.weights.h5
+(S-05; the v3 values are kept in the comments below) -- (n_steps=2000, tau=1e-4s, first 50 steps excluded as
 transient) when this file was written, in the same spirit as the existing on-distribution
 regression check in tests/test_datagen.py (RMSE < 5V over a documented v3 baseline of ~1.18V, see
 docs/macro_fase_B2_dpc_deployment.md). If the checkpoint or plant model changes and a threshold
@@ -86,14 +87,15 @@ def _settled_rmse(r_ohm: float, magnitude_v: float, omega_rad_s: float, n_steps:
 R_DEFAULT, MAG_DEFAULT, OMEGA_DEFAULT = float(_VSC_R_OHM), float(REFERENCE_MAGNITUDE_V), float(GRID_OMEGA_RAD_S)
 
 #: (label, r_ohm, magnitude_v, omega_rad_s, max_acceptable_rmse_v). max_acceptable_rmse_v carries
-#: >=1.4x margin over what was actually measured against v3 -- see module docstring.
+#: >=1.4x margin over what was actually measured against v4 -- see module docstring.
 GRID = [
-    ("on-distribution (baseline)", R_DEFAULT, MAG_DEFAULT, OMEGA_DEFAULT, 3.0),  # measured ~1.18V
-    ("R at slider max (20.0 ohm)", 20.0, MAG_DEFAULT, OMEGA_DEFAULT, 21.0),  # measured ~14.7V
-    ("magnitude at slider min (10V)", R_DEFAULT, 10.0, OMEGA_DEFAULT, 3.0),  # measured ~1.75V
-    ("magnitude at slider max (150V)", R_DEFAULT, 150.0, OMEGA_DEFAULT, 12.0),  # measured ~8.0V
-    ("omega at slider min (50 rad/s)", R_DEFAULT, MAG_DEFAULT, 50.0, 6.0),  # measured ~3.4V
-    ("omega at slider max (700 rad/s)", R_DEFAULT, MAG_DEFAULT, 700.0, 6.0),  # measured ~3.9V
+    ("on-distribution (baseline)", R_DEFAULT, MAG_DEFAULT, OMEGA_DEFAULT, 3.6),  # v4 2.52V (v3 1.18V)
+    ("R at slider max (20.0 ohm)", 20.0, MAG_DEFAULT, OMEGA_DEFAULT, 4.1),  # v4 2.89V (v3 14.7V)
+    ("R at the slider floor (4.0 ohm)", 4.0, MAG_DEFAULT, OMEGA_DEFAULT, 4.4),  # v4 3.10V (v3 18.0V)
+    ("magnitude at slider min (10V)", R_DEFAULT, 10.0, OMEGA_DEFAULT, 6.0),  # v4 4.24V (v3 1.75V)
+    ("magnitude at slider max (150V)", R_DEFAULT, 150.0, OMEGA_DEFAULT, 12.1),  # v4 8.60V (v3 8.0V)
+    ("omega at slider min (50 rad/s)", R_DEFAULT, MAG_DEFAULT, 50.0, 6.0),  # v4 3.64V (v3 3.4V)
+    ("omega at slider max (700 rad/s)", R_DEFAULT, MAG_DEFAULT, 700.0, 6.0),  # v4 4.27V (v3 3.9V)
 ]
 
 

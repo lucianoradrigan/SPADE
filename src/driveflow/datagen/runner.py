@@ -58,11 +58,13 @@ from driveflow.sim.vsc_system import VscSystem
 
 TAU = 1e-4
 
-#: Best available DPC checkpoint (Macro-fase B.2's second fine-tuning round -- see
-#: docs/macro_fase_B2_dpc_deployment.md): closed-loop RMSE 1.18V, ~0.4deg phase lag, and back to
-#: 100% holdout success rate. Not configurable per-Scenario (would need a new field + validation
-#: for a path that, in practice, only ever has one sane value right now).
-_DPC_WEIGHTS_PATH = Path(__file__).resolve().parents[3] / "configs" / "dpc_trained_v3_closed_loop.weights.h5"
+#: DPC checkpoint used by every DPC Scenario: v4, fine-tuned from v3 on closed-loop rollouts over
+#: R = 3.5-1000 ohm and |v_ref| = 25-100 V (experiments/finetune_dpc_r_range.py, S-05 in
+#: docs/SIMULATION_STABILITY_REPORT.md). Settled RMSE at 50 V: 3.1 V at 4 ohm, 2.5 V at 8 ohm,
+#: 2.9 V at 20 ohm, 1.9 V at 1 kohm. v3 (configs/dpc_trained_v3_closed_loop.weights.h5) was
+#: better at its single training load (1.18 V at 8 ohm) but reached 18 V at 4 ohm, 15 V at 20 ohm
+#: and 111 V at 1 kohm. Not configurable per-Scenario.
+_DPC_WEIGHTS_PATH = Path(__file__).resolve().parents[3] / "configs" / "dpc_trained_v4_r_range.weights.h5"
 #: Matches the constant R found in Data4train.mat's holdout split -- see
 #: docs/macro_fase_B1_dpc.md. Not a Scenario field yet: no data exists to validate any other R.
 _VSC_R_OHM = 8.0064

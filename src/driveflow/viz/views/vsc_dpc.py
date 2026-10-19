@@ -268,7 +268,7 @@ def render() -> None:
         "Simulation / VSC",
         "Direct Power Control of a Voltage Source Converter",
         "A trained DPC network tracking a rotating voltage reference on an identified VSC plant. Power electronics only: no rotating machinery, no bearing, no fault model.",
-        [source_badge_html("simulated"), badge_html("TRAINED NETWORK: DPC v3 (closed-loop fine-tuned)", "training", "◆", _DPC_WEIGHTS_PATH.name)],
+        [source_badge_html("simulated"), badge_html("TRAINED NETWORK: DPC v4 (fine-tuned over R = 3.5-1000 Ω)", "training", "◆", _DPC_WEIGHTS_PATH.name)],
     )
     ctrl, view = st.columns([1, 3], gap="medium")
     with ctrl:

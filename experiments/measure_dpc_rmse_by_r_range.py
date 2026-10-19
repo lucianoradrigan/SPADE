@@ -26,6 +26,7 @@ CHECKPOINTS = {
     "v1 (Data4train.mat only)": REPO_ROOT / "configs" / "dpc_trained.weights.h5",
     "v2 (closed-loop fine-tune)": REPO_ROOT / "configs" / "dpc_trained_v2_closed_loop.weights.h5",
     "v3 (extended fine-tune)": REPO_ROOT / "configs" / "dpc_trained_v3_closed_loop.weights.h5",
+    "v4 (R-range fine-tune, default)": REPO_ROOT / "configs" / "dpc_trained_v4_r_range.weights.h5",
 }
 #: Below R*~=3.3707ohm (sim/vsc_system.py::load_feedback_spectral_radius) the plant itself is
 #: open-loop unstable -- included here anyway (all checkpoints should show NaN there, confirming

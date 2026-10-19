@@ -325,11 +325,11 @@ class TestDpcVscScenario:
         assert records_a[0]["v_ref_real"] != pytest.approx(records_b[0]["v_ref_real"])
 
     def test_closed_loop_tracking_quality_regression(self):
-        """Guards the checkpoint integrated here (dpc_trained_v3_closed_loop.weights.h5): if a
-        future change swaps in a worse checkpoint, a wrong R, or breaks the reference/controller
-        wiring, settled RMSE should blow well past this bound -- v3's own measured settled RMSE
-        was ~1.18V against a 50V reference (docs/macro_fase_B2_dpc_deployment.md); this asserts a
-        generous multiple of that, not the exact figure, to tolerate run-to-run/version noise."""
+        """Guards the checkpoint integrated here (dpc_trained_v4_r_range.weights.h5): if a future
+        change swaps in a worse checkpoint, a wrong R, or breaks the reference/controller wiring,
+        settled RMSE should blow well past this bound -- v4's measured settled RMSE at this point
+        is ~2.5V against a 50V reference (v3: ~1.18V, docs/macro_fase_B2_dpc_deployment.md); this
+        asserts a margin over that, not the exact figure, to tolerate run-to-run/version noise."""
         records = run_scenario(self._dpc_scenario(duration_s=0.1))
         settled = records[len(records) // 4 :]  # discard the initial transient
         errors = [np.hypot(r["vc_real"] - r["v_ref_real"], r["vc_imag"] - r["v_ref_imag"]) for r in settled]

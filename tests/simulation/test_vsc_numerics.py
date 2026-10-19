@@ -42,16 +42,15 @@ def test_open_circuit_is_open_loop_stable():
     assert load_feedback_spectral_radius(1e9) < 1.0
 
 
-@pytest.mark.xfail(strict=True, reason="S-05 (open): the DPC network was trained at ONE load R=8.0064 ohm; it is "
-                   "stable but tracks poorly away from it (measured settled RMSE 18 V at 4 ohm, 15 V at 20 ohm, "
-                   "111 V at 1 kohm vs 1.18 V at 8 ohm). Needs retraining over a range of R.")
 @pytest.mark.parametrize("r_ohm", [MIN_STABLE_LOAD_RESISTANCE_OHM, 20.0, 1000.0])
 def test_tracking_within_10pct_of_reference_wherever_the_plant_is_stable(r_ohm):
-    """Criterion: settled RMSE <= 10 % of |v_ref| (5 V) -- ~4x the on-distribution RMSE (1.18 V,
-    docs/macro_fase_B2_dpc_deployment.md) -- at load values where the plant is open-loop stable."""
+    """S-05 (fixed by the v4 checkpoint, fine-tuned over R = 3.5-1000 ohm): settled RMSE <= 10 % of
+    |v_ref| (5 V) at load values where the plant is open-loop stable. v3, trained at one load,
+    measured 18 V at 4 ohm, 15 V at 20 ohm and 111 V at 1 kohm; v4 measures 3.1 / 2.9 / 1.9 V."""
     assert load_feedback_spectral_radius(r_ohm) < 1.0
     assert _settled_rmse(run_vsc_closed_loop(r_ohm, duration_s=0.2)) <= 0.10 * V_REF
 
 
 def test_on_distribution_tracking_regression():
-    assert _settled_rmse(run_vsc_closed_loop(8.0064, duration_s=0.2)) == pytest.approx(1.18, abs=0.1)
+    """v4 at the nominal load: 2.52 V (v3 was 1.18 V -- the price of tracking the whole R range)."""
+    assert _settled_rmse(run_vsc_closed_loop(8.0064, duration_s=0.2)) == pytest.approx(2.52, abs=0.15)
