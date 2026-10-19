@@ -105,12 +105,12 @@ for ft in (None, 'outer_race', 'inner_race'):
 |---|---|
 | Page | **Simulation → DC Motor** (tab **AI diagnosis**) and **Intelligence → AI Diagnostics** |
 | Runs | 150 rad/s, 1.0 s, seed 0: normal, outer_race, inner_race |
-| Model | the promoted `dc_motor/pc/classifier` (`pc_server/2026-09-01_run01`) |
+| Model | the promoted `dc_motor/pc/classifier` (`pc_server/2026-10-18_run01`, trained on the operating-condition grid; AI-N06/AI-N07 fixed) |
 
 **Steps.**
-1. Generate each condition. Open **AI diagnosis** and note the predicted class and its (uncalibrated) confidence.
+1. Generate each condition, then repeat at 100 rad/s. Open **AI diagnosis** and note the predicted class and its (temperature-calibrated) confidence.
 2. Open **AI Diagnostics**. Show the audit-finding banner attached to the promoted model.
-3. Run the full offline evaluation. It also covers the not-promoted candidate `2026-10-13_run01`:
+3. Run the full offline evaluation. It also covers the previous production model `2026-09-01_run01`, the single-speed candidate `2026-10-13_run01` and the no-rpm-level ablation `2026-10-18_run02`:
    ```bash
    python experiments/report_classifier_evaluation.py     # ~2 min with 8 workers
    ```
@@ -121,15 +121,17 @@ for ft in (None, 'outer_race', 'inner_race'):
 - False-alarm rate (healthy reported as faulty) and missed-detection rate (faulty reported as healthy).
 - ECE (calibration), and confidence on correct vs. incorrect predictions.
 
-**Expected (hypothesis; from `docs/audit/ai/classifier_evaluation.md`).**
-- **Promoted model.** normal → normal, outer_race → outer_race, but **inner_race → outer_race**. Its inner_race recall is **0.00** (finding AUDIT_ANSWERS Q15 / AI-N06). Confidences are around 0.5.
-- **Candidate at the training point.** 100 % on fresh runs. It still fails when conditions change:
-  - **100 rad/s:** inner_race is predicted as outer_race with confidence **≈1.0** (AI-N07);
-  - **half fault severity:** inner_race is reported as **normal**, a missed detection;
-  - **unseen fault type (ball):** reported as outer_race with confidence 0.99.
-- **Message to state:** the confidence is uncalibrated and cannot flag unknown conditions.
+**Expected (from `docs/audit/ai/classifier_evaluation.md`).**
+- **Promoted model.** Every class is recognized at 150 and 100 rad/s, and at the held-out conditions 115, 190 and 250 rad/s and severity ×0.6 (accuracy 1.000 in steady state). At 100 % sensor noise accuracy is 0.969, with a 9 % false-alarm rate.
+- **The error case to show on purpose: an unseen fault type.** The model has no ball class.
+  - A ball fault is reported as **outer_race** with calibrated confidence ≈0.99, and the abstention threshold does **not** catch it.
+  - A cage fault is withheld as *uncertain* about half of the time; otherwise it is called normal.
+- **History, for contrast:**
+  - the previous production model (`2026-09-01_run01`) never predicted inner_race (recall 0.00, AI-N06);
+  - the single-speed candidate (`2026-10-13_run01`) called inner_race at 100 rad/s outer_race with confidence ≈1.0 (AI-N07).
+- **Message to state:** calibration and abstention reduce over-confidence on known classes. They do not make unknown fault types safe, and all numbers are simulated.
 
-**Evidence to capture.** The AI-diagnosis panel showing the wrong inner_race prediction, the evaluation table, and the confusion matrix.
+**Evidence to capture.** The AI-diagnosis panel for a correct inner_race prediction at 100 rad/s, a ball-fault run called outer_race (Simulation → DC Motor, fault *ball*), the evaluation table, and the confusion matrix.
 
 **Screen.** DC Motor → *AI diagnosis*, then AI Diagnostics.
 
@@ -144,13 +146,13 @@ for ft in (None, 'outer_race', 'inner_race'):
 | Page | **Operations → Monitoring**, domain **VSC / DPC** |
 | Abnormal condition | Load resistance **R = 2.0 Ω** via *Custom value*. This is below R* ≈ 3.37 Ω, where the plant itself is open-loop unstable. |
 | Normal condition | R = 8.0064 Ω (the default) |
-| Rule | `dpc_load_resistance_divergence`: R < 3.3707 Ω, severity high, 2 s hysteresis (`monitoring/rules/vsc_dpc.yaml`) |
+| Rule | `dpc_load_resistance_divergence`: R < 3.3707 Ω, severity high, 10 ms on-delay and 10 ms off-delay, evaluated on the run's own timeline (`monitoring/rules/vsc_dpc.yaml`, AI-N02/AI-N08) |
 
 **Steps.**
 1. Set R = 2.0 Ω and press **Run monitoring**.
-   - **Expected:** no rule alert yet. In the GUI the rule's 2 s hysteresis is measured in wall-clock time between clicks (finding AI-N02).
-2. Wait at least 2 s and press **Run monitoring** again.
-   - **Expected:** the rule fires and the domain shows **CRITICAL**.
+   - **Expected:** the rule fires on this first pass, because the condition holds for 10 ms of the 0.05 s run, and the domain shows **CRITICAL**.
+2. Press **Run monitoring** again with the same value.
+   - **Expected:** no new event: the alert is already active (debounce).
 3. Press **Acknowledge** on the active alert.
    - **Expected:** it shows "acknowledged by operator", and the domain **stays CRITICAL**, because acknowledgement is not resolution.
 4. Set R = 8.0064 Ω and run monitoring again.
@@ -167,9 +169,9 @@ from driveflow.monitoring.rules.schema import load_ruleset
 from driveflow.monitoring.agents.agent_gateway import GatewayAgent
 from driveflow.monitoring.agents.agent_server import ServerAgent
 g = GatewayAgent(load_ruleset('src/driveflow/monitoring/rules/vsc_dpc.yaml')); s = ServerAgent()
-for t, r in [(0, 2.0), (2, 2.0), (3, 8.0064)]:
+for t, r in [(0, 2.0), (0.02, 2.0), (1.0, 8.0064), (1.02, 8.0064)]:
     for e in g.step({'load_resistance_ohm': r}, t): s.record_alert('vsc_dpc', e)
-    if t == 2: s.acknowledge('vsc_dpc', 'dpc_load_resistance_divergence', by='operator'); print('after ack:', s.domain_health('vsc_dpc'))
+    if t == 0.02: s.acknowledge('vsc_dpc', 'dpc_load_resistance_divergence', by='operator'); print('after ack:', s.domain_health('vsc_dpc'))
     print(t, r, s.domain_health('vsc_dpc'))
 print([(e['action'], e['resolved']) for e in s.alert_history()])
 "
@@ -214,6 +216,6 @@ print([(e['action'], e['resolved']) for e in s.alert_history()])
 ## What not to claim in the video
 
 - No real (measured) data, and no hardware execution. The `.tflite` models were only **exported** and checked for parity on the host CPU.
-- No calibrated probabilities, and no out-of-distribution abstention.
-- The classifiers were trained at a single speed and severity. Their accuracy does not transfer to other operating points (Scenario C).
+- Calibration and abstention exist for the promoted classifier but do **not** cover unseen fault types (ball faults are confidently called outer_race).
+- Accuracy across speeds and severities was measured on **simulated** held-out conditions only (Scenario C).
 - The DPC tracks well only near its training load, R = 8 Ω (`docs/SIMULATION_STABILITY_REPORT.md`, S-05).

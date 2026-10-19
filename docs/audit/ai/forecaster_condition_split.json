@@ -1,0 +1,51 @@
+{
+  "dataset": "data/vsc_dpc_grid_dataset.parquet",
+  "test_groups": [
+    "vsc_grid_R10_V100",
+    "vsc_grid_R20_V75",
+    "vsc_grid_R5_V75",
+    "vsc_grid_R6_V100",
+    "vsc_grid_R6_V30",
+    "vsc_grid_R7_V100",
+    "vsc_grid_R7_V75",
+    "vsc_grid_R8.0064_V75"
+  ],
+  "runs": {
+    "pc_full/2026-10-19_run01": {
+      "n_windows": 72,
+      "rmse": 0.07297666370868683,
+      "persistence_rmse": 1.0560150146484375,
+      "recorded_test_rmse": 0.07297666740552874
+    },
+    "rpi5_edge/2026-10-19_run01": {
+      "n_windows": 72,
+      "rmse": 0.06341015547513962,
+      "persistence_rmse": 1.0560150146484375,
+      "recorded_test_rmse": 0.06341015202758377
+    },
+    "esp32_tiny/2026-10-19_run01": {
+      "n_windows": 72,
+      "rmse": 0.1783951073884964,
+      "persistence_rmse": 1.0560150146484375,
+      "recorded_test_rmse": 0.17839510165094968
+    },
+    "pc_full/2026-09-01_run01": {
+      "n_windows": 72,
+      "rmse": 0.14887231588363647,
+      "persistence_rmse": 1.0560150146484375,
+      "recorded_test_rmse": 0.06012072489557589
+    },
+    "rpi5_edge/2026-09-13_run01": {
+      "n_windows": 72,
+      "rmse": 0.2132718563079834,
+      "persistence_rmse": 1.0560150146484375,
+      "recorded_test_rmse": 0.20130724195028513
+    },
+    "esp32_tiny/2026-09-13_run02": {
+      "n_windows": 72,
+      "rmse": 0.6274350881576538,
+      "persistence_rmse": 1.0560150146484375,
+      "recorded_test_rmse": 0.5628932002456705
+    }
+  }
+}

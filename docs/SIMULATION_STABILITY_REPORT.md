@@ -72,6 +72,7 @@ Figure: [`dc_convergence.png`](audit/stability/dc_convergence.png). The error li
 |---|---|---|---|---|---|
 | Physical damping | dq matrix eigenvalues at ω = 0…314 rad/s | Re(λ) | < 0 | < 0 at every speed | PASS |
 | Euler stability limit | ρ(I + τA_dq) = 1, bisection | ω_max | must be compared with the nominal speed 314.2 rad/s | **265.8 rad/s, inside the nominal range** | PASS (the test asserts the finding, S-01) |
+| Default solver limit (S-01 fix) | `EulerSolver(nsteps=3)`, ρ(I + (τ/3)A_dq) = 1 | ω_max | > 1.4 × nominal | **≈460 rad/s** | PASS |
 | Physics at 300 rad/s | RK45, zero voltage, speed held | tail \|i_dq\| | = analytic short-circuit current 178.24 A (0.2 %) | 178.24 / 178.24 | PASS |
 | Euler at 300 rad/s | Same run, Euler at τ = 1e-4 | tail \|i_dq\| | divergence expected (ρ = 1.00087) | 1166–5698 A, growing | PASS (asserts the numerical divergence) |
 | Euler well inside its region | 100 rad/s, 0.6 s | tail \|i_dq\| | analytic 177.16 A (1 %) | 177.2 | PASS |
@@ -82,17 +83,48 @@ Figure: [`pmsm_euler_vs_rk45_300rads.png`](audit/stability/pmsm_euler_vs_rk45_30
 
 ## 4. VSC + DPC — numerical behavior
 
+Since the second pass, every DPC scenario uses the **v4** checkpoint (`configs/dpc_trained_v4_r_range.weights.h5`, S-05). The values below were re-measured with it (`docs/audit/stability/results.md`). v3 values are given where they are the point of comparison.
+
 | Test | Conditions | Metric | Expected criterion (source) | Actual result | Status |
 |---|---|---|---|---|---|
 | Reproducibility | Same seed, twice | arrays equal | identical | identical | PASS |
-| Boundedness over the GUI range | R = 4, 8.0064, 20 Ω; 0.2 s | finite; max \|v_c\| | < 3 × \|v_ref\| = 150 V | 42.8 / 63.3 / 89.7 V | PASS |
+| Boundedness over the GUI range | R = 4, 8.0064, 20 Ω; 0.2 s | finite; max \|v_c\| | < 3 × \|v_ref\| = 150 V | 56.0 / 63.3 / 62.0 V (v3: 42.8 / 63.3 / 89.7 V) | PASS |
 | Physical instability (correctly simulated) | R = 2, 3 Ω (open-loop ρ = 2.35, 1.25) | divergence | **expected**: physics, not software (existing `test_dpc_robustness_grid.py`) | diverges to inf | PASS (existing) |
-| On-distribution tracking | R = 8.0064 Ω | settled RMSE | 1.18 ± 0.1 V (documented v3 baseline) | 1.181 V | PASS |
-| Long run | 2 s at R = 8.0064 Ω | RMSE first vs. last quarter | no degradation | 1.175 V → 1.172 V | executed (battery) |
+| Nominal-load tracking | R = 8.0064 Ω | settled RMSE | v4: 2.52 ± 0.15 V (v3 baseline was 1.18 V) | 2.525 V | PASS |
+| Long run | 2 s at R = 8.0064 Ω | RMSE first vs. last quarter | no degradation | 2.547 V → 2.562 V (v3: 1.175 → 1.172 V) | executed (battery) |
 | Open-circuit plant | R = 1e9 | open-loop ρ | < 1 (so any divergence is the controller's) | 0.977 | PASS |
-| Tracking away from the training R | R = 4, 20, 1000 Ω | settled RMSE | ≤ 10 % of \|v_ref\| = 5 V (about 4× the on-distribution RMSE) | 17.96 / 14.69 / 111.0 V | **XFAIL (S-05, open)** |
+| Tracking away from 8 Ω | R = 4, 20, 1000 Ω | settled RMSE | ≤ 10 % of \|v_ref\| = 5 V | **3.10 / 2.89 / 1.90 V** (v3: 17.96 / 14.69 / 111.0 V) | **PASS (S-05 fixed)** |
 
 Figure: [`vsc_rmse_vs_r.png`](audit/stability/vsc_rmse_vs_r.png).
+
+### 4.1 S-05 fix: DPC fine-tuned over a range of loads
+
+`experiments/finetune_dpc_r_range.py` applies the DAgger-style recipe of `finetune_dpc_closed_loop.py` over a grid:
+- each round rolls the current controller out in closed loop at R ∈ {3.5, 4, 5, 6.5, 8.0064, 11, 15, 20, 30, 50, 100, 300, 1000} Ω × |v_ref| ∈ {25, 50, 75, 100} V × 2 start phases;
+- it adds the visited states to `Data4train.mat`'s rows and continues training on the model-based loss;
+- the reference frequency stays at 50 Hz, which `dpc_loss` assumes.
+
+Three rounds from v3 (150 epochs each, LR 5e-4, 2.9 h on one CPU core) gave **v4**. Evidence: [`dpc_r_range_finetune_v4.json`](audit/stability/dpc_r_range_finetune_v4.json).
+
+Settled RMSE at |v_ref| = 50 V, 2000 steps:
+
+| R (Ω) | 3.5 | 4 | 6 | **8.0064** | 9 | 13 | 20 | 25 | 70 | 200 | 1000 | 5000 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| v3 | 20.5 | 18.0 | 8.5 | **1.18** | 4.0 | 10.2 | 14.7 | 13.9 | 23.9 | 49.1 | 111.0 | 547.8 |
+| v4 | 8.0 | 3.1 | 2.5 | **2.52** | 2.7 | 2.2 | 2.9 | 3.6 | 2.2 | 1.6 | 1.9 | 14.8 |
+
+The other axes of the dashboard's robustness grid, at R = 8.0064 Ω:
+
+| Condition | v3 | v4 |
+|---|---|---|
+| \|v_ref\| = 10 V | 1.75 V | 4.24 V |
+| \|v_ref\| = 150 V | 8.0 V | 8.6 V |
+| ω = 50 rad/s | 3.4 V | 3.6 V |
+| ω = 700 rad/s | 3.9 V | 4.3 V |
+
+v4 is the default because its worst case over the dashboard's load range (4–20 Ω) is 3.1 V, against 18 V for v3. **Trade-off:** v4 is worse at the single point v3 was trained for, and at small references.
+
+A further round from v4 (LR 2e-4, adding 10 V and 150 V references) diverged at 20–25 Ω and was discarded: [`dpc_r_range_finetune_v5.json`](audit/stability/dpc_r_range_finetune_v5.json). v3 stays in `configs/` for comparison.
 
 ## 5. Controller performance (dynamic stability)
 
@@ -130,11 +162,11 @@ Figures: [`dc_small_step_vs_linear.png`](audit/stability/dc_small_step_vs_linear
 
 | ID | Severity | Type | Finding | Evidence | Action |
 |---|---|---|---|---|---|
-| **S-01** | High (latent) | Numerical instability (method, not physics) | Forward Euler at τ = 1e-4 s is unstable on the PMSM's open-loop dq dynamics above **265.8 rad/s**, below the motor's nominal 314 rad/s. The physical system is damped there: RK45 matches the analytic current. | §3; `test_euler_diverges_at_300_rad_s_although_the_physics_is_stable` | **Not reached by today's flows**: the FOC demo holds the rotor near standstill with J_load = 5, and the controller's decoupling dominates. The limit is documented in `pmsm_foc.build_pmsm_system`, which now accepts an `ode_solver` argument (default unchanged). Any future high-speed PMSM use must use `EulerSolver(nsteps≥4)` or a scipy solver and re-check with `euler_max_stable_speed_pmsm`. |
+| **S-01** | High → **fixed** | Numerical instability (method, not physics) | One forward-Euler step per τ = 1e-4 s is unstable on the PMSM's open-loop dq dynamics above **265.8 rad/s**, below the motor's nominal 314 rad/s. The physical system is damped there: RK45 matches the analytic current. | §3; `test_single_step_euler_diverges_at_300_rad_s_although_the_physics_is_stable` | **Fixed (second pass):** `pmsm_foc.default_ode_solver()` = `EulerSolver(nsteps=EULER_NSTEPS=3)` is now the default of `build_pmsm_system` and the open-loop bench. Its stability limit is **≈460 rad/s (1.47× nominal)**. `test_default_solver_is_stable_with_margin_above_the_nominal_speed` and `test_default_solver_reaches_the_analytic_short_circuit_current_at_high_speed[300, 314]` check it; the closed-loop demo still matches RK45 within 0.5 % (`test_closed_loop_current_step_euler_matches_rk45`). The cost is 3 right-hand-side evaluations per control step in the PMSM demo only. |
 | S-02 | Info | Numerical vs. physical | DC motor: the Euler limit τ\* = 2.58 ms is 26× the production step, and the error at τ = 1e-4 is 0.033 % of speed. | §2 | none needed |
 | **S-03** | Medium | Invalid input handling | `Scenario` accepted inputs that produce meaningless runs without any error. Duration ≤ 0 gave an empty list. A NaN reference or l_a = 0 gave all-NaN output. r_a < 0 gave 1.5e17 rpm. R = 0 raised a bare `ZeroDivisionError`. Negative severities and noise were accepted. | probe, 2026-10-18; `TestInvalidInputsAreRejected` (14 cases fail before, pass after) | **Fixed**: `Scenario._validate_numeric_fields`. Legal-but-unstable inputs are still accepted on purpose: R < R\*, unreachable or negative setpoints. |
 | **S-04** | Low | Documentation / design | The PI docstring said "ζ = 0.9 → essentially no overshoot". The PI zero gives **≈15 %** overshoot on small steps; large steps hide it through current saturation. | §5, linear model vs. simulation | **Fixed** (docstring). If no overshoot is required, add setpoint weighting or a reference prefilter: a design decision. |
-| **S-05** | Medium | Controller generalization (learned) | The DPC network is stable over the GUI range but tracks poorly away from its single training load: RMSE 18 V at 4 Ω, 15 V at 20 Ω, 111 V at 1 kΩ, against 1.18 V at 8 Ω. The plant is open-loop stable there, so this is the controller's limitation, not physics. | §4; strict xfail | **Open**: retrain over a range of R (the network already takes R as an input). |
+| **S-05** | Medium → **fixed** | Controller generalization (learned) | v3 tracked well only at its single training load: RMSE 18 V at 4 Ω, 15 V at 20 Ω, 111 V at 1 kΩ, against 1.18 V at 8 Ω. | §4 and §4.1 | **Fixed (second pass)**: v4 (§4.1) is the default. It tracks within 5 V at every stable load tested from 4 Ω to 1 kΩ. The cost is the nominal point (2.52 V instead of 1.18 V) and \|v_ref\| = 10 V (4.2 V instead of 1.75 V). `test_tracking_within_10pct_of_reference_wherever_the_plant_is_stable` is no longer xfail, and the thresholds of `test_dpc_robustness_grid.py` were re-measured for v4. |
 | **S-06** | Low | Invalid value in state vector | The bearing-fault phase state had limit = inf, so `state * limits` gave 0·inf = NaN in that slot and a `RuntimeWarning` on every step of every faulted run. | warnings in the baseline run; `test_denormalized_state_vector_is_finite_with_a_fault_injected` | **Fixed**: unit limit for phase states. Trajectories are unchanged (all existing byte-identical datagen tests pass). |
 | S-07 | Info | Physical behavior, not a bug | One-quadrant converter: negative speed references are not tracked (the motor coasts), and references above ≈ 394 rad/s saturate at the 65 V supply. | §2 | none (physics) |
 | S-08 | Info | Physical instability, correctly simulated | VSC with R < R\* = 3.3707 Ω diverges with or without a controller. | existing `test_dpc_robustness_grid.py` | none; alarm threshold fixed in AI-N03 |

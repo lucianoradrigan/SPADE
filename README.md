@@ -75,6 +75,19 @@ script trains any of them:
 python experiments/train_model.py --config configs/classifiers/pc_server.yaml --dataset data/diagnosis_dataset.parquet
 ```
 
+The promoted `dc_motor` classifier (`pc_server/2026-10-18_run01`) was trained on an
+operating-condition grid (7 speeds x 5 severities, sensor noise, plant drift), keeps the rpm level
+as a speed reference, and is temperature-calibrated with an abstention threshold:
+
+```bash
+python experiments/generate_diagnosis_grid_dataset.py            # ~8 min, data/diagnosis_grid_dataset.parquet
+python experiments/train_model.py --config configs/classifiers/pc_server.yaml \
+    --dataset data/diagnosis_grid_dataset.parquet --keep-rpm-level --cap-per-class 3000 --epochs 30
+```
+
+Held-out evaluation and its limits (no ball/cage class, simulated data only):
+[docs/AI_TECHNICAL_AUDIT.md](docs/AI_TECHNICAL_AUDIT.md) §7.
+
 **Model registry** (`src/driveflow/ai/registry.py`): a single manifest
 (`configs/registry.yaml`) resolving `(domain, tier, block)` to whichever trained run is promoted
 to production (`experiments/promote_run.py`) -- a deliberate, separate step from training.
@@ -154,13 +167,16 @@ to the nearest fault hypothesis.
 - **`base.py`** holds the one shared, concrete `detect_anomaly` algorithm, driven by a `HYPOTHESES`
   class attribute (name -> partial `Scenario` kwargs) that each subclass defines. Only
   `simulate_scenario` is abstract, because only that part is genuinely domain-specific.
-- **`detector.py`** implements the distance metrics directly against numpy/scipy -- DTW (standard
-  O(n*m) dynamic programming; no DTW library is a project dependency), strict equal-shape
-  Euclidean, and Mahalanobis (pseudo-inverse for near-singular covariances).
+- **`detector.py`** implements the distance metrics directly against numpy/scipy -- DTW (exact
+  O(n*m) dynamic programming, vectorized per row; no DTW library is a project dependency), strict
+  equal-shape Euclidean, and Mahalanobis (pseudo-inverse for near-singular covariances).
 - **`dc_motor_agent.py` / `vsc_agent.py`** define hypotheses that match each domain's *actual*
-  `Scenario` shape: concrete electrical/mechanical severity pairs for `dc_motor`, and variations of
-  `load_resistance_ohm` away from the DPC network's training value for `vsc_dpc`, which has no
-  fault model at all.
+  `Scenario` shape: outer- and inner-race severity pairs for `dc_motor`, simulated at the observed
+  speed, and variations of `load_resistance_ohm` away from the DPC network's training value for
+  `vsc_dpc`, which has no fault model at all. Features are z-scored with the healthy hypothesis's
+  statistics; vibration and current are compared by log-PSD (AI-N09/AI-N10). On 60 labelled
+  simulated runs the DC score separates healthy from faulty with ROC AUC 1.0
+  (`experiments/report_anomaly_agent_roc.py`).
 - **`cache.py`** is a real TTL cache so a hypothesis simulation isn't re-run per telemetry window.
 - **`explainer.py`** returns feature importance for the score -- which channels explain most of the
   distance between the telemetry and the closest hypothesis.
@@ -187,8 +203,9 @@ history, hysteresis timers) would leak one user's monitoring history into anothe
 
 Note on the `vsc_dpc` rule: it fires for any load resistance below R* ~= 3.37 ohm (the whole
 open-loop-unstable region; it used to watch only [1, 3] ohm -- docs/AI_TECHNICAL_AUDIT.md AI-N03)
-and carries a 2-second hysteresis, so a single "Run monitoring" click not firing the rule is
-expected -- the condition has to hold across consecutive clicks, not fire instantly (AI-N02).
+and is evaluated on every sample of the simulated run (telemetry time, not the time between
+clicks) with a 10 ms on-delay and a 10 ms off-delay, so one "Run monitoring" pass with R < R*
+fires it (AI-N02/AI-N08).
 
 ## Quick start
 
@@ -275,21 +292,25 @@ scripts/          smoke_test.py -- cross-platform installation check
 tests/            pytest suite; simulation/, control/, ai/, compat/ hold the categorised
                   validation tests (markers: simulation, control, ai, compat, slow)
 constraints/      macos-intel.txt -- dependency pins for Intel Macs
-configs/          the 3 shipped DPC checkpoints (see below), promoted classifier/regressor runs
+configs/          the 4 shipped DPC checkpoints (see below), promoted classifier/regressor runs
                   (weights + config + metrics, some with a .tflite export), the model registry
                   manifest, and vibration module calibration
 ```
 
 ## The DPC checkpoints
 
-`configs/*.weights.h5` ships 3 small (~21KB) trained checkpoints so the dashboard and
+`configs/*.weights.h5` ships 4 small (~21KB) trained checkpoints so the dashboard and
 `experiments/evaluate_dpc*.py` work immediately, with no local training run required:
 
 - `dpc_trained.weights.h5` -- base checkpoint, trained on `Data4train.mat`'s open-loop holdout split.
 - `dpc_trained_v2_closed_loop.weights.h5` / `dpc_trained_v3_closed_loop.weights.h5` -- successive
-  closed-loop fine-tunes (see `experiments/finetune_dpc_closed_loop.py` /
-  `continue_finetune_dpc.py`). **v3 is what the live dashboard and `evaluate_dpc_closed_loop.py`
-  use by default.**
+  closed-loop fine-tunes at the single load R = 8.0064 ohm (see `experiments/finetune_dpc_closed_loop.py` /
+  `continue_finetune_dpc.py`).
+- `dpc_trained_v4_r_range.weights.h5` -- v3 fine-tuned on closed-loop rollouts over R = 3.5-1000 ohm
+  and |v_ref| = 25-100 V (`experiments/finetune_dpc_r_range.py`). **v4 is what every DPC `Scenario`
+  and the live dashboard use.** It tracks within ~3 V over the dashboard's load range (v3: up to
+  18 V), at the cost of the nominal point (2.5 V vs. v3's 1.18 V at 8 ohm) -- see
+  docs/SIMULATION_STABILITY_REPORT.md S-05.
 
 To retrain from scratch you'll need `Data4train.mat` from the original
 [DPC4PowerElectronics](https://github.com/aipoweraau/DPC4PowerElectronics) repository (not
@@ -305,7 +326,8 @@ IA tab and edge-deployment downloads use, no local training run required either.
 registered: a `dc_motor` classifier (PC/Raspberry Pi 5/ESP32 tiers) and a `vsc_dpc` regressor (same
 3 tiers) -- the `vsc_dpc` classifier is deliberately not built yet (blocked on a separability
 verdict, see the design doc), and `dc_motor` has no regressor yet. Retraining or adding a new
-`(domain, tier, block)` combination needs a real dataset first (`experiments/generate_diagnosis_dataset.py`
+`(domain, tier, block)` combination needs a real dataset first (`experiments/generate_diagnosis_grid_dataset.py`,
+`generate_diagnosis_dataset.py`
 / `generate_vsc_dpc_dataset.py`, not committed -- see `.gitignore`), then
 `experiments/train_model.py --config ... --dataset ...` and `experiments/promote_run.py`.
 

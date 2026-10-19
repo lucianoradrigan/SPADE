@@ -62,13 +62,13 @@ Tests de regresión: `tests/test_ai_audit_regressions.py` (T-AI-01…09), `tests
 |---|---|---|
 | Métrica primaria diagnóstico | macro-F1 vs base (caída máx. 0.02) + recall por clase (opcional) + matriz de confusión | Metas por tipo de falla / coste de error |
 | Métrica primaria regresión | RMSE vs base (+5 % máx.) y vs persistencia; MAE y RMSE por horizonte informados | Umbrales por unidad y planta |
-| Promover el clasificador candidato `pc_server/2026-10-13_run01` | No promovido; el promovido sigue marcado con hallazgo de auditoría | ¿Promover (`experiments/promote_run.py`) y re-destilar/re-exportar ESP32/RPi5 desde él? |
-| Variabilidad de escenarios en datagen | La seed sólo cambia la vibración | ¿Variar velocidad, carga y severidad por seed para que el test mida generalización? |
+| Promover un clasificador corregido | **Resuelto el 2026-10-19**: se promovió `pc_server/2026-10-18_run01` (entrenado en la grilla de condiciones, no el candidato `2026-10-13_run01`, que fallaba a 100 rad/s), y se re-destilaron y re-exportaron ESP32/RPi5 (`docs/AI_TECHNICAL_AUDIT.md` §7.1) | — |
+| Variabilidad de escenarios en datagen | **Resuelto el 2026-10-19**: `generate_diagnosis_grid_dataset.py` varía velocidad, severidad, ruido y deriva de planta por corrida; `generate_vsc_dpc_grid_dataset.py` varía R y \|v_ref\| | Validación con datos reales |
 | Split para evidencia industrial | Por adquisición (por clase) | ¿Leave-machine-out / leave-bearing-out? ¿Qué afirmación se quiere sostener? |
 | Mezcla sim/real | Adquisiciones completas; ratio medido en ventanas | ¿Ratio en ventanas, en tiempo o en número de grupos? |
 | Promoción | Fail-closed; aprobación humana nominal; override auditado sólo por API | Quién tiene autoridad; si el override debe existir |
 | Salud del motor | UNKNOWN ante falta de evidencia; low→WARNING | Límites físicos y escalado de alertas por dominio |
 | Cotas de plausibilidad de carga | 2 × límites del motor simulado (corriente, velocidad, par); genérico 1e4 para vibración/VSC | Cotas reales por sensor/máquina |
-| Umbrales del detector por simulación | 0.70 / 0.85 (heredados) | Calibración contra datos reales |
+| Umbrales del detector por simulación | 0.70 / 0.85; medidos el 2026-10-19 en 60 corridas simuladas etiquetadas: AUC 1.0, sin falsas alarmas ni detecciones perdidas a 0.70 (`docs/audit/ai/anomaly_agent_roc.json`) | Calibración contra datos reales |
 | Tema visual | Ambos temas nativos; sigue la preferencia del SO | ¿Forzar oscuro por defecto? |
 | Motor 3D | Imagen estable + overlay CSS | ¿Hace falta cinemática 3D? |

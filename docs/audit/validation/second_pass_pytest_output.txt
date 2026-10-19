@@ -1,0 +1,83 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.1.1, pluggy-1.6.0
+rootdir: /home/seven/post_doc/plataform_proposed/SPADE
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.14.2
+collected 663 items
+
+tests/ai/test_classifier_evaluation.py ......................            [  3%]
+tests/ai/test_monitoring_alerts.py ............................          [  7%]
+tests/compat/test_smoke.py ......                                        [  8%]
+tests/control/test_controller_performance.py ................            [ 10%]
+tests/simulation/test_dc_motor_numerics.py ............................. [ 15%]
+..                                                                       [ 15%]
+tests/simulation/test_pmsm_numerics.py ..........                        [ 17%]
+tests/simulation/test_vsc_numerics.py .........                          [ 18%]
+tests/test_agents/test_base_agent.py ............                        [ 20%]
+tests/test_agents/test_cache.py .......                                  [ 21%]
+tests/test_agents/test_detector.py ...........                           [ 22%]
+tests/test_agents/test_explainer.py .......                              [ 23%]
+tests/test_ai_audit_regressions.py ..................................... [ 29%]
+.....                                                                    [ 30%]
+tests/test_ai_dashboard.py ......................                        [ 33%]
+tests/test_background_noise.py .......                                   [ 34%]
+tests/test_calibration.py .......                                        [ 35%]
+tests/test_classifier_builder.py ....................                    [ 38%]
+tests/test_dashboard_landing.py .........                                [ 40%]
+tests/test_datagen.py .................................................. [ 47%]
+...                                                                      [ 48%]
+tests/test_dc_motor_upload_validation.py ..........                      [ 49%]
+tests/test_diagnosis_dataset_filter.py .......                           [ 50%]
+tests/test_dpc_loss.py .....                                             [ 51%]
+tests/test_dpc_robustness_grid.py ......................                 [ 54%]
+tests/test_dpc_upload_validation.py ..........                           [ 56%]
+tests/test_fault_impulses.py .........................                   [ 60%]
+tests/test_fault_injection.py .............                              [ 61%]
+tests/test_forecaster_builder.py .......................                 [ 65%]
+tests/test_live_monitoring_dashboard.py .........                        [ 66%]
+tests/test_model_architectures.py .......                                [ 67%]
+tests/test_monitoring_agents.py ..................                       [ 70%]
+tests/test_monitoring_rules_schema.py ..................                 [ 73%]
+tests/test_mpc_controller.py .........                                   [ 74%]
+tests/test_patch3_regression.py .......                                  [ 75%]
+tests/test_pi_controller.py .......                                      [ 76%]
+tests/test_pmsm_foc.py .........                                         [ 78%]
+tests/test_registry.py ........                                          [ 79%]
+tests/test_scml_system_regression.py ....                                [ 79%]
+tests/test_tflite_export.py .....                                        [ 80%]
+tests/test_train_model.py ..........                                     [ 82%]
+tests/test_transfer_learning/test_data_merger.py ...........             [ 83%]
+tests/test_transfer_learning/test_loader.py .....                        [ 84%]
+tests/test_transfer_learning/test_pipeline.py .........                  [ 85%]
+tests/test_transfer_learning/test_validator.py ...........               [ 87%]
+tests/test_transfer_learning_dashboard.py ........                       [ 88%]
+tests/test_ui_contract.py ...........................                    [ 92%]
+tests/test_vibration_design_invariants.py .......                        [ 93%]
+tests/test_vibration_modal.py .................                          [ 96%]
+tests/test_vibration_synthesizer.py .....                                [ 97%]
+tests/test_vsc_dpc_forecast_upload_validation.py ......                  [ 98%]
+tests/test_windowing.py ............                                     [100%]
+
+=============================== warnings summary ===============================
+tests/test_ai_audit_regressions.py: 32 warnings
+tests/test_registry.py: 70 warnings
+tests/test_train_model.py: 88 warnings
+tests/test_transfer_learning/test_loader.py: 40 warnings
+tests/test_transfer_learning/test_pipeline.py: 10 warnings
+  /home/seven/post_doc/plataform_proposed/SPADE/.venv/lib/python3.11/site-packages/keras/src/backend/tensorflow/core.py:172: DeprecationWarning: __array__ implementation doesn't accept a copy keyword, so passing copy=False failed. __array__ must implement 'dtype' and 'copy' keyword arguments. To learn more, see the migration guide https://numpy.org/devdocs/numpy_2_0_migration_guide.html#adapting-to-changes-in-the-copy-keyword
+    return np.array(x)
+
+tests/test_tflite_export.py::TestExportFloat16::test_produces_a_loadable_tflite_model
+tests/test_tflite_export.py::TestExportFloat16::test_matches_keras_output_reasonably
+tests/test_tflite_export.py::TestExportInt8::test_produces_an_int8_quantized_model
+tests/test_ui_contract.py::test_every_page_opens_without_exceptions_and_in_english[model_registry]
+  /home/seven/post_doc/plataform_proposed/SPADE/.venv/lib/python3.11/site-packages/tensorflow/lite/python/interpreter.py:457: UserWarning:     Warning: tf.lite.Interpreter is deprecated and is scheduled for deletion in
+      TF 2.20. Please use the LiteRT interpreter from the ai_edge_litert package.
+      See the [migration guide](https://ai.google.dev/edge/litert/migration)
+      for details.
+      
+    warnings.warn(_INTERPRETER_DELETION_WARNING)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================ 663 passed, 244 warnings in 590.96s (0:09:50) =================

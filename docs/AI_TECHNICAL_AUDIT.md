@@ -17,6 +17,8 @@
 - [`docs/audit/validation/regression_tests_vs_prefix_code.txt`](audit/validation/regression_tests_vs_prefix_code.txt). It shows that each new regression test fails on the pre-fix code.
 - Tests: `tests/ai/test_classifier_evaluation.py` and `tests/ai/test_monitoring_alerts.py`.
 
+**Second pass.** §1–§6 describe the state found on 2026-10-18. The findings left open there were then fixed; §7 records each fix with its evidence, and the status markers of §2 point to it.
+
 **No number in this report was invented.** Every figure comes from one of the commands named next to it, and every number is from **simulated** data. No real-machine data or hardware run exists in the repository.
 
 ---
@@ -55,7 +57,7 @@ Each finding is classified as one of:
 | Solution / fix | New `windowing.normalize_window_like_training()`, which applies exactly the training rule; dead channels get σ = 1 so that `y·σ + μ` maps back to the level. `ai_adapter.normalize_window` now delegates to it. |
 | Validation | `tests/ai/test_classifier_evaluation.py::TestPreprocessingContract`: the GUI window equals the training tensor (atol 1e-5) on a real run, and the test checks that dead channels are present, so it is not vacuous. **Fails on the pre-fix code, passes after.** |
 
-### AI-N02 — The rule's hysteresis runs on wall-clock time between clicks, not on telemetry time · **Medium** · Defect (confirmed) · **Open**
+### AI-N02 — The rule's hysteresis runs on wall-clock time between clicks, not on telemetry time · **Medium** · Defect (confirmed) · **Fixed in the second pass (§7)**
 
 | Field | Content |
 |---|---|
@@ -99,7 +101,7 @@ Each finding is classified as one of:
 | Fix | The feature is renamed to `current_r` in the agent and in `configs/agents.yaml`. |
 | Validation | `test_dc_agent_features_exist_in_the_telemetry_schema` and `test_dc_agent_score_is_finite_and_bounded_for_a_real_window`. **They fail before the fix (KeyError `i_a`) and pass after.** |
 
-### AI-N06 — The promoted PC classifier never recognizes inner-race faults · **Critical** · Defect (confirmed, known since Q15) · **Open: researcher decision**
+### AI-N06 — The promoted PC classifier never recognizes inner-race faults · **Critical** · Defect (confirmed, known since Q15) · **Fixed in the second pass (§7)**
 
 | Field | Content |
 |---|---|
@@ -110,7 +112,7 @@ Each finding is classified as one of:
 | Proposed solution | Promote the candidate `2026-10-13_run01` through the gate (`experiments/promote_run.py`), then re-distil and re-export the edge models. Promotion changes the production model, so it is left to the researcher, as in Q15. |
 | Validation | `test_promoted_classifier_recognizes_inner_race` is a **strict xfail**: it turns into a failure ("XPASS") the moment the promoted model is fixed, which forces the marker to be removed. |
 
-### AI-N07 — Classifiers do not generalize across operating points; the candidate is confidently wrong · **High** · Defect (confirmed) · **Open**
+### AI-N07 — Classifiers do not generalize across operating points; the candidate is confidently wrong · **High** · Defect (confirmed) · **Fixed in the second pass (§7)**
 
 | Field | Content |
 |---|---|
@@ -121,7 +123,7 @@ Each finding is classified as one of:
 | Proposed solution | (1) Generate training data over a grid of speeds, loads and severities, and split by operating condition (leave-speed-out). (2) Give the model speed-invariant input: order-tracked / angle-resampled windows, or the absolute rpm as an extra non-z-scored feature. (3) Report per-condition metrics in `metrics.json` (now possible with `ai/evaluation.py`). (4) Add calibration (temperature scaling on validation) and an abstention threshold. |
 | Validation | `test_candidate_generalizes_to_another_speed` (**strict xfail**, slow). Full table in `docs/audit/ai/classifier_evaluation.md`. |
 
-### AI-N08 — Alert rules have an on-delay but no off-delay or deadband · **Low** · Risk (potential) · **Open**
+### AI-N08 — Alert rules have an on-delay but no off-delay or deadband · **Low** · Risk (potential) · **Fixed in the second pass (§7)**
 
 | Field | Content |
 |---|---|
@@ -130,7 +132,7 @@ Each finding is classified as one of:
 | Impact | The alarm rate is bounded, so there is no alarm flooding (good). But an intermittent real fault that never holds for 2 s continuously is never reported, and a noisy signal at the threshold can clear an active alert right away. |
 | Proposed solution | A separate `clear_hysteresis_seconds` and/or a numeric deadband per rule. This is a schema change, so it is left to the researcher. |
 
-### AI-N09 — The anomaly score is confounded by the operating point · **Medium** · Risk (potential) · **Open**
+### AI-N09 — The anomaly score is confounded by the operating point · **Medium** · Risk (potential) · **Fixed in the second pass (§7)**
 
 | Field | Content |
 |---|---|
@@ -139,7 +141,7 @@ Each finding is classified as one of:
 | Impact | Today's GUI always monitors at 150 rad/s, so it is not affected. Any other setpoint, or real telemetry, would make the "closest hypothesis" reflect the speed difference rather than the fault. |
 | Proposed solution | Pass the observed operating point (setpoint, or measured mean speed and torque) into the hypothesis simulations and the cache key. |
 
-### AI-N10 — The anomaly agent mixes unnormalized features and is CPU-heavy · **Medium** · Risk / improvement · **Open**
+### AI-N10 — The anomaly agent mixes unnormalized features and is CPU-heavy · **Medium** · Risk / improvement · **Fixed in the second pass (§7)**
 
 | Field | Content |
 |---|---|
@@ -147,7 +149,7 @@ Each finding is classified as one of:
 | Impact | The score mostly reflects the speed trajectory. Each "Run monitoring" click blocks the UI for about 15 s. |
 | Proposed solution | Normalize each feature (z-score with the healthy hypothesis's statistics) before DTW. Use a banded (Sakoe–Chiba) or vectorized/compiled DTW. Validate the score with labelled runs (ROC) before using the 0.70/0.85 thresholds, which remain uncalibrated (Q25). |
 
-### AI-N11 — The forecaster test set is a near-duplicate of its training set · **Medium** · Risk (potential) · **Open**
+### AI-N11 — The forecaster test set is a near-duplicate of its training set · **Medium** · Risk (potential) · **Fixed in the second pass (§7.5)**
 
 | Field | Content |
 |---|---|
@@ -156,7 +158,7 @@ Each finding is classified as one of:
 | Impact | The recorded test RMSE (0.060 / 0.201 / 0.563) measures interpolation of one periodic waveform. It gives no evidence of generalization to other loads, references or disturbances. |
 | Proposed solution | Vary R, \|v_ref\| and ω across runs (within the stable region). Split by condition. Record a persistence baseline (the TL validator already computes one; `AUDIT_ANSWERS` Q11). |
 
-### AI-N12 — Confidence is uncalibrated and there is no out-of-distribution abstention · **High** · Risk (confirmed numerically) · **Open**, partly mitigated
+### AI-N12 — Confidence is uncalibrated and there is no out-of-distribution abstention · **High** · Risk (confirmed numerically) · **Mitigated in the second pass (§7.2)**
 
 | Field | Content |
 |---|---|
@@ -202,7 +204,7 @@ On TFLite, export success is **not** treated as hardware validation:
 - Host-CPU parity was measured earlier (`docs/audit/tflite_parity_report.txt`): edge classifiers agree with Keras top-1 1.000; the INT8 ESP32 regressor RMSE was 0.5629 → 0.5598.
 - The RPi5 GRU needs Flex ops and is flagged.
 
-**Not verified on any physical device:** no latency, RAM or flash measurements exist. The edge classifiers inherit AI-N06, because they were distilled from the promoted teacher.
+**Not verified on any physical device:** no latency, RAM or flash measurements exist. The edge classifiers inherit AI-N06, because they were distilled from the promoted teacher. (Superseded: the edge models were re-distilled from the grid-trained teacher and re-exported; see §7.1 and §7.5.)
 
 ## 5. Monitoring summary (prompt §2.5)
 
@@ -218,15 +220,151 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 
 | ID | Severity | Type | Status |
 |---|---|---|---|
-| AI-N06 | Critical | Defect | Open (promote candidate: researcher) |
+| AI-N06 | Critical | Defect | **Fixed + tested** (§7.1: grid-trained model promoted, edge models re-distilled) |
 | AI-N03 | High | Defect | **Fixed + tested** |
 | AI-N04 | High | Defect | **Fixed + tested** |
-| AI-N07 | High | Defect | Open (needs data design) |
-| AI-N12 | High | Risk | Open (UI already labels confidence as uncalibrated) |
+| AI-N07 | High | Defect | **Fixed + tested** on held-out simulated conditions (§7.1) |
+| AI-N12 | High | Risk | **Mitigated** (§7.2): temperature scaling + abstention; does not catch every unseen fault type |
 | AI-N01 | Medium | Defect | **Fixed + tested** |
-| AI-N02 | Medium | Defect | Open (design decision) |
+| AI-N02 | Medium | Defect | **Fixed + tested** (§7.3) |
 | AI-N05 | Medium | Defect | **Fixed + tested** |
-| AI-N09 | Medium | Risk | Open |
-| AI-N10 | Medium | Risk / improvement | Open |
-| AI-N11 | Medium | Risk | Open |
-| AI-N08 | Low | Risk | Open |
+| AI-N09 | Medium | Risk | **Fixed + tested** (§7.4) |
+| AI-N10 | Medium | Risk / improvement | **Fixed + tested** (§7.4) |
+| AI-N11 | Medium | Risk | **Fixed** (§7.5): condition-split data, persistence baseline recorded |
+| AI-N08 | Low | Risk | **Fixed + tested** (§7.3) |
+
+---
+
+## 7. Second pass: fixes of the open findings
+
+### 7.1 AI-N06 and AI-N07 — classifier retrained on an operating-condition grid
+
+**Data.** `experiments/generate_diagnosis_grid_dataset.py` → `data/diagnosis_grid_dataset.parquet` (not committed; regenerate with the command). It holds 315 runs of 2.5 s, 105 per class:
+- speeds 80, 100, 125, 150, 175, 200, 220 rad/s;
+- severity ×0.5, ×0.75, ×1, ×1.5, ×2 of the calibrated electrical and mechanical values;
+- sensor noise: a third of the runs without noise, the rest 0–100 % drawn per run;
+- plant drift ψ_e ×U(0.9, 1.1), J ×U(0.8, 1.5);
+- seeds 1001+, disjoint from every evaluation seed.
+
+A first version of the grid had no noise-free run and at most 40 % noise. Its model misclassified a third of the noise-free healthy windows (the GUI's default condition) and every healthy window at 100 % noise. The noise design was corrected before the model below was trained.
+
+**Speed information.** Per-window z-scoring erased the speed level, which is what the model needs to tell BPFI at one speed from BPFO at another. Runs can now record `level_scaling` in `metrics.json`. For the promoted model, the rpm channel is scaled by a fixed (center 1432.4 rpm, scale 477.5 rpm) instead of z-scored, so its level survives. Every consumer applies the run's own rule: training, GUI, TL fine-tuning, TFLite export calibration, and the parity and evaluation reports. Runs without the key behave exactly as before; the old z-score path is bit-identical.
+
+**Ablation (same grid, same seed, same epochs).**
+
+| Run | rpm level | Test accuracy | Test macro-F1 | outer_race recall |
+|---|---|---|---|---|
+| `pc_server/2026-10-18_run01` (**promoted**) | kept | **0.914** | **0.914** | 0.89 |
+| `pc_server/2026-10-18_run02` (ablation, not promoted) | z-scored | 0.838 | 0.834 | 0.68 |
+
+The test split is by run, 30 of 315 runs, mixing every speed, severity and noise level. It is harder than the old single-point test, which is why 0.914 is below the old 0.960.
+
+**Held-out conditions** (fresh runs, seeds 200–203, steady state; [`classifier_evaluation.md`](audit/ai/classifier_evaluation.md)). The new conditions are outside the training grid: 115 and 190 rad/s fall between grid speeds, 250 rad/s is beyond it, and ×0.6 severity falls between grid severities.
+
+| Condition | 2026-09-01 (old production) | 2026-10-13 (single-point candidate) | **2026-10-18_run01 (promoted)** |
+|---|---|---|---|
+| nominal 150 rad/s | 0.667 (inner_race recall 0) | 1.000 | **1.000** |
+| 100 rad/s | 0.667 | 0.667 (inner_race → outer_race) | **1.000** |
+| unseen 115 rad/s | 0.667 | 0.667 | **1.000** |
+| unseen 190 rad/s | 0.667 | 1.000 | **1.000** |
+| extrapolated 250 rad/s | 0.667 | 0.333 | **1.000** |
+| severity ×0.5 | 0.667 | 0.667 (missed-detection 0.50) | **1.000** |
+| unseen severity ×0.6 | 0.667 | 1.000 | **1.000** |
+| noise 100 % | 0.667 | 0.561 | **0.969** (false-alarm rate 0.092) |
+| start-up transient (t < 0.5 s) | 0.500 | 0.778 | 0.815 |
+
+**Edge models** were re-distilled from the promoted teacher on the same grid and re-exported. `level_scaling` is inherited from the teacher.
+
+| Tier | Run | Test accuracy | TFLite parity (test runs, host CPU) |
+|---|---|---|---|
+| rpi5 | `rpi5_resnet1d_se/2026-10-18_run01` | 0.916 | FP16: accuracy 0.949 → 0.949, top-1 agreement 0.999 |
+| esp32 | `esp32_dscnn/2026-10-18_run01` | 0.901 | INT8: accuracy 0.940 → 0.942, top-1 agreement 0.977 |
+
+INT8 calibration fix found on the way: `export_tflite.py` calibrated on the first 100 windows of the builder output. That meant one class, and only start-up windows because of the 500-window cap, and it gave top-1 agreement 0.71. It now draws a seeded random subset of 1000 windows from all windows. Evidence: [`tflite_parity_report.txt`](audit/tflite_parity_report.txt).
+
+**Tests.**
+- `test_promoted_classifier_recognizes_every_class` and `test_promoted_classifier_generalizes_to_held_out_conditions[speed_115|speed_250|severity_x0.6]` are no longer xfail.
+- `test_previous_production_model_still_shows_the_ai_n06_defect` and `test_single_speed_model_confuses_inner_race_at_100_rad_s` keep the original evidence reproducible.
+- `TestLevelScalingContract` checks that GUI and training preprocessing are identical with `level_scaling`.
+
+**Limits.** Every number is from the simulator. The model still has no class for ball or cage faults (§7.2), and no real-machine validation exists.
+
+### 7.2 AI-N12 — calibration and abstention
+
+`src/driveflow/ai/calibration.py` fits two things on the **validation** split at training time, and stores them in `metrics.json["calibration"]`:
+- temperature scaling (NLL);
+- an abstention threshold that keeps 95 % of the correct validation windows.
+
+The GUI shows "uncertain" instead of a class below the threshold, and labels the confidence as calibrated. The promoted model has T = 1.005 (it was already close to calibrated on in-distribution data) and abstains below 0.594.
+
+What it does and does not achieve, measured:
+- In-distribution ECE stays 0.003–0.06.
+- At 100 % noise, 16 % of windows are withheld; accuracy on the answered ones is 0.990, and 71 % of the errors are withheld.
+- **Cage** faults (no class): 54 % withheld, the rest called normal.
+- **Ball** faults (no class): called outer_race with confidence 0.993, **0 % withheld**.
+
+Calibration fitted in-distribution does not make unseen fault types safe. A ball-fault class, or a dedicated out-of-distribution detector, is still needed. Tests: `TestCalibration`.
+
+### 7.3 AI-N02 and AI-N08 — rule timing
+
+- **Telemetry time (AI-N02).** The gateway is now stepped on every sample of the simulated run, on the run's own timeline, offset per domain so the clock keeps increasing across clicks (`monitoring_adapter.step_gateway_over_run`). Detection no longer depends on how long the operator waits.
+- **Off-delay (AI-N08).** `Rule.clear_hysteresis_seconds` is an optional off-delay, default 0, so existing YAML is unchanged. `GatewayAgent` resolves an active alert only after the condition has been false that long.
+- **VSC rule.** `hysteresis_seconds` 2 → 0.01 and `clear_hysteresis_seconds` 0.01. Justification, in the YAML: below R\* the plant diverges in milliseconds (spectral radius 1.25 per 0.1 ms step at 3 Ω), and R is a configured or slowly estimated parameter, not a noisy fast signal. 10 ms (100 samples) rejects isolated glitches, and fires within one 0.05 s dashboard run.
+- **Tests:**
+  - `TestOffDelay`;
+  - `TestShippedVscRuleTiming`;
+  - `test_fires_on_the_first_pass_and_resolves_on_a_stable_pass` (AppTest; it replaces the old two-click / 2.2 s sleep test).
+
+### 7.4 AI-N09 and AI-N10 — simulation-based anomaly agent
+
+Measured on the way: once rpm stopped dominating, the time-domain DTW score was ≈0.50 for healthy and faulty runs alike. Two vibration records are independent noise realizations, so a sample-by-sample alignment measures the noise, not the bearing.
+
+Changes (`agents/base.py`, `agents/dc_motor_agent.py`, `agents/detector.py`):
+- **Operating point (AI-N09).** Hypotheses are simulated at the observed operating point: the DC agent estimates the speed setpoint from the rpm tail, or takes it from the caller. It is part of the cache key.
+- **Normalization (AI-N10).** Features are z-scored with the healthy hypothesis's statistics.
+- **Spectral comparison (AI-N10).** Vibration and current are compared by log-PSD (Welch) over the second half of the window. rpm stays a time-domain DTW, decimated ×10.
+- **Exact vectorized DTW.** Each row is a running-minimum recurrence, ≈30× faster, and equal to the reference implementation in tests.
+- **Inner-race hypotheses.** With outer-race hypotheses only, inner_race runs scored 0.64–0.71.
+- **Longer GUI window.** The DC monitoring window is now 0.6 s instead of 0.15 s. At 150 rad/s the motor is still accelerating at 0.15 s, and no method saw the fault there.
+
+Labelled evaluation (`experiments/report_anomaly_agent_roc.py` → [`anomaly_agent_roc.json`](audit/ai/anomaly_agent_roc.json)): 60 fresh runs at 100/130/150/180 rad/s; healthy, plus outer and inner race at two severities each; seeds 31–33.
+
+| Metric | Before (2026-10-18 audit) | After |
+|---|---|---|
+| ROC AUC (healthy vs. any fault) | not measured (healthy at 120 rad/s scored 0.573, closest "moderate") | **1.000** |
+| False-alarm / missed-detection rate at 0.70 | — | **0.000 / 0.000** |
+| Missed-detection rate at 0.85 (high severity) | — | 0.25 (inner_race ×0.5 scores 0.81–0.84) |
+| Closest hypothesis = true fault type and severity | — | 60 / 60 |
+| Time per `detect_anomaly` call, cache warm | ≈14–15 s | **0.057 s** |
+
+The 0.70/0.85 thresholds now have a measured operating point on simulated data. Real telemetry would need the same check.
+
+### 7.5 AI-N11 — forecasters retrained on distinct operating conditions
+
+**Data.** `experiments/generate_vsc_dpc_grid_dataset.py` → `data/vsc_dpc_grid_dataset.parquet`: 36 runs of 0.3 s. Every run is a different condition, load resistance R ∈ {4, 5, 6, 7, 8.0064, 10, 13, 16, 20} Ω × |v_ref| ∈ {30, 50, 75, 100} V, simulated with the v4 DPC controller (S-05). The run-grouped split of `train_model.py` is therefore a split by condition. The 8 test conditions are listed in `metrics.json["test_groups"]`.
+
+**Baseline.** `train_model.py` now records `persistence_test_rmse` (repeat the last context sample) next to `test_rmse`, in the same normalized space.
+
+**Promoted runs (2026-10-19).**
+- `pc_full`: trained directly.
+- `rpi5_edge` and `esp32_tiny`: distilled from the PC run, 60 epochs.
+- TFLite re-exported.
+
+Results on the held-out conditions ([`forecaster_condition_split.json`](audit/ai/forecaster_condition_split.json), 72 windows, normalized RMSE):
+
+| Run | RMSE on held-out conditions | Persistence | RMSE recorded by the run itself |
+|---|---|---|---|
+| `pc_full/2026-10-19_run01` (**promoted**) | **0.073** | 1.056 | 0.073 |
+| `rpi5_edge/2026-10-19_run01` (**promoted**) | **0.063** | 1.056 | 0.063 |
+| `esp32_tiny/2026-10-19_run01` (**promoted**) | **0.178** | 1.056 | 0.178 |
+| `pc_full/2026-09-01_run01` (previous) | 0.149 | 1.056 | 0.060 |
+| `rpi5_edge/2026-09-13_run01` (previous) | 0.213 | 1.056 | 0.201 |
+| `esp32_tiny/2026-09-13_run02` (previous) | 0.627 | 1.056 | 0.563 |
+
+**Reading the table:**
+- The previous PC forecaster's recorded 0.060 came from a near-duplicate test set. On unseen conditions it measures 0.149, 2.5× worse.
+- The comparison also mixes in the controller change: the previous runs were trained on v3-controlled data, the new grid uses v4.
+
+**TFLite parity** ([`tflite_parity_report.txt`](audit/tflite_parity_report.txt)):
+- ESP32 INT8: RMSE 0.178 → 0.184.
+- The RPi5 GRU still needs Flex (SELECT_TF_OPS) kernels (Q22), so it cannot run on a builtin-only interpreter. An unrolled GRU or a TCN would be needed for TFLite Micro-class targets.

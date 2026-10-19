@@ -1,6 +1,8 @@
-# Validation summary — SPADE (2026-10-18)
+# Validation summary — SPADE (2026-10-18, second pass 2026-10-19)
 
-This page consolidates the technical state after the stability / AI / installation audit. It starts from commit `b053de7`. The detailed reports are:
+This page consolidates the technical state after the stability / AI / installation audit, which started from commit `b053de7`.
+
+The **second pass** (2026-10-19) fixed the findings the first pass had left open: AI-N02, N06, N07, N08, N09, N10, N11, S-01 and S-05; AI-N12 is mitigated. §2–§4 and §6 describe the state after it. The detailed reports are:
 - [Simulation stability](SIMULATION_STABILITY_REPORT.md), findings **S-01…S-08**;
 - [AI technical audit](AI_TECHNICAL_AUDIT.md), findings **AI-N01…AI-N12**, which builds on the earlier [`AUDIT_ANSWERS.md`](../AUDIT_ANSWERS.md);
 - installation guides for [Ubuntu](INSTALL_UBUNTU.md), [Windows](INSTALL_WINDOWS.md) and [macOS](INSTALL_MACOS.md);
@@ -13,6 +15,8 @@ This page consolidates the technical state after the stability / AI / installati
 | Baseline, before any change | `python -m pytest -q` | **540 passed**, 0 failed, 7 min 56 s ([log](audit/validation/baseline_pytest_output.txt)) |
 | New battery only | `pytest tests/simulation tests/control tests/ai tests/compat` | all pass; 5 strict xfails (known open defects) ([final log](audit/validation/final_pytest_output.txt)) |
 | Final, everything | `python -m pytest -rxXs` | **638 passed, 5 xfailed, 0 failed**, 9 min 41 s ([final log](audit/validation/final_pytest_output.txt)) |
+| **Second pass, everything** | `python -m pytest -rxXs` | **663 passed, 0 xfailed, 0 failed**, 9 min 51 s. The 5 strict xfails of the first pass now pass and are ordinary tests ([log](audit/validation/second_pass_pytest_output.txt)) |
+| Smoke test, second pass | `python scripts/smoke_test.py --launch` | 6/6 PASS, with the promoted classifier's calibrated output |
 | Do the new tests detect the defects? | fixed files reverted to pre-fix versions | **25 of 43** targeted tests fail on the pre-fix code and pass after; the other 18 pin behavior that was already correct ([evidence](audit/validation/regression_tests_vs_prefix_code.txt)) |
 | Stability battery | `python experiments/run_stability_battery.py` | executed, 731 s ([results](audit/stability/results.md)) |
 | Classifier evaluation | `python experiments/report_classifier_evaluation.py` | executed, 98 s ([results](audit/ai/classifier_evaluation.md)) |
@@ -25,50 +29,61 @@ This page consolidates the technical state after the stability / AI / installati
 
 | Module | Numerical | Reproducible | Dynamic behavior | Open issues |
 |---|---|---|---|---|
-| DC motor + PI | ✅ first-order convergence to RK45; Euler limit 26× above the production step; 60 s with no drift | ✅ bitwise | ✅ matches the linear design model (rise/settling within 5 %, overshoot within 0.5 pt, disturbance dip within 1.5 %); reaches the current-limited physical bound; robust to the 4 parameter drifts | S-04 (≈15 % small-signal overshoot, documented) |
-| DC motor + MPC | ✅ (same plant) | ✅ | ✅ stable; small steady-state offset 0.04–0.09 % (no integrator) | about 65–75× the PI's CPU cost |
-| PMSM / FOC | ⚠️ **S-01**: Euler unstable above 265.8 rad/s (< nominal 314) | ✅ | ✅ standstill current steps: Euler = RK45 within 0.12 % of i_s | S-01 latent (not reached by current flows) |
-| VSC + DPC | ✅ bounded over the GUI range; physical divergence at R < R\* simulated correctly | ✅ | ⚠️ **S-05**: tracking good only near R = 8 Ω | S-05 |
-| Fault injection / signals | ✅ S-06 fixed (no more NaN in the state) | ✅ | n/a | the seed varies only the vibration (Q15 / AI-N07) |
-| Diagnosis classifiers | n/a | ✅ | ❌ **AI-N06**: promoted model's inner_race recall = 0; ❌ **AI-N07**: candidate fails at 100 rad/s and at half severity, with confidence ≈ 1 | AI-N06, AI-N07, AI-N12 |
-| Forecasters | n/a | ✅ | ⚠️ **AI-N11**: test set is a near-duplicate of the training set | AI-N11 |
-| Monitoring / alerts | — | ✅ | ✅ detection / acknowledgement / resolution are separate; AI-N03 and AI-N04 fixed | AI-N02, AI-N08, AI-N09, AI-N10 |
-| Installation | — | — | ✅ Ubuntu 26.04 executed (uv + Python 3.11, venv/pip + Python 3.12): smoke 6/6 | Windows, macOS, Ubuntu 22.04/24.04 **not executed** |
+| DC motor + PI | ✅ first-order convergence to RK45; Euler limit 26× above the production step; 60 s with no drift | ✅ bitwise | ✅ matches the linear design model; reaches the current-limited bound; robust to the 4 parameter drifts | S-04 (≈15 % small-signal overshoot, documented) |
+| DC motor + MPC | ✅ | ✅ | ✅ stable; small steady-state offset 0.04–0.09 % (no integrator) | about 65–75× the PI's CPU cost |
+| PMSM / FOC | ✅ **S-01 fixed**: default Euler with 3 substeps, stable up to ≈460 rad/s (1.47× nominal) | ✅ | ✅ Euler = RK45 within 0.5 % of i_s | — |
+| VSC + DPC | ✅ bounded; divergence below R\* is physics | ✅ | ✅ **S-05 fixed**: DPC v4 tracks within 3.1 V from 4 Ω to 1 kΩ (v3: up to 111 V). Trade-off: 2.5 V at 8 Ω (v3 1.18 V) | nominal-point and 10 V-reference accuracy below v3 |
+| Fault injection / signals | ✅ S-06 fixed | ✅ | n/a | — |
+| Diagnosis classifiers | n/a | ✅ | ✅ **AI-N06/N07 fixed**: grid-trained model, 1.000 on held-out speeds (115, 190, 250 rad/s) and severity ×0.6; 0.969 at 100 % noise; calibrated, with abstention | AI-N12: ball faults (no class) confidently called outer_race |
+| Forecasters | n/a | ✅ | ✅ **AI-N11 fixed**: condition-split test, RMSE 0.073 vs persistence 1.056 | RPi5 GRU export needs Flex ops |
+| Monitoring / alerts | — | ✅ | ✅ AI-N02/N03/N04/N08 fixed: telemetry-time evaluation, off-delay; anomaly agent AUC 1.0 and 0.057 s per call (AI-N09/N10) | thresholds measured on simulated runs only |
+| Installation | — | — | ✅ Ubuntu 26.04 executed (uv + Python 3.11, venv/pip + Python 3.12): smoke 6/6 | Windows, macOS, Ubuntu 22.04/24.04 **not executed** (CI jobs pushed) |
 
 ## 3. Critical and high issues
 
 | ID | Severity | Status |
 |---|---|---|
-| AI-N06 — the promoted classifier never detects inner_race | Critical | **Open.** Promote the candidate `2026-10-13_run01` through the gate and re-distil the edge models. This is the researcher's decision, because it changes the production model. |
+| AI-N06 — the promoted classifier never detected inner_race | Critical | **Fixed and tested.** `pc_server/2026-10-18_run01` promoted, edge models re-distilled and re-exported. |
 | AI-N03 — VSC alarm missed the unstable bands R < 1 and 3.0–3.37 Ω | High | **Fixed and tested** |
 | AI-N04 — NaN telemetry silently resolved alerts | High | **Fixed and tested** |
-| AI-N07 — classifiers do not generalize to other speeds or severities | High | **Open.** Needs a new data design (speed/severity grid, order-tracked inputs). |
-| AI-N12 — uncalibrated confidence, no abstention for unknown conditions | High | **Open.** The UI already labels confidence as uncalibrated. |
-| S-01 — Euler integration of the PMSM at high speed | High (latent) | **Open**, documented. The API now accepts a solver argument. |
-| macOS Intel — an unpinned install breaks (TF ≤ 2.16 plus NumPy 2 / pyarrow 26) | High (installation) | **Mitigated**: `constraints/macos-intel.txt`. The pinned set was checked by emulation on Linux; it has not been run on a Mac. |
+| AI-N07 — classifiers did not generalize to other speeds or severities | High | **Fixed and tested** on held-out simulated conditions (speed × severity × noise × plant-drift grid, rpm level kept). |
+| AI-N12 — uncalibrated confidence, no abstention | High | **Mitigated**: temperature scaling and an abstention threshold, fitted on validation. Not solved for unseen fault types (ball). |
+| S-01 — Euler integration of the PMSM at high speed | High (latent) | **Fixed and tested** |
+| macOS Intel — an unpinned install breaks | High (installation) | **Mitigated**: `constraints/macos-intel.txt`. The pinned set was checked by emulation on Linux, not on a Mac. |
 
 ## 4. Corrections implemented
 
+**First pass (commit `be577b9`)**
+
 | Change | Files |
 |---|---|
-| GUI inference uses the training normalization (AI-N01) | `models/common/windowing.py` (`normalize_window_like_training`), `viz/adapters/ai_adapter.py` |
+| GUI inference uses the training normalization (AI-N01) | `models/common/windowing.py`, `viz/adapters/ai_adapter.py` |
 | VSC alarm threshold = analytic instability boundary (AI-N03) | `monitoring/rules/vsc_dpc.yaml`, help texts |
 | Non-finite telemetry is *indeterminate*, never a resolution (AI-N04) | `monitoring/agents/agent_gateway.py` |
 | DC agent uses the real current channel `current_r` (AI-N05) | `agents/dc_motor_agent.py`, `configs/agents.yaml` |
 | `Scenario` rejects invalid numeric inputs (S-03) | `datagen/scenario.py` |
-| Corrected the PI overshoot claim in the docstring (S-04) | `control/classical/pi_controller.py` |
-| Finite unit limit for fault-phase states (S-06) | `datagen/fault_injection.py` |
-| Optional ODE solver for the PMSM builder; default unchanged (S-01) | `control/classical/pmsm_foc.py` |
-| Intel-Mac dependency constraints | `constraints/macos-intel.txt` |
+| Corrected PI overshoot docstring (S-04); finite unit limit for fault-phase states (S-06) | `control/classical/pi_controller.py`, `datagen/fault_injection.py` |
 
-New code that supports the tests and reports:
-- `src/driveflow/validation/`: benches, step metrics and Euler bounds;
-- `src/driveflow/ai/evaluation.py`: metrics;
-- `experiments/run_stability_battery.py` and `experiments/report_classifier_evaluation.py`;
-- `scripts/smoke_test.py`;
-- `tests/{simulation,control,ai,compat}/`.
+**Second pass (2026-10-19)**
 
-No physical model, trained model or registry entry was changed.
+| Change | Files |
+|---|---|
+| PMSM default solver: Euler with 3 substeps (S-01) | `control/classical/pmsm_foc.py`, `validation/benches.py` |
+| DPC v4, fine-tuned over R = 3.5–1000 Ω and \|v_ref\| = 25–100 V, now the default (S-05) | `experiments/finetune_dpc_r_range.py`, `configs/dpc_trained_v4_r_range.weights.h5`, `datagen/runner.py` |
+| Operating-condition grid dataset; `level_scaling` (rpm level kept) as a recorded, consumer-wide preprocessing option; grid-trained classifier promoted; edge models re-distilled (AI-N06/N07) | `experiments/generate_diagnosis_grid_dataset.py`, `models/common/windowing.py`, `experiments/train_model.py`, GUI adapters, TL workflow, `configs/classifiers/*/2026-10-18_run01` |
+| Temperature calibration + abstention, stored per run and shown in the GUI (AI-N12) | `ai/calibration.py`, `viz/views/*` |
+| INT8 export calibrated on a random sample of all windows, not on the first 100 (top-1 agreement 0.71 → 0.977) | `experiments/export_tflite.py` |
+| Rules evaluated on telemetry time; optional off-delay; VSC rule 10 ms on/off-delay (AI-N02/N08) | `monitoring/rules/schema.py`, `monitoring/agents/agent_gateway.py`, `viz/adapters/monitoring_adapter.py`, `vsc_dpc.yaml` |
+| Anomaly agent: operating point in hypotheses, healthy-normalized features, spectral comparison of vibration/current, exact vectorized DTW, inner-race hypotheses, 0.6 s GUI window (AI-N09/N10) | `agents/base.py`, `agents/dc_motor_agent.py`, `agents/detector.py`, `viz/views/monitoring.py` |
+| Condition-split VSC dataset, persistence baseline in metrics, forecasters retrained and re-exported (AI-N11) | `experiments/generate_vsc_dpc_grid_dataset.py`, `experiments/train_model.py`, `configs/regressors/*/2026-10-19_run01` |
+| Monitoring KPI read the calibration flag from the wrong dict (found by a test) | `viz/views/monitoring.py` |
+
+New evidence scripts:
+- `experiments/report_anomaly_agent_roc.py`;
+- `experiments/report_forecaster_condition_split.py`;
+- `experiments/finetune_dpc_r_range.py` (writes `docs/audit/stability/dpc_r_range_finetune_v*.json`).
+
+**Datasets** are not committed (`.gitignore`). Each one is regenerated by the generator script named in the table above.
 
 ## 5. Installation verification
 
@@ -90,15 +105,9 @@ No physical model, trained model or registry entry was changed.
 
 ## 6. Pending actions
 
-1. **Researcher decision.**
-   - Promote `pc_server/2026-10-13_run01` (AI-N06), then re-distil and re-export the ESP32 / RPi5 models.
-   - Choose the hysteresis semantics for GUI monitoring (AI-N02) and whether rules get an off-delay (AI-N08).
-2. **Data design** (AI-N07, AI-N11, AI-N12):
-   - vary speed, load and severity per run and split by condition;
-   - add speed-invariant inputs;
-   - calibrate (temperature scaling) and add an "unknown" abstention;
-   - give the forecasters varied R / v_ref.
-3. **Controller.** Retrain the DPC over a range of R (S-05). Optionally add setpoint weighting to the PI (S-04) and integral action or a disturbance observer to the MPC.
-4. **Agents.** Normalize features before DTW, use a banded or compiled DTW, and pass the operating point into the hypotheses (AI-N09, AI-N10).
-5. **Installation.** Push the workflows and check that the Windows and macOS smoke jobs pass. Run the guides once by hand on Windows 11, an Apple-Silicon Mac, an Intel Mac and Ubuntu 22.04.
-6. **Real data.** A real hold-out set (other machine or bearing, at least two speeds) is the only way to validate any diagnosis claim beyond the simulator.
+1. **Real data.** No real measurements exist in this project, so every model number above is from the simulator. A real hold-out set is the only way to validate any diagnosis claim: another machine or bearing, at least two speeds, inner and outer race faults.
+2. **Unseen fault types.** The classifier has no ball or cage class. Ball faults are called outer_race with confidence 0.99, and the abstention threshold does not catch them. Either add those classes (their severity calibration is a documented placeholder) or add an out-of-distribution detector.
+3. **DPC accuracy at the nominal point.** v4 trades nominal accuracy (2.5 V vs 1.18 V at 8 Ω, 4.2 V at a 10 V reference) for range. One extra round at a lower learning rate made it worse (`dpc_r_range_finetune_v5.json`). A larger network or a loss weighted toward small references are the next options.
+4. **RPi5 GRU forecaster** still needs Flex ops on TFLite. An unrolled GRU or a TCN would remove them.
+5. **Installation.** Confirm that the Windows and macOS CI jobs pass. Run the guides once by hand on Windows 11, an Apple-Silicon Mac, an Intel Mac and Ubuntu 22.04.
+6. **Hardware.** No `.tflite` model has been run on a Raspberry Pi 5 or an ESP32.
