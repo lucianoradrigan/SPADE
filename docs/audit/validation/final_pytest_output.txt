@@ -1,0 +1,76 @@
+Final run, 2026-10-18, working tree on top of b053de7, Linux x86_64, Python 3.11.15 (requirements-lock.txt)
+$ python -m pytest -rfxXs -q --durations=25
+........xx.............................................................. [ 11%]
+...........................xxx.......................................... [ 22%]
+........................................................................ [ 33%]
+........................................................................ [ 44%]
+........................................................................ [ 55%]
+........................................................................ [ 67%]
+........................................................................ [ 78%]
+........................................................................ [ 89%]
+...................................................................      [100%]
+=============================== warnings summary ===============================
+tests/test_ai_audit_regressions.py: 32 warnings
+tests/test_registry.py: 70 warnings
+tests/test_train_model.py: 88 warnings
+tests/test_transfer_learning/test_loader.py: 40 warnings
+tests/test_transfer_learning/test_pipeline.py: 10 warnings
+  /home/seven/post_doc/plataform_proposed/SPADE/.venv/lib/python3.11/site-packages/keras/src/backend/tensorflow/core.py:172: DeprecationWarning: __array__ implementation doesn't accept a copy keyword, so passing copy=False failed. __array__ must implement 'dtype' and 'copy' keyword arguments. To learn more, see the migration guide https://numpy.org/devdocs/numpy_2_0_migration_guide.html#adapting-to-changes-in-the-copy-keyword
+    return np.array(x)
+
+tests/test_live_monitoring_dashboard.py::TestRuleHysteresis::test_does_not_fire_on_the_first_observation_but_does_on_the_second
+tests/test_live_monitoring_dashboard.py::TestRuleHysteresis::test_does_not_fire_on_the_first_observation_but_does_on_the_second
+  /home/seven/post_doc/plataform_proposed/SPADE/src/driveflow/sim/vsc_system.py:99: RuntimeWarning: invalid value encountered in scalar add
+    new_i_f_real = adf[0, 0] * s.i_f_real + adf[0, 1] * s.vc_real + bdf[0, 0] * v_o_real + bdf[0, 1] * i_load_real
+
+tests/test_live_monitoring_dashboard.py::TestRuleHysteresis::test_does_not_fire_on_the_first_observation_but_does_on_the_second
+tests/test_live_monitoring_dashboard.py::TestRuleHysteresis::test_does_not_fire_on_the_first_observation_but_does_on_the_second
+  /home/seven/post_doc/plataform_proposed/SPADE/src/driveflow/sim/vsc_system.py:100: RuntimeWarning: invalid value encountered in scalar add
+    new_i_f_imag = adf[0, 0] * s.i_f_imag + adf[0, 1] * s.vc_imag + bdf[0, 0] * v_o_imag + bdf[0, 1] * i_load_imag
+
+tests/test_tflite_export.py::TestExportFloat16::test_produces_a_loadable_tflite_model
+tests/test_tflite_export.py::TestExportFloat16::test_matches_keras_output_reasonably
+tests/test_tflite_export.py::TestExportInt8::test_produces_an_int8_quantized_model
+tests/test_ui_contract.py::test_every_page_opens_without_exceptions_and_in_english[model_registry]
+  /home/seven/post_doc/plataform_proposed/SPADE/.venv/lib/python3.11/site-packages/tensorflow/lite/python/interpreter.py:457: UserWarning:     Warning: tf.lite.Interpreter is deprecated and is scheduled for deletion in
+      TF 2.20. Please use the LiteRT interpreter from the ai_edge_litert package.
+      See the [migration guide](https://ai.google.dev/edge/litert/migration)
+      for details.
+      
+    warnings.warn(_INTERPRETER_DELETION_WARNING)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+============================= slowest 25 durations =============================
+47.13s call     tests/test_transfer_learning_dashboard.py::TestWizard::test_full_flow_ends_blocked_until_a_reviewer_approves[vsc_dpc]
+32.06s call     tests/test_live_monitoring_dashboard.py::TestRunMonitoring::test_alert_history_accumulates_across_multiple_runs
+28.09s call     tests/test_transfer_learning_dashboard.py::TestWizard::test_adapter_is_labelled_as_not_lora
+25.85s call     tests/control/test_controller_performance.py::TestMpc::test_load_step_offset_stays_bounded
+24.54s call     tests/test_mpc_controller.py::TestMpcController::test_tracks_different_reference_levels
+17.08s setup    tests/test_windowing.py::TestDiscoverChannels::test_finds_populated_live_channels
+16.59s call     tests/test_live_monitoring_dashboard.py::TestRunMonitoring::test_dc_motor_renders_and_runs_without_exceptions
+16.54s call     tests/test_live_monitoring_dashboard.py::TestClassifierConfidenceDrift::test_dc_motor_ui_smoke_renders_confidence_metric_on_a_single_run
+15.82s setup    tests/control/test_controller_performance.py::TestMpc::test_large_step_is_current_limited_too
+15.07s call     tests/test_datagen.py::TestDpcVscScenario::test_no_drift_over_a_long_run
+13.65s call     tests/test_transfer_learning_dashboard.py::TestWizard::test_full_flow_ends_blocked_until_a_reviewer_approves[dc_motor]
+12.55s call     tests/test_mpc_controller.py::TestPiVsMpcComparison::test_both_controllers_track_the_same_reference_on_the_same_plant
+12.51s call     tests/test_transfer_learning_dashboard.py::TestWizard::test_other_strategies_train[FineTuneStrategy.ADAPTER]
+12.34s call     tests/test_transfer_learning_dashboard.py::TestWizard::test_other_strategies_train[FineTuneStrategy.DISCRIMINATIVE_LR]
+11.83s call     tests/test_mpc_controller.py::TestMpcController::test_tracks_speed_step_reference
+10.16s setup    tests/ai/test_classifier_evaluation.py::test_candidate_recognizes_every_class_at_the_training_operating_point
+10.13s call     tests/test_transfer_learning_dashboard.py::TestWizard::test_too_few_acquisitions_fail_explicitly_instead_of_leaking
+9.52s call     tests/test_live_monitoring_dashboard.py::TestRuleHysteresis::test_does_not_fire_on_the_first_observation_but_does_on_the_second
+9.38s call     tests/test_live_monitoring_dashboard.py::TestClassifierConfidenceDrift::test_dc_motor_accumulates_confidence_and_eventually_reports_drift
+8.22s call     tests/test_ai_dashboard.py::TestSampleRunControlsAreReal::test_duration_custom_value_escape_hatch_goes_past_the_slider_max
+6.78s call     tests/test_patch3_regression.py::TestFaultProducesCorrectPeak::test_peak_amplitude_grows_with_severity
+6.20s call     tests/test_mpc_controller.py::TestMpcController::test_current_stays_within_safety_margin
+6.20s call     tests/test_mpc_controller.py::TestMpcController::test_action_stays_within_converter_bounds
+6.14s call     tests/test_ai_dashboard.py::TestGenerateSampleRun::test_panels_match_registry_state[vsc_dpc]
+5.79s call     tests/simulation/test_dc_motor_numerics.py::TestLongSimulation::test_twenty_seconds_no_drift_no_invalid_values
+=========================== short test summary info ============================
+XFAIL tests/ai/test_classifier_evaluation.py::test_promoted_classifier_recognizes_inner_race - AUDIT_ANSWERS Q15 / AI_TECHNICAL_AUDIT AI-N06 (open): the PROMOTED classifier never predicts inner_race (recall 0.00); promotion of the corrected candidate awaits the researcher.
+XFAIL tests/ai/test_classifier_evaluation.py::test_candidate_generalizes_to_another_speed - AI-N07 (open): trained at one speed (150 rad/s) with per-window z-scoring that removes the speed level; at 100 rad/s the inner-race frequency (78.5 Hz) sits where the outer-race one was at 150 rad/s (73.3 Hz) and every inner_race window is called outer_race.
+XFAIL tests/simulation/test_vsc_numerics.py::test_tracking_within_10pct_of_reference_wherever_the_plant_is_stable[4.0] - S-05 (open): the DPC network was trained at ONE load R=8.0064 ohm; it is stable but tracks poorly away from it (measured settled RMSE 18 V at 4 ohm, 15 V at 20 ohm, 111 V at 1 kohm vs 1.18 V at 8 ohm). Needs retraining over a range of R.
+XFAIL tests/simulation/test_vsc_numerics.py::test_tracking_within_10pct_of_reference_wherever_the_plant_is_stable[20.0] - S-05 (open): the DPC network was trained at ONE load R=8.0064 ohm; it is stable but tracks poorly away from it (measured settled RMSE 18 V at 4 ohm, 15 V at 20 ohm, 111 V at 1 kohm vs 1.18 V at 8 ohm). Needs retraining over a range of R.
+XFAIL tests/simulation/test_vsc_numerics.py::test_tracking_within_10pct_of_reference_wherever_the_plant_is_stable[1000.0] - S-05 (open): the DPC network was trained at ONE load R=8.0064 ohm; it is stable but tracks poorly away from it (measured settled RMSE 18 V at 4 ohm, 15 V at 20 ohm, 111 V at 1 kohm vs 1.18 V at 8 ohm). Needs retraining over a range of R.
+638 passed, 5 xfailed, 248 warnings in 581.26s (0:09:41)
+EXIT 0

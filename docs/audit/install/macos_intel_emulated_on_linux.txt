@@ -1,0 +1,18 @@
+Intel-Mac dependency set EMULATED on Linux x86_64 (NOT a Mac), 2026-10-18
+Environment: Python 3.12.13 + exact 'uv pip compile --python-platform x86_64-apple-darwin --python-version 3.12 -c constraints/macos-intel.txt' set (macOS-only packages appnope/pyobjc dropped); uv pip check: compatible
+$ python scripts/smoke_test.py --launch ; python -m pytest -q -m 'not slow' -rf
+[PASS] 1. dependencies import (1.9 s) numpy 1.26.4; scipy 1.17.1; pandas 3.0.6; pyarrow 24.0.0; sklearn 1.9.1; yaml 6.0.3; gymnasium 1.4.0; threadpoolctl 3.7.0; tensorflow 2.16.2; keras 3.15.1; streamlit 1.60.0; plotly 7.1.0
+[PASS] 2. application starts (Overview page renders) (0.6 s) AppTest: no exceptions
+[PASS] 2b. Streamlit server answers its health endpoint (1.3 s) http://127.0.0.1:53915 -> ok
+[PASS] 3. platform modules load (0.0 s) rule sets: ['vsc_dpc']
+[PASS] 4. short simulations (DC+PI, DC+MPC, VSC+DPC, PMSM FOC) (1.6 s) final speed 470.3 rpm, VSC |vc| 50.2 V
+[PASS] 5. inference with a registered model (0.3 s) pc_server/2026-09-01_run01 -> outer_race (0.36, uncalibrated)
+6. no exceptions: PASS -- 6/6 checks passed
+FAILED tests/test_tflite_export.py::TestExportInt8::test_is_smaller_than_float16
+FAILED tests/test_transfer_learning_dashboard.py::TestWizard::test_full_flow_ends_blocked_until_a_reviewer_approves[dc_motor]
+FAILED tests/test_transfer_learning_dashboard.py::TestWizard::test_full_flow_ends_blocked_until_a_reviewer_approves[vsc_dpc]
+3 failed, 631 passed, 5 deselected, 4 xfailed, 6 warnings in 725.55s (0:12:05)
+
+Explanation of the 3 failures (all specific to this dependency set; they pass with the Linux lock):
+- test_is_smaller_than_float16: TF 2.16 INT8 export of the toy test model is 4560 B vs 4468 B FP16 (size heuristic).
+- test_full_flow_ends_blocked_until_a_reviewer_approves[dc_motor|vsc_dpc]: KeyError 'tl_lr_fe' raised inside streamlit.testing AppTest element tree (Streamlit 1.60) when navigating to step 4; passes with Streamlit 1.62, which is NOT installable with TF 2.16 (protobuf <5 vs >=5.26). Real-browser behaviour not verified.

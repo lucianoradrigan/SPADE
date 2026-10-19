@@ -1,0 +1,13 @@
+# Dependency resolution summary (uv 0.11.28, 2026-10-18)
+# uv pip compile pyproject.toml --extra dev --extra viz --python-platform <platform> --python-version <py>
+aarch64-apple-darwin-3.11: keras==3.15.1 numpy==2.4.6 pyarrow==26.0.0 streamlit==1.66.0 tensorflow==2.21.0 
+aarch64-apple-darwin-3.12: keras==3.15.1 numpy==2.5.4 pyarrow==26.0.0 streamlit==1.66.0 tensorflow==2.21.0 
+x86_64-apple-darwin-3.11: keras==2.14.0 numpy==2.4.6 pyarrow==26.0.0 streamlit==1.59.1 tensorflow==2.14.0 
+x86_64-apple-darwin-3.12: keras==3.15.1 numpy==1.26.4 pyarrow==26.0.0 streamlit==1.59.1 tensorflow==2.16.2 
+x86_64-pc-windows-msvc-3.11: keras==3.15.1 numpy==2.4.6 pyarrow==26.0.0 streamlit==1.66.0 tensorflow==2.21.0 
+x86_64-pc-windows-msvc-3.12: keras==3.15.1 numpy==2.5.4 pyarrow==26.0.0 streamlit==1.66.0 tensorflow==2.21.0 
+x86_64-unknown-linux-gnu-3.11: keras==3.15.1 numpy==2.4.6 pyarrow==26.0.0 streamlit==1.66.0 tensorflow==2.21.0 
+x86_64-unknown-linux-gnu-3.12: keras==3.15.1 numpy==2.5.4 pyarrow==26.0.0 streamlit==1.66.0 tensorflow==2.21.0 
+
+# x86_64-apple-darwin-3.12 WITH -c constraints/macos-intel.txt:
+

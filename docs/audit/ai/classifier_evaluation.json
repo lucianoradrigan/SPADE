@@ -1,0 +1,1498 @@
+{
+  "command": "python experiments/report_classifier_evaluation.py ",
+  "seeds": [
+    200,
+    201,
+    202,
+    203
+  ],
+  "duration_s": 1.5,
+  "settle_s": 0.5,
+  "window_samples": 512,
+  "conditions": {
+    "nominal_steady_state": {
+      "overrides": {},
+      "mechanical_severity_scale": 1.0,
+      "window": "steady"
+    },
+    "startup_transient": {
+      "overrides": {},
+      "mechanical_severity_scale": 1.0,
+      "window": "transient"
+    },
+    "speed_100_rad_s": {
+      "overrides": {
+        "omega_ref_rad_s": 100.0
+      },
+      "mechanical_severity_scale": 1.0,
+      "window": "steady"
+    },
+    "speed_200_rad_s": {
+      "overrides": {
+        "omega_ref_rad_s": 200.0
+      },
+      "mechanical_severity_scale": 1.0,
+      "window": "steady"
+    },
+    "severity_x0.5": {
+      "overrides": {
+        "electrical_severity": 4.0
+      },
+      "mechanical_severity_scale": 0.5,
+      "window": "steady"
+    },
+    "severity_x2": {
+      "overrides": {
+        "electrical_severity": 16.0
+      },
+      "mechanical_severity_scale": 2.0,
+      "window": "steady"
+    },
+    "noise_20pct": {
+      "overrides": {
+        "electrical_noise_pct": 20.0,
+        "mechanical_noise_pct": 20.0
+      },
+      "mechanical_severity_scale": 1.0,
+      "window": "steady"
+    },
+    "noise_100pct": {
+      "overrides": {
+        "electrical_noise_pct": 100.0,
+        "mechanical_noise_pct": 100.0
+      },
+      "mechanical_severity_scale": 1.0,
+      "window": "steady"
+    },
+    "plant_drift_psi-10pct_J+50pct": {
+      "overrides": {
+        "motor_parameter_overrides": {
+          "psi_e": 0.14850000000000002,
+          "j_rotor": 0.037500000000000006
+        }
+      },
+      "mechanical_severity_scale": 1.0,
+      "window": "steady"
+    }
+  },
+  "simulation_wall_time_s": 91.6,
+  "total_wall_time_s": 98.0,
+  "models": [
+    {
+      "run": "configs/classifiers/pc_server/2026-09-01_run01",
+      "classes": [
+        "inner_race",
+        "normal",
+        "outer_race"
+      ],
+      "channels": [
+        "acc_x",
+        "acc_y",
+        "acc_z",
+        "current_r",
+        "rpm",
+        "torque_nm"
+      ],
+      "recorded": {
+        "test_accuracy": 0.8947368421052632,
+        "test_macro_f1": 0.8935574229691876,
+        "n_test": 38
+      },
+      "conditions": {
+        "nominal_steady_state": {
+          "n": 228,
+          "accuracy": 0.6666666666666666,
+          "balanced_accuracy": 0.6666666666666666,
+          "macro_f1": 0.5555555555555555,
+          "per_class": {
+            "inner_race": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 1.0
+            },
+            "normal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            },
+            "outer_race": {
+              "precision": 0.5,
+              "recall": 1.0,
+              "f1": 0.6666666666666666,
+              "support": 76,
+              "fpr": 0.5,
+              "fnr": 0.0
+            }
+          },
+          "confusion_matrix_rows_true": [
+            [
+              0,
+              0,
+              76
+            ],
+            [
+              0,
+              76,
+              0
+            ],
+            [
+              0,
+              0,
+              76
+            ]
+          ],
+          "ece": 0.1669749692082405,
+          "brier": 0.45603601831358115,
+          "mean_confidence_correct": 0.5249283500015736,
+          "mean_confidence_incorrect": 0.44921839237213135,
+          "fault_detection": {
+            "false_alarm_rate": 0.0,
+            "missed_detection_rate": 0.0
+          },
+          "reliability": [
+            [
+              0.45,
+              0.45768561782805545,
+              0.5,
+              152
+            ],
+            [
+              0.55,
+              0.5837038567191676,
+              1.0,
+              76
+            ]
+          ]
+        },
+        "startup_transient": {
+          "n": 108,
+          "accuracy": 0.5,
+          "balanced_accuracy": 0.5,
+          "macro_f1": 0.41514041514041516,
+          "per_class": {
+            "inner_race": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 36,
+              "fpr": 0.0,
+              "fnr": 1.0
+            },
+            "normal": {
+              "precision": 0.8148148148148148,
+              "recall": 0.6111111111111112,
+              "f1": 0.6984126984126984,
+              "support": 36,
+              "fpr": 0.06944444444444445,
+              "fnr": 0.3888888888888889
+            },
+            "outer_race": {
+              "precision": 0.3950617283950617,
+              "recall": 0.8888888888888888,
+              "f1": 0.5470085470085471,
+              "support": 36,
+              "fpr": 0.6805555555555556,
+              "fnr": 0.1111111111111111
+            }
+          },
+          "confusion_matrix_rows_true": [
+            [
+              0,
+              1,
+              35
+            ],
+            [
+              0,
+              22,
+              14
+            ],
+            [
+              0,
+              4,
+              32
+            ]
+          ],
+          "ece": 0.1100834392839008,
+          "brier": 0.5512019621559395,
+          "mean_confidence_correct": 0.4805072794357936,
+          "mean_confidence_incorrect": 0.39790046159867887,
+          "fault_detection": {
+            "false_alarm_rate": 0.3888888888888889,
+            "missed_detection_rate": 0.06944444444444445
+          },
+          "reliability": [
+            [
+              0.35000000000000003,
+              0.3517087424794833,
+              0.2777777777777778,
+              36
+            ],
+            [
+              0.45,
+              0.44855872656290346,
+              0.46153846153846156,
+              52
+            ],
+            [
+              0.55,
+              0.5723724752664566,
+              1.0,
+              20
+            ]
+          ]
+        },
+        "speed_100_rad_s": {
+          "n": 228,
+          "accuracy": 0.6666666666666666,
+          "balanced_accuracy": 0.6666666666666666,
+          "macro_f1": 0.5555555555555555,
+          "per_class": {
+            "inner_race": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 1.0
+            },
+            "normal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            },
+            "outer_race": {
+              "precision": 0.5,
+              "recall": 1.0,
+              "f1": 0.6666666666666666,
+              "support": 76,
+              "fpr": 0.5,
+              "fnr": 0.0
+            }
+          },
+          "confusion_matrix_rows_true": [
+            [
+              0,
+              0,
+              76
+            ],
+            [
+              0,
+              76,
+              0
+            ],
+            [
+              0,
+              0,
+              76
+            ]
+          ],
+          "ece": 0.1644667367401876,
+          "brier": 0.4747828179090713,
+          "mean_confidence_correct": 0.5230217707392416,
+          "mean_confidence_incorrect": 0.46055624830095393,
+          "fault_detection": {
+            "false_alarm_rate": 0.0,
+            "missed_detection_rate": 0.0
+          },
+          "reliability": [
+            [
+              0.45,
+              0.4614479665301348,
+              0.5,
+              152
+            ],
+            [
+              0.55,
+              0.5837038567191676,
+              1.0,
+              76
+            ]
+          ]
+        },
+        "speed_200_rad_s": {
+          "n": 228,
+          "accuracy": 0.6666666666666666,
+          "balanced_accuracy": 0.6666666666666666,
+          "macro_f1": 0.5555555555555555,
+          "per_class": {
+            "inner_race": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 1.0
+            },
+            "normal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            },
+            "outer_race": {
+              "precision": 0.5,
+              "recall": 1.0,
+              "f1": 0.6666666666666666,
+              "support": 76,
+              "fpr": 0.5,
+              "fnr": 0.0
+            }
+          },
+          "confusion_matrix_rows_true": [
+            [
+              0,
+              0,
+              76
+            ],
+            [
+              0,
+              76,
+              0
+            ],
+            [
+              0,
+              0,
+              76
+            ]
+          ],
+          "ece": 0.17773330433849702,
+          "brier": 0.43762349887026786,
+          "mean_confidence_correct": 0.5208336924643893,
+          "mean_confidence_incorrect": 0.42513270205573034,
+          "fault_detection": {
+            "false_alarm_rate": 0.0,
+            "missed_detection_rate": 0.0
+          },
+          "reliability": [
+            [
+              0.45,
+              0.44154811513267067,
+              0.5,
+              152
+            ],
+            [
+              0.55,
+              0.5837038567191676,
+              1.0,
+              76
+            ]
+          ]
+        },
+        "severity_x0.5": {
+          "n": 228,
+          "accuracy": 0.6666666666666666,
+          "balanced_accuracy": 0.6666666666666666,
+          "macro_f1": 0.5555555555555555,
+          "per_class": {
+            "inner_race": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 1.0
+            },
+            "normal": {
+              "precision": 0.5,
+              "recall": 1.0,
+              "f1": 0.6666666666666666,
+              "support": 76,
+              "fpr": 0.5,
+              "fnr": 0.0
+            },
+            "outer_race": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            }
+          },
+          "confusion_matrix_rows_true": [
+            [
+              0,
+              76,
+              0
+            ],
+            [
+              0,
+              76,
+              0
+            ],
+            [
+              0,
+              0,
+              76
+            ]
+          ],
+          "ece": 0.21012753653421737,
+          "brier": 0.5341989466289409,
+          "mean_confidence_correct": 0.5234019440647802,
+          "mean_confidence_incorrect": 0.5097787842938775,
+          "fault_detection": {
+            "false_alarm_rate": 0.0,
+            "missed_detection_rate": 0.5
+          },
+          "reliability": [
+            [
+              0.45,
+              0.46310003141039296,
+              1.0,
+              76
+            ],
+            [
+              0.55,
+              0.5467413205065226,
+              0.5,
+              152
+            ]
+          ]
+        },
+        "severity_x2": {
+          "n": 228,
+          "accuracy": 0.6666666666666666,
+          "balanced_accuracy": 0.6666666666666666,
+          "macro_f1": 0.5555555555555555,
+          "per_class": {
+            "inner_race": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 1.0
+            },
+            "normal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            },
+            "outer_race": {
+              "precision": 0.5,
+              "recall": 1.0,
+              "f1": 0.6666666666666666,
+              "support": 76,
+              "fpr": 0.5,
+              "fnr": 0.0
+            }
+          },
+          "confusion_matrix_rows_true": [
+            [
+              0,
+              0,
+              76
+            ],
+            [
+              0,
+              76,
+              0
+            ],
+            [
+              0,
+              0,
+              76
+            ]
+          ],
+          "ece": 0.16612745481624938,
+          "brier": 0.45527232095678405,
+          "mean_confidence_correct": 0.5261057168245316,
+          "mean_confidence_incorrect": 0.4494062019021888,
+          "fault_detection": {
+            "false_alarm_rate": 0.0,
+            "missed_detection_rate": 0.0
+          },
+          "reliability": [
+            [
+              0.45,
+              0.4589568894160421,
+              0.5,
+              152
+            ],
+            [
+              0.55,
+              0.5837038567191676,
+              1.0,
+              76
+            ]
+          ]
+        },
+        "noise_20pct": {
+          "n": 228,
+          "accuracy": 0.6666666666666666,
+          "balanced_accuracy": 0.6666666666666666,
+          "macro_f1": 0.5555555555555555,
+          "per_class": {
+            "inner_race": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 1.0
+            },
+            "normal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            },
+            "outer_race": {
+              "precision": 0.5,
+              "recall": 1.0,
+              "f1": 0.6666666666666666,
+              "support": 76,
+              "fpr": 0.5,
+              "fnr": 0.0
+            }
+          },
+          "confusion_matrix_rows_true": [
+            [
+              0,
+              0,
+              76
+            ],
+            [
+              0,
+              76,
+              0
+            ],
+            [
+              0,
+              0,
+              76
+            ]
+          ],
+          "ece": 0.22056947648525232,
+          "brier": 0.5123137513915137,
+          "mean_confidence_correct": 0.45615941286087036,
+          "mean_confidence_incorrect": 0.42597274482250214,
+          "fault_detection": {
+            "false_alarm_rate": 0.0,
+            "missed_detection_rate": 0.0
+          },
+          "reliability": [
+            [
+              0.45,
+              0.4460971901814143,
+              0.6666666666666666,
+              228
+            ]
+          ]
+        },
+        "noise_100pct": {
+          "n": 228,
+          "accuracy": 0.6666666666666666,
+          "balanced_accuracy": 0.6666666666666666,
+          "macro_f1": 0.5555555555555555,
+          "per_class": {
+            "inner_race": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 1.0
+            },
+            "normal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            },
+            "outer_race": {
+              "precision": 0.5,
+              "recall": 1.0,
+              "f1": 0.6666666666666666,
+              "support": 76,
+              "fpr": 0.5,
+              "fnr": 0.0
+            }
+          },
+          "confusion_matrix_rows_true": [
+            [
+              0,
+              0,
+              76
+            ],
+            [
+              0,
+              76,
+              0
+            ],
+            [
+              0,
+              0,
+              76
+            ]
+          ],
+          "ece": 0.4688769517499104,
+          "brier": 0.5531192150527409,
+          "mean_confidence_correct": 0.40978754566688286,
+          "mean_confidence_incorrect": 0.39517703024964584,
+          "fault_detection": {
+            "false_alarm_rate": 0.0,
+            "missed_detection_rate": 0.0
+          },
+          "reliability": [
+            [
+              0.35000000000000003,
+              0.394834041595459,
+              0.08,
+              75
+            ],
+            [
+              0.45,
+              0.40986018379529315,
+              0.954248366013072,
+              153
+            ]
+          ]
+        },
+        "plant_drift_psi-10pct_J+50pct": {
+          "n": 228,
+          "accuracy": 0.6666666666666666,
+          "balanced_accuracy": 0.6666666666666666,
+          "macro_f1": 0.5555555555555555,
+          "per_class": {
+            "inner_race": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 1.0
+            },
+            "normal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            },
+            "outer_race": {
+              "precision": 0.5,
+              "recall": 1.0,
+              "f1": 0.6666666666666666,
+              "support": 76,
+              "fpr": 0.5,
+              "fnr": 0.0
+            }
+          },
+          "confusion_matrix_rows_true": [
+            [
+              0,
+              0,
+              76
+            ],
+            [
+              0,
+              76,
+              0
+            ],
+            [
+              0,
+              0,
+              76
+            ]
+          ],
+          "ece": 0.16711812244172683,
+          "brier": 0.4537123424705269,
+          "mean_confidence_correct": 0.5258876697013253,
+          "mean_confidence_incorrect": 0.44687029327216904,
+          "fault_detection": {
+            "false_alarm_rate": 0.0,
+            "missed_detection_rate": 0.0
+          },
+          "reliability": [
+            [
+              0.45,
+              0.457470887977826,
+              0.5,
+              152
+            ],
+            [
+              0.55,
+              0.5837038567191676,
+              1.0,
+              76
+            ]
+          ]
+        }
+      },
+      "ood_unseen_fault_types": {
+        "ball": {
+          "n": 76,
+          "predicted_share": {
+            "inner_race": 0.0,
+            "normal": 0.0,
+            "outer_race": 1.0
+          },
+          "mean_confidence": 0.4604266521177794,
+          "share_confidence_above_0.9": 0.0
+        },
+        "cage": {
+          "n": 76,
+          "predicted_share": {
+            "inner_race": 0.0,
+            "normal": 0.15789473684210525,
+            "outer_race": 0.8421052631578947
+          },
+          "mean_confidence": 0.42670284172422007,
+          "share_confidence_above_0.9": 0.0
+        }
+      }
+    },
+    {
+      "run": "configs/classifiers/pc_server/2026-10-13_run01",
+      "classes": [
+        "inner_race",
+        "normal",
+        "outer_race"
+      ],
+      "channels": [
+        "acc_x",
+        "acc_y",
+        "acc_z",
+        "current_r",
+        "rpm",
+        "torque_nm"
+      ],
+      "recorded": {
+        "test_accuracy": 0.96,
+        "test_macro_f1": 0.9602122635995979,
+        "n_test": 150
+      },
+      "conditions": {
+        "nominal_steady_state": {
+          "n": 228,
+          "accuracy": 1.0,
+          "balanced_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "per_class": {
+            "inner_race": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            },
+            "normal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            },
+            "outer_race": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            }
+          },
+          "confusion_matrix_rows_true": [
+            [
+              76,
+              0,
+              0
+            ],
+            [
+              0,
+              76,
+              0
+            ],
+            [
+              0,
+              0,
+              76
+            ]
+          ],
+          "ece": 0.025841589821012444,
+          "brier": 0.005997116547733061,
+          "mean_confidence_correct": 0.9741584101789876,
+          "mean_confidence_incorrect": null,
+          "fault_detection": {
+            "false_alarm_rate": 0.0,
+            "missed_detection_rate": 0.0
+          },
+          "reliability": [
+            [
+              0.6500000000000001,
+              0.673019289970398,
+              1.0,
+              1
+            ],
+            [
+              0.75,
+              0.7575201392173767,
+              1.0,
+              2
+            ],
+            [
+              0.8500000000000001,
+              0.8588514824708303,
+              1.0,
+              12
+            ],
+            [
+              0.95,
+              0.9841025359753711,
+              1.0,
+              213
+            ]
+          ]
+        },
+        "startup_transient": {
+          "n": 108,
+          "accuracy": 0.7777777777777778,
+          "balanced_accuracy": 0.7777777777777777,
+          "macro_f1": 0.7775362318840581,
+          "per_class": {
+            "inner_race": {
+              "precision": 1.0,
+              "recall": 0.6666666666666666,
+              "f1": 0.8,
+              "support": 36,
+              "fpr": 0.0,
+              "fnr": 0.3333333333333333
+            },
+            "normal": {
+              "precision": 0.6428571428571429,
+              "recall": 1.0,
+              "f1": 0.782608695652174,
+              "support": 36,
+              "fpr": 0.2777777777777778,
+              "fnr": 0.0
+            },
+            "outer_race": {
+              "precision": 0.8571428571428571,
+              "recall": 0.6666666666666666,
+              "f1": 0.75,
+              "support": 36,
+              "fpr": 0.05555555555555555,
+              "fnr": 0.3333333333333333
+            }
+          },
+          "confusion_matrix_rows_true": [
+            [
+              24,
+              8,
+              4
+            ],
+            [
+              0,
+              36,
+              0
+            ],
+            [
+              0,
+              12,
+              24
+            ]
+          ],
+          "ece": 0.05718304134077498,
+          "brier": 0.25669579206054294,
+          "mean_confidence_correct": 0.8380990227063497,
+          "mean_confidence_incorrect": 0.39710590864221257,
+          "fault_detection": {
+            "false_alarm_rate": 0.0,
+            "missed_detection_rate": 0.2777777777777778
+          },
+          "reliability": [
+            [
+              0.35000000000000003,
+              0.3779707330724467,
+              0.43478260869565216,
+              23
+            ],
+            [
+              0.45,
+              0.41490082881029916,
+              0.35294117647058826,
+              17
+            ],
+            [
+              0.55,
+              0.5819735527038574,
+              1.0,
+              2
+            ],
+            [
+              0.6500000000000001,
+              0.6071570217609406,
+              1.0,
+              2
+            ],
+            [
+              0.8500000000000001,
+              0.8735647996266683,
+              1.0,
+              9
+            ],
+            [
+              0.95,
+              0.9807977167042818,
+              1.0,
+              55
+            ]
+          ]
+        },
+        "speed_100_rad_s": {
+          "n": 228,
+          "accuracy": 0.6666666666666666,
+          "balanced_accuracy": 0.6666666666666666,
+          "macro_f1": 0.5555555555555555,
+          "per_class": {
+            "inner_race": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 1.0
+            },
+            "normal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            },
+            "outer_race": {
+              "precision": 0.5,
+              "recall": 1.0,
+              "f1": 0.6666666666666666,
+              "support": 76,
+              "fpr": 0.5,
+              "fnr": 0.0
+            }
+          },
+          "confusion_matrix_rows_true": [
+            [
+              0,
+              0,
+              76
+            ],
+            [
+              0,
+              76,
+              0
+            ],
+            [
+              0,
+              0,
+              76
+            ]
+          ],
+          "ece": 0.3240611699589512,
+          "brier": 0.6652037438666373,
+          "mean_confidence_correct": 0.9869381565796701,
+          "mean_confidence_incorrect": 0.9983071967175132,
+          "fault_detection": {
+            "false_alarm_rate": 0.0,
+            "missed_detection_rate": 0.0
+          },
+          "reliability": [
+            [
+              0.95,
+              0.9907278366256178,
+              0.6666666666666666,
+              228
+            ]
+          ]
+        },
+        "speed_200_rad_s": {
+          "n": 228,
+          "accuracy": 1.0,
+          "balanced_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "per_class": {
+            "inner_race": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            },
+            "normal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            },
+            "outer_race": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            }
+          },
+          "confusion_matrix_rows_true": [
+            [
+              76,
+              0,
+              0
+            ],
+            [
+              0,
+              76,
+              0
+            ],
+            [
+              0,
+              0,
+              76
+            ]
+          ],
+          "ece": 0.0033727442486244374,
+          "brier": 8.730102323475427e-05,
+          "mean_confidence_correct": 0.9966272557513756,
+          "mean_confidence_incorrect": null,
+          "fault_detection": {
+            "false_alarm_rate": 0.0,
+            "missed_detection_rate": 0.0
+          },
+          "reliability": [
+            [
+              0.95,
+              0.9966272557513756,
+              1.0,
+              228
+            ]
+          ]
+        },
+        "severity_x0.5": {
+          "n": 228,
+          "accuracy": 0.6666666666666666,
+          "balanced_accuracy": 0.6666666666666666,
+          "macro_f1": 0.5555555555555555,
+          "per_class": {
+            "inner_race": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 1.0
+            },
+            "normal": {
+              "precision": 0.5,
+              "recall": 1.0,
+              "f1": 0.6666666666666666,
+              "support": 76,
+              "fpr": 0.5,
+              "fnr": 0.0
+            },
+            "outer_race": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            }
+          },
+          "confusion_matrix_rows_true": [
+            [
+              0,
+              76,
+              0
+            ],
+            [
+              0,
+              76,
+              0
+            ],
+            [
+              0,
+              0,
+              76
+            ]
+          ],
+          "ece": 0.33124367788172604,
+          "brier": 0.66120053878476,
+          "mean_confidence_correct": 0.9989536224227202,
+          "mean_confidence_incorrect": 0.9958237887997377,
+          "fault_detection": {
+            "false_alarm_rate": 0.0,
+            "missed_detection_rate": 0.5
+          },
+          "reliability": [
+            [
+              0.95,
+              0.9979103445483927,
+              0.6666666666666666,
+              228
+            ]
+          ]
+        },
+        "severity_x2": {
+          "n": 228,
+          "accuracy": 1.0,
+          "balanced_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "per_class": {
+            "inner_race": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            },
+            "normal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            },
+            "outer_race": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            }
+          },
+          "confusion_matrix_rows_true": [
+            [
+              76,
+              0,
+              0
+            ],
+            [
+              0,
+              76,
+              0
+            ],
+            [
+              0,
+              0,
+              76
+            ]
+          ],
+          "ece": 0.023181197413227047,
+          "brier": 0.005785684607986819,
+          "mean_confidence_correct": 0.976818802586773,
+          "mean_confidence_incorrect": null,
+          "fault_detection": {
+            "false_alarm_rate": 0.0,
+            "missed_detection_rate": 0.0
+          },
+          "reliability": [
+            [
+              0.6500000000000001,
+              0.6197814345359802,
+              1.0,
+              1
+            ],
+            [
+              0.75,
+              0.7416970531145731,
+              1.0,
+              3
+            ],
+            [
+              0.8500000000000001,
+              0.8629356963293893,
+              1.0,
+              7
+            ],
+            [
+              0.95,
+              0.9853883157677364,
+              1.0,
+              217
+            ]
+          ]
+        },
+        "noise_20pct": {
+          "n": 228,
+          "accuracy": 1.0,
+          "balanced_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "per_class": {
+            "inner_race": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            },
+            "normal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            },
+            "outer_race": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            }
+          },
+          "confusion_matrix_rows_true": [
+            [
+              76,
+              0,
+              0
+            ],
+            [
+              0,
+              76,
+              0
+            ],
+            [
+              0,
+              0,
+              76
+            ]
+          ],
+          "ece": 0.02712377278428324,
+          "brier": 0.002559744338708095,
+          "mean_confidence_correct": 0.9728762272157168,
+          "mean_confidence_incorrect": null,
+          "fault_detection": {
+            "false_alarm_rate": 0.0,
+            "missed_detection_rate": 0.0
+          },
+          "reliability": [
+            [
+              0.95,
+              0.9728762272157168,
+              1.0,
+              228
+            ]
+          ]
+        },
+        "noise_100pct": {
+          "n": 228,
+          "accuracy": 0.5614035087719298,
+          "balanced_accuracy": 0.5614035087719298,
+          "macro_f1": 0.4718915343915344,
+          "per_class": {
+            "inner_race": {
+              "precision": 0.4318181818181818,
+              "recall": 1.0,
+              "f1": 0.6031746031746031,
+              "support": 76,
+              "fpr": 0.6578947368421053,
+              "fnr": 0.0
+            },
+            "normal": {
+              "precision": 1.0,
+              "recall": 0.6842105263157895,
+              "f1": 0.8125,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.3157894736842105
+            },
+            "outer_race": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 1.0
+            }
+          },
+          "confusion_matrix_rows_true": [
+            [
+              76,
+              0,
+              0
+            ],
+            [
+              24,
+              52,
+              0
+            ],
+            [
+              76,
+              0,
+              0
+            ]
+          ],
+          "ece": 0.3895563535522996,
+          "brier": 0.8192884243572783,
+          "mean_confidence_correct": 0.8207195426803082,
+          "mean_confidence_incorrect": 0.8943689218163491,
+          "fault_detection": {
+            "false_alarm_rate": 0.3157894736842105,
+            "missed_detection_rate": 0.0
+          },
+          "reliability": [
+            [
+              0.45,
+              0.49218277136484784,
+              0.4166666666666667,
+              12
+            ],
+            [
+              0.55,
+              0.5468275520536635,
+              0.7777777777777778,
+              45
+            ],
+            [
+              0.6500000000000001,
+              0.6237684819433424,
+              0.6666666666666666,
+              18
+            ],
+            [
+              0.75,
+              0.7582022547721863,
+              0.0,
+              1
+            ],
+            [
+              0.95,
+              0.999931089580059,
+              0.5,
+              152
+            ]
+          ]
+        },
+        "plant_drift_psi-10pct_J+50pct": {
+          "n": 228,
+          "accuracy": 1.0,
+          "balanced_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "per_class": {
+            "inner_race": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            },
+            "normal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            },
+            "outer_race": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 76,
+              "fpr": 0.0,
+              "fnr": 0.0
+            }
+          },
+          "confusion_matrix_rows_true": [
+            [
+              76,
+              0,
+              0
+            ],
+            [
+              0,
+              76,
+              0
+            ],
+            [
+              0,
+              0,
+              76
+            ]
+          ],
+          "ece": 0.019495698966478032,
+          "brier": 0.0033063335796902943,
+          "mean_confidence_correct": 0.9805043010335219,
+          "mean_confidence_incorrect": null,
+          "fault_detection": {
+            "false_alarm_rate": 0.0,
+            "missed_detection_rate": 0.0
+          },
+          "reliability": [
+            [
+              0.75,
+              0.7936167120933533,
+              1.0,
+              1
+            ],
+            [
+              0.8500000000000001,
+              0.8673045255921104,
+              1.0,
+              11
+            ],
+            [
+              0.95,
+              0.9871343247316502,
+              1.0,
+              216
+            ]
+          ]
+        }
+      },
+      "ood_unseen_fault_types": {
+        "ball": {
+          "n": 76,
+          "predicted_share": {
+            "inner_race": 0.0,
+            "normal": 0.0,
+            "outer_race": 1.0
+          },
+          "mean_confidence": 0.9895077935959163,
+          "share_confidence_above_0.9": 1.0
+        },
+        "cage": {
+          "n": 76,
+          "predicted_share": {
+            "inner_race": 0.05263157894736842,
+            "normal": 0.3157894736842105,
+            "outer_race": 0.631578947368421
+          },
+          "mean_confidence": 0.8070241644194251,
+          "share_confidence_above_0.9": 0.3815789473684211
+        }
+      }
+    }
+  ]
+}

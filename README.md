@@ -185,13 +185,18 @@ score. Agent state lives in `st.session_state`, not `st.cache_resource` -- the l
 across every session on the same Streamlit server process, which for a stateful agent (alert
 history, hysteresis timers) would leak one user's monitoring history into another's.
 
-Note on the `vsc_dpc` rule: it only fires for load resistance in [1, 3] ohm and carries a 2-second
-hysteresis, so a single "Run monitoring" click not firing the rule with R in range is expected --
-the condition has to hold across consecutive clicks, not fire instantly.
+Note on the `vsc_dpc` rule: it fires for any load resistance below R* ~= 3.37 ohm (the whole
+open-loop-unstable region; it used to watch only [1, 3] ohm -- docs/AI_TECHNICAL_AUDIT.md AI-N03)
+and carries a 2-second hysteresis, so a single "Run monitoring" click not firing the rule is
+expected -- the condition has to hold across consecutive clicks, not fire instantly (AI-N02).
 
 ## Quick start
 
-Requires Python 3.11 or 3.12, and [`uv`](https://docs.astral.sh/uv/) (or plain `pip`).
+Requires Python 3.11 or 3.12, and [`uv`](https://docs.astral.sh/uv/) (or plain `pip`). No GPU or
+CUDA is needed. Step-by-step guides with troubleshooting, per operating system:
+[Ubuntu](docs/INSTALL_UBUNTU.md) · [Windows (PowerShell)](docs/INSTALL_WINDOWS.md) ·
+[macOS (Apple Silicon / Intel)](docs/INSTALL_MACOS.md) -- Intel Macs need
+`-c constraints/macos-intel.txt`.
 
 ```bash
 uv venv --python 3.11 .venv
@@ -210,11 +215,25 @@ The exact environment the test suite was verified in is pinned in `requirements-
 (`uv pip install -r requirements-lock.txt && uv pip install -e . --no-deps`). Light and dark
 themes are both native (app menu ⋮ → Settings → Theme); the app follows the OS preference.
 
+Check the installation (imports, app start, modules, a short simulation of every plant, one
+model inference -- same command on every OS):
+
+```bash
+python scripts/smoke_test.py            # add --launch to also start the real Streamlit server
+```
+
 Run the tests:
 
 ```bash
-pytest
+pytest                       # everything
+pytest -m "not slow"         # what CI runs per commit
+pytest -m simulation         # or: control, ai, compat, slow
 ```
+
+Validation and audit reports: [docs/VALIDATION_SUMMARY.md](docs/VALIDATION_SUMMARY.md) (start
+here) · [simulation stability](docs/SIMULATION_STABILITY_REPORT.md) ·
+[AI technical audit](docs/AI_TECHNICAL_AUDIT.md) ·
+[demo validation scenarios](docs/DEMO_VALIDATION_SCENARIOS.md).
 
 `dev` (`pytest`) and `viz` (`streamlit`, `plotly`) are both needed to run the full test suite --
 some tests drive the dashboard itself via `streamlit.testing.v1.AppTest`, so `viz` isn't only a
@@ -242,14 +261,20 @@ src/driveflow/
                   explainer
   monitoring/     rule schema/YAML + the ESP32/Raspberry Pi 5/PC monitoring agents
   analysis/       display-grade spectrum (Hann-windowed amplitude spectrum, peak)
+  validation/     stability/performance bench: plants with a selectable ODE solver, load-step
+                  disturbance, step-response metrics, Euler stability bounds
   viz/            app.py (navigation) + dashboard.py (legacy entry); pages/ (thin page scripts),
                   views/ (page UI), components/ (header, KPI, charts, motor status, presets),
                   theme/ (tokens, scoped CSS, Plotly conventions), adapters/ (orchestration over
                   the library -- no numerics); ai_/transfer_learning_/live_monitoring_dashboard.py
                   are compatibility shims
 experiments/      standalone scripts: train/promote/export models, fine-tune/evaluate the DPC
-                  network, generate diagnosis datasets, calibrate the vibration module
-tests/            pytest suite
+                  network, generate diagnosis datasets, calibrate the vibration module;
+                  run_stability_battery.py / report_classifier_evaluation.py regenerate docs/audit/
+scripts/          smoke_test.py -- cross-platform installation check
+tests/            pytest suite; simulation/, control/, ai/, compat/ hold the categorised
+                  validation tests (markers: simulation, control, ai, compat, slow)
+constraints/      macos-intel.txt -- dependency pins for Intel Macs
 configs/          the 3 shipped DPC checkpoints (see below), promoted classifier/regressor runs
                   (weights + config + metrics, some with a .tflite export), the model registry
                   manifest, and vibration module calibration

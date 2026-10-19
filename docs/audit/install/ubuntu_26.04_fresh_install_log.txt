@@ -1,0 +1,143 @@
++ for opt in A B
++ '[' A = A ']'
++ uv venv --python 3.11 .venv
+Using CPython 3.11.15
+Creating virtual environment at: .venv
+Activate with: source .venv/bin/activate
++ . .venv/bin/activate
+++ '[' -z '' ']'
+++ '[' -n x ']'
+++ SCRIPT_PATH=.venv/bin/activate
+++ '[' .venv/bin/activate = /tmp/claude-1000/-home-seven-post-doc-plataform-proposed-SPADE/dea37e0e-9a5a-4fc4-b6d6-a76d8649ae03/scratchpad/fresh_install.sh ']'
+++ deactivate nondestructive
+++ unset -f pydoc
+++ '[' -z '' ']'
+++ '[' -z '' ']'
+++ hash -r
+++ '[' -z '' ']'
+++ unset VIRTUAL_ENV
+++ unset VIRTUAL_ENV_PROMPT
+++ '[' '!' nondestructive = nondestructive ']'
+++ VIRTUAL_ENV=/tmp/claude-1000/-home-seven-post-doc-plataform-proposed-SPADE/dea37e0e-9a5a-4fc4-b6d6-a76d8649ae03/scratchpad/fresh/SPADE_A/.venv
+++ '[' linux-gnu = cygwin ']'
+++ '[' linux-gnu = msys ']'
+++ export VIRTUAL_ENV
+++ '[' -z '' ']'
+++ unset SCRIPT_PATH
+++ _OLD_VIRTUAL_PATH=/home/seven/.local/bin:/home/seven/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin
+++ PATH=/tmp/claude-1000/-home-seven-post-doc-plataform-proposed-SPADE/dea37e0e-9a5a-4fc4-b6d6-a76d8649ae03/scratchpad/fresh/SPADE_A/.venv/bin:/home/seven/.local/bin:/home/seven/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin
+++ export PATH
+++ '[' x '!=' x ']'
++++ basename /tmp/claude-1000/-home-seven-post-doc-plataform-proposed-SPADE/dea37e0e-9a5a-4fc4-b6d6-a76d8649ae03/scratchpad/fresh/SPADE_A/.venv
+++ VIRTUAL_ENV_PROMPT=.venv
+++ export VIRTUAL_ENV_PROMPT
+++ '[' -z '' ']'
+++ '[' -z '' ']'
+++ _OLD_VIRTUAL_PS1=
+++ PS1='(.venv) '
+++ export PS1
+++ alias pydoc
+++ true
+++ hash -r
++ uv pip install -e '.[dev,viz]' -q
++ python -V
+Python 3.11.15
++ python scripts/smoke_test.py --launch
+SPADE smoke test -- Python 3.11.15 on Linux 7.0.0-38-generic (x86_64)
+[PASS] 1. dependencies import (6.0 s) numpy 2.4.6; scipy 1.17.1; pandas 3.0.6; pyarrow 26.0.0; sklearn 1.9.1; yaml 6.0.3; gymnasium 1.4.0; threadpoolctl 3.7.0; tensorflow 2.21.0; keras 3.15.1; streamlit 1.66.0; plotly 7.1.0
+2026-10-18 20:04:39.366 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+[PASS] 2. application starts (Overview page renders) (0.8 s) AppTest: no exceptions
+[PASS] 2b. Streamlit server answers its health endpoint (1.3 s) http://127.0.0.1:48723 -> ok
+[PASS] 3. platform modules load (0.0 s) rule sets: ['vsc_dpc']
+[PASS] 4. short simulations (DC+PI, DC+MPC, VSC+DPC, PMSM FOC) (1.6 s) final speed 470.3 rpm, VSC |vc| 50.2 V
+[PASS] 5. inference with a registered model (0.3 s) pc_server/2026-09-01_run01 -> outer_race (0.36, uncalibrated)
+6. no exceptions: PASS -- 6/6 checks passed
++ echo EXIT=0
+EXIT=0
++ deactivate
++ unset -f pydoc
++ '[' -z _ ']'
++ PATH=/home/seven/.local/bin:/home/seven/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin
++ export PATH
++ unset _OLD_VIRTUAL_PATH
++ '[' -z '' ']'
++ hash -r
++ '[' -z _ ']'
++ PS1=
++ export PS1
++ unset _OLD_VIRTUAL_PS1
++ unset VIRTUAL_ENV
++ unset VIRTUAL_ENV_PROMPT
++ '[' '!' '' = nondestructive ']'
++ unset -f deactivate
++ for opt in A B
++ '[' B = A ']'
++ /home/seven/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/bin/python3.12 -m venv .venv
++ . .venv/bin/activate
+++ deactivate nondestructive
+++ '[' -n '' ']'
+++ '[' -n '' ']'
+++ hash -r
+++ '[' -n '' ']'
+++ unset VIRTUAL_ENV
+++ unset VIRTUAL_ENV_PROMPT
+++ '[' '!' nondestructive = nondestructive ']'
+++ case "$(uname)" in
++++ uname
+++ export VIRTUAL_ENV=/tmp/claude-1000/-home-seven-post-doc-plataform-proposed-SPADE/dea37e0e-9a5a-4fc4-b6d6-a76d8649ae03/scratchpad/fresh/SPADE_B/.venv
+++ VIRTUAL_ENV=/tmp/claude-1000/-home-seven-post-doc-plataform-proposed-SPADE/dea37e0e-9a5a-4fc4-b6d6-a76d8649ae03/scratchpad/fresh/SPADE_B/.venv
+++ _OLD_VIRTUAL_PATH=/home/seven/.local/bin:/home/seven/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin
+++ PATH=/tmp/claude-1000/-home-seven-post-doc-plataform-proposed-SPADE/dea37e0e-9a5a-4fc4-b6d6-a76d8649ae03/scratchpad/fresh/SPADE_B/.venv/bin:/home/seven/.local/bin:/home/seven/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin
+++ export PATH
+++ VIRTUAL_ENV_PROMPT='(.venv) '
+++ export VIRTUAL_ENV_PROMPT
+++ '[' -n '' ']'
+++ '[' -z '' ']'
+++ _OLD_VIRTUAL_PS1=
+++ PS1='((.venv) ) '
+++ export PS1
+++ hash -r
++ python -m pip install --upgrade pip -q
++ pip install -e '.[dev,viz]' -q
++ python -V
+Python 3.12.13
++ python scripts/smoke_test.py --launch
+SPADE smoke test -- Python 3.12.13 on Linux 7.0.0-38-generic (x86_64)
+[PASS] 1. dependencies import (2.1 s) numpy 2.5.4; scipy 1.18.1; pandas 3.0.6; pyarrow 26.0.0; sklearn 1.9.1; yaml 6.0.3; gymnasium 1.4.0; threadpoolctl 3.7.0; tensorflow 2.21.0; keras 3.15.1; streamlit 1.66.0; plotly 7.1.0
+2026-10-18 20:05:26.567 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+/tmp/claude-1000/-home-seven-post-doc-plataform-proposed-SPADE/dea37e0e-9a5a-4fc4-b6d6-a76d8649ae03/scratchpad/fresh/SPADE_B/src/driveflow/sim/motors/doubly_fed_induction_motor.py:84: SyntaxWarning: invalid escape sequence '\h'
+  The voltage limits should be the peak-to-peak value of the phase voltage (:math:`\hat{u}_S`).
+/tmp/claude-1000/-home-seven-post-doc-plataform-proposed-SPADE/dea37e0e-9a5a-4fc4-b6d6-a76d8649ae03/scratchpad/fresh/SPADE_B/src/driveflow/sim/motors/induction_motor.py:76: SyntaxWarning: invalid escape sequence '\h'
+  The voltage limits should be the peak-to-peak value of the phase voltage (:math:`\hat{u}_S`).
+/tmp/claude-1000/-home-seven-post-doc-plataform-proposed-SPADE/dea37e0e-9a5a-4fc4-b6d6-a76d8649ae03/scratchpad/fresh/SPADE_B/src/driveflow/sim/motors/externally_excited_synchronous_motor.py:78: SyntaxWarning: invalid escape sequence '\h'
+  The voltage limits should be the peak-to-peak value of the phase voltage (:math:`\hat{u}_S`).
+/tmp/claude-1000/-home-seven-post-doc-plataform-proposed-SPADE/dea37e0e-9a5a-4fc4-b6d6-a76d8649ae03/scratchpad/fresh/SPADE_B/src/driveflow/sim/motors/synchronous_motor.py:73: SyntaxWarning: invalid escape sequence '\h'
+  The voltage limits should be the peak-to-peak value of the phase voltage (:math:`\hat{u}_S`).
+/tmp/claude-1000/-home-seven-post-doc-plataform-proposed-SPADE/dea37e0e-9a5a-4fc4-b6d6-a76d8649ae03/scratchpad/fresh/SPADE_B/src/driveflow/sim/motors/permanent_magnet_synchronous_motor.py:70: SyntaxWarning: invalid escape sequence '\h'
+  The voltage limits should be the peak-to-peak value of the phase voltage (:math:`\hat{u}_S`).
+/tmp/claude-1000/-home-seven-post-doc-plataform-proposed-SPADE/dea37e0e-9a5a-4fc4-b6d6-a76d8649ae03/scratchpad/fresh/SPADE_B/src/driveflow/sim/motors/squirrel_cage_induction_motor.py:82: SyntaxWarning: invalid escape sequence '\h'
+  The voltage limits should be the peak-to-peak value of the phase voltage (:math:`\hat{u}_S`).
+/tmp/claude-1000/-home-seven-post-doc-plataform-proposed-SPADE/dea37e0e-9a5a-4fc4-b6d6-a76d8649ae03/scratchpad/fresh/SPADE_B/src/driveflow/sim/motors/synchronous_reluctance_motor.py:68: SyntaxWarning: invalid escape sequence '\h'
+  The voltage limits should be the peak-to-peak value of the phase voltage (:math:`\hat{u}_S`).
+/tmp/claude-1000/-home-seven-post-doc-plataform-proposed-SPADE/dea37e0e-9a5a-4fc4-b6d6-a76d8649ae03/scratchpad/fresh/SPADE_B/src/driveflow/sim/solvers.py:84: SyntaxWarning: invalid escape sequence '\p'
+  x^\prime(t) = f(x(t))
+[PASS] 2. application starts (Overview page renders) (0.6 s) AppTest: no exceptions
+[PASS] 2b. Streamlit server answers its health endpoint (1.4 s) http://127.0.0.1:37565 -> ok
+[PASS] 3. platform modules load (0.0 s) rule sets: ['vsc_dpc']
+[PASS] 4. short simulations (DC+PI, DC+MPC, VSC+DPC, PMSM FOC) (1.5 s) final speed 470.3 rpm, VSC |vc| 50.2 V
+[PASS] 5. inference with a registered model (0.3 s) pc_server/2026-09-01_run01 -> outer_race (0.36, uncalibrated)
+6. no exceptions: PASS -- 6/6 checks passed
++ echo EXIT=0
+EXIT=0
++ deactivate
++ '[' -n /home/seven/.local/bin:/home/seven/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin ']'
++ PATH=/home/seven/.local/bin:/home/seven/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin
++ export PATH
++ unset _OLD_VIRTUAL_PATH
++ '[' -n '' ']'
++ hash -r
++ '[' -n '' ']'
++ unset VIRTUAL_ENV
++ unset VIRTUAL_ENV_PROMPT
++ '[' '!' '' = nondestructive ']'
++ unset -f deactivate

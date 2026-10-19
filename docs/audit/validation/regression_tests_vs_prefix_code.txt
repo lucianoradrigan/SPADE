@@ -1,0 +1,27 @@
+Do the new regression tests detect the defects they target? (2026-10-18)
+
+Procedure: the five fixed source files were temporarily replaced by their HEAD (b053de7, pre-fix)
+versions, with the new tests and the new windowing helper kept, then restored:
+  src/driveflow/viz/adapters/ai_adapter.py           (AI-N01 normalisation)
+  src/driveflow/monitoring/rules/vsc_dpc.yaml        (AI-N03 rule threshold)
+  src/driveflow/monitoring/agents/agent_gateway.py   (AI-N04 NaN clears alerts)
+  src/driveflow/agents/dc_motor_agent.py             (AI-N05 feature name)
+  src/driveflow/datagen/scenario.py                  (S-03 input validation)
+
+$ pytest tests/ai/test_classifier_evaluation.py::TestPreprocessingContract::test_gui_window_equals_training_window \
+         tests/ai/test_monitoring_alerts.py tests/simulation/test_dc_motor_numerics.py::TestInvalidInputsAreRejected
+PRE-FIX:  25 failed, 18 passed
+  FAILED test_gui_window_equals_training_window                                   (AI-N01)
+  FAILED test_rule_fires_iff_the_plant_is_open_loop_unstable[0.2, 0.5, 0.99, 3.2, 3.36]  (AI-N03)
+  FAILED TestNonFiniteTelemetry::* (3 tests)                                       (AI-N04)
+  FAILED test_dc_agent_features_exist_in_the_telemetry_schema                     (AI-N05)
+  FAILED test_dc_agent_score_is_finite_and_bounded_for_a_real_window              (AI-N05, KeyError 'i_a')
+  FAILED TestInvalidInputsAreRejected::test_rejected_with_a_clear_error[0..13] (14) (S-03)
+POST-FIX: all pass (see docs/audit/validation/final_pytest_output.txt).
+
+The 18 tests passing on both versions are the ones that pin behaviour that was already correct
+(hysteresis/debounce, ack != resolution, no duplicated active alerts, physically legal extremes
+still accepted, rule not firing on the stable side).
+
+S-06 (fault-phase NaN) was checked separately: tests/test_fault_injection.py + tests/test_datagen.py
+run with `-W error::RuntimeWarning` fail before (0*inf warnings) and pass after (66 passed).

@@ -1,0 +1,36 @@
+Baseline before any change of this audit: commit b053de7, 2026-10-18, Linux x86_64, Python 3.11.15
+$ python -m pytest -q   (tail)
+  /home/seven/post_doc/plataform_proposed/SPADE/tests/test_fault_injection.py:147: RuntimeWarning: invalid value encountered in multiply
+    return (state * system.limits)[idx]
+
+tests/test_fault_injection.py::TestBearingFaultLoadWithSCMLSystem::test_fault_injection_produces_torque_ripple_at_expected_order
+  /home/seven/post_doc/plataform_proposed/SPADE/tests/test_fault_injection.py:184: RuntimeWarning: invalid value encountered in multiply
+    physical_state = state * limits
+
+tests/test_live_monitoring_dashboard.py::TestRuleHysteresis::test_does_not_fire_on_the_first_observation_but_does_on_the_second
+tests/test_live_monitoring_dashboard.py::TestRuleHysteresis::test_does_not_fire_on_the_first_observation_but_does_on_the_second
+  /home/seven/post_doc/plataform_proposed/SPADE/src/driveflow/sim/vsc_system.py:99: RuntimeWarning: invalid value encountered in scalar add
+    new_i_f_real = adf[0, 0] * s.i_f_real + adf[0, 1] * s.vc_real + bdf[0, 0] * v_o_real + bdf[0, 1] * i_load_real
+
+tests/test_live_monitoring_dashboard.py::TestRuleHysteresis::test_does_not_fire_on_the_first_observation_but_does_on_the_second
+tests/test_live_monitoring_dashboard.py::TestRuleHysteresis::test_does_not_fire_on_the_first_observation_but_does_on_the_second
+  /home/seven/post_doc/plataform_proposed/SPADE/src/driveflow/sim/vsc_system.py:100: RuntimeWarning: invalid value encountered in scalar add
+    new_i_f_imag = adf[0, 0] * s.i_f_imag + adf[0, 1] * s.vc_imag + bdf[0, 0] * v_o_imag + bdf[0, 1] * i_load_imag
+
+tests/test_tflite_export.py::TestExportFloat16::test_produces_a_loadable_tflite_model
+tests/test_tflite_export.py::TestExportFloat16::test_matches_keras_output_reasonably
+tests/test_tflite_export.py::TestExportInt8::test_produces_an_int8_quantized_model
+tests/test_ui_contract.py::test_every_page_opens_without_exceptions_and_in_english[model_registry]
+  /home/seven/post_doc/plataform_proposed/SPADE/.venv/lib/python3.11/site-packages/tensorflow/lite/python/interpreter.py:457: UserWarning:     Warning: tf.lite.Interpreter is deprecated and is scheduled for deletion in
+      TF 2.20. Please use the LiteRT interpreter from the ai_edge_litert package.
+      See the [migration guide](https://ai.google.dev/edge/litert/migration)
+      for details.
+      
+    warnings.warn(_INTERPRETER_DELETION_WARNING)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+540 passed, 444 warnings in 476.56s (0:07:56)
+
+real	7m59.231s
+user	8m20.552s
+sys	0m7.757s
