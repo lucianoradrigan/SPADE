@@ -134,7 +134,9 @@ def _recall(run_dir, df, cls):
 
 
 def test_registry_resolves_the_grid_trained_classifier():
-    assert resolve("dc_motor", "pc", "classifier") == PROMOTED
+    # Since 2026-10-20 production is the 5-class, 2048-sample-window model (A2, AI_TECHNICAL_AUDIT
+    # Sec. 8.5); PROMOTED (the 3-class grid model) stays under test as the previous production run.
+    assert resolve("dc_motor", "pc", "classifier") == ROOT / "configs" / "classifiers" / "pc_server_5class_w2048" / "2026-10-20_run01"
 
 
 def test_promoted_classifier_recognizes_every_class(fresh_steady_state):

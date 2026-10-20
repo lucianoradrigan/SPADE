@@ -76,18 +76,21 @@ script trains any of them:
 python experiments/train_model.py --config configs/classifiers/pc_server.yaml --dataset data/diagnosis_dataset.parquet
 ```
 
-The promoted `dc_motor` classifier (`pc_server/2026-10-18_run01`) was trained on an
-operating-condition grid (7 speeds x 5 severities, sensor noise, plant drift), keeps the rpm level
-as a speed reference, and is temperature-calibrated with an abstention threshold:
+**The promoted `dc_motor` classifier (since 2026-10-20).** `pc_server_5class_w2048/2026-10-20_run01`, and the RPi5 tier `rpi5_resnet1d_se_5class_w2048`.
+- **Classes:** healthy, outer race, inner race, ball and cage.
+- **Data and preprocessing:** trained on an operating-condition grid (7 speeds × 5 severities, sensor noise, plant drift) with 2048-sample (205 ms) windows. It keeps the rpm level as a speed reference and is temperature-calibrated with an abstention threshold.
+- **Synthetic-only classes:** ball and cage have an **uncalibrated amplitude**. The GUI labels those answers.
+- **ESP32 tier:** it keeps the 3-class `esp32_dscnn/2026-10-18_run01`, because the 5-class int8 export is not usable.
 
 ```bash
-python experiments/generate_diagnosis_grid_dataset.py            # ~8 min, data/diagnosis_grid_dataset.parquet
-python experiments/train_model.py --config configs/classifiers/pc_server.yaml \
-    --dataset data/diagnosis_grid_dataset.parquet --keep-rpm-level --cap-per-class 3000 --epochs 30
+python experiments/generate_diagnosis_grid_dataset.py --faults outer_race,inner_race,ball,cage \
+    --out data/diagnosis_grid_dataset_5class.parquet                    # ~12 min
+python experiments/train_model.py --config configs/classifiers/pc_server_5class_w2048.yaml \
+    --dataset data/diagnosis_grid_dataset_5class.parquet --keep-rpm-level --cap-per-class 3000 --epochs 30
 ```
 
-Held-out evaluation and its limits (no ball/cage class, simulated data only):
-[docs/AI_TECHNICAL_AUDIT.md](docs/AI_TECHNICAL_AUDIT.md) §7.
+Held-out evaluation and its limits (simulated data only; weaker start-up transient):
+[docs/AI_TECHNICAL_AUDIT.md](docs/AI_TECHNICAL_AUDIT.md) §8.4–8.5. The previous 3-class model (`pc_server/2026-10-18_run01`, §7) stays in the registry history for `rollback()`.
 
 **Model registry** (`src/driveflow/ai/registry.py`): a single manifest
 (`configs/registry.yaml`) resolving `(domain, tier, block)` to whichever trained run is promoted

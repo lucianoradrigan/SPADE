@@ -113,7 +113,8 @@ def check_inference():
     from driveflow.models.common import normalize_window_like_training
 
     model, config, metrics = load_promoted_model("dc_motor", "pc", "classifier")
-    df = pd.DataFrame.from_records(run_scenario(Scenario(scenario_id="smoke_inf", fault_type="outer_race", duration_s=0.06)))
+    # Long enough for one window of the promoted model (512 or 2048 samples at 10 kHz).
+    df = pd.DataFrame.from_records(run_scenario(Scenario(scenario_id="smoke_inf", fault_type="outer_race", duration_s=config.input_window * 1e-4 + 0.01)))
     window = df[metrics["channels"]].to_numpy(np.float32)[-config.input_window :]
     # The run's own preprocessing (level_scaling) and calibration, as the GUI applies them.
     x, _, _ = normalize_window_like_training(window, metrics["channels"], metrics.get("level_scaling"))

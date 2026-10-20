@@ -512,5 +512,13 @@ Evidence: [`classifier_evaluation_5class_w2048.md`](audit/ai/classifier_evaluati
 - **RPi5 float16 export.** It matches Keras exactly (agreement 1.000).
 - **ESP32 INT8 export: not usable.** Agreement with Keras is 0.53 (accuracy 0.79 → 0.43). One declared retry calibrated on noise-free windows only, and gave 0.52. Quantization-aware training would be the fix. `tensorflow-model-optimization` does not support Keras 3, so it is not available in this stack. Recorded in the run's `audit_findings.json`.
 
-**Status.** Candidates, **not promoted**, with the same synthetic-only labels as §8.4. Of the 5-class sets, the PC and RPi5 `_w2048` runs are the ones to promote if the 5-class model is adopted. The ESP32 tier would keep its 3-class model.
+**Status. Promoted on 2026-10-20** (confirmed by the user):
+- `pc_server_5class_w2048/2026-10-20_run01` → `dc_motor/pc/classifier`;
+- `rpi5_resnet1d_se_5class_w2048/2026-10-20_run01` → `dc_motor/rpi5/classifier`.
+
+**ESP32 tier.** It keeps the 3-class `esp32_dscnn/2026-10-18_run01`.
+
+**Rollback.** The 3-class models remain in `configs/registry_history.yaml`, so `rollback()` restores them.
+
+**Distillation.** `train_model.py --distill` now refuses a teacher whose class count differs from the student's, and suggests `--teacher-run`.
 

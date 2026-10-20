@@ -161,11 +161,11 @@ One row per task of [`TODO_CLAUDE_CODE.md`](../TODO_CLAUDE_CODE.md).
   - **Agent hypotheses:** the VSC anomaly agent now has `capacitor_80pct` / `capacitor_70pct` hypotheses, and `Scenario.vsc_capacitor_scale` / `vsc_esr_ohm` simulate the fault.
   - **Result:** AUC 1.0, with the cause named correctly for C ≤ 80 %.
   - **Limit:** synthetic-only; no trained classifier.
+- **A2 (promoted):** PC and RPi5 run the 5-class models with 2048-sample windows (test accuracy 0.90; cage recognized at 100 rad/s). Ball and cage are synthetic-only. The ESP32 keeps its 3-class model.
 
 ### 7.2 Waiting for your decision (implemented, evidence written, not switched on)
 
-1. **Promote the 5-class classifiers (A2).** Best candidates: `pc_server_5class_w2048` and `rpi5_resnet1d_se_5class_w2048` (2048-sample windows, AI_TECHNICAL_AUDIT.md §8.5). They reach test accuracy 0.90 (the 3-class model: 0.91) and recognize cage at 100 rad/s. Limits: synthetic-only, uncalibrated amplitude; weaker start-up transient; the ESP32 int8 export is not usable (keep its 3-class model).
-2. **dc_motor regressor:** no use case is defined.
+1. **dc_motor regressor:** no use case is defined.
 
 ### 7.3 Open, not blocked on a decision
 

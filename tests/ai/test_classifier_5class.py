@@ -32,9 +32,12 @@ def test_run_carries_the_synthetic_only_label(run_dir):
     assert "synthetic-only, uncalibrated amplitude" in synthetic["summary"]
 
 
-def test_five_class_models_are_not_promoted():
-    for tier in ("pc", "rpi5", "esp32"):
-        assert "5class" not in str(resolve("dc_motor", tier, "classifier"))
+def test_long_window_five_class_models_are_promoted_except_on_esp32():
+    # 2026-10-20, confirmed by the user: PC and RPi5 run the 2048-sample 5-class models; the ESP32
+    # keeps its 3-class model because the 5-class int8 export is not usable (Sec. 8.5).
+    assert resolve("dc_motor", "pc", "classifier") == PC_W2048
+    assert resolve("dc_motor", "rpi5", "classifier").parent.name == "rpi5_resnet1d_se_5class_w2048"
+    assert "5class" not in str(resolve("dc_motor", "esp32", "classifier"))
 
 
 @pytest.fixture(scope="module")

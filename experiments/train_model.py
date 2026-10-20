@@ -295,6 +295,11 @@ def train_from_config(
             teacher, _, teacher_metrics = load_promoted_model(config.domain, "pc", block, registry_path=registry_path)
         if kind == "classifier":
             level_scaling = teacher_metrics.get("level_scaling")
+            if len(teacher_metrics["classes"]) != config.num_classes:
+                raise ValueError(
+                    f"teacher has {len(teacher_metrics['classes'])} classes ({teacher_metrics['classes']}) but {config_path.name} declares "
+                    f"num_classes={config.num_classes}; pass --teacher-run with a matching PC run (since 2026-10-20 the promoted PC "
+                    "classifier has 5 classes; e.g. configs/classifiers/pc_server/2026-10-18_run01 for the 3-class ESP32 model)")
 
     if kind == "classifier":
         model, metrics = _train_classifier(

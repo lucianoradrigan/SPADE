@@ -92,7 +92,8 @@ class TestClassifierConfidenceDrift:
         server_agent = ServerAgent()
         confidence = None
         for i in range(22):  # > ServerAgent's default confidence_window (20)
-            records = run_scenario(Scenario(scenario_id=f"drift_{i}", fault_type=None, duration_s=0.15, seed=i))
+            # 0.25 s: longer than one window of the promoted classifier (2048 samples since 2026-10-20).
+            records = run_scenario(Scenario(scenario_id=f"drift_{i}", fault_type=None, duration_s=0.25, seed=i))
             df = pd.DataFrame.from_records(records)
             confidence = _record_classifier_confidence_if_available("dc_motor", df, server_agent)
         assert confidence is not None
