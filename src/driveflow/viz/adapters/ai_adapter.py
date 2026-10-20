@@ -12,7 +12,8 @@ import json
 import numpy as np
 import streamlit as st
 
-from driveflow.ai.calibration import UNCERTAIN, decide
+from driveflow.ai.calibration import UNCERTAIN, UNKNOWN, decide
+from driveflow.ai.ood import window_score
 from driveflow.ai.registry import RegistryError, load_promoted_model, resolve
 from driveflow.models.common import normalize_window_like_training
 
@@ -61,11 +62,12 @@ def classify_last_window(domain: str, df) -> dict | None:
     window = df[channels].iloc[-config.input_window :].to_numpy(dtype=np.float32)
     window_n, _, _ = normalize_window(window, metrics)
     raw = model(window_n[np.newaxis, ...], training=False).numpy()[0]
-    label, probs = decide(raw, list(metrics["classes"]), metrics)
+    ood_score = window_score(model, window_n, metrics["ood"]) if "ood" in metrics else None
+    label, probs = decide(raw, list(metrics["classes"]), metrics, ood_score)
     k = int(np.argmax(probs))
     return {
         "classes": list(metrics["classes"]), "probs": [float(p) for p in probs], "predicted": metrics["classes"][k], "confidence": float(probs[k]),
-        "decision": label, "abstained": label == UNCERTAIN, "calibrated": "calibration" in metrics,
+        "decision": label, "abstained": label == UNCERTAIN, "unknown": label == UNKNOWN, "ood_checked": ood_score is not None, "calibrated": "calibration" in metrics,
         "model_id": f"{run_dir.parent.name}/{run_dir.name}", "test_macro_f1": metrics.get("test_macro_f1"), "n_test": metrics.get("n_test"),
     }
 

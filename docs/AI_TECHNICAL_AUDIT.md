@@ -232,6 +232,8 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N10 | Medium | Risk / improvement | **Fixed + tested** (§7.4) |
 | AI-N11 | Medium | Risk | **Fixed** (§7.5): condition-split data, persistence baseline recorded |
 | AI-N08 | Low | Risk | **Fixed + tested** (§7.3) |
+| AI-N13 | High | Negative result | **Open** (§8.1): a feature-space OOD detector does not catch ball/cage faults at a usable false-alarm rate |
+| AI-N14 | Medium | Defect (generalization) | **Open** (§8.1): below the training speed range (50 rad/s) accuracy on answered windows is 0.58; at 150 % noise 0.68 |
 
 ---
 
@@ -368,3 +370,43 @@ Results on the held-out conditions ([`forecaster_condition_split.json`](audit/ai
 **TFLite parity** ([`tflite_parity_report.txt`](audit/tflite_parity_report.txt)):
 - ESP32 INT8: RMSE 0.178 → 0.184.
 - The RPi5 GRU still needs Flex (SELECT_TF_OPS) kernels (Q22), so it cannot run on a builtin-only interpreter. An unrolled GRU or a TCN would be needed for TFLite Micro-class targets.
+
+## 8. Third pass (2026-10-20, TODO_CLAUDE_CODE.md)
+
+### 8.1 A1 — out-of-distribution detector for unseen fault types
+
+**Setup.** `ai/ood.py` implements two pre-specified scores (TODO A1):
+- the **Mahalanobis distance** of the classifier's features to the nearest class mean, with one shared covariance;
+- the **energy score** of the logits.
+
+**Anti-leakage rule.** The statistics come from the promoted run's own training windows and the thresholds from its validation windows. Both were rebuilt from the recorded dataset, and the split's group hashes were checked against `metrics.json`. Each threshold keeps 95 % of in-distribution validation windows, the same coverage as the abstention threshold. Ball and cage windows were only scored. The two pre-listed feature layers, `dense1` (the head's input) and `gap`, were both evaluated and both are reported. Nothing was tuned on the OOD results.
+
+**Command and evidence.**
+- `python experiments/report_ood_detector.py --cache data/ood_eval_cache.parquet [--layer gap]`
+- [`ood_detector.md`](audit/ai/ood_detector.md) (`dense1`) and [`ood_detector_gap.md`](audit/ai/ood_detector_gap.md).
+- The evaluation set was freshly simulated: ball and cage at 80, 125, 175 and 220 rad/s × severity ×0.5, ×1, ×2, with 2 seeds; benign shifts at 50 rad/s, 300 rad/s and 150 % noise.
+
+| | Mahalanobis (dense1) | Mahalanobis (gap) | Energy | Target |
+|---|---|---|---|---|
+| Ball windows flagged unknown | 0.134 | 0.093 | 0.009 | ≥ 0.90 |
+| Ball AUROC vs. in-distribution test | 0.898 | 0.866 | 0.623 | — |
+| Cage: unknown or called a fault | 0.658 | 0.770 | 0.682 | ≥ 0.90 |
+| Cage AUROC | 0.909 | 0.914 | 0.816 | — |
+| In-distribution false-unknown rate (test) | 0.037 | 0.045 | 0.049 | ≈ 0.05 by construction |
+| In-distribution accuracy on answered | 0.952 (0.954 without) | 0.952 | 0.955 | drop ≤ 1 pt |
+| 300 rad/s (known classes) flagged unknown | 1.000 | 1.000 | 0.000 | low |
+
+**AI-N13 (open, negative result).** No method meets the targets.
+- **What does separate.** Mahalanobis separates ball and cage from in-distribution windows with AUROC ≈ 0.9. But at the 95 %-coverage threshold it flags only 9–13 % of ball windows.
+- **What a usable threshold would cost.** Lowering the threshold enough to catch most ball windows would flag far more healthy windows; the AUROC bounds what any threshold can do.
+- **False alarms where the classifier is right.** It flags every window at 300 rad/s, where the classifier is in fact correct.
+- **The energy score** barely reacts to ball faults: the classifier's logits for a ball window look like a confident outer-race window.
+- **Not wired into the model.** The detector is wired into `decide()` and the GUI (`Unknown condition — REQUIRES VERIFICATION`). It is **not** written into the promoted run's `metrics.json`, so the GUI's behavior is unchanged.
+- **Next step.** Per TODO A1, the decision passes to A2 (adding ball/cage classes, with synthetic-only amplitudes) or to the physics cross-check with the simulation-based agent. The agent check was listed as optional and was not implemented.
+
+**AI-N14 (open).** The benign-shift sets expose a generalization gap that the earlier held-out evaluation (115–250 rad/s) did not cover:
+- **50 rad/s**, below the training grid's 80 rad/s floor: accuracy on answered windows is **0.58**;
+- **150 % sensor noise**: accuracy on answered windows is **0.68**.
+
+The earlier evaluation measured 1.000 at 115, 190 and 250 rad/s. Neither the abstention threshold nor the OOD detector catches these failures well: at 50 rad/s, 9 % of windows are flagged by Mahalanobis and 33 % by the energy score.
+

@@ -23,7 +23,8 @@ from driveflow.datagen.runner import _VSC_R_OHM
 from driveflow.datagen.scenario import CALIBRATED_MECHANICAL_SEVERITY
 from driveflow.models.common.windowing import CANDIDATE_CHANNELS, VSC_DPC_CANDIDATE_CHANNELS
 from driveflow.sim.vsc_system import MIN_STABLE_LOAD_RESISTANCE_OHM
-from driveflow.ai.calibration import UNCERTAIN, decide
+from driveflow.ai.calibration import UNCERTAIN, UNKNOWN, decide
+from driveflow.ai.ood import window_score
 from driveflow.viz.adapters.ai_adapter import normalize_window, promoted_model, run_metrics
 from driveflow.viz.adapters.session import record_run
 from driveflow.viz.components.inputs import slider_with_custom
@@ -132,12 +133,15 @@ def _classifier_panel(domain: str, df: pd.DataFrame) -> None:
         return
     wn, _, _ = normalize_window(window, metrics)
     classes = metrics["classes"]
-    decision, probs = decide(model(wn[np.newaxis, ...], training=False).numpy()[0], classes, metrics)
+    ood_score = window_score(model, wn, metrics["ood"]) if "ood" in metrics else None
+    decision, probs = decide(model(wn[np.newaxis, ...], training=False).numpy()[0], classes, metrics, ood_score)
     k = int(np.argmax(probs))
     calibrated = "calibration" in metrics
     st.html('<div class="spade-root spade-badges">' + badge_html("AI SUGGESTION — REQUIRES VERIFICATION", "warning", "▲") + badge_html(f"{run_dir.parent.name}/{run_dir.name}", "training") + "</div>")
-    st.metric("Predicted class", decision, f"{probs[k] * 100:.1f}% confidence ({'temperature-calibrated' if calibrated else 'uncalibrated softmax'})", delta_color="off")
-    if decision == UNCERTAIN:
+    st.metric("Predicted class", "Unknown condition" if decision == UNKNOWN else decision, f"{probs[k] * 100:.1f}% confidence ({'temperature-calibrated' if calibrated else 'uncalibrated softmax'})", delta_color="off")
+    if decision == UNKNOWN:
+        st.warning(f"**Unknown condition — REQUIRES VERIFICATION.** This window's features are farther from every trained class than {metrics['ood']['target_coverage']:.0%} of in-distribution validation windows (OOD score {ood_score:.1f} > threshold {metrics['ood'][metrics['ood']['method']]['threshold']:.1f}, {metrics['ood']['method']}). It may be a fault type the model has no class for; the top class **{classes[k]}** is not suggested.", icon=":material/report:")
+    elif decision == UNCERTAIN:
         st.info(f"Top class **{classes[k]}** is below the abstention threshold ({metrics['calibration']['abstain_below']:.2f}) fitted on the validation split, so no class is suggested.", icon=":material/help:")
     fig = go.Figure(go.Bar(x=classes, y=probs, marker_color=[series_color("candidate") if i == k else series_color("base") for i in range(len(classes))]))
     style_figure(fig, height=260, x_title="Class", y_title="Probability", legend=False)

@@ -1,0 +1,142 @@
+{
+  "run": "configs/classifiers/pc_server/2026-10-18_run01",
+  "mahalanobis_layer": "gap",
+  "ood_params_summary": {
+    "mahalanobis": {
+      "threshold": 152.42749311766116
+    },
+    "energy": {
+      "threshold": -1.05337362419026
+    }
+  },
+  "jobs": {
+    "ood_speeds": [
+      80.0,
+      125.0,
+      175.0,
+      220.0
+    ],
+    "ood_severity_scales": [
+      0.5,
+      1.0,
+      2.0
+    ],
+    "seeds": [
+      11,
+      12
+    ],
+    "duration_s": 2.5,
+    "benign": {
+      "speed_50_rad_s": {
+        "omega_ref_rad_s": 50.0
+      },
+      "speed_300_rad_s": {
+        "omega_ref_rad_s": 300.0
+      },
+      "noise_150pct": {
+        "electrical_noise_pct": 150.0,
+        "mechanical_noise_pct": 150.0
+      }
+    }
+  },
+  "eval": {
+    "in_distribution_test": {
+      "n": 870,
+      "accuracy_on_answered_abstention_only": 0.9536921151439299
+    },
+    "methods": {
+      "mahalanobis": {
+        "threshold": 152.42749311766116,
+        "in_distribution_false_unknown_rate": 0.04482758620689655,
+        "in_distribution_accuracy_on_answered": 0.9520103761348897,
+        "in_distribution_answered_share": 0.8862068965517241,
+        "ood_ball": {
+          "n": 936,
+          "unknown_rate": 0.09294871794871795,
+          "auroc_vs_id_test": 0.8658254740151292,
+          "abstained_or_unknown_rate": 0.09294871794871795,
+          "confident_wrong_answer_rate_without_ood": 0.9967948717948718
+        },
+        "ood_cage": {
+          "n": 936,
+          "unknown_rate": 0.3952991452991453,
+          "auroc_vs_id_test": 0.9135474997543964,
+          "abstained_or_unknown_rate": 0.6858974358974359,
+          "unknown_or_called_fault_rate": 0.7702991452991453
+        },
+        "benign_speed_50_rad_s": {
+          "n": 234,
+          "unknown_rate": 0.07692307692307693,
+          "auroc_vs_id_test": 0.7692258571568915,
+          "abstained_or_unknown_rate": 0.405982905982906,
+          "accuracy_on_answered": 0.5899280575539568
+        },
+        "benign_speed_300_rad_s": {
+          "n": 234,
+          "unknown_rate": 1.0,
+          "auroc_vs_id_test": 0.9948079379113862,
+          "abstained_or_unknown_rate": 1.0,
+          "accuracy_on_answered": null
+        },
+        "benign_noise_150pct": {
+          "n": 234,
+          "unknown_rate": 0.0,
+          "auroc_vs_id_test": 0.8506041850869438,
+          "abstained_or_unknown_rate": 0.01282051282051282,
+          "accuracy_on_answered": 0.6753246753246753
+        },
+        "targets": {
+          "ball_unknown_ge_90pct": false,
+          "cage_unknown_or_fault_ge_90pct": false,
+          "id_accuracy_drop_le_1pt": true
+        }
+      },
+      "energy": {
+        "threshold": -1.05337362419026,
+        "in_distribution_false_unknown_rate": 0.04942528735632184,
+        "in_distribution_accuracy_on_answered": 0.9547169811320755,
+        "in_distribution_answered_share": 0.9137931034482759,
+        "ood_ball": {
+          "n": 936,
+          "unknown_rate": 0.008547008547008548,
+          "auroc_vs_id_test": 0.6230413105413105,
+          "abstained_or_unknown_rate": 0.008547008547008548,
+          "confident_wrong_answer_rate_without_ood": 0.9967948717948718
+        },
+        "ood_cage": {
+          "n": 936,
+          "unknown_rate": 0.21794871794871795,
+          "auroc_vs_id_test": 0.8157702131840062,
+          "abstained_or_unknown_rate": 0.3995726495726496,
+          "unknown_or_called_fault_rate": 0.6816239316239316
+        },
+        "benign_speed_50_rad_s": {
+          "n": 234,
+          "unknown_rate": 0.3333333333333333,
+          "auroc_vs_id_test": 0.7405295215640043,
+          "abstained_or_unknown_rate": 0.3504273504273504,
+          "accuracy_on_answered": 0.625
+        },
+        "benign_speed_300_rad_s": {
+          "n": 234,
+          "unknown_rate": 0.0,
+          "auroc_vs_id_test": 0.1460899891934375,
+          "abstained_or_unknown_rate": 0.0,
+          "accuracy_on_answered": 1.0
+        },
+        "benign_noise_150pct": {
+          "n": 234,
+          "unknown_rate": 0.0,
+          "auroc_vs_id_test": 0.5089448865310934,
+          "abstained_or_unknown_rate": 0.01282051282051282,
+          "accuracy_on_answered": 0.6753246753246753
+        },
+        "targets": {
+          "ball_unknown_ge_90pct": false,
+          "cage_unknown_or_fault_ge_90pct": false,
+          "id_accuracy_drop_le_1pt": true
+        }
+      }
+    }
+  }
+}

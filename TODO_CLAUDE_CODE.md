@@ -186,7 +186,7 @@ Este bloque amplía esa cobertura sin datos reales.
 
 ### A1. Detector fuera de distribución (prioridad alta)
 
-- [ ] **A1. Que una falla sin clase deje de clasificarse con confianza alta**
+- [x] **A1. Que una falla sin clase deje de clasificarse con confianza alta** — cerrada 2026-10-20 con **resultado negativo** (AI-N13): ningún método alcanza las metas; el detector queda implementado pero no activado. Decisión pasa a A2.
 
   **Problema** (AI-N12, ver `docs/AI_TECHNICAL_AUDIT.md` §7.2):
   - las fallas de bola salen como outer_race con confianza 0,993 y la abstención retiene el 0 %;

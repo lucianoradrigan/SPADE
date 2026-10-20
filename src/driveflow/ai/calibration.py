@@ -27,6 +27,9 @@ import numpy as np
 from scipy.optimize import minimize_scalar
 
 UNCERTAIN = "uncertain"
+#: Decision for a window the run's OOD detector (ai/ood.py, metrics.json["ood"]) flags as unlike
+#: anything the classifier was trained on -- e.g. a fault type it has no class for.
+UNKNOWN = "unknown"
 _EPS = 1e-12
 
 
@@ -72,10 +75,17 @@ def apply_calibration(probs: np.ndarray, metrics: dict) -> np.ndarray:
     return apply_temperature(probs, cal["temperature"]) if cal else np.asarray(probs, dtype=np.float64)
 
 
-def decide(probs: np.ndarray, classes: list, metrics: dict) -> tuple:
-    """(label or UNCERTAIN, calibrated probs) for ONE window's probability vector."""
+def decide(probs: np.ndarray, classes: list, metrics: dict, ood_score: float | None = None) -> tuple:
+    """(label, UNCERTAIN or UNKNOWN, calibrated probs) for ONE window's probability vector.
+
+    ood_score: the window's score under the run's OOD method (ai/ood.py). It is only used when the
+    run has metrics.json["ood"]; above that method's threshold the answer is UNKNOWN, which takes
+    precedence over UNCERTAIN (an unfamiliar input is a different problem from a close call)."""
     p = apply_calibration(np.asarray(probs)[np.newaxis, :], metrics)[0]
     k = int(np.argmax(p))
+    ood = metrics.get("ood")
+    if ood and ood_score is not None and ood_score > ood[ood["method"]]["threshold"]:
+        return UNKNOWN, p
     cal = metrics.get("calibration")
     if cal and p[k] < cal["abstain_below"]:
         return UNCERTAIN, p
