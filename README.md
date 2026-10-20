@@ -332,10 +332,13 @@ configs/          the 4 shipped DPC checkpoints (see below), promoted classifier
   closed-loop fine-tunes at the single load R = 8.0064 ohm (see `experiments/finetune_dpc_closed_loop.py` /
   `continue_finetune_dpc.py`).
 - `dpc_trained_v4_r_range.weights.h5` -- v3 fine-tuned on closed-loop rollouts over R = 3.5-1000 ohm
-  and |v_ref| = 25-100 V (`experiments/finetune_dpc_r_range.py`). **v4 is what every DPC `Scenario`
-  and the live dashboard use.** It tracks within ~3 V over the dashboard's load range (v3: up to
-  18 V), at the cost of the nominal point (2.5 V vs. v3's 1.18 V at 8 ohm) -- see
+  and |v_ref| = 25-100 V (`experiments/finetune_dpc_r_range.py`). It tracks within ~3 V over the dashboard's load range
+  (v3: up to 18 V), at the cost of the nominal point (2.5 V vs. v3's 1.18 V at 8 ohm) -- see
   docs/SIMULATION_STABILITY_REPORT.md S-05.
+- **What every DPC `Scenario` and the live dashboard run (since 2026-10-20):**
+  `ScheduledDpcController`, which uses v3 near 8 ohm (7.25-8.75 ohm, |v_ref| <= 62.5 V) and at
+  small references (<= 10 V, 5-12 ohm) and v4 everywhere else: 1.18 V at 8 ohm, <= 3.1 V from 4 ohm
+  to 1 kohm (docs/SIMULATION_STABILITY_REPORT.md §4.4).
 
 To retrain from scratch you'll need `Data4train.mat` from the original
 [DPC4PowerElectronics](https://github.com/aipoweraau/DPC4PowerElectronics) repository (not

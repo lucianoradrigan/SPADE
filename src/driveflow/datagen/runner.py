@@ -40,7 +40,7 @@ import numpy as np
 import yaml
 
 from driveflow.control.classical import PICascadeController
-from driveflow.control.dpc.controller import DpcController
+from driveflow.control.dpc.controller import DEFAULT_SCHEDULE_REGION, DpcController, ScheduledDpcController
 from driveflow.control.mpc import MpcController
 from driveflow.control.dpc.reference import RotatingReference
 from driveflow.datagen.fault_injection import BearingFaultLoad
@@ -65,12 +65,15 @@ from driveflow.sim.vsc_system import VscSystem
 
 TAU = 1e-4
 
-#: DPC checkpoint used by every DPC Scenario: v4, fine-tuned from v3 on closed-loop rollouts over
-#: R = 3.5-1000 ohm and |v_ref| = 25-100 V (experiments/finetune_dpc_r_range.py, S-05 in
-#: docs/SIMULATION_STABILITY_REPORT.md). Settled RMSE at 50 V: 3.1 V at 4 ohm, 2.5 V at 8 ohm,
-#: 2.9 V at 20 ohm, 1.9 V at 1 kohm. v3 (configs/dpc_trained_v3_closed_loop.weights.h5) was
-#: better at its single training load (1.18 V at 8 ohm) but reached 18 V at 4 ohm, 15 V at 20 ohm
-#: and 111 V at 1 kohm. Not configurable per-Scenario.
+#: DPC checkpoints of every DPC Scenario. Since 2026-10-20 (C1) a Scenario runs
+#: control/dpc/controller.ScheduledDpcController: v3 (fine-tuned at 8.0064 ohm) inside
+#: DEFAULT_SCHEDULE_REGION -- R 7.25-8.75 ohm with |v_ref| <= 62.5 V, or |v_ref| <= 10 V at
+#: 5-12 ohm -- and v4 (fine-tuned over R = 3.5-1000 ohm, |v_ref| = 25-100 V) everywhere else.
+#: Settled RMSE at 50 V: 1.18 V at 8 ohm (v4 alone: 2.52 V), 3.1 V at 4 ohm, 2.9 V at 20 ohm,
+#: 1.9 V at 1 kohm; 1.75 V at 8 ohm / 10 V (v4 alone: 4.24 V). Not configurable per-Scenario.
+#: _DPC_WEIGHTS_PATH (v4, the wide-range network) is also what the VSC page's row-by-row
+#: upload evaluator uses.
+_DPC_NOMINAL_WEIGHTS_PATH = Path(__file__).resolve().parents[3] / "configs" / "dpc_trained_v3_closed_loop.weights.h5"
 _DPC_WEIGHTS_PATH = Path(__file__).resolve().parents[3] / "configs" / "dpc_trained_v4_r_range.weights.h5"
 #: Matches the constant R found in Data4train.mat's holdout split -- see
 #: docs/macro_fase_B1_dpc.md. Not a Scenario field yet: no data exists to validate any other R.
@@ -278,7 +281,7 @@ def _apply_white_noise(records: list, scenario: Scenario) -> None:
 def _run_vsc_scenario(scenario: Scenario) -> list:
     r_ohm = scenario.load_resistance_ohm if scenario.load_resistance_ohm is not None else _VSC_R_OHM
     system = VscSystem(load_resistance_ohm=r_ohm, tau=TAU)
-    controller = DpcController(_DPC_WEIGHTS_PATH, r_ohm=r_ohm)
+    controller = ScheduledDpcController(_DPC_NOMINAL_WEIGHTS_PATH, _DPC_WEIGHTS_PATH, r_ohm, DEFAULT_SCHEDULE_REGION)
     # No randomness in this plant/controller to seed (see scenario.py's docstring) -- seed instead
     # picks the reference's starting phase, so different seeds still give distinguishable runs.
     phase0 = (scenario.seed % 360) * (2 * np.pi / 360)

@@ -36,6 +36,12 @@ class DpcController:
         return float(v_o[0]), float(v_o[1])
 
 
+#: Default operating-point region where the nominal checkpoint (v3) is used: chosen on a design
+#: grid only (experiments/dpc_operating_point_selection.py, docs/audit/stability/
+#: dpc_operating_point_selection.md). Default DPC controller of every Scenario since 2026-10-20.
+DEFAULT_SCHEDULE_REGION = {"r_min_ohm": 7.25, "r_max_ohm": 8.75, "band_v_max": 62.5, "small_v_max": 10.0, "small_r_min_ohm": 5.0, "small_r_max_ohm": 12.0}
+
+
 class ScheduledDpcController:
     """Two DPC checkpoints, selected by operating point -- TODO_CLAUDE_CODE.md C1, option 1.
 

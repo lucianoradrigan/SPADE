@@ -426,7 +426,7 @@ Evidence:
 - [`forecaster_condition_split.json`](audit/ai/forecaster_condition_split.json);
 - [`tflite_parity_report.txt`](audit/tflite_parity_report.txt), produced with `python -m experiments.report_tflite_parity --candidate configs/regressors/rpi5_tcn/2026-10-20_run01`.
 
-All A3 criteria are met. The run is **not promoted**: promotion needs confirmation (`python experiments/promote_run.py configs/regressors/rpi5_tcn/2026-10-20_run01`). The TFLite numbers are host-CPU measurements, not hardware.
+All A3 criteria are met. **Promoted on 2026-10-20** (confirmed by the user) as `vsc_dpc/rpi5/regressor`, replacing the GRU `rpi5_edge/2026-10-19_run01`; `configs/registry_history.yaml` records the change, and `rollback()` restores the GRU. The TFLite numbers are host-CPU measurements, not hardware.
 
 ### 8.3 A4 — VSC capacitor degradation, separability (Step 0 of D.2)
 

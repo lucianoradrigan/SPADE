@@ -15,7 +15,7 @@ from driveflow.control.dpc import HORIZON as DPC_HORIZON
 from driveflow.control.dpc import build_dpc_network, simulate_horizon
 from driveflow.control.dpc.reference import GRID_OMEGA_RAD_S, REFERENCE_MAGNITUDE_V, RotatingReference
 from driveflow.datagen import Scenario, run_scenario
-from driveflow.datagen.runner import _DPC_WEIGHTS_PATH, _VSC_R_OHM
+from driveflow.datagen.runner import _DPC_NOMINAL_WEIGHTS_PATH, _DPC_WEIGHTS_PATH, _VSC_R_OHM
 from driveflow.datagen.runner import TAU as _TAU_S
 from driveflow.sim.vsc_system import MIN_STABLE_LOAD_RESISTANCE_OHM
 from driveflow.viz.adapters.session import config_hash, record_run
@@ -268,7 +268,7 @@ def render() -> None:
         "Simulation / VSC",
         "Direct Power Control of a Voltage Source Converter",
         "A trained DPC network tracking a rotating voltage reference on an identified VSC plant. Power electronics only: no rotating machinery, no bearing, no fault model.",
-        [source_badge_html("simulated"), badge_html("TRAINED NETWORK: DPC v4 (fine-tuned over R = 3.5-1000 Ω)", "training", "◆", _DPC_WEIGHTS_PATH.name)],
+        [source_badge_html("simulated"), badge_html("TRAINED NETWORKS: DPC v3 near 8 Ω / v4 elsewhere (selected by operating point)", "training", "◆", f"{_DPC_NOMINAL_WEIGHTS_PATH.name} + {_DPC_WEIGHTS_PATH.name}")],
     )
     ctrl, view = st.columns([1, 3], gap="medium")
     with ctrl:
@@ -327,7 +327,7 @@ def render() -> None:
                 st.plotly_chart(time_series_figure(df, [("i_f_real", "i_f_real (A)"), ("i_f_imag", "i_f_imag (A)")], role="vibration"), width="stretch", config=PLOTLY_CONFIG, key="dpc_ts_i")
             c1, c2 = st.columns([3, 1])
             with c1:
-                provenance_table({"Run ID": run["run_id"], "Data origin": "Simulation: identified VSC plant + trained DPC network", "Network weights": _DPC_WEIGHTS_PATH.name, "Seed": p["seed"], "Configuration hash": run["config_hash"], "Timestamp (UTC)": run["utc"]})
+                provenance_table({"Run ID": run["run_id"], "Data origin": "Simulation: identified VSC plant + trained DPC network", "Network weights": f"{_DPC_NOMINAL_WEIGHTS_PATH.name} (7.25-8.75 Ω, ≤ 62.5 V; or ≤ 10 V at 5-12 Ω) / {_DPC_WEIGHTS_PATH.name} (elsewhere)", "Seed": p["seed"], "Configuration hash": run["config_hash"], "Timestamp (UTC)": run["utc"]})
             with c2:
                 st.download_button("Export run (CSV)", df.to_csv(index=False), file_name=f"spade_{run['run_id']}.csv", key="dpc_export_csv", width="stretch", icon=":material/download:")
         with tab_plane:

@@ -47,3 +47,11 @@ events:
   override_reason: null
   previous: configs/regressors/esp32_tiny/2026-09-13_run02
   utc: '2026-10-19T05:42:34+00:00'
+- action: promote
+  by: null
+  gate_status: null
+  key: vsc_dpc/rpi5/regressor
+  new: configs/regressors/rpi5_tcn/2026-10-20_run01
+  override_reason: null
+  previous: configs/regressors/rpi5_edge/2026-10-19_run01
+  utc: '2026-10-20T18:57:33+00:00'

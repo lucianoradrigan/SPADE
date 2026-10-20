@@ -235,7 +235,7 @@ Este bloque amplía esa cobertura sin datos reales.
 
 ### A3. Pronosticador RPi5 sin operaciones Flex
 
-- [x] **A3. Exportar el pronosticador RPi5 solo con operaciones nativas de TFLite** — cerrada 2026-10-20: TCN `rpi5_tcn/2026-10-20_run01` sin Flex, RMSE ×1,01 del GRU. **Pendiente de tu confirmación:** promoverlo.
+- [x] **A3. Exportar el pronosticador RPi5 solo con operaciones nativas de TFLite** — cerrada 2026-10-20: TCN `rpi5_tcn/2026-10-20_run01` sin Flex, RMSE ×1,01 del GRU. **Promovido el 2026-10-20** (confirmado).
 
   **Problema:** `configs/regressors/rpi5_edge.yaml` usa un GRU, y la exportación cae en `SELECT_TF_OPS` (`ai/tflite_export.py`). Por eso no corre en tflite-runtime ni en LiteRT puro.
 
@@ -283,7 +283,7 @@ Este bloque amplía esa cobertura sin datos reales.
 
 ### C1. Precisión del DPC en el punto nominal
 
-- [x] **C1. Recuperar la precisión de v3 en el punto nominal sin perder el rango de v4** — cerrada 2026-10-20 con la opción 1 (selección por punto de operación, sin reentrenar): metas cumplidas. **Pendiente de tu confirmación:** usarlo como controlador por defecto.
+- [x] **C1. Recuperar la precisión de v3 en el punto nominal sin perder el rango de v4** — cerrada 2026-10-20 con la opción 1 (selección por punto de operación, sin reentrenar): metas cumplidas. **Activado como default el 2026-10-20** (confirmado).
 
   **Estado actual:**
 
@@ -326,7 +326,7 @@ Este bloque amplía esa cobertura sin datos reales.
 
 ### C3. Costo de CPU del MPC
 
-- [x] **C3. Reducir las ≈65–75 veces que el MPC cuesta más que el PI** — cerrada 2026-10-20: opción `qp_solver="exact"`, 8–190× más rápida. **Pendiente de tu confirmación:** hacerla el default.
+- [x] **C3. Reducir las ≈65–75 veces que el MPC cuesta más que el PI** — cerrada 2026-10-20: opción `qp_solver="exact"`, 8–190× más rápida. **Default desde el 2026-10-20** (confirmado).
   - Perfilar `control/mpc/controller.py` (`_solve` y `cost_and_grad`) y aplicar, en orden:
     1. precalcular las matrices condensadas;
     2. warm start con la solución desplazada;

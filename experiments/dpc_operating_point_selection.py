@@ -32,7 +32,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from driveflow.control.dpc.controller import DpcController, ScheduledDpcController  # noqa: E402
+from driveflow.control.dpc.controller import DEFAULT_SCHEDULE_REGION, DpcController, ScheduledDpcController  # noqa: E402
 from driveflow.control.dpc.reference import RotatingReference  # noqa: E402
 from driveflow.sim.vsc_system import VscSystem  # noqa: E402
 
@@ -46,7 +46,7 @@ DESIGN_V = (10.0, 25.0, 35.0, 50.0, 75.0, 100.0)
 #: tested range. A first rule put the boundaries ON the winning levels (7.5-8.5 ohm, 50 V); the
 #: load-step run showed that with hysteresis it then never re-entered the band at the nominal
 #: 50 V, so it was revised -- from the design grid, not from the evaluation points (see report).
-REGION = {"r_min_ohm": 7.25, "r_max_ohm": 8.75, "band_v_max": 62.5, "small_v_max": 10.0, "small_r_min_ohm": 5.0, "small_r_max_ohm": 12.0}
+REGION = DEFAULT_SCHEDULE_REGION  # defined next to the controller, the default since 2026-10-20
 RULE_1 = {"r_min_ohm": 7.5, "r_max_ohm": 8.5, "band_v_max": 50.0, "small_v_max": 10.0, "small_r_min_ohm": 5.0, "small_r_max_ohm": 12.0}
 TARGETS = [(8.0064, 50.0, 1.3), (8.0064, 10.0, 2.0), (4.0, 50.0, 3.5), (20.0, 50.0, 3.5), (1000.0, 50.0, 3.5)]
 HELD_OUT_R = (3.5, 4.0, 6.5, 7.75, 8.25, 9.5, 11.0, 15.0, 20.0, 40.0, 1000.0)

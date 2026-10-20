@@ -1,7 +1,7 @@
 """Formalizes the dashboard's "off-distribution robustness probes" (viz/dashboard.py Fase B
 sidebar: load resistance, reference magnitude, reference frequency sliders) into a fixed,
 automated regression grid -- Patch 8 Sec. 7. The dashboard's interactive exploration stays as-is;
-this is the same closed-loop simulation (VscSystem + DpcController + RotatingReference, the same
+this is the same closed-loop simulation (VscSystem + the default ScheduledDpcController + RotatingReference, the same
 physics/controller the dashboard's "Generate DPC scenario" button runs) evaluated once per grid
 point, with thresholds derived from behavior actually measured against the shipped v3 checkpoint,
 so a change to the checkpoint or the VSC plant that meaningfully degrades tracking anywhere in the
@@ -16,8 +16,9 @@ the dashboard itself exposes these as 3 independent sliders, so a one-axis-at-a-
 how a user actually explores it, not a hypothetical worst-case combination of all three at once).
 
 Thresholds are NOT arbitrary: each carries >=1.4x margin over the settled RMSE actually measured
-against the shipped checkpoint -- re-measured on 2026-10-19 for dpc_trained_v4_r_range.weights.h5
-(S-05; the v3 values are kept in the comments below) -- (n_steps=2000, tau=1e-4s, first 50 steps excluded as
+against the shipped controller -- re-measured on 2026-10-20 for the default
+ScheduledDpcController (C1: v3 near 8 ohm and at small references, v4 elsewhere; the v4-only and
+v3-only values are kept in the comments below) -- (n_steps=2000, tau=1e-4s, first 50 steps excluded as
 transient) when this file was written, in the same spirit as the existing on-distribution
 regression check in tests/test_datagen.py (RMSE < 5V over a documented v3 baseline of ~1.18V, see
 docs/macro_fase_B2_dpc_deployment.md). If the checkpoint or plant model changes and a threshold
@@ -54,9 +55,9 @@ regression check on the mitigation, not a permanent acceptance of the divergence
 import numpy as np
 import pytest
 
-from driveflow.control.dpc.controller import DpcController
+from driveflow.control.dpc.controller import DEFAULT_SCHEDULE_REGION, ScheduledDpcController
 from driveflow.control.dpc.reference import GRID_OMEGA_RAD_S, REFERENCE_MAGNITUDE_V, RotatingReference
-from driveflow.datagen.runner import TAU, _DPC_WEIGHTS_PATH, _VSC_R_OHM
+from driveflow.datagen.runner import TAU, _DPC_NOMINAL_WEIGHTS_PATH, _DPC_WEIGHTS_PATH, _VSC_R_OHM
 from driveflow.sim.vsc_system import MIN_STABLE_LOAD_RESISTANCE_OHM, VscSystem, load_feedback_spectral_radius
 
 N_STEPS = 2000
@@ -68,7 +69,7 @@ def _settled_rmse(r_ohm: float, magnitude_v: float, omega_rad_s: float, n_steps:
     diverges (a non-finite tracking error at any step) -- diverging is a real, distinct outcome
     from "large but finite RMSE," not something to let a NaN silently propagate into an assert."""
     system = VscSystem(load_resistance_ohm=r_ohm, tau=TAU)
-    controller = DpcController(_DPC_WEIGHTS_PATH, r_ohm=r_ohm)
+    controller = ScheduledDpcController(_DPC_NOMINAL_WEIGHTS_PATH, _DPC_WEIGHTS_PATH, r_ohm, DEFAULT_SCHEDULE_REGION)
     reference = RotatingReference(tau=TAU, magnitude_v=magnitude_v, omega_rad_s=omega_rad_s)
     state = system.reset()
     controller.reset()
@@ -87,15 +88,16 @@ def _settled_rmse(r_ohm: float, magnitude_v: float, omega_rad_s: float, n_steps:
 R_DEFAULT, MAG_DEFAULT, OMEGA_DEFAULT = float(_VSC_R_OHM), float(REFERENCE_MAGNITUDE_V), float(GRID_OMEGA_RAD_S)
 
 #: (label, r_ohm, magnitude_v, omega_rad_s, max_acceptable_rmse_v). max_acceptable_rmse_v carries
-#: >=1.4x margin over what was actually measured against v4 -- see module docstring.
+#: >=1.4x margin over what the default scheduled controller measured on 2026-10-20 (checkpoint it
+#: picked in brackets) -- see module docstring.
 GRID = [
-    ("on-distribution (baseline)", R_DEFAULT, MAG_DEFAULT, OMEGA_DEFAULT, 3.6),  # v4 2.52V (v3 1.18V)
-    ("R at slider max (20.0 ohm)", 20.0, MAG_DEFAULT, OMEGA_DEFAULT, 4.1),  # v4 2.89V (v3 14.7V)
-    ("R at the slider floor (4.0 ohm)", 4.0, MAG_DEFAULT, OMEGA_DEFAULT, 4.4),  # v4 3.10V (v3 18.0V)
-    ("magnitude at slider min (10V)", R_DEFAULT, 10.0, OMEGA_DEFAULT, 6.0),  # v4 4.24V (v3 1.75V)
-    ("magnitude at slider max (150V)", R_DEFAULT, 150.0, OMEGA_DEFAULT, 12.1),  # v4 8.60V (v3 8.0V)
-    ("omega at slider min (50 rad/s)", R_DEFAULT, MAG_DEFAULT, 50.0, 6.0),  # v4 3.64V (v3 3.4V)
-    ("omega at slider max (700 rad/s)", R_DEFAULT, MAG_DEFAULT, 700.0, 6.0),  # v4 4.27V (v3 3.9V)
+    ("on-distribution (baseline)", R_DEFAULT, MAG_DEFAULT, OMEGA_DEFAULT, 1.7),  # 1.18V [v3] (v4 alone 2.52V)
+    ("R at slider max (20.0 ohm)", 20.0, MAG_DEFAULT, OMEGA_DEFAULT, 4.1),  # 2.89V [v4] (v3 alone 14.7V)
+    ("R at the slider floor (4.0 ohm)", 4.0, MAG_DEFAULT, OMEGA_DEFAULT, 4.4),  # 3.10V [v4] (v3 alone 18.0V)
+    ("magnitude at slider min (10V)", R_DEFAULT, 10.0, OMEGA_DEFAULT, 2.5),  # 1.75V [v3] (v4 alone 4.24V)
+    ("magnitude at slider max (150V)", R_DEFAULT, 150.0, OMEGA_DEFAULT, 12.1),  # 8.60V [v4] (v3 alone 8.0V)
+    ("omega at slider min (50 rad/s)", R_DEFAULT, MAG_DEFAULT, 50.0, 4.8),  # 3.39V [v3] (v4 alone 3.64V)
+    ("omega at slider max (700 rad/s)", R_DEFAULT, MAG_DEFAULT, 700.0, 5.5),  # 3.92V [v3] (v4 alone 4.27V)
 ]
 
 

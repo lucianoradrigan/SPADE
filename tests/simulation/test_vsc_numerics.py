@@ -52,5 +52,6 @@ def test_tracking_within_10pct_of_reference_wherever_the_plant_is_stable(r_ohm):
 
 
 def test_on_distribution_tracking_regression():
-    """v4 at the nominal load: 2.52 V (v3 was 1.18 V -- the price of tracking the whole R range)."""
-    assert _settled_rmse(run_vsc_closed_loop(8.0064, duration_s=0.2)) == pytest.approx(2.52, abs=0.15)
+    """Default controller at the nominal load: 1.18 V -- since 2026-10-20 (C1) the scheduled
+    controller runs v3 here (v4 alone measured 2.52 V, the price of tracking the whole R range)."""
+    assert _settled_rmse(run_vsc_closed_loop(8.0064, duration_s=0.2)) == pytest.approx(1.18, abs=0.15)

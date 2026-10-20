@@ -53,7 +53,7 @@ class MpcController:
         r_effort: float = 1e-6,
         q_current_penalty: float = 50.0,
         current_safety_margin: float = 0.85,
-        qp_solver: str = "lbfgsb",
+        qp_solver: str = "exact",
     ):
         """
         Args:
@@ -74,12 +74,12 @@ class MpcController:
                 applied directly to the predicted state instead).
             current_safety_margin: Same role as PICascadeController's own parameter -- fraction of
                 the current limit the soft penalty is centered on.
-            qp_solver: "lbfgsb" (default, the original behavior): scipy L-BFGS-B, at most 50
-                iterations, warm-started. "exact" (C3, docs/SIMULATION_STABILITY_REPORT.md §5.1):
+            qp_solver: "exact" (default since 2026-10-20; C3, docs/SIMULATION_STABILITY_REPORT.md §5.1):
                 the closed-form optimum when no bound or current limit is active, otherwise an
                 exact piecewise-QP solution (bounded least squares on the active current-limit
                 set), with L-BFGS-B only as a last resort; 8-190x faster on the benchmark runs and
-                closer to the true optimum, so trajectories differ slightly from "lbfgsb".
+                closer to the true optimum. "lbfgsb": the original solver (scipy L-BFGS-B, at most
+                50 iterations, warm-started), kept for comparison.
         """
         if qp_solver not in ("lbfgsb", "exact"):
             raise ValueError(f"qp_solver must be 'lbfgsb' or 'exact', got {qp_solver!r}")

@@ -41,12 +41,12 @@ It added findings **S-09…S-13** and **AI-N13…AI-N14**. Results that change a
 | Module | Numerical | Reproducible | Dynamic behavior | Open issues |
 |---|---|---|---|---|
 | DC motor + PI | ✅ first-order convergence to RK45; Euler limit 26× above the production step; 60 s with no drift | ✅ bitwise | ✅ matches the linear design model; reaches the current-limited bound; robust to the 4 parameter drifts | S-04 (≈15 % small-signal overshoot, documented) |
-| DC motor + MPC | ✅ | ✅ | ✅ stable; small steady-state offset 0.04–0.09 % (no integrator) | default solver ≈ 65–330× the PI's CPU cost; `qp_solver="exact"` (C3) is 8–190× faster, not yet the default |
-| PMSM / FOC | ✅ **S-01 fixed**: default Euler with 3 substeps, stable up to ≈460 rad/s (1.47× nominal); bit-identical to GEM 3.0.3 (V4) | ✅ | ✅ Euler = RK45 within 0.5 % of i_s in the closed-loop demo; MTPA = GEM's table within 1 A (V5); now produces datasets (P1) | **S-13**: open-loop accuracy at high speed (24.6 % RMS i_s error at 314 rad/s) |
-| VSC + DPC | ✅ bounded; divergence below R\* is physics; ADF/BDF = exact ZOH of the upstream L-C filter (V0, V1) | ✅ | ✅ **S-05 fixed**: DPC v4 tracks within 3.1 V from 4 Ω to 1 kΩ. C1: the v3/v4 operating-point selection recovers 1.18 V at 8 Ω (not yet the default). The ported upstream MPC reaches 0.14 V (V2) | **S-09**: no converter voltage limit (120/150 V points are idealized); S-10 input convention |
+| DC motor + MPC | ✅ | ✅ | ✅ stable; small steady-state offset 0.04–0.09 % (no integrator) | default `qp_solver="exact"` since 2026-10-20 (C3): ≈ 7.6× the PI's CPU cost (was ≈ 330×) |
+| PMSM / FOC | ✅ **S-01 fixed**: default Euler with 3 substeps, stable up to ≈460 rad/s (1.47× nominal); bit-identical to GEM 3.0.3 (V4) | ✅ | ✅ Euler = RK45 within 0.5 % of i_s in the closed-loop demo; MTPA = GEM's table within 1 A (V5); now produces datasets (P1) | S-13 fixed (10 substeps: 5.3 % at 314 rad/s, stable to ≈ 841 rad/s) |
+| VSC + DPC | ✅ bounded; divergence below R\* is physics; ADF/BDF = exact ZOH of the upstream L-C filter (V0, V1) | ✅ | ✅ **S-05 fixed**: DPC v4 tracks within 3.1 V from 4 Ω to 1 kΩ. C1: the v3/v4 operating-point selection is the default since 2026-10-20: 1.18 V at 8 Ω. The ported upstream MPC reaches 0.14 V (V2) | **S-09**: no converter voltage limit (120/150 V points are idealized); S-10 input convention |
 | Fault injection / signals | ✅ S-06 fixed | ✅ | n/a | — |
 | Diagnosis classifiers | n/a | ✅ | ✅ **AI-N06/N07 fixed**: grid-trained model, 1.000 on held-out speeds (115, 190, 250 rad/s) and severity ×0.6; 0.969 at 100 % noise; calibrated, with abstention | AI-N12 / **AI-N13**: no OOD method catches ball faults (A1 negative); **AI-N14**: 0.58 at 50 rad/s, 0.68 at 150 % noise |
-| Forecasters | n/a | ✅ | ✅ **AI-N11 fixed**: condition-split test, RMSE 0.073 vs persistence 1.056 | promoted RPi5 GRU needs Flex ops; a builtin-only TCN candidate (A3) awaits promotion |
+| Forecasters | n/a | ✅ | ✅ **AI-N11 fixed**: condition-split test, RMSE 0.073 vs persistence 1.056 | RPi5: the builtin-only TCN (A3) is promoted since 2026-10-20 |
 | Monitoring / alerts | — | ✅ | ✅ AI-N02/N03/N04/N08 fixed: telemetry-time evaluation, off-delay; anomaly agent AUC 1.0 and 0.057 s per call (AI-N09/N10) | thresholds measured on simulated runs only |
 | Installation | — | — | ✅ Ubuntu 26.04 executed (uv + Python 3.11, venv/pip + Python 3.12): smoke 6/6; CI smoke green on Ubuntu / Windows / macOS; Intel-Mac pin emulated: 687 passed, 0 failed (P2) | manual runs on Windows, macOS, Ubuntu 22.04/24.04 not done |
 
@@ -149,24 +149,21 @@ One row per task of [`TODO_CLAUDE_CODE.md`](../TODO_CLAUDE_CODE.md).
 
 ## 7. Pending actions
 
-### 7.1 Waiting for your decision (implemented, evidence written, not switched on)
+### 7.1 Switched on, 2026-10-20 (confirmed by the user, on `dev`)
 
-1. **Default DPC controller → v3/v4 selection by operating point (C1).**
-   - **What it improves:** all C1 targets are met: 8 Ω at 1.18 V instead of 2.52 V, and 10 V at 1.75 V instead of 4.24 V.
-   - **What switching changes:** every DPC scenario, and the thresholds of `test_dpc_robustness_grid.py`, which would be re-measured.
-2. **Promote the RPi5 TCN forecaster** `rpi5_tcn/2026-10-20_run01` (A3).
-   - **What it improves:** it has no Flex ops and an RMSE 1.01× the GRU's.
-   - **Command:** `python experiments/promote_run.py configs/regressors/rpi5_tcn/2026-10-20_run01`.
-3. **Default MPC solver → `qp_solver="exact"` (C3).**
-   - **What it improves:** it is 8–190× faster and reaches the true optimum.
-   - **What switching changes:** MPC trajectories change slightly.
-4. **PMSM default solver (S-13).** The 3-substep Euler is stable but 25–48 % off RK45 open loop at 314–400 rad/s. Options: more substeps (×10 gives 5.3 % at 314 rad/s), or an RK solver.
-5. **Converter voltage limit (S-09).** The upstream converter has V_dc = 200 V and a ±134 V clamp. Adding one would make the 120 V and 150 V operating points behave as on the original hardware.
-6. **Promote the 5-class classifiers (A2).** They are ready (`*_5class/2026-10-20_run01`, AI_TECHNICAL_AUDIT.md §8.4) and recognize ball and cage at nominal speed. Limits: synthetic-only, uncalibrated amplitude; cage is missed below 150 rad/s (called ball); the ESP32 INT8 export degrades (agreement 0.73).
-7. **A4 follow-up: a capacitor-degradation classifier for the VSC.** Separability passed the pre-registered cut for capacitance loss, not for ESR. The next step adds parameter uncertainty (R, L, R_f) and sensor noise to the dataset first.
-8. **dc_motor regressor:** no use case is defined.
+- **C1:** `ScheduledDpcController` is the default DPC of every Scenario. Robustness thresholds were re-measured: 1.18 V at the nominal point.
+- **A3:** `rpi5_tcn/2026-10-20_run01` is promoted as `vsc_dpc/rpi5/regressor`. It has no Flex ops.
+- **C3:** `qp_solver="exact"` is the MPC default.
+- **S-13:** the PMSM uses `EULER_NSTEPS = 10`: 5.3 % at 314 rad/s, stable to ≈ 841 rad/s.
 
-### 7.2 Open, not blocked on a decision
+### 7.2 Waiting for your decision (implemented, evidence written, not switched on)
+
+1. **Promote the 5-class classifiers (A2).** They are ready (`*_5class/2026-10-20_run01`, AI_TECHNICAL_AUDIT.md §8.4) and recognize ball and cage at nominal speed. Limits: synthetic-only, uncalibrated amplitude; cage is missed below 150 rad/s (called ball); the ESP32 INT8 export degrades (agreement 0.73).
+2. **Converter voltage limit (S-09).** The upstream converter has V_dc = 200 V and a ±134 V clamp. Adding one would make the 120 V and 150 V operating points behave as on the original hardware.
+3. **A4 follow-up: a capacitor-degradation classifier for the VSC.** Separability passed the pre-registered cut for capacitance loss, not for ESR. The next step adds parameter uncertainty (R, L, R_f) and sensor noise to the dataset first.
+4. **dc_motor regressor:** no use case is defined.
+
+### 7.3 Open, not blocked on a decision
 
 1. **Real data.** No real measurements exist in this project, so every model number above comes from the simulator. A real hold-out set is the only way to validate any diagnosis claim: another machine or bearing, at least two speeds, inner and outer race faults.
 2. **AI-N14.** The classifier's accuracy is 0.58 at 50 rad/s, below the training grid, and 0.68 at 150 % noise. Extend the training grid down in speed and up in noise.

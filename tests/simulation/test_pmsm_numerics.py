@@ -4,7 +4,8 @@ Key result (S-01): with ONE forward-Euler step per tau = 1e-4 s the open-loop dq
 dynamics leave the method's stability region above ~266 rad/s mechanical -- inside the motor's own
 nominal speed (314 rad/s). The physical system is damped there (RK45 converges to the analytic
 short-circuit current); the Euler trajectory grows without bound. A numerical, not a physical,
-instability. Fixed: pmsm_foc.default_ode_solver() uses EULER_NSTEPS = 3 substeps (limit ~460 rad/s).
+instability. Fixed: pmsm_foc.default_ode_solver() uses EULER_NSTEPS substeps -- 3 at first (limit ~460 rad/s), 10
+since 2026-10-20 for accuracy (S-13; limit ~841 rad/s).
 """
 
 import numpy as np

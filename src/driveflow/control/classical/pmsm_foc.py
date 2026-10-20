@@ -33,11 +33,12 @@ U_SUPPLY = 330.0  # 10% headroom over the motor's own u limit (300V), same ratio
 #: this predates Fase C; found by direct simulation earlier this session (j_load=0.01 let the
 #: rotor run away mid-step; j_load=5.0 keeps omega_el's decoupling term negligible for ~30ms).
 LOAD_INERTIA = 5.0
-#: Euler substeps per TAU (S-01, docs/SIMULATION_STABILITY_REPORT.md). A single forward-Euler step
-#: of TAU leaves the open-loop dq dynamics' stability region above ~266 rad/s mechanical, below the
-#: motor's nominal 314 rad/s; 3 substeps move that limit to ~460 rad/s (1.47x nominal), checked by
-#: driveflow.validation.euler_max_stable_speed_pmsm(MOTOR_PARAMS, TAU / EULER_NSTEPS).
-EULER_NSTEPS = 3
+#: Euler substeps per TAU (S-01 and S-13, docs/SIMULATION_STABILITY_REPORT.md). A single forward-
+#: Euler step of TAU leaves the open-loop dq dynamics' stability region above ~266 rad/s mechanical,
+#: below the motor's nominal 314 rad/s. 3 substeps (the S-01 fix) were stable to ~460 rad/s but
+#: 24.6 % off RK45 (RMS i_s) in open-loop transients at 314 rad/s (S-13); 10 substeps, the default
+#: since 2026-10-20, give 5.3 % there and 1.5 % at 200 rad/s.
+EULER_NSTEPS = 10
 
 
 def default_ode_solver() -> EulerSolver:

@@ -203,7 +203,7 @@ On SPADE's plant, over R = 3.5 Ω – 5 kΩ and |v_ref| = 10–150 V ([`dpc_vs_m
 
 **What is not covered.** Off the grid, at 9.5 Ω and 15 V, v3 is still better than v4, and the rule does not capture it. The MPC of §V2 remains about 10× better than either network.
 
-**Status.** Implemented and tested (`tests/control/test_dpc_scheduled.py`). **The default stays v4**: switching `datagen/runner.py` to the scheduled controller changes every DPC scenario and the thresholds of `test_dpc_robustness_grid.py`, so it waits for confirmation.
+**Status.** Implemented and tested (`tests/control/test_dpc_scheduled.py`). **Default since 2026-10-20** (confirmed by the user): `datagen/runner.py` runs every DPC scenario with it. `test_dpc_robustness_grid.py` was re-measured for it, with the same ≥ 1.4× margin: 1.18 V at the nominal point (v4 alone: 2.52 V) and 1.75 V at 10 V (v4 alone: 4.24 V).
 
 ### 4.3 Cross-check against gym-electric-motor 3.0.3 (TODO V4, 2026-10-20)
 
@@ -227,7 +227,7 @@ On SPADE's plant, over R = 3.5 Ω – 5 kΩ and |v_ref| = 10–150 V ([`dpc_vs_m
 
 **What is not affected.** The PMSM page's closed-loop current steps run near standstill (j_load = 5), and Euler there still matches RK45 within 0.5 %. Open-loop or high-speed use of `build_pmsm_system` is affected.
 
-**Status.** Open. Options: more substeps, or an RK solver as the default. A strict xfail, `test_default_pmsm_solver_matches_rk45_within_5pct_at_nominal_speed`, is tied to this finding. The default is not changed without confirmation.
+**Status. Fixed on 2026-10-20** (confirmed by the user): `EULER_NSTEPS = 10`. The error at 314 rad/s is now 5.3 %, pinned below 6 % by `test_default_pmsm_solver_is_close_to_rk45_at_nominal_speed`. The stability limit rises to ≈ 841 rad/s.
 
 ## 5. Controller performance (dynamic stability)
 
@@ -268,7 +268,7 @@ Figures: [`dc_small_step_vs_linear.png`](audit/stability/dc_small_step_vs_linear
 2. otherwise, an exact piecewise-QP. For a fixed set of horizon steps over the current limit, the soft penalty is quadratic, so each pass is a bounded least-squares solve (scipy BVLS), iterated until that set stops changing;
 3. L-BFGS-B only as a last resort: 5 of 9000 steps in the hardest run.
 
-**The default stays `"lbfgsb"`**, bit-identical to the original controller; changing it needs confirmation. Evidence: [`mpc_exact_solver.json`](audit/stability/mpc_exact_solver.json), from `python experiments/benchmark_mpc_solver.py`, single-threaded BLAS.
+**Default since 2026-10-20** (confirmed by the user): `"exact"`. `qp_solver="lbfgsb"` keeps the original solver, bit-identical to the controller before C3. Evidence: [`mpc_exact_solver.json`](audit/stability/mpc_exact_solver.json), from `python experiments/benchmark_mpc_solver.py`, single-threaded BLAS.
 
 | Run | L-BFGS-B | Exact | Speed-up | max \|Δω\| | max \|Δi\| (RMS) |
 |---|---|---|---|---|---|
@@ -305,7 +305,7 @@ Figures: [`dc_small_step_vs_linear.png`](audit/stability/dc_small_step_vs_linear
 | **S-10** | Low | Upstream documentation vs. code | Upstream says the DPC learns from a one-step explicit MPC. The only active controller in `CCS_MPC.slx` is an unconstrained 5-step condensed MPC (Q = diag(2, 1)) with delay compensation and extrapolated references. `Data4train` logs its delay-compensated state and the references 3–7 steps ahead. SPADE's closed loop feeds the measured state and the references 0–4 steps ahead. | `dpc4pe_parameters.md` S-10; `CCS_MPC.slx` `MATLAB Function4` | **Open (documented).** V2 ports this controller. The input convention is not changed. |
 | S-11 | Info | Training data | `Data4train.mat` holds exactly two loads: 8.0064 Ω (= 10 Ω ∥ 40 Ω) and 39.9984 Ω, 5000 rows each. `Main.txt`'s training rows 1–6000 are 5000 rows at 40 Ω and 1000 at 8 Ω; the holdout is all 8 Ω. | `dpc4pe_parameters.json` `data4train` | none; relevant to C1 |
 | S-12 | Info | Upstream inconsistency | `DPCvalidation.slx`'s filter inductor has R = 0, while `CCS_MPC.slx` and the identified model have 2 Ω. The validation model has no `InitFcn`, so its other parameters are not in the repository. | `dpc4pe_parameters.md` S-12 | none in SPADE (it validates on the identified model) |
-| **S-13** | Medium | Numerical accuracy (method) | PMSM default solver (Euler, 3 substeps): stable up to ≈460 rad/s, but in open-loop transients its RMS i_s error against RK45 is 24.6 % at 314 rad/s and 48 % at 400 rad/s. At 100 rad/s it is 2.4 %. | §4.3; `test_gem_equivalence.py` (strict xfail) | **Open.** More substeps (×10: 5.3 % at 314 rad/s) or an RK default. Needs confirmation: it changes a default. |
+| **S-13** | Medium → **fixed** | Numerical accuracy (method) | PMSM default solver (Euler, 3 substeps): stable up to ≈460 rad/s, but in open-loop transients its RMS i_s error against RK45 is 24.6 % at 314 rad/s and 48 % at 400 rad/s. At 100 rad/s it is 2.4 %. | §4.3; `test_gem_equivalence.py` | **Fixed (2026-10-20):** `EULER_NSTEPS = 10`, 5.3 % at 314 rad/s, stable to ≈ 841 rad/s. |
 
 ## 7. Limitations of this report
 

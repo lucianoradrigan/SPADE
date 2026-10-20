@@ -4,4 +4,4 @@ entries:
   dc_motor/rpi5/classifier: configs/classifiers/rpi5_resnet1d_se/2026-10-18_run01
   vsc_dpc/esp32/regressor: configs/regressors/esp32_tiny/2026-10-19_run01
   vsc_dpc/pc/regressor: configs/regressors/pc_full/2026-10-19_run01
-  vsc_dpc/rpi5/regressor: configs/regressors/rpi5_edge/2026-10-19_run01
+  vsc_dpc/rpi5/regressor: configs/regressors/rpi5_tcn/2026-10-20_run01
