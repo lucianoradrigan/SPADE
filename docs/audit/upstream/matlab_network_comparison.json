@@ -1,0 +1,32 @@
+{
+  "holdout_rows": "Data4train.mat rows 6001-10000 (R = 8.0064 ohm)",
+  "closed_loop": "SPADE averaged plant, R = 8.0064 ohm, |v_ref| = 50 V, 2000 steps, RMSE after 50 warm-up steps",
+  "matlab_network_source": "CCS_MPC.slx InitFcn, commented-out weights_fc1..3 / bias_fc1..3 (provenance not stated upstream)",
+  "results": {
+    "MATLAB InitFcn network": {
+      "holdout_dpc_loss": 1324.8668212890625,
+      "rms_output_difference_vs_matlab_v": 0.0,
+      "closed_loop_settled_rmse_v_at_8ohm_50v": 18.892879585843627
+    },
+    "v1 (Data4train.mat only)": {
+      "holdout_dpc_loss": 1.1522964239120483,
+      "rms_output_difference_vs_matlab_v": 28.286348342895508,
+      "closed_loop_settled_rmse_v_at_8ohm_50v": 16.667696941674908
+    },
+    "v2 (closed-loop fine-tune)": {
+      "holdout_dpc_loss": 12.944645881652832,
+      "rms_output_difference_vs_matlab_v": 43.89768981933594,
+      "closed_loop_settled_rmse_v_at_8ohm_50v": 4.6598029442981455
+    },
+    "v3 (extended fine-tune)": {
+      "holdout_dpc_loss": 3.5356574058532715,
+      "rms_output_difference_vs_matlab_v": 29.26349639892578,
+      "closed_loop_settled_rmse_v_at_8ohm_50v": 1.1806924115594033
+    },
+    "v4 (R-range fine-tune, default)": {
+      "holdout_dpc_loss": 84.32379150390625,
+      "rms_output_difference_vs_matlab_v": 32.09849548339844,
+      "closed_loop_settled_rmse_v_at_8ohm_50v": 2.5249949113259977
+    }
+  }
+}

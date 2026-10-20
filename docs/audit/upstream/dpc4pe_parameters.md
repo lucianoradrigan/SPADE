@@ -134,3 +134,59 @@ Bold marks values above the 134 V clamp.
 - **`trainedNet1nDPCv3.mat`:** the trained network loaded by `DPCvalidation.slx/PRN_controller1/Predict1` (see V3).
 - **Commented-out arrays in the InitFcn:** `CCS_MPC.slx`'s InitFcn contains commented-out arrays `weights_fc1..3` and `bias_fc1..3` (15 → 16 → 16 → 10). Their provenance and date are not stated (see V3).
 
+---
+
+# V3. Fidelity of the DPC training port (`control/dpc/train.py` vs. `Main.txt` / `Model_gradients.txt`)
+
+## Hyperparameters
+
+| Item | `Main.txt` / `Model_gradients.txt` | SPADE (`control/dpc/train.py`, `network.py`) | Verdict |
+|---|---|---|---|
+| Architecture | `featureInputLayer(15)` → FC 16 → ReLU → FC 16 → ReLU → FC 10 | Dense 16 ReLU → Dense 16 ReLU → Dense 10 | Same |
+| Input normalization | none | none | Same |
+| Initialization | MATLAB `fullyConnectedLayer` defaults: Glorot-uniform weights, zero bias | Keras `Dense` defaults: Glorot-uniform weights, zero bias | Same |
+| Training rows | `num = 6000` (rows 1–6000) | `num_train = 6000` | Same |
+| Loss | `customLoss1`, applied sample by sample in a loop, then summed and divided by `numSamples` | `dpc_loss`, vectorized, divided by the batch size | Same math (pinned by `tests/test_dpc_loss.py`) |
+| Optimizer | `adamupdate(..., epoch, learningRate)`, defaults β1 = 0.9, β2 = 0.999, ε = 1e-8 | `tf.keras.optimizers.Adam`, defaults β1 = 0.9, β2 = 0.999, ε = 1e-7 | **Minor difference.** MATLAB passes the *epoch* number as Adam's step counter, so bias correction advances once per epoch rather than once per mini-batch. Keras counts mini-batches. ε differs by 10×. Neither changes the optimum; both change the trajectory. Intentional: not ported. |
+| Learning rate | 0.001, constant (the schedule is commented out) | 0.001 | Same |
+| Epochs | 10000 | parameter, default 200. **The epoch count used for `configs/dpc_trained.weights.h5` (v1) is not recorded in the repository.** | Documented gap |
+| Mini-batch | 512; `numBatches = floor(6000/512) = 11`, so 368 random rows are skipped each epoch | 512; `n // batch_size = 11`, same skipping | Same |
+| Shuffling and seed | `randperm` without `rng(...)`, so not reproducible | `np.random.default_rng(seed)` and `tf.random.set_seed(seed)`, seed 0 | Intentional (reproducibility) |
+| Device | `gpuArray` if available | CPU | Irrelevant to the result |
+
+**What the network sees in closed loop.** This difference matters more than the hyperparameters (see S-10). The training rows were logged from the MPC's delay-compensated one-step state prediction, together with references 3 to 7 steps ahead. SPADE's closed loop (`control/dpc/controller.py`) feeds the network the measured state and references 0 to 4 steps ahead. Both are self-consistent with the loss: the loss only needs the state and the 5 references to be aligned. But they are not the same operating convention as the data the network was trained on. This is recorded as part of S-10; it is not changed here.
+
+## Recovering a MATLAB-trained network
+
+**`trainedNet1nDPCv4_1.mat`.** It was recovered from the upstream git history, where commit `b307cad` deleted it, and saved to `data/upstream/` (not committed).
+- **Format.** It is **MAT v5, not v7.3**: h5py rejects it with "file signature not found". It holds one opaque MCOS object, a `dlnetwork`, so `scipy.io.loadmat` returns it as `MatlabOpaque`.
+- **What can be recovered.** Scanning its function workspace for 2-D dimension tags finds matrices of 80×7, 80×80 and 2×80, together with 80×1 and 10×1 vectors. The 80×7, 80×80 and 2×80 shapes indicate a **7 → 80 → 80 → 2 network**.
+- **Why it cannot be compared.** That is a different architecture from `Main.txt`'s 15 → 16 → 16 → 10. Its 7 inputs match `DPCvalidation.slx`'s `MATLAB Function3` output: `[i_f, v_c, v_ref, R]`.
+- **Status.** Decoding the MCOS object fully was not attempted beyond this time-boxed scan.
+
+**The `InitFcn` network.** `CCS_MPC.slx`'s InitFcn contains, commented out, a complete **15 → 16 → 16 → 10** network: `weights_fc1..3` and `bias_fc1..3`. It is the only MATLAB-trained weight set in the repository with `Main.txt`'s architecture. It was loaded into SPADE's network and compared with SPADE's checkpoints.
+
+**Command.**
+
+```bash
+python experiments/compare_matlab_dpc_network.py --upstream data/upstream/dpc4pe
+```
+
+Evidence: [`matlab_network_comparison.json`](matlab_network_comparison.json).
+
+The holdout rows are 6001–10000, all at R = 8.0064 Ω. The closed loop runs on SPADE's averaged plant at 8.0064 Ω and 50 V, for 2000 steps, with 50 warm-up steps.
+
+| Network | Holdout DPC loss | RMS output difference vs. MATLAB InitFcn network | Closed-loop settled RMSE |
+|---|---|---|---|
+| MATLAB InitFcn network | **1325** | 0 | 18.9 V |
+| SPADE v1 (`dpc_trained.weights.h5`) | 1.15 | 28.3 V | 16.7 V |
+| SPADE v2 | 12.9 | 43.9 V | 4.66 V |
+| SPADE v3 | 3.54 | 29.3 V | 1.18 V |
+| SPADE v4 (default) | 84.3 | 32.1 V | 2.52 V |
+
+**Reading.**
+- **The InitFcn network does not minimize `Custom_Loss` on the holdout.** Its loss is 1325, against 1.15 for SPADE v1. So it is not what a converged `Main.txt` run on `Data4train.mat` produces, or it expected a different input convention. The repository does not say which: it is commented out, and neither its epoch count nor its date is given.
+- **No equivalence claim either way.** SPADE v1 cannot be shown equivalent to, or different from, "the" MATLAB network, because no MATLAB network trained by `Main.txt` on this data is recoverable.
+- **Reconciling with v4's open-loop loss.** v4's holdout loss (84) is higher than v1's (1.15), yet it tracks much better in closed loop. This is consistent with the existing finding that the open-loop holdout loss does not predict closed-loop performance (`experiments/evaluate_dpc_closed_loop.py`).
+
+**V3 status: closed** with a documented negative result. The training port matches `Main.txt` except for the Adam step-counter and ε details above. No MATLAB network trained by `Main.txt` on this data is recoverable for a direct comparison.

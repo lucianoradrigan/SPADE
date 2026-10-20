@@ -154,6 +154,14 @@ Four findings come out of the comparison (S-09 to S-12, §6):
 - **S-11:** most of the original training rows are at 40 Ω;
 - **S-12:** the validation model uses R_f = 0.
 
+**V3. Fidelity of the training port.** `control/dpc/train.py` matches `Main.txt` in architecture, initialization, data split, loss, learning rate and batching. Two minor details of MATLAB's `adamupdate` are not reproduced: the epoch is used as the step counter, and ε = 1e-8. The v1 epoch count is not recorded.
+
+No MATLAB network trained by `Main.txt` on this data could be recovered for comparison:
+- **`trainedNet1nDPCv4_1.mat`** (from the upstream git history) is a 7 → 80 → 80 → 2 `dlnetwork`, an architecture different from `Main.txt`.
+- **The InitFcn's commented-out 15 → 16 → 16 → 10 network** has a holdout DPC loss of 1325, against 1.15 for SPADE v1, so it is not a converged `Main.txt` result.
+
+Evidence: [`dpc4pe_parameters.md`](audit/upstream/dpc4pe_parameters.md) §V3 and [`matlab_network_comparison.json`](audit/upstream/matlab_network_comparison.json).
+
 ## 5. Controller performance (dynamic stability)
 
 **Metrics used.**

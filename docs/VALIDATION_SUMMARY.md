@@ -119,6 +119,7 @@ They are not checks against measured data. They show whether the port is faithfu
 | P0 | Baseline on Python 3.12 before the block | 655 passed (not slow), smoke 6/6, CI green on `5427819` | [`p0_baseline.txt`](audit/validation/p0_baseline.txt) |
 | V0 | ADF/BDF vs. the ZOH of a physical L-C filter | exact to float32 (L = 5.02 mH, R_f = 2 Ω, C = 15 µF, Ts = 100 µs); "LCL" → L-C | `tests/simulation/test_vsc_params.py` |
 | V1 | Parameters in `CCS_MPC.slx` / `DPCvalidation.slx` vs. SPADE | L, R_f, C, Ts, the reference and ADF/BDF match. New findings: S-09 (no converter voltage limit in SPADE; upstream V_dc = 200 V and a ±134 V clamp), S-10 (the data-collection MPC is 5-step), S-11, S-12 | [`dpc4pe_parameters.md`](audit/upstream/dpc4pe_parameters.md) |
+| V3 | `train.py` vs. `Main.txt`; any recoverable MATLAB-trained network | port faithful except Adam's step counter and ε; no comparable MATLAB network recoverable (`trainedNet1nDPCv4_1.mat` is 7→80→80→2; the InitFcn 15→16→16→10 network has holdout loss 1325 vs. 1.15 for v1) | [`dpc4pe_parameters.md`](audit/upstream/dpc4pe_parameters.md) §V3 |
 
 ## 6. Pending actions
 

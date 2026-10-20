@@ -139,7 +139,7 @@ Este bloque amplía esa cobertura sin datos reales.
 
 ### V3. Fidelidad del entrenamiento DPC
 
-- [ ] **V3. Comparar `train.py` contra `Main.txt` y `Model_gradients.txt`**
+- [x] **V3. Comparar `train.py` contra `Main.txt` y `Model_gradients.txt`** — cerrada 2026-10-20 con resultado negativo documentado: no hay red MATLAB comparable recuperable.
   - Tabla de fidelidad: optimizador, learning rate, épocas, batch, `num = 6000`, normalización, inicialización, arquitectura y semilla. Marcar cada diferencia como intencional (con su justificación) o como hallazgo.
   - Intento acotado a 1 hora: buscar `trainedNet1nDPCv4_1.mat` en la historia git del repo original y comprobar si es MAT v7.3 (HDF5), legible con h5py.
     - Si los pesos son recuperables, comparar sus salidas con las de la red DPC v1 de SPADE sobre las filas de holdout de `Data4train.mat` (6000–9999).
