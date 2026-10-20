@@ -1,0 +1,20 @@
+P0 baseline -- TODO_CLAUDE_CODE.md P0, 2026-10-20
+Commit: 54278191dec7717c74f4425a0c14de99ac92d084 (dev = main)
+Environment: .venv312, Python 3.12.13, uv venv --python 3.12 + uv pip install -e '.[dev,viz]'
+
+== CI for 5427819 (gh run list --commit $(git rev-parse 5427819))
+completed	success	Add SETUP_CON_AGENTE.md: assisted setup guide for AI coding assistants	tests	main	push	39421582958	14m7s	2026-10-20T12:21:05Z
+
+== python -m pytest -m 'not slow' -q -p no:warnings
+655 passed, 8 deselected in 676.28s (0:11:16)
+pytest exit=0
+
+== python scripts/smoke_test.py --launch
+[PASS] 1. dependencies import (2.1 s) numpy 2.5.4; scipy 1.18.1; pandas 3.0.6; pyarrow 26.0.0; sklearn 1.9.1; yaml 6.0.3; gymnasium 1.4.0; threadpoolctl 3.7.0; tensorflow 2.21.0; keras 3.15.1; streamlit 1.66.0; plotly 7.1.0
+[PASS] 2. application starts (Overview page renders) (0.6 s) AppTest: no exceptions
+[PASS] 2b. Streamlit server answers its health endpoint (1.4 s) http://127.0.0.1:43317 -> ok
+[PASS] 3. platform modules load (0.0 s) rule sets: ['vsc_dpc']
+[PASS] 4. short simulations (DC+PI, DC+MPC, VSC+DPC, PMSM FOC) (1.4 s) final speed 470.3 rpm, VSC |vc| 49.7 V
+[PASS] 5. inference with a registered model (0.3 s) pc_server/2026-10-18_run01 -> outer_race (0.79, calibrated)
+6. no exceptions: PASS -- 6/6 checks passed
+smoke exit=0
