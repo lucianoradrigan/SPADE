@@ -174,7 +174,7 @@ Este bloque amplía esa cobertura sin datos reales.
 
 ### V6. Deriva de GEM upstream
 
-- [ ] **V6. Revisar qué cambió en GEM después de la 3.0.3**
+- [x] **V6. Revisar qué cambió en GEM después de la 3.0.3** — cerrada 2026-10-20: sin deriva; 3.0.3 sigue siendo la última versión publicada.
   - Hacer un diff de los archivos portados (motores, convertidores, cargas, solvers y sistema físico) entre la 3.0.3 y la versión actual de GEM. Listar las correcciones de física o de bugs posteriores al port.
   - Para cada una: ¿afecta a SPADE? ¿conviene incorporarla? No incorporar nada sin confirmación: solo reportar.
 
