@@ -371,7 +371,7 @@ Este bloque amplía esa cobertura sin datos reales.
 
 ### P4. Cierre
 
-- [ ] **P4. Resumen consolidado**
+- [x] **P4. Resumen consolidado** — 2026-10-20: `VALIDATION_SUMMARY.md` §6–§7 actualizado; suite completa 733 aprobadas, 0 fallos; PR de `dev` a `main` abierto (ver el PR para el estado del CI).
   - Actualizar `docs/VALIDATION_SUMMARY.md`: tabla de pruebas, estado por módulo, hallazgos nuevos (S-09…, AI-N13…) y una sección nueva de validación cruzada contra implementaciones de referencia.
   - Confirmar el CI en verde en `dev` y abrir un PR de `dev` a `main` con el resumen.
 

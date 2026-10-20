@@ -1,0 +1,17 @@
+Third pass (TODO_CLAUDE_CODE.md), 2026-10-20, commit 644bef9, Python 3.12.13
+Command: python -m pytest -rxXs -p no:warnings
+
+=========================== short test summary info ============================
+XFAIL tests/simulation/test_gem_equivalence.py::test_default_pmsm_solver_matches_rk45_within_5pct_at_nominal_speed - S-13: Euler with 3 substeps is stable at nominal speed but not accurate (open-loop RMS i_s error vs RK45: 24.6 % at 314 rad/s, 48 % at 400 rad/s)
+================== 733 passed, 1 xfailed in 824.78s (0:13:44) ==================
+exit=0
+
+Command: python scripts/smoke_test.py --launch
+[PASS] 1. dependencies import (2.0 s) numpy 2.5.4; scipy 1.18.1; pandas 3.0.6; pyarrow 26.0.0; sklearn 1.9.1; yaml 6.0.3; gymnasium 1.4.0; threadpoolctl 3.7.0; tensorflow 2.21.0; keras 3.15.1; streamlit 1.66.0; plotly 7.1.0
+[PASS] 2. application starts (Overview page renders) (0.5 s) AppTest: no exceptions
+[PASS] 2b. Streamlit server answers its health endpoint (1.3 s) http://127.0.0.1:46421 -> ok
+[PASS] 3. platform modules load (0.0 s) rule sets: ['vsc_dpc']
+[PASS] 4. short simulations (DC+PI, DC+MPC, VSC+DPC, PMSM FOC) (1.4 s) final speed 470.3 rpm, VSC |vc| 49.7 V
+[PASS] 5. inference with a registered model (0.3 s) pc_server/2026-10-18_run01 -> outer_race (0.79, calibrated)
+6. no exceptions: PASS -- 6/6 checks passed
+exit=0

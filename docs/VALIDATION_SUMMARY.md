@@ -1,4 +1,4 @@
-# Validation summary — SPADE (2026-10-18, second pass 2026-10-19)
+# Validation summary — SPADE (2026-10-18, second pass 2026-10-19, third pass 2026-10-20)
 
 This page consolidates the technical state after the stability / AI / installation audit, which started from commit `b053de7`.
 
@@ -7,6 +7,14 @@ The **second pass** (2026-10-19) fixed the findings the first pass had left open
 - [AI technical audit](AI_TECHNICAL_AUDIT.md), findings **AI-N01…AI-N12**, which builds on the earlier [`AUDIT_ANSWERS.md`](../AUDIT_ANSWERS.md);
 - installation guides for [Ubuntu](INSTALL_UBUNTU.md), [Windows](INSTALL_WINDOWS.md) and [macOS](INSTALL_MACOS.md);
 - [demo scenarios](DEMO_VALIDATION_SCENARIOS.md).
+
+The **third pass** (2026-10-20) ran the task list in [`TODO_CLAUDE_CODE.md`](../TODO_CLAUDE_CODE.md). It covered:
+- **Cross-validation against the reference implementations (§6):** DPC4PowerElectronics and gym-electric-motor 3.0.3. These comparisons are against implementations, not measured data.
+- **Control work:** C1–C3.
+- **AI work:** A1, A3, A4.
+- **Platform work:** P1–P3.
+
+It added findings **S-09…S-13** and **AI-N13…AI-N14**. Results that change a default or promote a model are implemented and documented, but **not switched on**; they wait for confirmation (§7).
 
 ## 1. Test runs
 
@@ -17,6 +25,9 @@ The **second pass** (2026-10-19) fixed the findings the first pass had left open
 | Final, everything | `python -m pytest -rxXs` | **638 passed, 5 xfailed, 0 failed**, 9 min 41 s ([final log](audit/validation/final_pytest_output.txt)) |
 | **Second pass, everything** | `python -m pytest -rxXs` | **663 passed, 0 xfailed, 0 failed**, 9 min 51 s. The 5 strict xfails of the first pass now pass and are ordinary tests ([log](audit/validation/second_pass_pytest_output.txt)) |
 | Smoke test, second pass | `python scripts/smoke_test.py --launch` | 6/6 PASS, with the promoted classifier's calibrated output |
+| **Third pass, everything** (Python 3.12) | `python -m pytest -rxXs` | **733 passed, 1 xfailed, 0 failed**, 13 min 44 s; the strict xfail is S-13 ([log](audit/validation/third_pass_pytest_output.txt)) |
+| Smoke test, third pass | `python scripts/smoke_test.py --launch` | 6/6 PASS |
+| Intel-Mac pin emulated on Linux (P2) | `pytest -m "not slow"` with `constraints/macos-intel.txt` | 687 passed, 1 xfailed, 0 failed ([log](audit/install/macos_intel_emulated_on_linux_p2.txt)) |
 | Do the new tests detect the defects? | fixed files reverted to pre-fix versions | **25 of 43** targeted tests fail on the pre-fix code and pass after; the other 18 pin behavior that was already correct ([evidence](audit/validation/regression_tests_vs_prefix_code.txt)) |
 | Stability battery | `python experiments/run_stability_battery.py` | executed, 731 s ([results](audit/stability/results.md)) |
 | Classifier evaluation | `python experiments/report_classifier_evaluation.py` | executed, 98 s ([results](audit/ai/classifier_evaluation.md)) |
@@ -30,14 +41,14 @@ The **second pass** (2026-10-19) fixed the findings the first pass had left open
 | Module | Numerical | Reproducible | Dynamic behavior | Open issues |
 |---|---|---|---|---|
 | DC motor + PI | ✅ first-order convergence to RK45; Euler limit 26× above the production step; 60 s with no drift | ✅ bitwise | ✅ matches the linear design model; reaches the current-limited bound; robust to the 4 parameter drifts | S-04 (≈15 % small-signal overshoot, documented) |
-| DC motor + MPC | ✅ | ✅ | ✅ stable; small steady-state offset 0.04–0.09 % (no integrator) | about 65–75× the PI's CPU cost |
-| PMSM / FOC | ✅ **S-01 fixed**: default Euler with 3 substeps, stable up to ≈460 rad/s (1.47× nominal) | ✅ | ✅ Euler = RK45 within 0.5 % of i_s | — |
-| VSC + DPC | ✅ bounded; divergence below R\* is physics | ✅ | ✅ **S-05 fixed**: DPC v4 tracks within 3.1 V from 4 Ω to 1 kΩ (v3: up to 111 V). Trade-off: 2.5 V at 8 Ω (v3 1.18 V) | nominal-point and 10 V-reference accuracy below v3 |
+| DC motor + MPC | ✅ | ✅ | ✅ stable; small steady-state offset 0.04–0.09 % (no integrator) | default solver ≈ 65–330× the PI's CPU cost; `qp_solver="exact"` (C3) is 8–190× faster, not yet the default |
+| PMSM / FOC | ✅ **S-01 fixed**: default Euler with 3 substeps, stable up to ≈460 rad/s (1.47× nominal); bit-identical to GEM 3.0.3 (V4) | ✅ | ✅ Euler = RK45 within 0.5 % of i_s in the closed-loop demo; MTPA = GEM's table within 1 A (V5); now produces datasets (P1) | **S-13**: open-loop accuracy at high speed (24.6 % RMS i_s error at 314 rad/s) |
+| VSC + DPC | ✅ bounded; divergence below R\* is physics; ADF/BDF = exact ZOH of the upstream L-C filter (V0, V1) | ✅ | ✅ **S-05 fixed**: DPC v4 tracks within 3.1 V from 4 Ω to 1 kΩ. C1: the v3/v4 operating-point selection recovers 1.18 V at 8 Ω (not yet the default). The ported upstream MPC reaches 0.14 V (V2) | **S-09**: no converter voltage limit (120/150 V points are idealized); S-10 input convention |
 | Fault injection / signals | ✅ S-06 fixed | ✅ | n/a | — |
-| Diagnosis classifiers | n/a | ✅ | ✅ **AI-N06/N07 fixed**: grid-trained model, 1.000 on held-out speeds (115, 190, 250 rad/s) and severity ×0.6; 0.969 at 100 % noise; calibrated, with abstention | AI-N12: ball faults (no class) confidently called outer_race |
-| Forecasters | n/a | ✅ | ✅ **AI-N11 fixed**: condition-split test, RMSE 0.073 vs persistence 1.056 | RPi5 GRU export needs Flex ops |
+| Diagnosis classifiers | n/a | ✅ | ✅ **AI-N06/N07 fixed**: grid-trained model, 1.000 on held-out speeds (115, 190, 250 rad/s) and severity ×0.6; 0.969 at 100 % noise; calibrated, with abstention | AI-N12 / **AI-N13**: no OOD method catches ball faults (A1 negative); **AI-N14**: 0.58 at 50 rad/s, 0.68 at 150 % noise |
+| Forecasters | n/a | ✅ | ✅ **AI-N11 fixed**: condition-split test, RMSE 0.073 vs persistence 1.056 | promoted RPi5 GRU needs Flex ops; a builtin-only TCN candidate (A3) awaits promotion |
 | Monitoring / alerts | — | ✅ | ✅ AI-N02/N03/N04/N08 fixed: telemetry-time evaluation, off-delay; anomaly agent AUC 1.0 and 0.057 s per call (AI-N09/N10) | thresholds measured on simulated runs only |
-| Installation | — | — | ✅ Ubuntu 26.04 executed (uv + Python 3.11, venv/pip + Python 3.12): smoke 6/6 | Windows, macOS, Ubuntu 22.04/24.04 **not executed** (CI jobs pushed) |
+| Installation | — | — | ✅ Ubuntu 26.04 executed (uv + Python 3.11, venv/pip + Python 3.12): smoke 6/6; CI smoke green on Ubuntu / Windows / macOS; Intel-Mac pin emulated: 687 passed, 0 failed (P2) | manual runs on Windows, macOS, Ubuntu 22.04/24.04 not done |
 
 ## 3. Critical and high issues
 
@@ -49,7 +60,8 @@ The **second pass** (2026-10-19) fixed the findings the first pass had left open
 | AI-N07 — classifiers did not generalize to other speeds or severities | High | **Fixed and tested** on held-out simulated conditions (speed × severity × noise × plant-drift grid, rpm level kept). |
 | AI-N12 — uncalibrated confidence, no abstention | High | **Mitigated**: temperature scaling and an abstention threshold, fitted on validation. Not solved for unseen fault types (ball). |
 | S-01 — Euler integration of the PMSM at high speed | High (latent) | **Fixed and tested** |
-| macOS Intel — an unpinned install breaks | High (installation) | **Mitigated**: `constraints/macos-intel.txt`. The pinned set was checked by emulation on Linux, not on a Mac. |
+| macOS Intel — an unpinned install breaks | High (installation) | **Mitigated**: `constraints/macos-intel.txt`. The pinned set was checked by emulation on Linux (third pass: 0 failures), not on a Mac. |
+| AI-N13 — no OOD detector catches unseen ball faults at a usable false-alarm rate | High (negative result) | **Open**: Mahalanobis / energy tried (A1); decision passes to A2 (ball/cage classes) |
 
 ## 4. Corrections implemented
 
@@ -106,39 +118,56 @@ New evidence scripts:
 | `validation-scheduled.yml` | weekly + manual | the slow tests, the stability battery and the classifier evaluation; results uploaded as artifacts |
 
 
-## 7. Cross-check against reference implementations (2026-10-20, TODO_CLAUDE_CODE.md)
+## 6. Third pass: cross-checks and TODO tasks (2026-10-20, TODO_CLAUDE_CODE.md)
 
-**What these checks are.** They compare SPADE with the implementations it was ported from:
-- DPC4PowerElectronics (MATLAB/Simulink);
-- gym-electric-motor.
+One row per task of [`TODO_CLAUDE_CODE.md`](../TODO_CLAUDE_CODE.md).
 
-They are not checks against measured data. They show whether the port is faithful; they do not show that the models represent a real machine.
+**The V rows.** They compare SPADE with the implementations it was ported from: DPC4PowerElectronics (MATLAB/Simulink) and gym-electric-motor. They are not checks against measured data. They show whether the port is faithful, not that the models represent a real machine.
+
+**Every other row.** It measures simulated behavior only.
 
 | Task | What was checked | Result | Evidence |
 |---|---|---|---|
 | P0 | Baseline on Python 3.12 before the block | 655 passed (not slow), smoke 6/6, CI green on `5427819` | [`p0_baseline.txt`](audit/validation/p0_baseline.txt) |
 | V0 | ADF/BDF vs. the ZOH of a physical L-C filter | exact to float32 (L = 5.02 mH, R_f = 2 Ω, C = 15 µF, Ts = 100 µs); "LCL" → L-C | `tests/simulation/test_vsc_params.py` |
 | V1 | Parameters in `CCS_MPC.slx` / `DPCvalidation.slx` vs. SPADE | L, R_f, C, Ts, the reference and ADF/BDF match. New findings: S-09 (no converter voltage limit in SPADE; upstream V_dc = 200 V and a ±134 V clamp), S-10 (the data-collection MPC is 5-step), S-11, S-12 | [`dpc4pe_parameters.md`](audit/upstream/dpc4pe_parameters.md) |
-| V3 | `train.py` vs. `Main.txt`; any recoverable MATLAB-trained network | port faithful except Adam's step counter and ε; no comparable MATLAB network recoverable (`trainedNet1nDPCv4_1.mat` is 7→80→80→2; the InitFcn 15→16→16→10 network has holdout loss 1325 vs. 1.15 for v1) | [`dpc4pe_parameters.md`](audit/upstream/dpc4pe_parameters.md) §V3 |
 | V2 | Upstream CCS-MPC ported (`control/mpc/vsc_ccs_mpc.py`) vs. DPC v3/v4, R = 3.5 Ω–5 kΩ × \|v_ref\| = 10–150 V | MPC N=5: 0.14 V at 8 Ω/50 V (v3 1.18, v4 2.52) and < 1 V on the whole grid; with the ±134 V clamp it fails exactly where S-09 predicts; v4 reaches 14.7 V at 5 kΩ | [`dpc_vs_mpc.md`](audit/stability/dpc_vs_mpc.md) |
-| A1 | OOD detector (Mahalanobis on two layers, energy) for ball/cage faults, fitted in-distribution only | **targets not met** (ball flagged 9–13 %, cage unknown-or-fault 66–77 %; AUROC ≈ 0.9). Negative result AI-N13; not activated in the promoted run. New AI-N14: 50 rad/s accuracy 0.58, 150 % noise 0.68 | [`ood_detector.md`](audit/ai/ood_detector.md) |
-| C2 | Optional PI setpoint weight b (S-04) | b = 1 unchanged (byte-identical datagen tests pass); small-step overshoot 15.1 % → 3.1 % (b = 0.7) → 0.4 % (b = 0.5), matching the linear model; disturbance rejection unchanged | `tests/control/test_controller_performance.py::TestPiSetpointWeighting` |
+| V3 | `train.py` vs. `Main.txt`; any recoverable MATLAB-trained network | port faithful except Adam's step counter and ε; no comparable MATLAB network recoverable (`trainedNet1nDPCv4_1.mat` is 7→80→80→2; the InitFcn 15→16→16→10 network has holdout loss 1325 vs. 1.15 for v1) | [`dpc4pe_parameters.md`](audit/upstream/dpc4pe_parameters.md) §V3 |
 | V4 | DC motor (Euler, solve_ivp; new load and voltage steps) and PMSM at 400 rad/s against GEM 3.0.3 | same solver: identical to the last bit (4 cases); DC Euler vs. RK45 0.19 % speed / 2.6 % current; GEM's own 1-step Euler diverges at 400 rad/s (S-01 confirmed independently); **S-13**: the default 3-substep Euler is 24.6 % off RK45 at 314 rad/s open loop | `tests/simulation/test_gem_equivalence.py`, `tests/data/gen_ref_data_v4.py` |
+| V5 | GEM 3.0.3's classical controllers (gem_controllers) vs. SPADE's on the same DC plant; MTPA curve | MTPA: closed form = GEM's table within 1.0 A over 2.9–716 N·m (GEM grid resolution); DC small step: GEM PI overshoot 33.6 % vs. SPADE 15.1 % (b = 1) / 3.1 % (b = 0.7); start-up nearly identical. gem_controllers 3.0.3 needs NumPy < 2 | [`gem_controller_comparison.md`](audit/upstream/gem_controller_comparison.md) |
+| V6 | GEM upstream drift after 3.0.3 in the ported physics | none: `master` = tag v3.0.3 = latest PyPI release (2025-12-19); the only unmerged branch touching `physical_systems/` (EESM defaults, 2024) does not affect SPADE | [`gem_upstream_drift.md`](audit/upstream/gem_upstream_drift.md) |
 | C1 | DPC nominal accuracy, option 1: v3/v4 selected by operating point (`ScheduledDpcController`), region chosen on a design grid | all C1 targets met (8 Ω: 1.18 V at 50 V, 1.75 V at 10 V; 4/20/1000 Ω ≤ 3.10 V); never worse than v4 on 44 held-out points; **default unchanged** (needs confirmation) | [`dpc_operating_point_selection.md`](audit/stability/dpc_operating_point_selection.md) |
+| C2 | Optional PI setpoint weight b (S-04) | b = 1 unchanged (byte-identical datagen tests pass); small-step overshoot 15.1 % → 3.1 % (b = 0.7) → 0.4 % (b = 0.5), matching the linear model; disturbance rejection unchanged | `tests/control/test_controller_performance.py::TestPiSetpointWeighting` |
+| C3 | MPC CPU cost: `qp_solver="exact"` (closed form + exact piecewise-QP via BVLS, L-BFGS-B as last resort) | 8–190× faster on 4 benchmark runs (MPC ≈ 7.6× PI instead of ≈ 330×); differences come from L-BFGS-B's 50-iteration cap (exact holds the 178.5 A limit, same settled tracking); **default unchanged** (bit-identical; switching needs confirmation) | [`mpc_exact_solver.json`](audit/stability/mpc_exact_solver.json), `TestExactQpSolver` |
+| A1 | OOD detector (Mahalanobis on two layers, energy) for ball/cage faults, fitted in-distribution only | **targets not met** (ball flagged 9–13 %, cage unknown-or-fault 66–77 %; AUROC ≈ 0.9). Negative result AI-N13; not activated in the promoted run. New AI-N14: 50 rad/s accuracy 0.58, 150 % noise 0.68 | [`ood_detector.md`](audit/ai/ood_detector.md) |
 | A3 | RPi5 forecaster without Flex ops: TCN (7×32, kernel 3) distilled from the PC model | 0 Flex ops (GRU: 3); held-out RMSE 0.0642 vs. 0.0634 GRU (×1.01) and 1.056 persistence; TFLite/Keras parity 0.0643/0.0642; **not promoted** (needs confirmation) | [`AI_TECHNICAL_AUDIT.md`](AI_TECHNICAL_AUDIT.md) §8.2 |
+| A4 | Capacitor degradation separability, pre-registered cut AUC ≥ 0.70 at C = 80 % (DPC v4 closed loop, logistic regression grouped by operating point) | **passes**: C 70–90 % AUC 1.000 (noise-free; 0.975 at C = 80 % with 5 % measurement noise); ESR 0.05–0.2 Ω not separable (0.51–0.57). Synthetic fault definition only; classifier proposed as a new task, not built | [`vsc_capacitor_separability.md`](audit/ai/vsc_capacitor_separability.md) |
 | P1 | PMSM in the data pipeline (`plant_config_id="pmsm_v1"`, FOC_MTPA / FOC_naive) | records with the shared schema + `i_d, i_q, i_d_ref, i_q_ref, u_d, u_q, omega_rad_s` (optional columns, so DC/VSC exports are unchanged: existing datagen tests pass); MTPA 119.9 N·m vs. 59.7 N·m at 200 A; generator `experiments/generate_pmsm_dataset.py` (80 scenarios). No fault model, no diagnosis | `tests/test_datagen_pmsm.py` |
 | P2 | Transfer Learning page and TFLite size test under the Intel-Mac pin (Streamlit 1.60, TF 2.16), emulated on Linux | page keeps step widget state (fixes the AppTest `KeyError` after jumping to step 4; values now survive step navigation); size test compares a model whose weights dominate the file. Non-slow suite: **687 passed, 0 failed** (was 631 / 3 failed) | [`macos_intel_emulated_on_linux_p2.txt`](audit/install/macos_intel_emulated_on_linux_p2.txt) |
-| A4 | Capacitor degradation separability, pre-registered cut AUC ≥ 0.70 at C = 80 % (DPC v4 closed loop, logistic regression grouped by operating point) | **passes**: C 70–90 % AUC 1.000 (noise-free; 0.975 at C = 80 % with 5 % measurement noise); ESR 0.05–0.2 Ω not separable (0.51–0.57). Synthetic fault definition only; classifier proposed as a new task, not built | [`vsc_capacitor_separability.md`](audit/ai/vsc_capacitor_separability.md) |
-| V6 | GEM upstream drift after 3.0.3 in the ported physics | none: `master` = tag v3.0.3 = latest PyPI release (2025-12-19); the only unmerged branch touching `physical_systems/` (EESM defaults, 2024) does not affect SPADE | [`gem_upstream_drift.md`](audit/upstream/gem_upstream_drift.md) |
-| V5 | GEM 3.0.3's classical controllers (gem_controllers) vs. SPADE's on the same DC plant; MTPA curve | MTPA: closed form = GEM's table within 1.0 A over 2.9–716 N·m (GEM grid resolution); DC small step: GEM PI overshoot 33.6 % vs. SPADE 15.1 % (b = 1) / 3.1 % (b = 0.7); start-up nearly identical. gem_controllers 3.0.3 needs NumPy < 2 | [`gem_controller_comparison.md`](audit/upstream/gem_controller_comparison.md) |
-| C3 | MPC CPU cost: `qp_solver="exact"` (closed form + exact piecewise-QP via BVLS, L-BFGS-B as last resort) | 8–190× faster on 4 benchmark runs (MPC ≈ 7.6× PI instead of ≈ 330×); differences come from L-BFGS-B's 50-iteration cap (exact holds the 178.5 A limit, same settled tracking); **default unchanged** (bit-identical; switching needs confirmation) | [`mpc_exact_solver.json`](audit/stability/mpc_exact_solver.json), `TestExactQpSolver` |
 | P3 | Edge benchmark kit, preparation only (`scripts/edge_benchmark/`): reference vectors, RPi5 script (LiteRT / tflite-runtime), ESP32 TFLM skeleton | **not executed on hardware**; host run only: RPi5 script reports `HOST FALLBACK`, top-1 agreement 1.0 with Keras on 64 windows; ESP32 sources generated, not compiled | `scripts/edge_benchmark/README.md`, `tests/test_edge_benchmark_kit.py` |
 
-## 6. Pending actions
+## 7. Pending actions
 
-1. **Real data.** No real measurements exist in this project, so every model number above is from the simulator. A real hold-out set is the only way to validate any diagnosis claim: another machine or bearing, at least two speeds, inner and outer race faults.
-2. **Unseen fault types.** The classifier has no ball or cage class. Ball faults are called outer_race with confidence 0.99, and the abstention threshold does not catch them. Either add those classes (their severity calibration is a documented placeholder) or add an out-of-distribution detector.
-3. **DPC accuracy at the nominal point.** v4 trades nominal accuracy (2.5 V vs 1.18 V at 8 Ω, 4.2 V at a 10 V reference) for range. One extra round at a lower learning rate made it worse (`dpc_r_range_finetune_v5.json`). A larger network or a loss weighted toward small references are the next options.
-4. **RPi5 GRU forecaster** still needs Flex ops on TFLite. An unrolled GRU or a TCN would remove them.
-5. **Installation.** Confirm that the Windows and macOS CI jobs pass. Run the guides once by hand on Windows 11, an Apple-Silicon Mac, an Intel Mac and Ubuntu 22.04.
-6. **Hardware.** No `.tflite` model has been run on a Raspberry Pi 5 or an ESP32.
+### 7.1 Waiting for your decision (implemented, evidence written, not switched on)
+
+1. **Default DPC controller → v3/v4 selection by operating point (C1).**
+   - **What it improves:** all C1 targets are met: 8 Ω at 1.18 V instead of 2.52 V, and 10 V at 1.75 V instead of 4.24 V.
+   - **What switching changes:** every DPC scenario, and the thresholds of `test_dpc_robustness_grid.py`, which would be re-measured.
+2. **Promote the RPi5 TCN forecaster** `rpi5_tcn/2026-10-20_run01` (A3).
+   - **What it improves:** it has no Flex ops and an RMSE 1.01× the GRU's.
+   - **Command:** `python experiments/promote_run.py configs/regressors/rpi5_tcn/2026-10-20_run01`.
+3. **Default MPC solver → `qp_solver="exact"` (C3).**
+   - **What it improves:** it is 8–190× faster and reaches the true optimum.
+   - **What switching changes:** MPC trajectories change slightly.
+4. **PMSM default solver (S-13).** The 3-substep Euler is stable but 25–48 % off RK45 open loop at 314–400 rad/s. Options: more substeps (×10 gives 5.3 % at 314 rad/s), or an RK solver.
+5. **Converter voltage limit (S-09).** The upstream converter has V_dc = 200 V and a ±134 V clamp. Adding one would make the 120 V and 150 V operating points behave as on the original hardware.
+6. **A2: ball/cage classes.** A1's OOD detector did not reach its targets (AI-N13). Adding the classes means synthetic-only, uncalibrated amplitudes.
+7. **A4 follow-up: a capacitor-degradation classifier for the VSC.** Separability passed the pre-registered cut for capacitance loss, not for ESR. The next step adds parameter uncertainty (R, L, R_f) and sensor noise to the dataset first.
+8. **dc_motor regressor:** no use case is defined.
+
+### 7.2 Open, not blocked on a decision
+
+1. **Real data.** No real measurements exist in this project, so every model number above comes from the simulator. A real hold-out set is the only way to validate any diagnosis claim: another machine or bearing, at least two speeds, inner and outer race faults.
+2. **AI-N14.** The classifier's accuracy is 0.58 at 50 rad/s, below the training grid, and 0.68 at 150 % noise. Extend the training grid down in speed and up in noise.
+3. **Installation.** Run the guides once by hand on Windows 11, an Apple-Silicon Mac, an Intel Mac and Ubuntu 22.04. CI covers the smoke test only.
+4. **Hardware.** No `.tflite` model has been run on a Raspberry Pi 5 or an ESP32. `scripts/edge_benchmark/` (P3) is ready for when one is available.
