@@ -87,10 +87,16 @@ def _controls(col, custom_faults: dict, motor: dict) -> dict:
             with st.expander("Post-simulation noise"):
                 e_noise = slider_with_custom(st, "Electrical noise (%)", 0.0, 20.0, 0.0, key="dc_elec_noise")
                 m_noise = slider_with_custom(st, "Vibration noise (%)", 0.0, 20.0, 0.0, key="dc_mech_noise")
+            sp_weight = None
+            if controller == "PI":
+                with st.expander("Advanced: PI setpoint weighting"):
+                    sp_weight = st.slider("Setpoint weight b", 0.0, 1.0, 1.0, 0.05, key="dc_pi_setpoint_weight",
+                                          help="Weight of ω_ref in the speed loop's proportional term only: P = kp·(b·ω_ref − ω). b = 1 is the default controller; b < 1 reduces the ≈15 % overshoot on small speed steps (S-04) without changing disturbance rejection or steady-state tracking.")
     return {
         "controller": controller, "fault_label": fault_label, "control_mode": "speed" if mode.startswith("Speed") else "torque", "setpoint": float(setpoint),
         "duration_s": float(duration), "seed": int(seed), "electrical_severity": float(elec), "mechanical_severity": None if mech is None else float(mech),
         "electrical_noise_pct": float(e_noise), "mechanical_noise_pct": float(m_noise), "motor": motor,
+        "pi_setpoint_weight": None if sp_weight is None or sp_weight == 1.0 else float(sp_weight),
     }
 
 

@@ -162,7 +162,8 @@ _DC_MOTOR_CONTROLLERS = {"PI": PICascadeController, "MPC": MpcController}
 
 def _run_dc_motor_scenario(scenario: Scenario) -> list:
     system = build_plant(scenario)
-    controller = _DC_MOTOR_CONTROLLERS[scenario.controller_type](system)
+    controller_kwargs = {"setpoint_weight": scenario.pi_setpoint_weight} if scenario.controller_type == "PI" and scenario.pi_setpoint_weight is not None else {}
+    controller = _DC_MOTOR_CONTROLLERS[scenario.controller_type](system, **controller_kwargs)
     vibration_synth = build_vibration_synthesizer(scenario)
 
     system.seed(np.random.SeedSequence(scenario.seed))

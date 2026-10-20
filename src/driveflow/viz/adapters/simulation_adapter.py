@@ -42,6 +42,8 @@ def run_dc(params: dict, custom_faults: dict, scenario_id: str = "dashboard_run"
         motor_parameter_overrides=params["motor"], electrical_noise_pct=params["electrical_noise_pct"], mechanical_noise_pct=params["mechanical_noise_pct"],
         fault_order_override=override, extra_faults=extras,
     )
+    if params.get("pi_setpoint_weight") is not None and params["controller"] == "PI":
+        kwargs["pi_setpoint_weight"] = params["pi_setpoint_weight"]
     if params["control_mode"] == "speed":
         kwargs["omega_ref_rad_s"] = params["setpoint"]
     else:

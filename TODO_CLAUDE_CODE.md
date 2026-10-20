@@ -318,7 +318,7 @@ Este bloque amplía esa cobertura sin datos reales.
 
 ### C2. S-04: sobreimpulso del PI
 
-- [ ] **C2. Agregar ponderación de setpoint opcional**
+- [x] **C2. Agregar ponderación de setpoint opcional** — cerrada 2026-10-20: b = 0,7 → 3,1 %, b = 0,5 → 0,4 % de sobreimpulso; default b = 1 sin cambios.
   - En `control/classical/pi_controller.py`, agregar el parámetro `setpoint_weight` b ∈ [0, 1], o en su defecto un prefiltro de referencia.
   - El default conserva el comportamiento actual (b = 1), para que las pruebas byte a byte y los datasets no cambien.
   - Medir el sobreimpulso en pequeña señal con b = 1, 0,7 y 0,5 frente al modelo lineal, comparando con el lazo de GEM (V5) si ya existe.

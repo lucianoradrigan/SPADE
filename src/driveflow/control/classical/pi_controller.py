@@ -31,6 +31,7 @@ class PICascadeController:
         speed_bandwidth_rad_s: float = 80.0,
         speed_damping: float = 0.9,
         current_safety_margin: float = 0.8,
+        setpoint_weight: float = 1.0,
     ):
         """
         Args:
@@ -47,7 +48,16 @@ class PICascadeController:
             current_safety_margin: Fraction of the current limit the speed loop is allowed to
                 command as a reference (keeps the operating point away from the motor's absolute
                 current limit).
+            setpoint_weight: b in [0, 1], the weight of the speed reference in the speed loop's
+                PROPORTIONAL term only: P = kp*(b*omega_ref - omega); the integral still acts on
+                the full error, so steady-state tracking is unchanged. b < 1 moves the
+                reference-to-speed zero from -ki/kp to -ki/(b*kp), reducing the ~15 % small-step
+                overshoot (S-04) without changing the poles or the load-disturbance response.
+                b = 1 (default) is the original controller, operation for operation.
         """
+        if not 0.0 <= setpoint_weight <= 1.0:
+            raise ValueError(f"setpoint_weight must be in [0, 1], got {setpoint_weight}")
+        self.setpoint_weight = setpoint_weight
         motor_params = system.electrical_motor.motor_parameter
         r_a = motor_params["r_a"]
         l_a = motor_params["l_a"]
@@ -110,7 +120,8 @@ class PICascadeController:
         # Outer loop: speed error -> current reference.
         omega_error = omega_ref - omega
         i_max = self.limits[self.current_idx] * self.current_safety_margin
-        i_ref_raw = self.kp_omega * omega_error + self._omega_integral
+        p_error = omega_error if self.setpoint_weight == 1.0 else self.setpoint_weight * omega_ref - omega
+        i_ref_raw = self.kp_omega * p_error + self._omega_integral
         i_ref = float(np.clip(i_ref_raw, -i_max, i_max))
         if i_ref == i_ref_raw:
             self._omega_integral += self.ki_omega * omega_error * self.tau

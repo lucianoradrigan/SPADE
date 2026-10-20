@@ -116,6 +116,9 @@ class Scenario:
             the existing/original behavior. When set, omega_ref_rad_s has no effect (there is no
             speed reference to track in this mode) -- mutually exclusive, like fault_type/
             electrical_severity being ignored for DPC scenarios.
+        pi_setpoint_weight: dc_perm_ex_v1 with controller_type="PI" only -- setpoint weight b in
+            [0, 1] of the speed loop's proportional term (PICascadeController, S-04). None
+            (default) keeps the controller's own default b = 1, the original behavior.
     """
 
     scenario_id: str
@@ -136,6 +139,7 @@ class Scenario:
     load_resistance_ohm: float = None
     reference_magnitude_v: float = None
     reference_omega_rad_s: float = None
+    pi_setpoint_weight: float = None
 
     _VALID_PAIRS = {("PI", "dc_perm_ex_v1"), ("MPC", "dc_perm_ex_v1"), ("DPC", "vsc_dpc_v1")}
 
@@ -183,6 +187,9 @@ class Scenario:
         finite("load_resistance_ohm", self.load_resistance_ohm, 0.0, strict=True)
         finite("reference_magnitude_v", self.reference_magnitude_v, 0.0)
         finite("reference_omega_rad_s", self.reference_omega_rad_s)
+        finite("pi_setpoint_weight", self.pi_setpoint_weight, 0.0)
+        if self.pi_setpoint_weight is not None and self.pi_setpoint_weight > 1.0:
+            raise ValueError(f"Scenario.pi_setpoint_weight must be <= 1, got {self.pi_setpoint_weight!r}")
         for key, value in (self.motor_parameter_overrides or {}).items():
             finite(f"motor_parameter_overrides[{key!r}]", value, 0.0, strict=key in self._POSITIVE_MOTOR_PARAMETERS)
         for i, (_ft, order) in enumerate(self.extra_faults or []):

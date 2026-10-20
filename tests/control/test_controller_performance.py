@@ -163,3 +163,44 @@ class TestMpc:
         r = run_dc_closed_loop("MPC", 150.0, duration_s=0.7, load_step_nm=10.0, load_step_t_s=0.4)
         assert np.all(np.isfinite(r["omega"]))
         assert abs(r["omega"][-1] - 150.0) < 0.002 * 150.0
+
+
+class TestPiSetpointWeighting:
+    """C2 / S-04: optional setpoint weight b on the speed loop's proportional term. Measured
+    2026-10-20 on the 2 rad/s step at 150 rad/s: overshoot 15.1 % (b = 1), 3.1 % (b = 0.7),
+    0.4 % (b = 0.5); rise time 9.3 / 16.2 / 24.1 ms; load-step dip unchanged (1.804 rad/s)."""
+
+    @staticmethod
+    def _step(weight):
+        s = build_dc_system()
+        c = PICascadeController(s)
+        psi, j, b = c.psi_e, s.mechanical_load.j_total, DC_LOAD_PARAMETER["b"]
+        lin_sys = signal.lti([psi * c.kp_omega * weight, psi * c.ki_omega], [j, b + psi * c.kp_omega, psi * c.ki_omega])
+        t, y = _linear_step(lin_sys, 2.0)
+        lin = step_response_metrics(t, 150.0 + y, 152.0, 150.0)
+        r = run_dc_closed_loop("PI", lambda tt: 150.0 if tt < T_STEP else 152.0, duration_s=0.8, controller_kwargs=dict(setpoint_weight=weight))
+        return lin, step_response_metrics(r["t"], r["omega"], 152.0, 150.0, t_step=T_STEP)
+
+    @pytest.mark.parametrize("weight", [0.7, 0.5])
+    def test_overshoot_follows_the_design_model_and_drops(self, weight):
+        lin, sim = self._step(weight)
+        assert sim.overshoot_pct == pytest.approx(lin.overshoot_pct, abs=1.5)
+        assert sim.overshoot_pct < (5.0 if weight == 0.7 else 1.0)
+        assert sim.steady_state_error < 1e-6
+
+    def test_default_weight_is_the_original_controller(self, metrics):
+        _, sim_default, r_default = metrics
+        r = run_dc_closed_loop("PI", lambda tt: 150.0 if tt < T_STEP else 152.0, duration_s=0.8, controller_kwargs=dict(setpoint_weight=1.0))
+        np.testing.assert_array_equal(r["omega"], r_default["omega"])
+
+    def test_disturbance_rejection_does_not_depend_on_the_weight(self, disturbance_run):
+        # The start-up from rest differs (that IS a reference step); once settled, the response to
+        # the load step at 0.5 s must not depend on b.
+        r = run_dc_closed_loop("PI", 150.0, duration_s=1.0, load_step_nm=10.0, load_step_t_s=0.5, controller_kwargs=dict(setpoint_weight=0.5))
+        after = r["t"] >= 0.5
+        np.testing.assert_allclose(r["omega"][after], disturbance_run["omega"][after], rtol=0, atol=1e-6)
+
+    @pytest.mark.parametrize("weight", [-0.1, 1.5])
+    def test_rejects_weights_outside_0_1(self, weight):
+        with pytest.raises(ValueError):
+            PICascadeController(build_dc_system(), setpoint_weight=weight)
