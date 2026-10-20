@@ -12,7 +12,9 @@ was scored.
 
 Evaluation sets (freshly simulated, never used for training):
 - in-distribution: the run's test split;
-- unseen fault types: ball and cage at speeds 80/125/175/220 rad/s x severity 0.5/1/2, 2 seeds;
+- unseen fault types (--ood-set): ball and cage (A1, 3-class model), or two custom bearing faults
+  at orders 1.3 and 6.5 x shaft speed (A2, 5-class model), at speeds 80/125/175/220 rad/s x
+  severity 0.5/1/2, 2 seeds;
 - benign shifts (known classes, conditions outside the grid): 50 rad/s, 300 rad/s, and 150 %
   sensor noise at the default speed, 2 seeds per class.
 
@@ -22,6 +24,8 @@ or called a fault; accuracy on answered in-distribution windows drops by at most
 Usage:
 
     python experiments/report_ood_detector.py --out-dir docs/audit/ai [--cache data/ood_eval_cache.parquet]
+    python experiments/report_ood_detector.py --run-dir configs/classifiers/pc_server_5class/<run> \
+        --ood-set custom_orders --cache data/ood_eval_cache_custom.parquet
         [--write-to-run]   # store metrics.json["ood"] in the run (changes what the GUI shows)
 """
 
@@ -49,6 +53,15 @@ OOD_SPEEDS = (80.0, 125.0, 175.0, 220.0)
 OOD_SEVERITY_SCALES = (0.5, 1.0, 2.0)
 SEEDS = (11, 12)
 DURATION_S = 2.5
+#: name -> list of (label, fault_type, order_override). "ball_cage" is A1's set (no ball/cage class
+#: in the 3-class model). "custom_orders" is for the 5-class model of A2, where ball and cage are
+#: classes: two custom bearing faults at characteristic orders 1.3 and 6.5 x shaft speed, away from
+#: every built-in fault (outer 3.07, inner 4.93, ball 2.04, cage 0.38), with ball's mechanical
+#: amplitude -- the "custom fault type" mechanism of the DC Motor page (viz/components/presets.py).
+OOD_SETS = {
+    "ball_cage": [("ball", "ball", None), ("cage", "cage", None)],
+    "custom_orders": [("unknown_1p3x", "unknown_1p3x", 1.3), ("unknown_6p5x", "unknown_6p5x", 6.5)],
+}
 BENIGN = {
     "speed_50_rad_s": {"omega_ref_rad_s": 50.0},
     "speed_300_rad_s": {"omega_ref_rad_s": 300.0},
@@ -56,23 +69,47 @@ BENIGN = {
 }
 
 
-def _jobs() -> list:
+def _simulate_custom(job: tuple) -> pd.DataFrame:
+    import warnings
+
+    warnings.simplefilter("ignore")
+    from driveflow.datagen import Scenario, run_scenario
+    from driveflow.datagen.export_parquet import records_to_dataframe
+    from driveflow.datagen.scenario import CALIBRATED_MECHANICAL_SEVERITY
+
+    cond, label, order, seed, speed, sev = job
+    sc = Scenario(scenario_id=f"{cond}_seed{seed}", fault_type=label, fault_order_override=order, seed=seed, duration_s=DURATION_S,
+                  omega_ref_rad_s=speed, electrical_severity=8.0 * sev, mechanical_severity=CALIBRATED_MECHANICAL_SEVERITY["ball"] * sev)
+    df = records_to_dataframe(run_scenario(sc))
+    df["condition"] = cond
+    return df
+
+
+def _sim(job):
+    return _simulate_custom(job[1:]) if job[0] == "custom" else _simulate(job[1:])
+
+
+def _jobs(ood_set: str = "ball_cage") -> list:
     jobs = []
-    for fault in ("ball", "cage"):
+    for label, fault, order in OOD_SETS[ood_set]:
         for speed in OOD_SPEEDS:
             for sev in OOD_SEVERITY_SCALES:
                 for seed in SEEDS:
-                    jobs.append((f"ood_{fault}_w{speed:g}_s{sev:g}", fault, seed, {"omega_ref_rad_s": speed, "electrical_severity": 8.0 * sev}, sev, DURATION_S))
+                    cond = f"ood_{label}_w{speed:g}_s{sev:g}"
+                    if order is None:
+                        jobs.append(("builtin", cond, fault, seed, {"omega_ref_rad_s": speed, "electrical_severity": 8.0 * sev}, sev, DURATION_S))
+                    else:
+                        jobs.append(("custom", cond, fault, order, seed, speed, sev))
     for cond, overrides in BENIGN.items():
         for fault in (None, "outer_race", "inner_race"):
             for seed in SEEDS:
-                jobs.append((f"benign_{cond}", fault, seed, overrides, 1.0, DURATION_S))
+                jobs.append(("builtin", f"benign_{cond}", fault, seed, overrides, 1.0, DURATION_S))
     return jobs
 
 
-def simulate(workers: int) -> pd.DataFrame:
+def simulate(workers: int, ood_set: str = "ball_cage") -> pd.DataFrame:
     with mp.get_context("spawn").Pool(workers) as pool:
-        return pd.concat(pool.map(_simulate, _jobs()), ignore_index=True)
+        return pd.concat(pool.map(_sim, _jobs(ood_set)), ignore_index=True)
 
 
 def rebuild_id_windows(metrics: dict, meta: dict):
@@ -107,7 +144,7 @@ def auroc(id_scores: np.ndarray, ood_scores: np.ndarray) -> float:
     return float(roc_auc_score(np.r_[np.zeros(len(id_scores)), np.ones(len(ood_scores))], np.r_[id_scores, ood_scores]))
 
 
-def evaluate(model, metrics: dict, ood: dict, id_sets: dict, sim: pd.DataFrame) -> dict:
+def evaluate(model, metrics: dict, ood: dict, id_sets: dict, sim: pd.DataFrame, ood_set: str = "ball_cage") -> dict:
     from driveflow.ai.calibration import UNCERTAIN, apply_calibration
     from driveflow.ai.ood import METHODS, scores
 
@@ -126,14 +163,17 @@ def evaluate(model, metrics: dict, ood: dict, id_sets: dict, sim: pd.DataFrame) 
     out["in_distribution_test"]["accuracy_on_answered_abstention_only"] = float(np.mean(pred[base_answered] == y_test[base_answered]))
 
     sets = {}
-    for fault in ("ball", "cage"):
-        x = _windows(sim[sim["condition"].str.startswith(f"ood_{fault}")], fault, metrics)
-        sets[f"ood_{fault}"] = (x, None)
+    labels = [label for label, _f, _o in OOD_SETS[ood_set]]
+    for label in labels:
+        x = _windows(sim[sim["condition"].str.startswith(f"ood_{label}_")], label, metrics)
+        sets[f"ood_{label}"] = (x, None)
     for cond in BENIGN:
         d = sim[sim["condition"] == f"benign_{cond}"]
         xs, ys = [], []
         for k, c in enumerate(classes):
             x = _windows(d, c, metrics)
+            if x is None:  # benign shifts are simulated for healthy / outer / inner only
+                continue
             xs.append(x)
             ys.append(np.full(len(x), k))
         sets[f"benign_{cond}"] = (np.concatenate(xs), np.concatenate(ys))
@@ -154,17 +194,17 @@ def evaluate(model, metrics: dict, ood: dict, id_sets: dict, sim: pd.DataFrame) 
             unk = s_[m] > thr
             entry = {"n": int(len(x)), "unknown_rate": float(unk.mean()), "auroc_vs_id_test": auroc(s_test[m], s_[m]),
                      "abstained_or_unknown_rate": float(np.mean(unk | uns_))}
-            if name == "ood_cage":
+            if name.startswith("ood_"):
                 entry["unknown_or_called_fault_rate"] = float(np.mean(unk | (p_ != normal)))
-            if name == "ood_ball":
                 entry["confident_wrong_answer_rate_without_ood"] = float(np.mean(~uns_))
             if y is not None:
                 ans = ~uns_ & ~unk
                 entry["accuracy_on_answered"] = float(np.mean(p_[ans] == y[ans])) if ans.any() else None
             r[name] = entry
+        first, second = (f"ood_{label}" for label in labels)
         r["targets"] = {
-            "ball_unknown_ge_90pct": r["ood_ball"]["unknown_rate"] >= 0.90,
-            "cage_unknown_or_fault_ge_90pct": r["ood_cage"]["unknown_or_called_fault_rate"] >= 0.90,
+            f"{labels[0]}_unknown_ge_90pct": r[first]["unknown_rate"] >= 0.90,
+            f"{labels[1]}_unknown_or_fault_ge_90pct": r[second]["unknown_or_called_fault_rate"] >= 0.90,
             "id_accuracy_drop_le_1pt": r["in_distribution_accuracy_on_answered"] >= out["in_distribution_test"]["accuracy_on_answered_abstention_only"] - 0.01,
         }
         out["methods"][m] = r
@@ -172,9 +212,9 @@ def evaluate(model, metrics: dict, ood: dict, id_sets: dict, sim: pd.DataFrame) 
 
 
 def _md(rep: dict) -> str:
-    lines = ["# OOD detector for the dc_motor PC classifier (A1)", "", f"Mahalanobis features: {rep['mahalanobis_layer']}.", "",
-             f"Run: `{rep['run']}`. Generated by `python experiments/report_ood_detector.py`; raw values in [`ood_detector.json`](ood_detector.json).",
-             "Fitted on the run's own train (statistics) and val (thresholds, 95 % coverage) windows only; ball/cage windows are evaluation-only.", "",
+    lines = [f"# OOD detector for the dc_motor PC classifier ({'A1' if rep['ood_set'] == 'ball_cage' else 'A2'})", "", f"Unknown-fault set: {rep['ood_set']} ({', '.join(rep['ood_labels'])}).", "", f"Mahalanobis features: {rep['mahalanobis_layer']}.", "",
+             f"Run: `{rep['run']}`. Generated by `python experiments/report_ood_detector.py`; raw values in [`{rep['stem']}.json`]({rep['stem']}.json).",
+             "Fitted on the run's own train (statistics) and val (thresholds, 95 % coverage) windows only; unknown-fault windows are evaluation-only.", "",
              f"In-distribution test windows: {rep['eval']['in_distribution_test']['n']}; accuracy on answered with abstention only: {rep['eval']['in_distribution_test']['accuracy_on_answered_abstention_only']:.3f}.", "",
              "| Metric | " + " | ".join(rep["eval"]["methods"]) + " |", "|---|" + "---|" * len(rep["eval"]["methods"])]
     ms = rep["eval"]["methods"]
@@ -185,17 +225,18 @@ def _md(rep: dict) -> str:
     row("ID false-unknown rate (test)", lambda r: f"{r['in_distribution_false_unknown_rate']:.3f}")
     row("ID accuracy on answered (abstention + OOD)", lambda r: f"{r['in_distribution_accuracy_on_answered']:.3f}")
     row("ID answered share", lambda r: f"{r['in_distribution_answered_share']:.3f}")
-    row("Ball: unknown rate (target ≥ 0.90)", lambda r: f"{r['ood_ball']['unknown_rate']:.3f}")
-    row("Ball: AUROC vs. ID test", lambda r: f"{r['ood_ball']['auroc_vs_id_test']:.3f}")
-    row("Cage: unknown rate", lambda r: f"{r['ood_cage']['unknown_rate']:.3f}")
-    row("Cage: unknown or called a fault (target ≥ 0.90)", lambda r: f"{r['ood_cage']['unknown_or_called_fault_rate']:.3f}")
-    row("Cage: AUROC vs. ID test", lambda r: f"{r['ood_cage']['auroc_vs_id_test']:.3f}")
+    labels = rep["ood_labels"]
+    row(f"{labels[0]}: unknown rate (target ≥ 0.90)", lambda r: f"{r['ood_' + labels[0]]['unknown_rate']:.3f}")
+    row(f"{labels[0]}: AUROC vs. ID test", lambda r: f"{r['ood_' + labels[0]]['auroc_vs_id_test']:.3f}")
+    row(f"{labels[1]}: unknown rate", lambda r: f"{r['ood_' + labels[1]]['unknown_rate']:.3f}")
+    row(f"{labels[1]}: unknown or called a fault (target ≥ 0.90)", lambda r: f"{r['ood_' + labels[1]]['unknown_or_called_fault_rate']:.3f}")
+    row(f"{labels[1]}: AUROC vs. ID test", lambda r: f"{r['ood_' + labels[1]]['auroc_vs_id_test']:.3f}")
     for b in BENIGN:
         row(f"Benign {b}: false-unknown rate", lambda r, b=b: f"{r[f'benign_{b}']['unknown_rate']:.3f}")
         row(f"Benign {b}: accuracy on answered", lambda r, b=b: "—" if r[f'benign_{b}']['accuracy_on_answered'] is None else f"{r[f'benign_{b}']['accuracy_on_answered']:.3f}")
     row("Targets met", lambda r: ", ".join(k for k, v in r["targets"].items() if v) or "none")
     lines.append("")
-    lines.append(f"Without the OOD check, {rep['eval']['methods'][next(iter(ms))]['ood_ball']['confident_wrong_answer_rate_without_ood']:.3f} of ball windows get a non-abstained answer (all ball answers are wrong: there is no ball class).")
+    lines.append(f"Without the OOD check, {rep['eval']['methods'][next(iter(ms))]['ood_' + labels[0]]['confident_wrong_answer_rate_without_ood']:.3f} of {labels[0]} windows get a non-abstained answer (every such answer is wrong: the model has no class for this fault).")
     return "\n".join(lines) + "\n"
 
 
@@ -205,12 +246,14 @@ def main(argv=None):
     ap.add_argument("--out-dir", type=Path, default=ROOT / "docs" / "audit" / "ai")
     ap.add_argument("--cache", type=Path, default=None)
     ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2) - 2))
+    ap.add_argument("--ood-set", choices=sorted(OOD_SETS), default="ball_cage")
     ap.add_argument("--layer", default=None, help="Mahalanobis features: None = the head's input (dense1), or e.g. 'gap'")
     ap.add_argument("--write-to-run", action="store_true", help="store the fitted parameters in the run's metrics.json['ood']")
     args = ap.parse_args(argv)
 
     from driveflow.ai.ood import fit_ood
 
+    args.run_dir = args.run_dir.resolve()
     model, metrics = _load_run(args.run_dir)
     meta = json.loads((args.run_dir / "run_metadata.json").read_text())
     id_sets = rebuild_id_windows(metrics, meta)
@@ -220,16 +263,17 @@ def main(argv=None):
     if args.cache is not None and args.cache.exists():
         sim = pd.read_parquet(args.cache)
     else:
-        sim = simulate(args.workers)
+        sim = simulate(args.workers, args.ood_set)
         if args.cache is not None:
             args.cache.parent.mkdir(parents=True, exist_ok=True)
             sim.to_parquet(args.cache)
 
-    rep = {"run": str(args.run_dir.relative_to(ROOT)), "mahalanobis_layer": args.layer or "dense1 (head input)", "ood_params_summary": {m: {"threshold": ood[m]["threshold"]} for m in ("mahalanobis", "energy")},
+    rep = {"run": str(args.run_dir.relative_to(ROOT)), "ood_set": args.ood_set, "ood_labels": [lbl for lbl, _f, _o in OOD_SETS[args.ood_set]], "mahalanobis_layer": args.layer or "dense1 (head input)", "ood_params_summary": {m: {"threshold": ood[m]["threshold"]} for m in ("mahalanobis", "energy")},
            "jobs": {"ood_speeds": OOD_SPEEDS, "ood_severity_scales": OOD_SEVERITY_SCALES, "seeds": SEEDS, "duration_s": DURATION_S, "benign": BENIGN},
-           "eval": evaluate(model, metrics, ood, id_sets, sim)}
+           "eval": evaluate(model, metrics, ood, id_sets, sim, args.ood_set)}
     args.out_dir.mkdir(parents=True, exist_ok=True)
-    stem = "ood_detector" if args.layer is None else f"ood_detector_{args.layer}"
+    stem = ("ood_detector" if args.ood_set == "ball_cage" else f"ood_detector_{args.ood_set}") + ("" if args.layer is None else f"_{args.layer}")
+    rep["stem"] = stem
     (args.out_dir / f"{stem}.json").write_text(json.dumps(rep, indent=2) + "\n")
     (args.out_dir / f"{stem}.md").write_text(_md(rep))
     print(_md(rep))

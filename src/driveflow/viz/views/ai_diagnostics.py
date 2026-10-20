@@ -139,6 +139,9 @@ def _classifier_panel(domain: str, df: pd.DataFrame) -> None:
     calibrated = "calibration" in metrics
     st.html('<div class="spade-root spade-badges">' + badge_html("AI SUGGESTION — REQUIRES VERIFICATION", "warning", "▲") + badge_html(f"{run_dir.parent.name}/{run_dir.name}", "training") + "</div>")
     st.metric("Predicted class", "Unknown condition" if decision == UNKNOWN else decision, f"{probs[k] * 100:.1f}% confidence ({'temperature-calibrated' if calibrated else 'uncalibrated softmax'})", delta_color="off")
+    synthetic_only = set(metrics.get("synthetic_only_classes") or [])
+    if decision in synthetic_only:
+        st.warning(f"**{decision}: synthetic-only, uncalibrated amplitude.** This class was trained on simulated faults whose amplitude is a placeholder, not calibrated against measured bearings (TODO_CLAUDE_CODE.md A2). Treat it as a hypothesis to check, not a diagnosis.", icon=":material/science:")
     if decision == UNKNOWN:
         st.warning(f"**Unknown condition — REQUIRES VERIFICATION.** This window's features are farther from every trained class than {metrics['ood']['target_coverage']:.0%} of in-distribution validation windows (OOD score {ood_score:.1f} > threshold {metrics['ood'][metrics['ood']['method']]['threshold']:.1f}, {metrics['ood']['method']}). It may be a fault type the model has no class for; the top class **{classes[k]}** is not suggested.", icon=":material/report:")
     elif decision == UNCERTAIN:

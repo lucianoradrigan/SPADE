@@ -78,12 +78,12 @@ def _simulate(job: tuple) -> pd.DataFrame:
     return df
 
 
-def generate(seeds: list, duration_s: float, workers: int) -> pd.DataFrame:
+def generate(seeds: list, duration_s: float, workers: int, extra_faults: tuple = ()) -> pd.DataFrame:
     jobs = []
     for cond, (overrides, mech_scale, _win) in CONDITIONS.items():
         if cond in _SHARES_NOMINAL:
             continue
-        for fault in CLASSES_FAULTS:
+        for fault in CLASSES_FAULTS + tuple(extra_faults):
             for seed in seeds:
                 jobs.append((cond, fault, seed, overrides, mech_scale, duration_s))
     for fault in OOD_FAULTS:
@@ -210,6 +210,8 @@ def main(argv=None):
     ap.add_argument("--workers", type=int, default=max(1, min(8, (mp.cpu_count() or 2) - 1)))
     ap.add_argument("--cache", type=Path, default=None, help="parquet to reuse/save the simulated runs")
     ap.add_argument("--out-dir", type=Path, default=REPO_ROOT / "docs" / "audit" / "ai")
+    ap.add_argument("--extra-faults", default="", help="comma-separated fault types simulated in every condition besides healthy/outer/inner (A2: ball,cage)")
+    ap.add_argument("--out-stem", default="classifier_evaluation", help="output file name stem in --out-dir")
     ap.add_argument("--run-dir", type=Path, action="append", default=None, help="model run(s) to evaluate; default: promoted pc classifier, its no-rpm-level ablation, the 2026-10-13 candidate and the pre-2026-10-18 production run")
     args = ap.parse_args(argv)
 
@@ -218,7 +220,7 @@ def main(argv=None):
     if args.cache is not None and args.cache.exists():
         data = pd.read_parquet(args.cache)
     else:
-        data = generate(seeds, args.duration_s, args.workers)
+        data = generate(seeds, args.duration_s, args.workers, tuple(f for f in args.extra_faults.split(",") if f))
         if args.cache is not None:
             args.cache.parent.mkdir(parents=True, exist_ok=True)
             data.to_parquet(args.cache)
@@ -232,15 +234,15 @@ def main(argv=None):
     runs = args.run_dir or [resolve("dc_motor", "pc", "classifier"), pc / "2026-10-18_run02", pc / "2026-10-13_run01", pc / "2026-09-01_run01"]
     models = [evaluate_run(Path(r).resolve(), data) for r in runs]
     report = {
-        "command": "python experiments/report_classifier_evaluation.py " + " ".join(argv or []),
+        "command": "python experiments/report_classifier_evaluation.py " + " ".join(argv or []), "extra_faults": args.extra_faults,
         "seeds": seeds, "duration_s": args.duration_s, "settle_s": SETTLE_S, "window_samples": 512,
         "conditions": {k: {"overrides": v[0], "mechanical_severity_scale": v[1], "window": v[2]} for k, v in CONDITIONS.items()},
         "simulation_wall_time_s": round(t_sim, 1), "total_wall_time_s": round(time.time() - t0, 1),
         "models": models,
     }
     args.out_dir.mkdir(parents=True, exist_ok=True)
-    (args.out_dir / "classifier_evaluation.json").write_text(json.dumps(report, indent=2, default=str))
-    (args.out_dir / "classifier_evaluation.md").write_text(_md(report))
+    (args.out_dir / f"{args.out_stem}.json").write_text(json.dumps(report, indent=2, default=str))
+    (args.out_dir / f"{args.out_stem}.md").write_text(_md(report))
     print(_md(report))
     print(f"simulation {t_sim:.0f} s, total {time.time() - t0:.0f} s -> {args.out_dir}")
 

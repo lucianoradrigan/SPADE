@@ -225,7 +225,7 @@ Este bloque amplía esa cobertura sin datos reales.
 
 ### A2. Clases ball y cage (opcional, requiere decisión)
 
-- [ ] **A2. Agregar las clases solo si el usuario lo aprueba después de A1**
+- [x] **A2. Agregar las clases solo si el usuario lo aprueba después de A1** — cerrada 2026-10-20 (aprobada por el usuario): candidatos de 5 clases listos, rotulados *synthetic-only*. **Pendiente de tu confirmación:** promoverlos.
 
   **Advertencia:** la amplitud de las fallas de bola y jaula en `datagen/scenario.py` es un placeholder. KAt no tiene un código limpio de defecto único para esas fallas, así que no puede calibrarse sin datos reales.
 

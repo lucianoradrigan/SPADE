@@ -27,6 +27,10 @@ are deliberately NOT in this grid: 115 and 190 rad/s, severity x0.6, 250 rad/s (
 
 Usage:
     python experiments/generate_diagnosis_grid_dataset.py --out data/diagnosis_grid_dataset.parquet
+    # A2: five classes (ball and cage added; their amplitudes are SYNTHETIC-ONLY placeholders,
+    # CALIBRATED_MECHANICAL_SEVERITY in datagen/scenario.py, not calibrated against real data)
+    python experiments/generate_diagnosis_grid_dataset.py --faults outer_race,inner_race,ball,cage \
+        --out data/diagnosis_grid_dataset_5class.parquet
 """
 
 from __future__ import annotations
@@ -51,14 +55,14 @@ NOMINAL_PSI_E = 0.165
 NOMINAL_J_ROTOR = 0.025
 
 
-def build_jobs(n_seeds: int, duration_s: float, seed: int) -> list:
+def build_jobs(n_seeds: int, duration_s: float, seed: int, faults: tuple = FAULTS) -> list:
     rng = np.random.default_rng(seed)
     jobs = []
     run_seed = 1000
     for speed in SPEEDS_RAD_S:
         for sev in SEVERITY_SCALES:
             for _ in range(n_seeds):
-                for fault in FAULTS:
+                for fault in faults:
                     run_seed += 1
                     noisy = rng.random() >= NOISE_FREE_SHARE
                     e_noise, m_noise = float(rng.uniform(0, MAX_NOISE_PCT)), float(rng.uniform(0, MAX_NOISE_PCT))
@@ -101,10 +105,12 @@ def main(argv=None):
     ap.add_argument("--duration-s", type=float, default=2.5)
     ap.add_argument("--seed", type=int, default=7, help="seed of the noise / plant-drift draws")
     ap.add_argument("--workers", type=int, default=max(1, (mp.cpu_count() or 2) - 1))
+    ap.add_argument("--faults", default=",".join(f for f in FAULTS if f), help="comma-separated fault classes besides healthy (default: outer_race,inner_race)")
     args = ap.parse_args(argv)
 
-    jobs = build_jobs(args.seeds, args.duration_s, args.seed)
-    print(f"{len(jobs)} runs ({len(SPEEDS_RAD_S)} speeds x {len(SEVERITY_SCALES)} severities x {args.seeds} seeds x {len(FAULTS)} classes), {args.duration_s} s each")
+    faults = (None,) + tuple(f.strip() for f in args.faults.split(",") if f.strip())
+    jobs = build_jobs(args.seeds, args.duration_s, args.seed, faults)
+    print(f"{len(jobs)} runs ({len(SPEEDS_RAD_S)} speeds x {len(SEVERITY_SCALES)} severities x {args.seeds} seeds x {len(faults)} classes), {args.duration_s} s each")
     t0 = time.time()
     with mp.get_context("spawn").Pool(args.workers) as pool:
         frames = pool.map(_simulate, jobs)

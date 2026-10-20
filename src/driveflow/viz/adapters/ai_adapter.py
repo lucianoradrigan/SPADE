@@ -67,7 +67,7 @@ def classify_last_window(domain: str, df) -> dict | None:
     k = int(np.argmax(probs))
     return {
         "classes": list(metrics["classes"]), "probs": [float(p) for p in probs], "predicted": metrics["classes"][k], "confidence": float(probs[k]),
-        "decision": label, "abstained": label == UNCERTAIN, "unknown": label == UNKNOWN, "ood_checked": ood_score is not None, "calibrated": "calibration" in metrics,
+        "decision": label, "abstained": label == UNCERTAIN, "unknown": label == UNKNOWN, "synthetic_only": label in (metrics.get("synthetic_only_classes") or []), "ood_checked": ood_score is not None, "calibrated": "calibration" in metrics,
         "model_id": f"{run_dir.parent.name}/{run_dir.name}", "test_macro_f1": metrics.get("test_macro_f1"), "n_test": metrics.get("n_test"),
     }
 

@@ -445,3 +445,47 @@ Evidence: [`vsc_capacitor_separability.md`](audit/ai/vsc_capacitor_separability.
 
 **Verdict: proceed with capacitance; not with ESR.** The result holds only for the synthetic fault definition: no real dataset exists for this fault. Uncertainty in R, L and R_f was not tested. The classifier is proposed as a new task and was not built.
 
+### 8.4 A2 — ball and cage classes (candidates, not promoted)
+
+> **Synthetic-only, uncalibrated amplitude.** The ball and cage faults come from the simulator. Their mechanical amplitude (`CALIBRATED_MECHANICAL_SEVERITY` in `datagen/scenario.py`) is a placeholder: KAt has no clean single-defect code for these faults, so it cannot be calibrated without real data. Every run below records `"synthetic_only_classes": ["ball", "cage"]` in its `metrics.json` and carries the finding in `audit_findings.json`. When it answers ball or cage, the GUI shows "ball/cage: synthetic-only, uncalibrated amplitude".
+
+**What was done.**
+1. **Dataset.** The grid generator gained `--faults`. The 5-class grid `data/diagnosis_grid_dataset_5class.parquet` has 525 runs: 7 speeds × 5 severities × 3 seeds × 5 classes. It is not committed.
+2. **PC model.** `pc_server_5class` was retrained with the promoted model's recipe: rpm level kept, 3000 windows per class, 30 epochs.
+3. **RPi5 and ESP32 models.** They were distilled from that PC model. `train_model.py --teacher-run` is new and lets an unpromoted run act as teacher.
+4. **Calibration.** Temperature and abstention were refitted on each model's validation split.
+
+| Run | Recorded test acc. | Nominal 150 rad/s | 100 / 115 rad/s | 190 / 250 rad/s | 100 % noise | Start-up |
+|---|---|---|---|---|---|---|
+| `pc_server_5class/2026-10-20_run01` | 0.821 | **1.000** (all 5 classes) | 0.803 / 0.811 | 1.000 / 1.000 | 1.000 | 0.661 |
+| `rpi5_resnet1d_se_5class/2026-10-20_run01` | 0.809 | 1.000 | 0.829 / 0.832 | 1.000 / 1.000 | 1.000 | 0.644 |
+| `esp32_dscnn_5class/2026-10-20_run01` | 0.741 | 0.932 | 0.787 / 0.789 | 0.984 / 1.000 | 0.811 | 0.622 |
+| promoted 3-class `pc_server/2026-10-18_run01`, for reference (its 3 classes only) | 0.914 | 1.000 | 1.000 / 1.000 | 1.000 / 1.000 | 0.969 | 0.815 |
+
+Evidence: [`classifier_evaluation_5class.md`](audit/ai/classifier_evaluation_5class.md), from `python experiments/report_classifier_evaluation.py --extra-faults ball,cage …`. The held-out conditions are those of §7.1, simulated with all 5 classes.
+
+**Limits found.**
+- **Cage below nominal speed.** The models barely recognize cage faults at 100 and 115 rad/s. Cage recall is 0.01 / 0.05 for the PC model, 0.14 / 0.16 for RPi5 and 0.00 for ESP32. Those windows are called **ball**, so they are still flagged as a fault, and the missed-detection rate stays 0. At 150 rad/s and above, cage is recognized.
+- **ESP32 INT8 export.** It loses accuracy: top-1 agreement with Keras is 0.73–0.76 and test accuracy drops from 0.785 to 0.68. With the 3-class model the agreement was 0.977. One declared retry with 3000 calibration windows instead of 1000 did not help ([`tflite_parity_report_5class.txt`](audit/tflite_parity_report_5class.txt)). The RPi5 float16 export matches Keras (agreement 1.000).
+- **Recorded test accuracy.** It is lower than the 3-class model's (0.82 against 0.91). Most confusion is between the slower-rate faults during transients.
+
+**Unseen faults (A1 rerun).** With ball and cage now classes, A1 needs a new set of unknown faults. Two custom bearing faults were used, at characteristic orders 1.3 and 6.5 × shaft speed; all built-in faults lie elsewhere (outer 3.07, inner 4.93, ball 2.04, cage 0.38). This is the DC Motor page's "custom fault type" mechanism. Evidence: [`ood_detector_custom_orders.md`](audit/ai/ood_detector_custom_orders.md).
+
+| | Mahalanobis (dense1) | Energy |
+|---|---|---|
+| Order-6.5 fault flagged unknown | **0.970** (AUROC 0.992) | 0.000 |
+| Order-1.3 fault flagged unknown | 0.298 (AUROC 0.897) | 0.107 |
+| In-distribution false-unknown rate | 0.050 | 0.060 |
+| Accuracy at 50 rad/s on answered windows (healthy / outer / inner) | 0.886 | 0.909 |
+
+**Reading.**
+- **High-order fault.** A fault whose impulse rate sits far above every class is caught.
+- **Low-order fault.** One between cage (0.38) and ball (2.04) is mostly not caught.
+- **Status.** The OOD detector stays off. At 50 rad/s the 5-class model answers healthy / outer / inner correctly in 0.89 of the windows, against 0.58 for the 3-class model (AI-N14).
+
+**Status.** The candidates are ready and tested (`tests/ai/test_classifier_5class.py`). **Not promoted.** Promoting them replaces the 3-class models in the GUI and needs confirmation:
+
+```bash
+python experiments/promote_run.py configs/classifiers/pc_server_5class/2026-10-20_run01
+```
+

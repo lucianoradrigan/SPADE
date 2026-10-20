@@ -44,7 +44,7 @@ from sklearn.preprocessing import LabelEncoder
 
 from driveflow.ai.calibration import fit_calibration
 from driveflow.ai.provenance import file_sha256, run_metadata, set_global_seed
-from driveflow.ai.registry import DEFAULT_REGISTRY_PATH, RegistryError, load_promoted_model
+from driveflow.ai.registry import DEFAULT_REGISTRY_PATH, RegistryError, load_promoted_model, load_run_model
 from driveflow.models.classifiers.builder import build_classifier
 from driveflow.models.classifiers.schemas import ClassifierConfig, load_classifier_config
 from driveflow.models.common import (
@@ -259,7 +259,7 @@ def _save_artifacts(run_dir: Path, config_path: Path, model, metrics: dict) -> N
 def train_from_config(
     config_path, dataset_path, epochs: int = 20, batch_size: int = 32, seed: int = 42,
     distill: bool = False, distill_alpha: float = 0.5, registry_path: Path = DEFAULT_REGISTRY_PATH,
-    level_scaling: dict | None = None, cap_per_class: int = 500,
+    level_scaling: dict | None = None, cap_per_class: int = 500, teacher_run: Path | None = None,
 ) -> Path:
     """Loads config_path (classifier or forecaster, auto-detected), trains it against
     dataset_path (a Parquet file exported via driveflow.datagen.export_parquet), and saves the
@@ -275,7 +275,9 @@ def train_from_config(
     absolute level instead of z-scoring each window; recorded in metrics.json so inference applies
     the same rule. A distilled student inherits its teacher's level_scaling (both must see the same
     windows). cap_per_class: max windows per class (the historical default 500 drops most runs of
-    a large grid dataset).
+    a large grid dataset). teacher_run: with distill, use this run directory as the teacher
+    instead of the promoted PC-tier run (e.g. a candidate PC model with a different class set that
+    is not promoted yet, A2).
     """
     config_path = Path(config_path)
     # AUDIT AI-11: the seed used to reach only the data split; weight init / dropout / shuffling
@@ -287,7 +289,10 @@ def train_from_config(
     teacher = None
     if distill and config.tier != "pc":
         block = _KIND_TO_REGISTRY_BLOCK[kind]
-        teacher, _, teacher_metrics = load_promoted_model(config.domain, "pc", block, registry_path=registry_path)
+        if teacher_run is not None:
+            teacher, _, teacher_metrics = load_run_model(teacher_run, block)
+        else:
+            teacher, _, teacher_metrics = load_promoted_model(config.domain, "pc", block, registry_path=registry_path)
         if kind == "classifier":
             level_scaling = teacher_metrics.get("level_scaling")
 
@@ -299,7 +304,7 @@ def train_from_config(
         model, metrics = _train_forecaster(config, df, epochs, batch_size, seed, teacher=teacher, distill_alpha=distill_alpha)
 
     if teacher is not None:
-        metrics["distilled_from"] = f"{config.domain}/pc/{_KIND_TO_REGISTRY_BLOCK[kind]}"
+        metrics["distilled_from"] = str(Path(teacher_run).as_posix()) if teacher_run is not None else f"{config.domain}/pc/{_KIND_TO_REGISTRY_BLOCK[kind]}"
         metrics["distill_alpha"] = distill_alpha
 
     run_dir = _next_run_dir(config_path)
@@ -322,13 +327,14 @@ def main(argv=None) -> None:
     parser.add_argument("--distill-alpha", type=float, default=0.5, help="Weight on the true/direct target vs. the teacher's prediction.")
     parser.add_argument("--keep-rpm-level", action="store_true", help="Classifiers: keep the rpm channel's absolute level (fixed scaling) instead of z-scoring it per window (AI-N07).")
     parser.add_argument("--cap-per-class", type=int, default=500, help="Classifiers: max windows per class.")
+    parser.add_argument("--teacher-run", type=Path, default=None, help="With --distill: teacher run directory instead of the promoted PC-tier run.")
     args = parser.parse_args(argv)
 
     try:
         run_dir = train_from_config(
             args.config, args.dataset, epochs=args.epochs, batch_size=args.batch_size, seed=args.seed,
             distill=args.distill, distill_alpha=args.distill_alpha,
-            level_scaling=RPM_LEVEL_SCALING if args.keep_rpm_level else None, cap_per_class=args.cap_per_class,
+            level_scaling=RPM_LEVEL_SCALING if args.keep_rpm_level else None, cap_per_class=args.cap_per_class, teacher_run=args.teacher_run,
         )
     except RegistryError as exc:
         raise SystemExit(f"--distill requires a promoted PC-tier run first (experiments/promote_run.py): {exc}") from exc
