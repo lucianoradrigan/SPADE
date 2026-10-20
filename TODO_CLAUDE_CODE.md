@@ -149,7 +149,7 @@ Este bloque amplía esa cobertura sin datos reales.
 
 ### V4. Equivalencia física contra gym-electric-motor
 
-- [ ] **V4. Ampliar las trayectorias de referencia de GEM**
+- [x] **V4. Ampliar las trayectorias de referencia de GEM** — cerrada 2026-10-20: igualdad bit a bit con GEM 3.0.3 en 4 casos; nuevo hallazgo S-13 (Euler ×3 estable pero impreciso a alta velocidad). Motor de inducción: solo en `_archive`, omitido.
   - Confirmar qué versión de GEM se portó (3.0.3, según los docstrings de `sim/`) e instalar esa misma en un entorno aparte.
   - Casos nuevos, cada uno con su `.npz` en `tests/data/` y su script generador junto a `gen_ref_data.py`:
     1. **Motor DC** con otro solver de GEM (`ScipySolveIvpSolver` o RK, el que exista en 3.0.3), 2000 pasos, carga distinta y escalones de voltaje.

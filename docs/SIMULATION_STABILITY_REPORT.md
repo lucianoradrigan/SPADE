@@ -181,6 +181,30 @@ On SPADE's plant, over R = 3.5 Ω – 5 kΩ and |v_ref| = 10–150 V ([`dpc_vs_m
 
 **CPU per step.** The MPC takes ≈ 21 µs per step and the DPC 1.5 ms. The DPC figure is an eager Keras call, so it measures framework overhead and is not an embedded-cost estimate.
 
+### 4.3 Cross-check against gym-electric-motor 3.0.3 (TODO V4, 2026-10-20)
+
+**How the references were made.** `tests/data/gen_ref_data_v4.py` was run once against the unmodified GEM 3.0.3 clone and recorded four trajectories in `tests/data/ref_data_v4.npz`. `tests/simulation/test_gem_equivalence.py` replays them without importing GEM:
+
+- **Same plant, same solver.** The permanently excited DC motor (two-quadrant converter, 4 voltage steps, 2000 steps) and the PMSM (B6 bridge, dq voltage steps, rotor held at 400 rad/s) were each run with Euler and with solve_ivp (RK45, rtol = atol = 1e-10). SPADE reproduces all four GEM trajectories **bit for bit**.
+- **DC motor: SPADE's Euler vs. GEM's RK45.** The maximum error is 0.19 % of peak speed and 2.6 % of peak current; the current error sits on the voltage steps.
+- **S-01, checked with GEM's own code.** GEM's single-step Euler diverges at 400 rad/s: |i_s| reaches 3·10⁵ A, against ≤ 450 A for RK45.
+- **Induction motors.** `sim/motors/squirrel_cage_induction_motor.py` and the other induction models are used only by `experiments/_archive/`. They were not cross-checked.
+
+**S-13: the S-01 fix gives stability, not accuracy, at high speed.** The PMSM ran open loop on the same dq voltage steps, and Euler's error was measured against RK45 (RMS error of i_s, relative to RMS i_s):
+
+| Speed (rad/s) | Euler ×1 | Euler ×3 (default) | Euler ×10 | Euler ×30 |
+|---|---|---|---|---|
+| 100 | 7.8 % | 2.4 % | 0.7 % | 0.2 % |
+| 200 | 20 % | 5.4 % | 1.5 % | 0.5 % |
+| 314 (nominal) | 525 % | **24.6 %** | 5.3 % | 1.6 % |
+| 400 | diverges | **48 %** | 7.6 % | 2.2 % |
+
+**Why.** Forward Euler adds numerical growth of about (hω_el)²/2 per substep to the lightly damped dq oscillation. Three substeps keep it below the physical damping r_s/L, so the solution stays stable, but the effective damping falls to roughly half, and the transients after each voltage step are wrong by tens of percent.
+
+**What is not affected.** The PMSM page's closed-loop current steps run near standstill (j_load = 5), and Euler there still matches RK45 within 0.5 %. Open-loop or high-speed use of `build_pmsm_system` is affected.
+
+**Status.** Open. Options: more substeps, or an RK solver as the default. A strict xfail, `test_default_pmsm_solver_matches_rk45_within_5pct_at_nominal_speed`, is tied to this finding. The default is not changed without confirmation.
+
 ## 5. Controller performance (dynamic stability)
 
 **Metrics used.**
@@ -217,7 +241,7 @@ Figures: [`dc_small_step_vs_linear.png`](audit/stability/dc_small_step_vs_linear
 
 | ID | Severity | Type | Finding | Evidence | Action |
 |---|---|---|---|---|---|
-| **S-01** | High → **fixed** | Numerical instability (method, not physics) | One forward-Euler step per τ = 1e-4 s is unstable on the PMSM's open-loop dq dynamics above **265.8 rad/s**, below the motor's nominal 314 rad/s. The physical system is damped there: RK45 matches the analytic current. | §3; `test_single_step_euler_diverges_at_300_rad_s_although_the_physics_is_stable` | **Fixed (second pass):** `pmsm_foc.default_ode_solver()` = `EulerSolver(nsteps=EULER_NSTEPS=3)` is now the default of `build_pmsm_system` and the open-loop bench. Its stability limit is **≈460 rad/s (1.47× nominal)**. `test_default_solver_is_stable_with_margin_above_the_nominal_speed` and `test_default_solver_reaches_the_analytic_short_circuit_current_at_high_speed[300, 314]` check it; the closed-loop demo still matches RK45 within 0.5 % (`test_closed_loop_current_step_euler_matches_rk45`). The cost is 3 right-hand-side evaluations per control step in the PMSM demo only. |
+| **S-01** | High → **fixed** | Numerical instability (method, not physics) | One forward-Euler step per τ = 1e-4 s is unstable on the PMSM's open-loop dq dynamics above **265.8 rad/s**, below the motor's nominal 314 rad/s. The physical system is damped there: RK45 matches the analytic current. | §3; `test_single_step_euler_diverges_at_300_rad_s_although_the_physics_is_stable` | **Fixed (second pass):** `pmsm_foc.default_ode_solver()` = `EulerSolver(nsteps=EULER_NSTEPS=3)` is now the default of `build_pmsm_system` and the open-loop bench. Its stability limit is **≈460 rad/s (1.47× nominal)**. `test_default_solver_is_stable_with_margin_above_the_nominal_speed` and `test_default_solver_reaches_the_analytic_short_circuit_current_at_high_speed[300, 314]` check it; the closed-loop demo still matches RK45 within 0.5 % (`test_closed_loop_current_step_euler_matches_rk45`). The cost is 3 right-hand-side evaluations per control step in the PMSM demo only. **Stable is not accurate:** at 314–400 rad/s open loop, the 3-substep Euler is 25–48 % off RK45 (S-13, §4.3). |
 | S-02 | Info | Numerical vs. physical | DC motor: the Euler limit τ\* = 2.58 ms is 26× the production step, and the error at τ = 1e-4 is 0.033 % of speed. | §2 | none needed |
 | **S-03** | Medium | Invalid input handling | `Scenario` accepted inputs that produce meaningless runs without any error. Duration ≤ 0 gave an empty list. A NaN reference or l_a = 0 gave all-NaN output. r_a < 0 gave 1.5e17 rpm. R = 0 raised a bare `ZeroDivisionError`. Negative severities and noise were accepted. | probe, 2026-10-18; `TestInvalidInputsAreRejected` (14 cases fail before, pass after) | **Fixed**: `Scenario._validate_numeric_fields`. Legal-but-unstable inputs are still accepted on purpose: R < R\*, unreachable or negative setpoints. |
 | **S-04** | Low | Documentation / design | The PI docstring said "ζ = 0.9 → essentially no overshoot". The PI zero gives **≈15 %** overshoot on small steps; large steps hide it through current saturation. | §5, linear model vs. simulation | **Fixed** (docstring). **Option added (C2, 2026-10-20):** `PICascadeController(setpoint_weight=b)` weights the reference in the proportional term only. Default b = 1 is unchanged, operation for operation. On the 2 rad/s step: b = 0.7 gives 3.1 % overshoot (rise 16.2 ms), b = 0.5 gives 0.4 % (rise 24.1 ms), against 15.1 % (9.3 ms) for b = 1. The linear model predicts each value within 0.5 points. The load-step response is unchanged. Exposed as `Scenario.pi_setpoint_weight` and as an advanced option on the DC Motor page. `TestPiSetpointWeighting`. |
@@ -229,6 +253,7 @@ Figures: [`dc_small_step_vs_linear.png`](audit/stability/dc_small_step_vs_linear
 | **S-10** | Low | Upstream documentation vs. code | Upstream says the DPC learns from a one-step explicit MPC. The only active controller in `CCS_MPC.slx` is an unconstrained 5-step condensed MPC (Q = diag(2, 1)) with delay compensation and extrapolated references. `Data4train` logs its delay-compensated state and the references 3–7 steps ahead. SPADE's closed loop feeds the measured state and the references 0–4 steps ahead. | `dpc4pe_parameters.md` S-10; `CCS_MPC.slx` `MATLAB Function4` | **Open (documented).** V2 ports this controller. The input convention is not changed. |
 | S-11 | Info | Training data | `Data4train.mat` holds exactly two loads: 8.0064 Ω (= 10 Ω ∥ 40 Ω) and 39.9984 Ω, 5000 rows each. `Main.txt`'s training rows 1–6000 are 5000 rows at 40 Ω and 1000 at 8 Ω; the holdout is all 8 Ω. | `dpc4pe_parameters.json` `data4train` | none; relevant to C1 |
 | S-12 | Info | Upstream inconsistency | `DPCvalidation.slx`'s filter inductor has R = 0, while `CCS_MPC.slx` and the identified model have 2 Ω. The validation model has no `InitFcn`, so its other parameters are not in the repository. | `dpc4pe_parameters.md` S-12 | none in SPADE (it validates on the identified model) |
+| **S-13** | Medium | Numerical accuracy (method) | PMSM default solver (Euler, 3 substeps): stable up to ≈460 rad/s, but in open-loop transients its RMS i_s error against RK45 is 24.6 % at 314 rad/s and 48 % at 400 rad/s. At 100 rad/s it is 2.4 %. | §4.3; `test_gem_equivalence.py` (strict xfail) | **Open.** More substeps (×10: 5.3 % at 314 rad/s) or an RK default. Needs confirmation: it changes a default. |
 
 ## 7. Limitations of this report
 

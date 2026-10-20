@@ -123,6 +123,7 @@ They are not checks against measured data. They show whether the port is faithfu
 | V2 | Upstream CCS-MPC ported (`control/mpc/vsc_ccs_mpc.py`) vs. DPC v3/v4, R = 3.5 Ω–5 kΩ × \|v_ref\| = 10–150 V | MPC N=5: 0.14 V at 8 Ω/50 V (v3 1.18, v4 2.52) and < 1 V on the whole grid; with the ±134 V clamp it fails exactly where S-09 predicts; v4 reaches 14.7 V at 5 kΩ | [`dpc_vs_mpc.md`](audit/stability/dpc_vs_mpc.md) |
 | A1 | OOD detector (Mahalanobis on two layers, energy) for ball/cage faults, fitted in-distribution only | **targets not met** (ball flagged 9–13 %, cage unknown-or-fault 66–77 %; AUROC ≈ 0.9). Negative result AI-N13; not activated in the promoted run. New AI-N14: 50 rad/s accuracy 0.58, 150 % noise 0.68 | [`ood_detector.md`](audit/ai/ood_detector.md) |
 | C2 | Optional PI setpoint weight b (S-04) | b = 1 unchanged (byte-identical datagen tests pass); small-step overshoot 15.1 % → 3.1 % (b = 0.7) → 0.4 % (b = 0.5), matching the linear model; disturbance rejection unchanged | `tests/control/test_controller_performance.py::TestPiSetpointWeighting` |
+| V4 | DC motor (Euler, solve_ivp; new load and voltage steps) and PMSM at 400 rad/s against GEM 3.0.3 | same solver: identical to the last bit (4 cases); DC Euler vs. RK45 0.19 % speed / 2.6 % current; GEM's own 1-step Euler diverges at 400 rad/s (S-01 confirmed independently); **S-13**: the default 3-substep Euler is 24.6 % off RK45 at 314 rad/s open loop | `tests/simulation/test_gem_equivalence.py`, `tests/data/gen_ref_data_v4.py` |
 
 ## 6. Pending actions
 
