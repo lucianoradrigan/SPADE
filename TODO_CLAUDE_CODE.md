@@ -363,7 +363,7 @@ Este bloque amplía esa cobertura sin datos reales.
 
 ### P3. Kit de benchmark de borde (opcional, solo preparación)
 
-- [ ] **P3. Dejar listo lo que se correrá cuando exista hardware**
+- [x] **P3. Dejar listo lo que se correrá cuando exista hardware** — cerrada 2026-10-20: kit en `scripts/edge_benchmark/`, probado solo en el PC (no en hardware).
   - Crear `scripts/edge_benchmark/`:
     - para RPi5, un script autónomo que mida latencia (p50 y p99), memoria residente y concordancia contra salidas de referencia del PC guardadas en `.npz`, usando solo tflite-runtime o LiteRT;
     - para ESP32, un esqueleto de TFLite Micro con el modelo como arreglo C y los vectores de referencia.
