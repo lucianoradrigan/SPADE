@@ -51,12 +51,17 @@ SCHEMA_COLUMNS = [
 ]
 
 
+#: "pmsm_v1" records only (datagen/runner.py _run_pmsm_scenario). Appended after SCHEMA_COLUMNS
+#: when present, so DC-motor and VSC exports keep exactly their original columns.
+PMSM_COLUMNS = ["i_d", "i_q", "i_d_ref", "i_q_ref", "u_d", "u_q", "omega_rad_s"]
+
+
 def records_to_dataframe(records: list) -> pd.DataFrame:
     df = pd.DataFrame.from_records(records)
     missing = set(SCHEMA_COLUMNS) - set(df.columns)
     if missing:
         raise ValueError(f"records are missing schema columns: {sorted(missing)}")
-    return df[SCHEMA_COLUMNS]
+    return df[SCHEMA_COLUMNS + [c for c in PMSM_COLUMNS if c in df.columns]]
 
 
 def export_parquet(scenario_records, out_path) -> pd.DataFrame:

@@ -25,6 +25,13 @@ scenario.plant_config_id (see scenario.py's docstring for the valid pairings):
   Columns that don't apply to a VSC (rpm, torque_nm, acc_x/y/z, bpfo_hz, ...) are NaN in its
   records, same pattern as current_s/current_t already being NaN for the DC motor's single
   current channel.
+
+- "pmsm_v1" / "FOC_MTPA" or "FOC_naive": the PMSM of control/classical/pmsm_foc.py
+  (build_pmsm_system + DqCurrentController) tracking a constant dq current reference, MTPA or
+  i_d = 0 for the same |i_s| (scenario.pmsm_current_ref_a). PMSM-only columns: i_d, i_q,
+  i_d_ref, i_q_ref, u_d, u_q (physical volts, the controller's command), omega_rad_s; rpm and
+  torque_nm are filled from the motor state; the DC-only and VSC-only columns are NaN. No fault
+  model: label "normal".
 """
 
 from pathlib import Path
@@ -333,9 +340,56 @@ def _run_vsc_scenario(scenario: Scenario) -> list:
     return records
 
 
+def _run_pmsm_scenario(scenario: Scenario) -> list:
+    from driveflow.control.classical.pmsm_foc import MOTOR_PARAMS, TAU as PMSM_TAU, DqCurrentController, build_pmsm_system, mtpa_id_iq, torque_of
+
+    i_s = float(scenario.pmsm_current_ref_a)
+    if scenario.controller_type == "FOC_MTPA":
+        i_d_ref, i_q_abs = mtpa_id_iq(abs(i_s))
+        i_q_ref = float(np.sign(i_s) * i_q_abs)
+    else:  # FOC_naive
+        i_d_ref, i_q_ref = 0.0, i_s
+    system = build_pmsm_system()
+    controller = DqCurrentController(system)
+    system.seed(np.random.SeedSequence(scenario.seed))
+    state = system.reset()
+    controller.reset()
+    half = system.supply.u_nominal / 2.0
+    n_steps = int(round(scenario.duration_s / PMSM_TAU))
+    records = []
+    for k in range(n_steps):
+        action, _ = controller.control(state, system, i_d_ref, i_q_ref)
+        state = system.simulate(action)
+        physical = state * system.limits
+        i_d, i_q = float(physical[system.CURRENTS_IDX[3]]), float(physical[system.CURRENTS_IDX[4]])
+        omega = float(physical[system.OMEGA_IDX])
+        records.append(
+            {
+                "timestamp_s": (k + 1) * PMSM_TAU,
+                "current_r": np.nan, "current_s": np.nan, "current_t": np.nan,
+                "acc_x": np.nan, "acc_y": np.nan, "acc_z": np.nan, "vibration_source": None, "audio": np.nan,
+                "rpm": omega * 60.0 / (2 * np.pi),
+                "torque_nm": torque_of(i_d, i_q, MOTOR_PARAMS),
+                "voltage_v": np.nan,
+                "label": "normal",
+                "electrical_severity_nm": 0.0, "mechanical_severity": 0.0,
+                "dataset_id": scenario.scenario_id, "source_file": scenario.scenario_id, "fs_hz": 1.0 / PMSM_TAU,
+                "controller_type": scenario.controller_type, "plant_config_id": scenario.plant_config_id,
+                "bpfo_hz": np.nan, "bpfi_hz": np.nan, "bsf_hz": np.nan, "ftf_hz": np.nan,
+                "seed": scenario.seed,
+                "v_ref_real": np.nan, "v_ref_imag": np.nan, "vc_real": np.nan, "vc_imag": np.nan, "i_f_real": np.nan, "i_f_imag": np.nan,
+                "i_d": i_d, "i_q": i_q, "i_d_ref": float(i_d_ref), "i_q_ref": float(i_q_ref),
+                "u_d": float(action[0] * half), "u_q": float(action[1] * half),
+                "omega_rad_s": omega,
+            }
+        )
+    return records
+
+
 _SCENARIO_RUNNERS = {
     "dc_perm_ex_v1": _run_dc_motor_scenario,
     "vsc_dpc_v1": _run_vsc_scenario,
+    "pmsm_v1": _run_pmsm_scenario,
 }
 
 

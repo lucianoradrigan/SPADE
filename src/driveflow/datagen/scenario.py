@@ -119,6 +119,13 @@ class Scenario:
         pi_setpoint_weight: dc_perm_ex_v1 with controller_type="PI" only -- setpoint weight b in
             [0, 1] of the speed loop's proportional term (PICascadeController, S-04). None
             (default) keeps the controller's own default b = 1, the original behavior.
+        pmsm_current_ref_a: pmsm_v1 only (required there) -- the stator current magnitude
+            reference |i_s| in A, signed: its sign is the sign of i_q (motoring / braking torque).
+            controller_type "FOC_MTPA" splits it into (i_d, i_q) on the MTPA locus
+            (pmsm_foc.mtpa_id_iq); "FOC_naive" uses i_d = 0, i_q = i_s. Same two policies, same
+            dq current controller and the same plant (pmsm_foc.build_pmsm_system, large load
+            inertia, near standstill) as the PMSM page. |i_s| <= 400 A. No fault model exists for
+            this plant: every record is labelled "normal".
     """
 
     scenario_id: str
@@ -140,8 +147,11 @@ class Scenario:
     reference_magnitude_v: float = None
     reference_omega_rad_s: float = None
     pi_setpoint_weight: float = None
+    pmsm_current_ref_a: float = None
 
-    _VALID_PAIRS = {("PI", "dc_perm_ex_v1"), ("MPC", "dc_perm_ex_v1"), ("DPC", "vsc_dpc_v1")}
+    _VALID_PAIRS = {("PI", "dc_perm_ex_v1"), ("MPC", "dc_perm_ex_v1"), ("DPC", "vsc_dpc_v1"), ("FOC_MTPA", "pmsm_v1"), ("FOC_naive", "pmsm_v1")}
+    #: |i_s| limit of the PMSM (control/classical/pmsm_foc.py I_LIM).
+    _PMSM_CURRENT_LIMIT_A = 400.0
 
     def __post_init__(self):
         if (self.controller_type, self.plant_config_id) not in self._VALID_PAIRS:
@@ -188,6 +198,12 @@ class Scenario:
         finite("reference_magnitude_v", self.reference_magnitude_v, 0.0)
         finite("reference_omega_rad_s", self.reference_omega_rad_s)
         finite("pi_setpoint_weight", self.pi_setpoint_weight, 0.0)
+        finite("pmsm_current_ref_a", self.pmsm_current_ref_a)
+        if self.plant_config_id == "pmsm_v1":
+            if self.pmsm_current_ref_a is None:
+                raise ValueError("Scenario.pmsm_current_ref_a is required for plant_config_id='pmsm_v1'")
+            if abs(self.pmsm_current_ref_a) > self._PMSM_CURRENT_LIMIT_A:
+                raise ValueError(f"Scenario.pmsm_current_ref_a must satisfy |i_s| <= {self._PMSM_CURRENT_LIMIT_A} A, got {self.pmsm_current_ref_a!r}")
         if self.pi_setpoint_weight is not None and self.pi_setpoint_weight > 1.0:
             raise ValueError(f"Scenario.pi_setpoint_weight must be <= 1, got {self.pi_setpoint_weight!r}")
         for key, value in (self.motor_parameter_overrides or {}).items():

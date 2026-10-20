@@ -33,11 +33,12 @@ System 1 also feeds a fault-injection/diagnosis data-generation pipeline (`src/d
 and a config-driven ML diagnosis stack (`src/driveflow/models/`, `src/driveflow/ai/`,
 `src/driveflow/monitoring/`) -- see the "AI layer" section below.
 
-**System 2 (PMSM) is not connected to this pipeline at all** -- not even for normal-operation
-data. It has no `plant_config_id` and is never dispatched through `Scenario`/`run_scenario`; the
-dq-frame FOC/MTPA controller (`control/classical/pmsm_foc.py`) is called directly by the dashboard
-for a standalone control-law comparison (MTPA vs. naive policy on short current steps), with no
-fault model and no dataset export path. See that module's own docstring for the same statement.
+**System 2 (PMSM) produces datasets but has no diagnosis.** Since 2026-10-20 it is a `Scenario`
+plant (`plant_config_id="pmsm_v1"`, `controller_type` `"FOC_MTPA"` or `"FOC_naive"`, reference
+`pmsm_current_ref_a`): `run_scenario` emits records with the shared schema plus `i_d`, `i_q`, their
+references, `u_d`, `u_q` and `omega_rad_s` (`experiments/generate_pmsm_dataset.py`). It still has
+**no fault model**, so every record is `normal` and no classifier exists for it; the dashboard's
+PMSM page keeps calling `control/classical/pmsm_foc.py` directly for its MTPA-vs-naive comparison.
 
 The dashboard is a multipage Streamlit app (*SPADE · Engineering Workbench*, `src/driveflow/viz/app.py`)
 with native navigation; the five original macro-phases map onto its sections:

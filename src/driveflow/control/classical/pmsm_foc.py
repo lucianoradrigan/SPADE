@@ -5,10 +5,10 @@ plane figure style (a circular current limit + torque-reference isoline + two-po
 using GEM's own vendored PMSM physics, for a *salient* motor (l_d != l_q) where MTPA is a real,
 non-trivial curve -- not the "no torque-current" motor comparison GEM's own MPC examples use.
 
-Not wired into Scenario/datagen/runner.py (unlike PICascadeController and DpcController): this is
-a standalone illustrative comparison of two control LAWS (MTPA vs. naive i_d=0) on short current
-steps, not a scenario generator with fault injection -- there is no fault model for a PMSM in this
-project. Used directly by viz/dashboard.py's "Plano i_d-i_q PMSM" tab.
+Used directly by the dashboard's PMSM page for a comparison of two control LAWS (MTPA vs. naive
+i_d=0) on short current steps. Since 2026-10-20 the same plant and controller are also a Scenario
+plant ("pmsm_v1", datagen/runner.py _run_pmsm_scenario) so they produce datasets; there is still no
+fault model for a PMSM in this project, so those datasets are for control analysis, not diagnosis.
 """
 
 import numpy as np

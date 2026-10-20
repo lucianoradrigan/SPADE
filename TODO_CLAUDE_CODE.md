@@ -340,7 +340,7 @@ Este bloque amplía esa cobertura sin datos reales.
 
 ### P1. PMSM en el pipeline de datos
 
-- [ ] **P1. Hacer del PMSM un sistema con datasets, como los otros dos**
+- [x] **P1. Hacer del PMSM un sistema con datasets, como los otros dos** — cerrada 2026-10-20: `pmsm_v1` con FOC_MTPA/FOC_naive, columnas PMSM opcionales, generador y pruebas. Sin modelo de falla.
   - En `datagen/scenario.py`:
     - agregar `plant_config_id = "pmsm_v1"`;
     - agregar `controller_type` con los valores `"FOC_MTPA"` y `"FOC_naive"`;
