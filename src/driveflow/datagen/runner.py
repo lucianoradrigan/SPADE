@@ -300,8 +300,14 @@ def _run_vsc_scenario(scenario: Scenario) -> list:
 
     n_steps = int(round(scenario.duration_s / TAU))
     records = []
+    limit = scenario.vsc_voltage_limit_v
     for k in range(n_steps):
         v_o_real, v_o_imag = controller.control(state, reference, k)
+        saturated = False
+        if limit is not None:
+            clipped_real, clipped_imag = float(np.clip(v_o_real, -limit, limit)), float(np.clip(v_o_imag, -limit, limit))
+            saturated = clipped_real != v_o_real or clipped_imag != v_o_imag
+            v_o_real, v_o_imag = clipped_real, clipped_imag
         state = system.simulate(v_o_real, v_o_imag)
         vref_real, vref_imag = reference.at_step(k)
 
@@ -338,6 +344,9 @@ def _run_vsc_scenario(scenario: Scenario) -> list:
                 "vc_imag": state.vc_imag,
                 "i_f_real": state.i_f_real,
                 "i_f_imag": state.i_f_imag,
+                "v_o_real": float(v_o_real),
+                "v_o_imag": float(v_o_imag),
+                "v_o_saturated": saturated,
             }
         )
     return records

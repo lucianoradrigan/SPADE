@@ -126,6 +126,9 @@ class Scenario:
             dq current controller and the same plant (pmsm_foc.build_pmsm_system, large load
             inertia, near standstill) as the PMSM page. |i_s| <= 400 A. No fault model exists for
             this plant: every record is labelled "normal".
+        vsc_voltage_limit_v: vsc_dpc_v1 only -- optional per-axis clamp of the converter voltage
+            command v_o (V). None (default): no limit, the original behavior. 134 V reproduces the
+            original converter (V_dc = 200 V, sim.vsc_params.UPSTREAM_CONVERTER_LIMIT_V; S-09).
     """
 
     scenario_id: str
@@ -148,6 +151,7 @@ class Scenario:
     reference_omega_rad_s: float = None
     pi_setpoint_weight: float = None
     pmsm_current_ref_a: float = None
+    vsc_voltage_limit_v: float = None
 
     _VALID_PAIRS = {("PI", "dc_perm_ex_v1"), ("MPC", "dc_perm_ex_v1"), ("DPC", "vsc_dpc_v1"), ("FOC_MTPA", "pmsm_v1"), ("FOC_naive", "pmsm_v1")}
     #: |i_s| limit of the PMSM (control/classical/pmsm_foc.py I_LIM).
@@ -199,6 +203,7 @@ class Scenario:
         finite("reference_omega_rad_s", self.reference_omega_rad_s)
         finite("pi_setpoint_weight", self.pi_setpoint_weight, 0.0)
         finite("pmsm_current_ref_a", self.pmsm_current_ref_a)
+        finite("vsc_voltage_limit_v", self.vsc_voltage_limit_v, 0.0, strict=True)
         if self.plant_config_id == "pmsm_v1":
             if self.pmsm_current_ref_a is None:
                 raise ValueError("Scenario.pmsm_current_ref_a is required for plant_config_id='pmsm_v1'")

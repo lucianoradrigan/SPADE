@@ -37,6 +37,11 @@ FILTER_RESISTANCE_OHM = 2.0
 CAPACITANCE_F = 15e-6
 #: Sample period [s] of ADF/BDF.
 SAMPLE_PERIOD_S = 1e-4
+#: DC-link voltage of the original converter (CCS_MPC.slx InitFcn ``Vdc = 200``) and the per-axis
+#: clamp its active controller applies (Saturation6/9, +-134 V ~ 2*Vdc/3) -- S-09,
+#: docs/audit/upstream/dpc4pe_parameters.md. SPADE's plant has no limit unless a Scenario asks.
+UPSTREAM_DC_LINK_V = 200.0
+UPSTREAM_CONVERTER_LIMIT_V = 134.0
 
 
 def continuous_lc_model(L: float, R_f: float, C: float) -> tuple[np.ndarray, np.ndarray]:

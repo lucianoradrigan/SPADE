@@ -38,10 +38,11 @@ from __future__ import annotations
 import numpy as np
 
 from driveflow.control.dpc.loss import ADF, BDF, CAPACITANCE_F, OMEGA_REF_RAD_S
+from driveflow.sim.vsc_params import UPSTREAM_CONVERTER_LIMIT_V
 
 #: Per-axis clamp of the active upstream controller (CCS_MPC.slx Saturation6/9), ~ 2*Vdc/3 with
 #: Vdc = 200 V.
-UPSTREAM_VOLTAGE_LIMIT_V = 134.0
+UPSTREAM_VOLTAGE_LIMIT_V = UPSTREAM_CONVERTER_LIMIT_V
 UPSTREAM_HORIZON = 5
 UPSTREAM_CURRENT_WEIGHT = 2.0
 

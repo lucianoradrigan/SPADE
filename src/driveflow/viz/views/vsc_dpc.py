@@ -16,6 +16,7 @@ from driveflow.control.dpc import build_dpc_network, simulate_horizon
 from driveflow.control.dpc.reference import GRID_OMEGA_RAD_S, REFERENCE_MAGNITUDE_V, RotatingReference
 from driveflow.datagen import Scenario, run_scenario
 from driveflow.datagen.runner import _DPC_NOMINAL_WEIGHTS_PATH, _DPC_WEIGHTS_PATH, _VSC_R_OHM
+from driveflow.sim.vsc_params import UPSTREAM_CONVERTER_LIMIT_V, UPSTREAM_DC_LINK_V
 from driveflow.datagen.runner import TAU as _TAU_S
 from driveflow.sim.vsc_system import MIN_STABLE_LOAD_RESISTANCE_OHM
 from driveflow.viz.adapters.session import config_hash, record_run
@@ -93,6 +94,24 @@ def _autofill_horizon_columns(df_up: pd.DataFrame, missing_cols: list[str], omeg
         theta = phase0 + omega_rad_s * _TAU_S * k
         df_up[col] = magnitude * (np.cos(theta) if col.startswith("vref_alpha") else np.sin(theta))
     return df_up
+
+
+#: Steps of start-up transient (from rest) left out of the converter-voltage check.
+_SETTLE_STEPS = 50
+
+
+def _converter_limit_notice(df: pd.DataFrame, p: dict) -> None:
+    """S-09: say when the run needed more converter voltage than the original hardware can give."""
+    if "v_o_real" not in df:
+        return
+    settled = df.iloc[_SETTLE_STEPS:]
+    peak = float(np.max(np.abs(settled[["v_o_real", "v_o_imag"]].to_numpy()))) if len(settled) else 0.0
+    if p.get("vsc_voltage_limit_v") is not None:
+        share = float(settled["v_o_saturated"].mean()) if len(settled) else 0.0
+        msg = f"Converter voltage limited to ±{p['vsc_voltage_limit_v']:.0f} V per axis: the limit clipped the command in {share:.0%} of the settled steps."
+        (st.warning if share > 0 else st.caption)(msg)
+    elif peak > UPSTREAM_CONVERTER_LIMIT_V:
+        st.warning(f"This run needed up to {peak:.0f} V per axis of converter voltage once settled. The original converter (V_dc = {UPSTREAM_DC_LINK_V:.0f} V) clamps at ±{UPSTREAM_CONVERTER_LIMIT_V:.0f} V, so it could not track this reference; enable the voltage limit to see that behavior (S-09).", icon=":material/bolt:")
 
 
 @st.cache_resource(show_spinner=False)
@@ -285,7 +304,11 @@ def render() -> None:
                                         help=f"Default {_VSC_R_OHM} Ω is the constant R of the network's training data. Below ~{MIN_STABLE_LOAD_RESISTANCE_OHM:.2f} Ω the plant itself is open-loop unstable (sim/vsc_system.py).")
             if load_r < MIN_STABLE_LOAD_RESISTANCE_OHM:
                 st.warning(f"R = {load_r:.4f} Ω is below the plant's open-loop stability floor (~{MIN_STABLE_LOAD_RESISTANCE_OHM:.2f} Ω): divergence is expected regardless of the controller.")
+            limit_on = st.toggle(f"Limit converter voltage to ±{UPSTREAM_CONVERTER_LIMIT_V:.0f} V per axis", value=False, key="dpc_voltage_limit",
+                                 help=f"The original converter (DPC4PowerElectronics, V_dc = {UPSTREAM_DC_LINK_V:.0f} V) clamps its voltage command at ±{UPSTREAM_CONVERTER_LIMIT_V:.0f} V per α/β axis. Off (default): SPADE's averaged plant has no limit, so high references are tracked although the real converter could not deliver them (S-09).")
         params = {"duration_s": float(duration_s), "seed": int(seed), "load_resistance_ohm": float(load_r), "reference_magnitude_v": float(magnitude), "reference_omega_rad_s": float(omega)}
+        if limit_on:
+            params["vsc_voltage_limit_v"] = UPSTREAM_CONVERTER_LIMIT_V
         current = st.session_state.get("dpc_result")
         unchanged = current is not None and current["run"]["config_hash"] == config_hash(params)
         clicked = st.button("Generate DPC scenario", type="primary", key="dpc_run_button", width="stretch", disabled=unchanged, icon=":material/play_arrow:")
@@ -318,6 +341,7 @@ def render() -> None:
                 {"label": "Reference", "value": f"{p['reference_magnitude_v']:.0f}", "unit": "V", "sub": f"ω = {p['reference_omega_rad_s']:.2f} rad/s", "tone": "training"},
                 {"label": "Operating point", "value": "on-distribution" if on_dist else "off-distribution", "sub": "vs. the network's training data", "tone": "healthy" if on_dist else "warning"},
             ])
+            _converter_limit_notice(df, p)
             c1, c2 = st.columns(2)
             with c1:
                 st.markdown("##### Voltage — reference vs. actual")
