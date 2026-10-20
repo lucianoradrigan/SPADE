@@ -428,3 +428,20 @@ Evidence:
 
 All A3 criteria are met. The run is **not promoted**: promotion needs confirmation (`python experiments/promote_run.py configs/regressors/rpi5_tcn/2026-10-20_run01`). The TFLite numbers are host-CPU measurements, not hardware.
 
+### 8.3 A4 — VSC capacitor degradation, separability (Step 0 of D.2)
+
+Evidence: [`vsc_capacitor_separability.md`](audit/ai/vsc_capacitor_separability.md).
+
+**What was tested.** `sim/vsc_faults.py` makes the capacitor degradable, using the same exact ZOH as V0. With a pre-registered rule and cut (AUC ≥ 0.70 at C = 80 %), a logistic classifier grouped by operating point separates healthy from degraded windows in the DPC v4 closed loop:
+
+| Level | AUC |
+|---|---|
+| C = 90 % | 1.000 |
+| C = 80 % | 1.000 |
+| C = 70 % | 1.000 |
+| C = 80 %, with 5 % measurement noise (post-hoc) | 0.975 |
+| C = 90 %, with 5 % measurement noise (post-hoc) | 0.888 |
+| ESR of 0.05–0.2 Ω | 0.51–0.57 (not separable) |
+
+**Verdict: proceed with capacitance; not with ESR.** The result holds only for the synthetic fault definition: no real dataset exists for this fault. Uncertainty in R, L and R_f was not tested. The classifier is proposed as a new task and was not built.
+

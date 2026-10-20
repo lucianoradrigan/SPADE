@@ -1,0 +1,111 @@
+{
+  "measurement_noise_pct": 5.0,
+  "pre_registered": {
+    "primary_level": "C_80pct",
+    "cut_auc": 0.7,
+    "metric": "out-of-fold logistic-regression AUC, GroupKFold(5) by operating point"
+  },
+  "features": [
+    "rms_tracking_error",
+    "mean_abs_i_f",
+    "rms_v_o",
+    "active_current",
+    "reactive_current",
+    "std_abs_v_c",
+    "std_abs_i_f",
+    "v_o_over_v_c",
+    "r_ohm",
+    "v_ref_magnitude"
+  ],
+  "n_runs_per_level": 36,
+  "windows_per_run": 6,
+  "all_finite": true,
+  "levels": {
+    "C_90pct": {
+      "c_scale": 0.9,
+      "esr_ohm": 0.0,
+      "auc_logistic_grouped_cv": 0.8878386488340192,
+      "best_single_feature": "reactive_current",
+      "best_single_feature_auc": 0.5932141632373114,
+      "single_feature_auc": {
+        "rms_tracking_error": 0.5211334019204389,
+        "mean_abs_i_f": 0.504093792866941,
+        "rms_v_o": 0.5057013031550068,
+        "active_current": 0.5030864197530864,
+        "reactive_current": 0.5932141632373114,
+        "std_abs_v_c": 0.5113597393689986,
+        "std_abs_i_f": 0.5079946844993142,
+        "v_o_over_v_c": 0.5102237654320988
+      }
+    },
+    "C_80pct": {
+      "c_scale": 0.8,
+      "esr_ohm": 0.0,
+      "auc_logistic_grouped_cv": 0.9746656378600823,
+      "best_single_feature": "reactive_current",
+      "best_single_feature_auc": 0.6816486625514404,
+      "single_feature_auc": {
+        "rms_tracking_error": 0.5124742798353908,
+        "mean_abs_i_f": 0.5039008916323731,
+        "rms_v_o": 0.5137602880658436,
+        "active_current": 0.5019504458161865,
+        "reactive_current": 0.6816486625514404,
+        "std_abs_v_c": 0.510545267489712,
+        "std_abs_i_f": 0.5121099108367627,
+        "v_o_over_v_c": 0.5244127229080933
+      }
+    },
+    "C_70pct": {
+      "c_scale": 0.7,
+      "esr_ohm": 0.0,
+      "auc_logistic_grouped_cv": 0.9943415637860081,
+      "best_single_feature": "reactive_current",
+      "best_single_feature_auc": 0.7741555212620028,
+      "single_feature_auc": {
+        "rms_tracking_error": 0.5026148834019204,
+        "mean_abs_i_f": 0.5068587105624143,
+        "rms_v_o": 0.5227837791495199,
+        "active_current": 0.5025077160493827,
+        "reactive_current": 0.7741555212620028,
+        "std_abs_v_c": 0.5111454046639232,
+        "std_abs_i_f": 0.5190757887517147,
+        "v_o_over_v_c": 0.5356652949245542
+      }
+    },
+    "ESR_0.05ohm": {
+      "c_scale": 1.0,
+      "esr_ohm": 0.05,
+      "auc_logistic_grouped_cv": 0.5196116255144033,
+      "best_single_feature": "std_abs_i_f",
+      "best_single_feature_auc": 0.5109310699588477,
+      "single_feature_auc": {
+        "rms_tracking_error": 0.509837962962963,
+        "mean_abs_i_f": 0.5042009602194788,
+        "rms_v_o": 0.5058084705075445,
+        "active_current": 0.5006644375857339,
+        "reactive_current": 0.5044367283950617,
+        "std_abs_v_c": 0.5034936556927297,
+        "std_abs_i_f": 0.5109310699588477,
+        "v_o_over_v_c": 0.5025934499314129
+      }
+    },
+    "ESR_0.2ohm": {
+      "c_scale": 1.0,
+      "esr_ohm": 0.2,
+      "auc_logistic_grouped_cv": 0.5534336419753086,
+      "best_single_feature": "std_abs_i_f",
+      "best_single_feature_auc": 0.5317001028806585,
+      "single_feature_auc": {
+        "rms_tracking_error": 0.5032364540466392,
+        "mean_abs_i_f": 0.5166538065843621,
+        "rms_v_o": 0.5196330589849109,
+        "active_current": 0.5012645747599451,
+        "reactive_current": 0.501929012345679,
+        "std_abs_v_c": 0.5029792524005487,
+        "std_abs_i_f": 0.5317001028806585,
+        "v_o_over_v_c": 0.5220979080932784
+      }
+    }
+  },
+  "verdict": "PROCEED: separable above the pre-registered cut"
+}

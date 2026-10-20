@@ -254,7 +254,7 @@ Este bloque amplía esa cobertura sin datos reales.
 
 ### A4. Paso 0: degradación de capacitor en el VSC
 
-- [ ] **A4. Medir la separabilidad antes de construir cualquier clasificador**
+- [x] **A4. Medir la separabilidad antes de construir cualquier clasificador** — cerrada 2026-10-20: pasa el corte para pérdida de capacitancia (AUC 1,0; 0,975 con 5 % de ruido); ESR no separable. **Propuesta de tarea nueva:** el clasificador (pendiente de tu decisión).
 
   Especificación en `docs/INSTRUCTIONS.md` §6, D.2, Paso 0 (obligatorio).
 
