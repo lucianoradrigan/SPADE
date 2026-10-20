@@ -156,12 +156,16 @@ One row per task of [`TODO_CLAUDE_CODE.md`](../TODO_CLAUDE_CODE.md).
 - **C3:** `qp_solver="exact"` is the MPC default.
 - **S-13:** the PMSM uses `EULER_NSTEPS = 10`: 5.3 % at 314 rad/s, stable to ≈ 841 rad/s.
 - **S-09 (mitigated):** optional ±134 V converter limit (`Scenario.vsc_voltage_limit_v` and a toggle on the VSC page), plus a warning when a run needs more than the original converter can give. The default stays unlimited.
+- **A4 follow-up (capacitor):**
+  - **Separability with uncertainty:** with ±10 % R/L/R_f uncertainty it still passes the pre-registered cut (AUC 0.96 at C = 80 %).
+  - **Agent hypotheses:** the VSC anomaly agent now has `capacitor_80pct` / `capacitor_70pct` hypotheses, and `Scenario.vsc_capacitor_scale` / `vsc_esr_ohm` simulate the fault.
+  - **Result:** AUC 1.0, with the cause named correctly for C ≤ 80 %.
+  - **Limit:** synthetic-only; no trained classifier.
 
 ### 7.2 Waiting for your decision (implemented, evidence written, not switched on)
 
 1. **Promote the 5-class classifiers (A2).** They are ready (`*_5class/2026-10-20_run01`, AI_TECHNICAL_AUDIT.md §8.4) and recognize ball and cage at nominal speed. Limits: synthetic-only, uncalibrated amplitude; cage is missed below 150 rad/s (called ball); the ESP32 INT8 export degrades (agreement 0.73).
-2. **A4 follow-up: a capacitor-degradation classifier for the VSC.** Separability passed the pre-registered cut for capacitance loss, not for ESR. The next step adds parameter uncertainty (R, L, R_f) and sensor noise to the dataset first.
-3. **dc_motor regressor:** no use case is defined.
+2. **dc_motor regressor:** no use case is defined.
 
 ### 7.3 Open, not blocked on a decision
 

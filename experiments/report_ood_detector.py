@@ -122,7 +122,7 @@ def rebuild_id_windows(metrics: dict, meta: dict):
     df = pd.read_parquet(ROOT / meta["dataset_path"])
     df = df[df["domain"] == "dc_motor"] if "domain" in df.columns else df
     classes = metrics["classes"]
-    X, y_str, groups = build_classification_windows(df, classes, metrics["channels"], 512, cap_per_class=meta["cap_per_class"], level_scaling=metrics.get("level_scaling"))
+    X, y_str, groups = build_classification_windows(df, classes, metrics["channels"], metrics["_input_window"], cap_per_class=meta["cap_per_class"], level_scaling=metrics.get("level_scaling"))
     y = LabelEncoder().fit(classes).transform(y_str)
     split = grouped_train_val_test_split(groups, val_frac=0.2, test_frac=0.1, seed=metrics["split"]["seed"], y=y)
     if split.to_dict()["group_hashes"] != metrics["split"]["group_hashes"]:
@@ -134,7 +134,7 @@ def _windows(df: pd.DataFrame, label: str, metrics: dict):
     from driveflow.models.common import build_classification_windows
 
     d = df[df["timestamp_s"] >= SETTLE_S]
-    X, _y, _g = build_classification_windows(d, [label], metrics["channels"], 512, cap_per_class=100_000, level_scaling=metrics.get("level_scaling"))
+    X, _y, _g = build_classification_windows(d, [label], metrics["channels"], metrics["_input_window"], cap_per_class=100_000, level_scaling=metrics.get("level_scaling"))
     return X
 
 
@@ -255,6 +255,9 @@ def main(argv=None):
 
     args.run_dir = args.run_dir.resolve()
     model, metrics = _load_run(args.run_dir)
+    from driveflow.models.classifiers.schemas import load_classifier_config
+
+    metrics["_input_window"] = load_classifier_config(args.run_dir / "config.yaml").input_window  # not written back
     meta = json.loads((args.run_dir / "run_metadata.json").read_text())
     id_sets = rebuild_id_windows(metrics, meta)
     print({k: len(v[1]) for k, v in id_sets.items()}, "windows (train/val/test), split hashes match", flush=True)
@@ -278,6 +281,7 @@ def main(argv=None):
     (args.out_dir / f"{stem}.md").write_text(_md(rep))
     print(_md(rep))
     if args.write_to_run:
+        metrics.pop("_input_window", None)
         metrics["ood"] = ood
         (args.run_dir / "metrics.json").write_text(json.dumps(metrics, indent=2) + "\n")
         print("wrote metrics.json['ood'] to", args.run_dir)

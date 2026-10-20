@@ -1,0 +1,162 @@
+{
+  "duration_s": 0.2,
+  "hypotheses": [
+    "healthy",
+    "incipient",
+    "moderate",
+    "capacitor_80pct",
+    "capacitor_70pct"
+  ],
+  "noise": {
+    "1pct": {
+      "healthy": {
+        "mean_score": 0.4448883023573648,
+        "closest_hypotheses": {
+          "healthy": 1.0
+        },
+        "named_capacitor_share": 0.0
+      },
+      "capacitor_90pct": {
+        "mean_score": 0.49873257253519226,
+        "closest_hypotheses": {
+          "healthy": 0.7,
+          "capacitor_80pct": 0.3
+        },
+        "named_capacitor_share": 0.3,
+        "auc_vs_healthy": 1.0
+      },
+      "capacitor_80pct": {
+        "mean_score": 0.5557687818699816,
+        "closest_hypotheses": {
+          "capacitor_80pct": 1.0
+        },
+        "named_capacitor_share": 1.0,
+        "auc_vs_healthy": 1.0
+      },
+      "capacitor_70pct": {
+        "mean_score": 0.6102165934221879,
+        "closest_hypotheses": {
+          "capacitor_70pct": 1.0
+        },
+        "named_capacitor_share": 1.0,
+        "auc_vs_healthy": 1.0
+      },
+      "load_12ohm": {
+        "mean_score": 0.9618587847847266,
+        "closest_hypotheses": {
+          "incipient": 1.0
+        },
+        "named_capacitor_share": 0.0,
+        "auc_vs_healthy": 1.0
+      },
+      "load_20ohm": {
+        "mean_score": 0.9734350368887057,
+        "closest_hypotheses": {
+          "moderate": 1.0
+        },
+        "named_capacitor_share": 0.0,
+        "auc_vs_healthy": 1.0
+      }
+    },
+    "2pct": {
+      "healthy": {
+        "mean_score": 0.4841542196740094,
+        "closest_hypotheses": {
+          "healthy": 1.0
+        },
+        "named_capacitor_share": 0.0
+      },
+      "capacitor_90pct": {
+        "mean_score": 0.49972745271667185,
+        "closest_hypotheses": {
+          "healthy": 0.5,
+          "capacitor_80pct": 0.5
+        },
+        "named_capacitor_share": 0.5,
+        "auc_vs_healthy": 1.0
+      },
+      "capacitor_80pct": {
+        "mean_score": 0.5167073397307294,
+        "closest_hypotheses": {
+          "capacitor_80pct": 1.0
+        },
+        "named_capacitor_share": 1.0,
+        "auc_vs_healthy": 1.0
+      },
+      "capacitor_70pct": {
+        "mean_score": 0.5381939435175382,
+        "closest_hypotheses": {
+          "capacitor_70pct": 1.0
+        },
+        "named_capacitor_share": 1.0,
+        "auc_vs_healthy": 1.0
+      },
+      "load_12ohm": {
+        "mean_score": 0.9267336904201562,
+        "closest_hypotheses": {
+          "incipient": 1.0
+        },
+        "named_capacitor_share": 0.0,
+        "auc_vs_healthy": 1.0
+      },
+      "load_20ohm": {
+        "mean_score": 0.9571511416309162,
+        "closest_hypotheses": {
+          "moderate": 1.0
+        },
+        "named_capacitor_share": 0.0,
+        "auc_vs_healthy": 1.0
+      }
+    },
+    "5pct": {
+      "healthy": {
+        "mean_score": 0.4973254326137907,
+        "closest_hypotheses": {
+          "healthy": 1.0
+        },
+        "named_capacitor_share": 0.0
+      },
+      "capacitor_90pct": {
+        "mean_score": 0.49979718397364514,
+        "closest_hypotheses": {
+          "healthy": 0.8,
+          "capacitor_80pct": 0.2
+        },
+        "named_capacitor_share": 0.2,
+        "auc_vs_healthy": 1.0
+      },
+      "capacitor_80pct": {
+        "mean_score": 0.5027686283775459,
+        "closest_hypotheses": {
+          "capacitor_80pct": 1.0
+        },
+        "named_capacitor_share": 1.0,
+        "auc_vs_healthy": 1.0
+      },
+      "capacitor_70pct": {
+        "mean_score": 0.5068552812265453,
+        "closest_hypotheses": {
+          "capacitor_70pct": 1.0
+        },
+        "named_capacitor_share": 1.0,
+        "auc_vs_healthy": 1.0
+      },
+      "load_12ohm": {
+        "mean_score": 0.8401541552355176,
+        "closest_hypotheses": {
+          "incipient": 1.0
+        },
+        "named_capacitor_share": 0.0,
+        "auc_vs_healthy": 1.0
+      },
+      "load_20ohm": {
+        "mean_score": 0.9102977119120051,
+        "closest_hypotheses": {
+          "moderate": 1.0
+        },
+        "named_capacitor_share": 0.0,
+        "auc_vs_healthy": 1.0
+      }
+    }
+  }
+}

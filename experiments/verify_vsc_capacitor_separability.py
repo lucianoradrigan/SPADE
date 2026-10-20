@@ -21,6 +21,13 @@ Setup:
   mean |i_f|, RMS |v_o|, mean active and reactive filter current relative to v_c, std of |v_c| and
   of |i_f|, RMS|v_o| / RMS|v_c|, plus the known operating point (R, |v_ref|).
 
+PARAMETER-UNCERTAINTY CHECK (pre-registered 2026-10-20, before running it; --param-uncertainty-pct
+U): every run's REAL plant draws L, R_f and the load R independently from U(1 - U/100, 1 + U/100)
+x nominal, while the DPC controller and the features only know the NOMINAL R (and the nominal L,
+R_f, C built into the controller). Healthy and degraded runs draw independently. Run with U = 5 and
+10, both with 5 % measurement noise. Same metric and same cut as above: if the AUC at C = 80 %
+falls below 0.70, a capacitor classifier is not viable with these signals and the follow-up stops.
+
 POST-HOC robustness check (added after the primary result, declared as such; it does not change
 the pre-registered verdict): --noise-pct adds complex Gaussian measurement noise to v_c, i_f and
 v_o before the features are computed, with a standard deviation of that percentage of each
@@ -80,8 +87,12 @@ def _run(job):
     from driveflow.control.dpc.reference import RotatingReference
     from driveflow.sim.vsc_faults import DegradedVscSystem
 
-    level, c_scale, esr, r, mag, phase, noise_pct = job
-    plant = DegradedVscSystem(r, c_scale=c_scale, esr_ohm=esr)
+    level, c_scale, esr, r, mag, phase, noise_pct, unc_pct = job
+    l_scale = rf_scale = r_scale = 1.0
+    if unc_pct > 0:
+        urng = np.random.default_rng(zlib.crc32(repr(("params", level, r, mag, phase)).encode()))
+        l_scale, rf_scale, r_scale = urng.uniform(1 - unc_pct / 100, 1 + unc_pct / 100, size=3)
+    plant = DegradedVscSystem(r * r_scale, c_scale=c_scale, esr_ohm=esr, l_scale=l_scale, rf_scale=rf_scale)  # controller keeps nominal r
     ctrl = DpcController(WEIGHTS, r_ohm=r)
     ref = RotatingReference(magnitude_v=mag, phase0_rad=phase)
     s = plant.reset()
@@ -133,9 +144,10 @@ def main(argv=None):
     ap.add_argument("--out-dir", type=Path, default=ROOT / "docs" / "audit" / "ai")
     ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2) - 2))
     ap.add_argument("--noise-pct", type=float, default=0.0, help="post-hoc robustness check: measurement noise, %% of each signal's RMS")
+    ap.add_argument("--param-uncertainty-pct", type=float, default=0.0, help="real plant's L, R_f and R drawn within +-this %% of nominal (pre-registered check)")
     args = ap.parse_args(argv)
 
-    jobs = [(lvl, c, e, r, m, p, args.noise_pct) for lvl, (c, e) in LEVELS.items() for r in R_OHM for m in MAGNITUDES for p in PHASES]
+    jobs = [(lvl, c, e, r, m, p, args.noise_pct, args.param_uncertainty_pct) for lvl, (c, e) in LEVELS.items() for r in R_OHM for m in MAGNITUDES for p in PHASES]
     with mp.get_context("spawn").Pool(args.workers) as pool:
         runs = pool.map(_run, jobs)
 
@@ -146,7 +158,7 @@ def main(argv=None):
         return X, g
 
     Xh, gh = stack("healthy")
-    res = {"measurement_noise_pct": args.noise_pct, "pre_registered": {"primary_level": PRIMARY, "cut_auc": CUT_AUC, "metric": "out-of-fold logistic-regression AUC, GroupKFold(5) by operating point"},
+    res = {"measurement_noise_pct": args.noise_pct, "param_uncertainty_pct": args.param_uncertainty_pct, "pre_registered": {"primary_level": PRIMARY, "cut_auc": CUT_AUC, "metric": "out-of-fold logistic-regression AUC, GroupKFold(5) by operating point"},
            "features": FEATURES, "n_runs_per_level": len(R_OHM) * len(MAGNITUDES) * len(PHASES), "windows_per_run": len(runs[0]["X"]),
            "all_finite": all(r["finite"] for r in runs), "levels": {}}
     for level in LEVELS:
@@ -168,7 +180,7 @@ def main(argv=None):
     primary = res["levels"][PRIMARY]["auc_logistic_grouped_cv"]
     res["verdict"] = "PROCEED: separable above the pre-registered cut" if primary >= CUT_AUC else "STOP D.2: below the pre-registered cut"
     args.out_dir.mkdir(parents=True, exist_ok=True)
-    name = "vsc_capacitor_separability.json" if args.noise_pct == 0 else f"vsc_capacitor_separability_noise{args.noise_pct:g}pct.json"
+    name = "vsc_capacitor_separability" + (f"_noise{args.noise_pct:g}pct" if args.noise_pct else "") + (f"_params{args.param_uncertainty_pct:g}pct" if args.param_uncertainty_pct else "") + ".json"
     (args.out_dir / name).write_text(json.dumps(res, indent=2) + "\n")
     print(res["verdict"], f"(primary AUC {primary:.3f}, cut {CUT_AUC})")
 

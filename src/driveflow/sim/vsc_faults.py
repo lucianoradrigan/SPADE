@@ -31,11 +31,13 @@ from driveflow.sim.vsc_params import CAPACITANCE_F, FILTER_RESISTANCE_OHM, INDUC
 from driveflow.sim.vsc_system import VscState
 
 
-def degraded_matrices(c_scale: float = 1.0, esr_ohm: float = 0.0, tau: float = SAMPLE_PERIOD_S) -> tuple[np.ndarray, np.ndarray]:
-    """Exact ZOH (A_d, B_d) of the model above, state [i_f, v_cap], input [v_o, i_load]."""
-    if c_scale <= 0 or esr_ohm < 0 or tau <= 0:
-        raise ValueError(f"need c_scale > 0, esr_ohm >= 0, tau > 0; got {c_scale}, {esr_ohm}, {tau}")
-    L, r_f, c = INDUCTANCE_H, FILTER_RESISTANCE_OHM, CAPACITANCE_F * c_scale
+def degraded_matrices(c_scale: float = 1.0, esr_ohm: float = 0.0, tau: float = SAMPLE_PERIOD_S, l_scale: float = 1.0, rf_scale: float = 1.0) -> tuple[np.ndarray, np.ndarray]:
+    """Exact ZOH (A_d, B_d) of the model above, state [i_f, v_cap], input [v_o, i_load].
+    l_scale / rf_scale: the real filter's L and R_f as a fraction of nominal -- parameter
+    uncertainty that is NOT a fault (used by the A4 robustness check)."""
+    if c_scale <= 0 or esr_ohm < 0 or tau <= 0 or l_scale <= 0 or rf_scale < 0:
+        raise ValueError(f"need c_scale, l_scale > 0, esr_ohm, rf_scale >= 0, tau > 0; got {c_scale}, {esr_ohm}, {tau}, {l_scale}, {rf_scale}")
+    L, r_f, c = INDUCTANCE_H * l_scale, FILTER_RESISTANCE_OHM * rf_scale, CAPACITANCE_F * c_scale
     a = np.array([[-(r_f + esr_ohm) / L, -1.0 / L], [1.0 / c, 0.0]])
     b = np.array([[1.0 / L, esr_ohm / L], [0.0, -1.0 / c]])
     m = np.zeros((4, 4))
@@ -48,11 +50,12 @@ class DegradedVscSystem:
     """Same reset()/simulate() interface and VscState output as sim/vsc_system.VscSystem, with a
     degraded capacitor. ``state.vc_*`` is the terminal voltage (what the controller measures)."""
 
-    def __init__(self, load_resistance_ohm: float = 8.0064, c_scale: float = 1.0, esr_ohm: float = 0.0, tau: float = SAMPLE_PERIOD_S):
+    def __init__(self, load_resistance_ohm: float = 8.0064, c_scale: float = 1.0, esr_ohm: float = 0.0, tau: float = SAMPLE_PERIOD_S,
+                 l_scale: float = 1.0, rf_scale: float = 1.0):
         self.r = load_resistance_ohm
         self.tau = tau
         self.c_scale, self.esr_ohm = c_scale, esr_ohm
-        self._ad, self._bd = degraded_matrices(c_scale, esr_ohm, tau)
+        self._ad, self._bd = degraded_matrices(c_scale, esr_ohm, tau, l_scale, rf_scale)
         self._x = None  # complex [i_f, v_cap]
         self.state: VscState = None
 

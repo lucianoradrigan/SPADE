@@ -1,11 +1,13 @@
 """VSC/DPC (domain vsc_dpc) simulation-based anomaly detection agent.
 
-Phase 4: this domain has no fault model at all -- pure power electronics, no bearing, no rotating
-machinery (see docs/design_ai_layer_transversal.md and dashboard.py's own "About this platform").
-"Anomaly" here means the load resistance drifting away from the ~8.0Ω point the trained DPC
-network was validated on -- the same off-distribution robustness concept Fase B's own sidebar
-already exposes as a slider (control/dpc/controller.py feeds load_resistance_ohm directly into
-the network's input row) -- not a fault severity.
+Pure power electronics, no bearing, no rotating machinery. Two kinds of anomaly hypotheses:
+- the load resistance drifting away from the ~8.0 ohm point the trained DPC network was validated
+  on -- the off-distribution robustness concept the VSC page exposes as a slider;
+- since 2026-10-20, a degraded filter capacitor (80 % and 70 % of the nominal 15 uF;
+  sim/vsc_faults.py). This fault definition is SYNTHETIC-ONLY: no real reference data exists.
+  Separability passed a pre-registered cut even with +-10 % R/L/R_f uncertainty
+  (docs/audit/ai/vsc_capacitor_separability.md); experiments/report_vsc_agent_capacitor.py
+  measures this agent on it.
 """
 
 from __future__ import annotations
@@ -31,13 +33,18 @@ _HYPOTHESES = {
     "healthy": {},
     "incipient": {"load_resistance_ohm": float(_VSC_R_OHM) * 1.5},
     "moderate": {"load_resistance_ohm": max(float(_VSC_R_OHM) * 2.5, MIN_STABLE_LOAD_RESISTANCE_OHM + 1.0)},
+    # Synthetic filter-capacitor degradation (A4 follow-up, sim/vsc_faults.py): separability passed
+    # a pre-registered cut even with +-10 % R/L/R_f uncertainty (docs/audit/ai/
+    # vsc_capacitor_separability.md). SYNTHETIC-ONLY -- no real reference data for this fault.
+    "capacitor_80pct": {"vsc_capacitor_scale": 0.8},
+    "capacitor_70pct": {"vsc_capacitor_scale": 0.7},
 }
 
 
 class VSCDPCAnomalyDetector(SimulationBasedAgent):
-    """Detecta desviaciones (resistencia de carga fuera de distribución) comparando telemetría
-    real contra simulaciones de Scenario(controller_type="DPC", plant_config_id="vsc_dpc_v1",
-    ...) a distinta resistencia de carga."""
+    """Detecta desviaciones (resistencia de carga fuera de distribución, o capacitor del filtro
+    degradado -- sintético) comparando telemetría real contra simulaciones de
+    Scenario(controller_type="DPC", plant_config_id="vsc_dpc_v1", ...)."""
 
     HYPOTHESES = _HYPOTHESES
 

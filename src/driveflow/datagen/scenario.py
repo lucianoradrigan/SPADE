@@ -129,6 +129,10 @@ class Scenario:
         vsc_voltage_limit_v: vsc_dpc_v1 only -- optional per-axis clamp of the converter voltage
             command v_o (V). None (default): no limit, the original behavior. 134 V reproduces the
             original converter (V_dc = 200 V, sim.vsc_params.UPSTREAM_CONVERTER_LIMIT_V; S-09).
+        vsc_capacitor_scale / vsc_esr_ohm: vsc_dpc_v1 only -- synthetic filter-capacitor
+            degradation (sim/vsc_faults.py): effective C as a fraction of the nominal 15 uF, and a
+            series ESR in ohm. None (default) keeps the nominal identified plant bit for bit.
+            SYNTHETIC-ONLY: no real reference data exists for this fault (A4).
     """
 
     scenario_id: str
@@ -152,6 +156,8 @@ class Scenario:
     pi_setpoint_weight: float = None
     pmsm_current_ref_a: float = None
     vsc_voltage_limit_v: float = None
+    vsc_capacitor_scale: float = None
+    vsc_esr_ohm: float = None
 
     _VALID_PAIRS = {("PI", "dc_perm_ex_v1"), ("MPC", "dc_perm_ex_v1"), ("DPC", "vsc_dpc_v1"), ("FOC_MTPA", "pmsm_v1"), ("FOC_naive", "pmsm_v1")}
     #: |i_s| limit of the PMSM (control/classical/pmsm_foc.py I_LIM).
@@ -204,6 +210,8 @@ class Scenario:
         finite("pi_setpoint_weight", self.pi_setpoint_weight, 0.0)
         finite("pmsm_current_ref_a", self.pmsm_current_ref_a)
         finite("vsc_voltage_limit_v", self.vsc_voltage_limit_v, 0.0, strict=True)
+        finite("vsc_capacitor_scale", self.vsc_capacitor_scale, 0.0, strict=True)
+        finite("vsc_esr_ohm", self.vsc_esr_ohm, 0.0)
         if self.plant_config_id == "pmsm_v1":
             if self.pmsm_current_ref_a is None:
                 raise ValueError("Scenario.pmsm_current_ref_a is required for plant_config_id='pmsm_v1'")

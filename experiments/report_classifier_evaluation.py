@@ -126,11 +126,15 @@ def _abstention(probs_cal: np.ndarray, y: np.ndarray | None, metrics: dict) -> d
     return out
 
 
-def evaluate_run(run_dir: Path, data: pd.DataFrame, window: int = 512) -> dict:
+def evaluate_run(run_dir: Path, data: pd.DataFrame, window: int | None = None) -> dict:
     from driveflow.ai.calibration import apply_calibration
     from driveflow.ai.evaluation import classification_metrics, ood_confidence_summary, reliability_curve
 
     model, metrics = _load_run(run_dir)
+    if window is None:  # each run's own input window (512 for the shipped models)
+        from driveflow.models.classifiers.schemas import load_classifier_config
+
+        window = load_classifier_config(run_dir / "config.yaml").input_window
     classes, channels = metrics["classes"], metrics["channels"]
     ls = metrics.get("level_scaling")
     out = {"run": str(run_dir.relative_to(REPO_ROOT)), "classes": classes, "channels": channels, "level_scaling": ls, "calibration": metrics.get("calibration"),
@@ -235,7 +239,7 @@ def main(argv=None):
     models = [evaluate_run(Path(r).resolve(), data) for r in runs]
     report = {
         "command": "python experiments/report_classifier_evaluation.py " + " ".join(argv or []), "extra_faults": args.extra_faults,
-        "seeds": seeds, "duration_s": args.duration_s, "settle_s": SETTLE_S, "window_samples": 512,
+        "seeds": seeds, "duration_s": args.duration_s, "settle_s": SETTLE_S, "window_samples": "each run's config input_window",
         "conditions": {k: {"overrides": v[0], "mechanical_severity_scale": v[1], "window": v[2]} for k, v in CONDITIONS.items()},
         "simulation_wall_time_s": round(t_sim, 1), "total_wall_time_s": round(time.time() - t0, 1),
         "models": models,

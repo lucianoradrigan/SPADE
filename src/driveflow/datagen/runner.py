@@ -280,7 +280,12 @@ def _apply_white_noise(records: list, scenario: Scenario) -> None:
 
 def _run_vsc_scenario(scenario: Scenario) -> list:
     r_ohm = scenario.load_resistance_ohm if scenario.load_resistance_ohm is not None else _VSC_R_OHM
-    system = VscSystem(load_resistance_ohm=r_ohm, tau=TAU)
+    if scenario.vsc_capacitor_scale is not None or scenario.vsc_esr_ohm is not None:
+        from driveflow.sim.vsc_faults import DegradedVscSystem
+
+        system = DegradedVscSystem(r_ohm, c_scale=scenario.vsc_capacitor_scale or 1.0, esr_ohm=scenario.vsc_esr_ohm or 0.0, tau=TAU)
+    else:
+        system = VscSystem(load_resistance_ohm=r_ohm, tau=TAU)
     controller = ScheduledDpcController(_DPC_NOMINAL_WEIGHTS_PATH, _DPC_WEIGHTS_PATH, r_ohm, DEFAULT_SCHEDULE_REGION)
     # No randomness in this plant/controller to seed (see scenario.py's docstring) -- seed instead
     # picks the reference's starting phase, so different seeds still give distinguishable runs.
@@ -325,7 +330,7 @@ def _run_vsc_scenario(scenario: Scenario) -> list:
                 "rpm": np.nan,
                 "torque_nm": np.nan,
                 "voltage_v": np.nan,
-                "label": "normal",  # no fault model exists for this plant yet
+                "label": "capacitor_degraded" if (scenario.vsc_capacitor_scale not in (None, 1.0) or scenario.vsc_esr_ohm) else "normal",
                 "electrical_severity_nm": 0.0,
                 "mechanical_severity": 0.0,
                 "dataset_id": scenario.scenario_id,
