@@ -163,7 +163,7 @@ Este bloque amplía esa cobertura sin datos reales.
 
 ### V5. Controladores de referencia de GEM
 
-- [ ] **V5. Comparar los controladores clásicos de GEM con los de SPADE**
+- [x] **V5. Comparar los controladores clásicos de GEM con los de SPADE** — cerrada 2026-10-20: MTPA coincide con la tabla de GEM a su resolución (1 A); PI de GEM sobreimpulsa 33,6 % vs 15,1 % de SPADE.
   - Usar el framework de control clásico de GEM (paquete `gem-controllers` o el equivalente vigente; verificar el nombre) en un entorno aparte. Registrar las respuestas en `.npz`.
   - Comparaciones:
     1. **Lazo de velocidad del motor DC:** controlador de GEM frente al PI en cascada de SPADE, sobre la misma planta. Métricas: tiempo de subida, sobreimpulso, tiempo de establecimiento y error estacionario. Tiene que incluir el escalón pequeño de S-04 (≈15 % de sobreimpulso en SPADE).
