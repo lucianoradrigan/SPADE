@@ -162,6 +162,25 @@ No MATLAB network trained by `Main.txt` on this data could be recovered for comp
 
 Evidence: [`dpc4pe_parameters.md`](audit/upstream/dpc4pe_parameters.md) §V3 and [`matlab_network_comparison.json`](audit/upstream/matlab_network_comparison.json).
 
+**V2. The upstream MPC as a baseline.** `control/mpc/vsc_ccs_mpc.py` ports `CCS_MPC.slx`'s active controller (`MATLAB Function4`): horizon 5, Q = diag(2, 1), closed-form solution, optional ±134 V clamp. Two parts are adapted to SPADE's plant:
+- the one-step delay compensation is dropped, because SPADE's averaged plant applies v_o in the same step;
+- the extrapolated references are replaced by the exact ones, aligned like the DPC's.
+
+On SPADE's plant, over R = 3.5 Ω – 5 kΩ and |v_ref| = 10–150 V ([`dpc_vs_mpc.md`](audit/stability/dpc_vs_mpc.md), [figure](audit/stability/dpc_vs_mpc.png)):
+
+| Point | MPC N=5 | DPC v3 | DPC v4 (default) |
+|---|---|---|---|
+| 8.0064 Ω, 50 V | 0.14 V | 1.18 V | 2.52 V |
+| 8.0064 Ω, 10 V | 0.03 V | 1.75 V | 4.24 V |
+| 4 Ω, 50 V | 0.27 V | 17.96 V | 3.10 V |
+| 1 kΩ, 50 V | < 0.01 V | 111 V | 1.90 V |
+
+**What the MPC shows.** It tracks below 1 V everywhere in the grid. With the upstream ±134 V clamp, it can no longer track the points S-09 predicts are unreachable: 150 V at every load, and 120 V at 10 Ω or less. The MPC is the realistic target for C1: the DPC's error is at least an order of magnitude above it at every grid point.
+
+**v4 outside its training range.** At 5 kΩ, above its 1 kΩ training range, v4 settles at 14.7 V at 50 V.
+
+**CPU per step.** The MPC takes ≈ 21 µs per step and the DPC 1.5 ms. The DPC figure is an eager Keras call, so it measures framework overhead and is not an embedded-cost estimate.
+
 ## 5. Controller performance (dynamic stability)
 
 **Metrics used.**

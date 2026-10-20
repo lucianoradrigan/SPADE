@@ -121,7 +121,7 @@ Este bloque amplía esa cobertura sin datos reales.
 
 ### V2. El MPC original como línea base
 
-- [ ] **V2. Portar el CCS-MPC y compararlo con DPC v3 y v4**
+- [x] **V2. Portar el CCS-MPC y compararlo con DPC v3 y v4** — cerrada 2026-10-20: portado (adaptado a la planta sin retardo, no reconstruido), [`dpc_vs_mpc.md`](docs/audit/stability/dpc_vs_mpc.md).
 
   Según su README, DPC4PowerElectronics aprende de un MPC explícito de un paso. Ese MPC es la referencia natural de lo que el DPC debería lograr.
 

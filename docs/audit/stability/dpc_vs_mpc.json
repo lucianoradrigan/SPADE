@@ -1,0 +1,2215 @@
+{
+  "n_steps": 2000,
+  "warmup": 50,
+  "thd_samples": 1800,
+  "machine": "x86_64, Linux 7.0.0-38-generic, Python 3.11.15",
+  "cpu_us_per_step_mean": {
+    "MPC N=5": 20.939987685123924,
+    "MPC N=5, \u00b1134 V": 26.834772889560554,
+    "MPC N=1": 18.209296923305374,
+    "DPC v3": 1467.7644294773927,
+    "DPC v4 (default)": 1467.6699250130332
+  },
+  "grid": {
+    "R=3.5,V=10": {
+      "r_ohm": 3.5,
+      "magnitude_v": 10.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 21.430465261801146,
+        "settled_rmse_v": 0.061994046352413346,
+        "thd_pct": 6.154933892957379e-06,
+        "effort_rms_v": 16.327091918857253,
+        "effort_max_axis_v": 16.643570758139205
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 27.473191745229997,
+        "settled_rmse_v": 0.061994046352413346,
+        "thd_pct": 6.154933892957379e-06,
+        "effort_rms_v": 16.327091918857253,
+        "effort_max_axis_v": 16.643570758139205
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.13811229658313,
+        "settled_rmse_v": 0.02599210757216693,
+        "thd_pct": 1.570210222771847e-05,
+        "effort_rms_v": 16.33089422881506,
+        "effort_max_axis_v": 17.167728578351483
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1434.7024132875958,
+        "settled_rmse_v": 3.541687685569412,
+        "thd_pct": 11.6774284921346,
+        "effort_rms_v": 12.074082968406596,
+        "effort_max_axis_v": 46.67414474487305
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1455.7625627494417,
+        "settled_rmse_v": 4.590192816814263,
+        "thd_pct": 12.705728218171945,
+        "effort_rms_v": 21.260431718996525,
+        "effort_max_axis_v": 39.85847854614258
+      }
+    },
+    "R=3.5,V=35": {
+      "r_ohm": 3.5,
+      "magnitude_v": 35.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.76320501510054,
+        "settled_rmse_v": 0.2169791622334468,
+        "thd_pct": 6.154933891820023e-06,
+        "effort_rms_v": 57.144821716000386,
+        "effort_max_axis_v": 58.252497653485875
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.2791379209375,
+        "settled_rmse_v": 0.216961549842533,
+        "thd_pct": 9.77201048504274e-07,
+        "effort_rms_v": 57.14401418201082,
+        "effort_max_axis_v": 57.30115647220411
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.018681425019167,
+        "settled_rmse_v": 0.09097237650258433,
+        "thd_pct": 1.5702102228863365e-05,
+        "effort_rms_v": 57.158129800852706,
+        "effort_max_axis_v": 60.08705002422943
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1441.134388500359,
+        "settled_rmse_v": 14.098189517368366,
+        "thd_pct": 14.35964541452697,
+        "effort_rms_v": 37.07034549589384,
+        "effort_max_axis_v": 54.635047912597656
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1418.1152213568566,
+        "settled_rmse_v": 3.4941375349781234,
+        "thd_pct": 6.280567074366649,
+        "effort_rms_v": 61.23989413076816,
+        "effort_max_axis_v": 71.80802917480469
+      }
+    },
+    "R=3.5,V=50": {
+      "r_ohm": 3.5,
+      "magnitude_v": 50.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 21.020633677835576,
+        "settled_rmse_v": 0.30997023176206673,
+        "thd_pct": 6.1549338936486936e-06,
+        "effort_rms_v": 81.63545959428627,
+        "effort_max_axis_v": 83.2178537906966
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.709986545029096,
+        "settled_rmse_v": 0.3099450970072216,
+        "thd_pct": 8.749946661785388e-07,
+        "effort_rms_v": 81.63430380508441,
+        "effort_max_axis_v": 81.83196768094041
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 19.002294124220498,
+        "settled_rmse_v": 0.12996053786083464,
+        "thd_pct": 1.5702102226869876e-05,
+        "effort_rms_v": 81.65447114407529,
+        "effort_max_axis_v": 85.83864289175551
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1481.1823645140976,
+        "settled_rmse_v": 20.477924995396886,
+        "thd_pct": 14.632397729866879,
+        "effort_rms_v": 52.375755788080625,
+        "effort_max_axis_v": 69.54524993896484
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1471.8588960677152,
+        "settled_rmse_v": 8.003486700562847,
+        "thd_pct": 5.426558499173563,
+        "effort_rms_v": 89.36305125934754,
+        "effort_max_axis_v": 128.1343231201172
+      }
+    },
+    "R=3.5,V=120": {
+      "r_ohm": 3.5,
+      "magnitude_v": 120.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.909136976115406,
+        "settled_rmse_v": 0.7439285562289609,
+        "thd_pct": 6.15493389326775e-06,
+        "effort_rms_v": 195.92510302628708,
+        "effort_max_axis_v": 199.72284909766964
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.822578540304676,
+        "settled_rmse_v": 26.515452474792397,
+        "thd_pct": 12.658749964194348,
+        "effort_rms_v": 159.87610448012165,
+        "effort_max_axis_v": 134.0
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.089649092871696,
+        "settled_rmse_v": 0.3119052908660031,
+        "thd_pct": 1.5702102225032536e-05,
+        "effort_rms_v": 195.97073074578068,
+        "effort_max_axis_v": 206.01274294021255
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1468.0433020694181,
+        "settled_rmse_v": 50.23582206789571,
+        "thd_pct": 14.908011328738313,
+        "effort_rms_v": 124.01392553694178,
+        "effort_max_axis_v": 161.03079223632812
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1448.1027984584216,
+        "settled_rmse_v": 11.00276210098299,
+        "thd_pct": 4.28744880417789,
+        "effort_rms_v": 195.39999902432183,
+        "effort_max_axis_v": 245.07980346679688
+      }
+    },
+    "R=3.5,V=150": {
+      "r_ohm": 3.5,
+      "magnitude_v": 150.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.916921232128516,
+        "settled_rmse_v": 0.9299106952862005,
+        "thd_pct": 6.154933891035041e-06,
+        "effort_rms_v": 244.9063787828588,
+        "effort_max_axis_v": 249.65356137208596
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.913080146186985,
+        "settled_rmse_v": 53.37022143034709,
+        "thd_pct": 18.437594158080934,
+        "effort_rms_v": 168.0691224147504,
+        "effort_max_axis_v": 134.0
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.258383381180465,
+        "settled_rmse_v": 0.3898816135825042,
+        "thd_pct": 1.570210222585947e-05,
+        "effort_rms_v": 244.96341343222585,
+        "effort_max_axis_v": 257.5159286752658
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1453.9587001490872,
+        "settled_rmse_v": 62.98968437294117,
+        "thd_pct": 14.942671157661994,
+        "effort_rms_v": 154.74484626428355,
+        "effort_max_axis_v": 199.78501892089844
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1448.101016023429,
+        "settled_rmse_v": 13.880573402878522,
+        "thd_pct": 4.645350465939558,
+        "effort_rms_v": 238.49554890240833,
+        "effort_max_axis_v": 291.4906311035156
+      }
+    },
+    "R=4,V=10": {
+      "r_ohm": 4.0,
+      "magnitude_v": 10.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 21.38312165334355,
+        "settled_rmse_v": 0.05424041997254561,
+        "thd_pct": 2.677008398150492e-10,
+        "effort_rms_v": 15.486488299857768,
+        "effort_max_axis_v": 15.491791260530244
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 27.601149704423733,
+        "settled_rmse_v": 0.05424041997254561,
+        "thd_pct": 2.677008398150492e-10,
+        "effort_rms_v": 15.486488299857768,
+        "effort_max_axis_v": 15.491791260530244
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.74527857580688,
+        "settled_rmse_v": 0.02269493440623763,
+        "thd_pct": 1.17215538904484e-07,
+        "effort_rms_v": 15.489188284214292,
+        "effort_max_axis_v": 15.693733516128761
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1469.2075333296089,
+        "settled_rmse_v": 3.062296647992827,
+        "thd_pct": 9.920704609515296,
+        "effort_rms_v": 11.647741142060891,
+        "effort_max_axis_v": 22.66180992126465
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1469.5321049366612,
+        "settled_rmse_v": 4.429078788684627,
+        "thd_pct": 13.158854787919314,
+        "effort_rms_v": 19.622718695655976,
+        "effort_max_axis_v": 35.8119010925293
+      }
+    },
+    "R=4,V=35": {
+      "r_ohm": 4.0,
+      "magnitude_v": 35.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 21.17302204715088,
+        "settled_rmse_v": 0.1898414699039096,
+        "thd_pct": 2.6770172113592374e-10,
+        "effort_rms_v": 54.20270904950219,
+        "effort_max_axis_v": 54.221269411854685
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 27.647558657918125,
+        "settled_rmse_v": 0.18984313573977832,
+        "thd_pct": 1.0078258870352628e-11,
+        "effort_rms_v": 54.20273520731767,
+        "effort_max_axis_v": 54.197995421473706
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.501068669138476,
+        "settled_rmse_v": 0.0794322704218316,
+        "thd_pct": 1.1721553792207927e-07,
+        "effort_rms_v": 54.21215899475002,
+        "effort_max_axis_v": 54.92806730645017
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1463.3866434305673,
+        "settled_rmse_v": 12.342663672476206,
+        "thd_pct": 12.770536017891278,
+        "effort_rms_v": 37.90520408811872,
+        "effort_max_axis_v": 50.80731201171875
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1471.0075051989406,
+        "settled_rmse_v": 3.1706417995114045,
+        "thd_pct": 6.033492745581662,
+        "effort_rms_v": 57.24849089009084,
+        "effort_max_axis_v": 66.2504653930664
+      }
+    },
+    "R=4,V=50": {
+      "r_ohm": 4.0,
+      "magnitude_v": 50.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.740900392411277,
+        "settled_rmse_v": 0.27120209986272814,
+        "thd_pct": 2.67699903789718e-10,
+        "effort_rms_v": 77.43244149928886,
+        "effort_max_axis_v": 77.4589563026497
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 27.52700322889723,
+        "settled_rmse_v": 0.2712046526621087,
+        "thd_pct": 2.8704311541351887e-12,
+        "effort_rms_v": 77.43248272354565,
+        "effort_max_axis_v": 77.42440743791357
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.464542255969718,
+        "settled_rmse_v": 0.11347467203118813,
+        "thd_pct": 1.1721553750322524e-07,
+        "effort_rms_v": 77.44594142107145,
+        "effort_max_axis_v": 78.46866758064442
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1469.6190628310433,
+        "settled_rmse_v": 17.959167965870403,
+        "thd_pct": 13.086200179231712,
+        "effort_rms_v": 53.52388159913186,
+        "effort_max_axis_v": 69.61983489990234
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1510.990522292559,
+        "settled_rmse_v": 3.0957090786778854,
+        "thd_pct": 5.075118056540584,
+        "effort_rms_v": 80.0592770001515,
+        "effort_max_axis_v": 91.34187316894531
+      }
+    },
+    "R=4,V=120": {
+      "r_ohm": 4.0,
+      "magnitude_v": 120.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 21.481944218976423,
+        "settled_rmse_v": 0.6508850396705482,
+        "thd_pct": 2.676965235292704e-10,
+        "effort_rms_v": 185.83785959829322,
+        "effort_max_axis_v": 185.90149512635915
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 29.493636218830943,
+        "settled_rmse_v": 22.613663615209877,
+        "thd_pct": 11.242729576445333,
+        "effort_rms_v": 157.255563261598,
+        "effort_max_axis_v": 134.0
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 19.003431632881984,
+        "settled_rmse_v": 0.2723392128748514,
+        "thd_pct": 1.1721553885131958e-07,
+        "effort_rms_v": 185.8702594105715,
+        "effort_max_axis_v": 188.32480219354423
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1499.6052228525514,
+        "settled_rmse_v": 44.17282385713985,
+        "thd_pct": 13.478771083804991,
+        "effort_rms_v": 126.64922505448905,
+        "effort_max_axis_v": 175.9013214111328
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1513.1079385464545,
+        "settled_rmse_v": 19.26178749375828,
+        "thd_pct": 4.515011026387957,
+        "effort_rms_v": 196.41503363785196,
+        "effort_max_axis_v": 281.42431640625
+      }
+    },
+    "R=4,V=150": {
+      "r_ohm": 4.0,
+      "magnitude_v": 150.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.926319441059604,
+        "settled_rmse_v": 0.8136062995881845,
+        "thd_pct": 2.6770206598211466e-10,
+        "effort_rms_v": 232.29732449786653,
+        "effort_max_axis_v": 232.37686890795328
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 27.120280865347013,
+        "settled_rmse_v": 48.99496634390791,
+        "thd_pct": 17.488313820418227,
+        "effort_rms_v": 165.98853743243546,
+        "effort_max_axis_v": 134.0
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 17.936707474291325,
+        "settled_rmse_v": 0.3404240160935641,
+        "thd_pct": 1.1721553964721965e-07,
+        "effort_rms_v": 232.33782426321437,
+        "effort_max_axis_v": 235.40600274193042
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1467.2439445566852,
+        "settled_rmse_v": 55.4104079967579,
+        "thd_pct": 13.531684633355598,
+        "effort_rms_v": 157.85060978395347,
+        "effort_max_axis_v": 215.9849853515625
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1460.3781498590251,
+        "settled_rmse_v": 24.63017461395736,
+        "thd_pct": 4.8210328894915735,
+        "effort_rms_v": 243.6359649886076,
+        "effort_max_axis_v": 370.1378173828125
+      }
+    },
+    "R=5,V=10": {
+      "r_ohm": 5.0,
+      "magnitude_v": 10.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 21.23714111803565,
+        "settled_rmse_v": 0.04339234943128395,
+        "thd_pct": 1.622709580963823e-14,
+        "effort_rms_v": 14.323139752404176,
+        "effort_max_axis_v": 14.321893995515605
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 27.286358759738505,
+        "settled_rmse_v": 0.04339234943128395,
+        "thd_pct": 1.622709580963823e-14,
+        "effort_rms_v": 14.323139752404176,
+        "effort_max_axis_v": 14.321893995515605
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.057634457363747,
+        "settled_rmse_v": 0.01808797162536062,
+        "thd_pct": 1.3859682315856057e-11,
+        "effort_rms_v": 14.324696246805214,
+        "effort_max_axis_v": 14.327462357597607
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1490.1824537519133,
+        "settled_rmse_v": 2.3409886296997677,
+        "thd_pct": 6.7664872209850575,
+        "effort_rms_v": 12.089898075988595,
+        "effort_max_axis_v": 15.687643051147461
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1545.3492364904378,
+        "settled_rmse_v": 3.967241224842494,
+        "thd_pct": 10.081827149733495,
+        "effort_rms_v": 17.01499033698212,
+        "effort_max_axis_v": 22.039615631103516
+      }
+    },
+    "R=5,V=35": {
+      "r_ohm": 5.0,
+      "magnitude_v": 35.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 26.02571021998301,
+        "settled_rmse_v": 0.15187322300949357,
+        "thd_pct": 1.8780808652952644e-14,
+        "effort_rms_v": 50.130989133414616,
+        "effort_max_axis_v": 50.126628984304176
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.502779379370622,
+        "settled_rmse_v": 0.15187326935200024,
+        "thd_pct": 1.8780808652952644e-14,
+        "effort_rms_v": 50.13099003220441,
+        "effort_max_axis_v": 50.126628984304176
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 17.948678374523297,
+        "settled_rmse_v": 0.06330790068876231,
+        "thd_pct": 1.385926098762377e-11,
+        "effort_rms_v": 50.13643686381825,
+        "effort_max_axis_v": 50.14611825159163
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1517.3990716575645,
+        "settled_rmse_v": 9.120166449369501,
+        "thd_pct": 9.719346348385491,
+        "effort_rms_v": 40.87171993646742,
+        "effort_max_axis_v": 53.11521911621094
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1487.7817939268425,
+        "settled_rmse_v": 2.581446732199449,
+        "thd_pct": 4.626107472895692,
+        "effort_rms_v": 51.3689797307044,
+        "effort_max_axis_v": 60.45690155029297
+      }
+    },
+    "R=5,V=50": {
+      "r_ohm": 5.0,
+      "magnitude_v": 50.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.600545714842156,
+        "settled_rmse_v": 0.21696174715641958,
+        "thd_pct": 1.5888258745694872e-14,
+        "effort_rms_v": 71.61569876202088,
+        "effort_max_axis_v": 71.60946997757806
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.641456788638607,
+        "settled_rmse_v": 0.21696181993260844,
+        "thd_pct": 1.6011887874277256e-14,
+        "effort_rms_v": 71.61570017380971,
+        "effort_max_axis_v": 71.60946997757806
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.02132801094558,
+        "settled_rmse_v": 0.09043985812680304,
+        "thd_pct": 1.3858733607972743e-11,
+        "effort_rms_v": 71.62348123402606,
+        "effort_max_axis_v": 71.63731178798692
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1479.0030007861787,
+        "settled_rmse_v": 13.255341851315139,
+        "thd_pct": 10.121121142628628,
+        "effort_rms_v": 55.89948699673187,
+        "effort_max_axis_v": 69.46411895751953
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1502.3868024727562,
+        "settled_rmse_v": 2.866249061130925,
+        "thd_pct": 4.471991572241565,
+        "effort_rms_v": 73.08720791011865,
+        "effort_max_axis_v": 85.99625396728516
+      }
+    },
+    "R=5,V=120": {
+      "r_ohm": 5.0,
+      "magnitude_v": 120.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.74970051762648,
+        "settled_rmse_v": 0.520708193175408,
+        "thd_pct": 1.4553548527038694e-14,
+        "effort_rms_v": 171.87767702885012,
+        "effort_max_axis_v": 171.8627279461873
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.71316367923282,
+        "settled_rmse_v": 16.785357041555304,
+        "thd_pct": 8.91268166271492,
+        "effort_rms_v": 153.01845776708012,
+        "effort_max_axis_v": 134.0
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.198931735241786,
+        "settled_rmse_v": 0.21705565950432726,
+        "thd_pct": 1.3858972030738948e-11,
+        "effort_rms_v": 171.89635496166255,
+        "effort_max_axis_v": 171.9295482911714
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1442.177212506067,
+        "settled_rmse_v": 32.60738348712104,
+        "thd_pct": 10.661714238951273,
+        "effort_rms_v": 135.67800805241635,
+        "effort_max_axis_v": 165.57379150390625
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1462.1119811781682,
+        "settled_rmse_v": 5.266936528728179,
+        "thd_pct": 3.8614239457294124,
+        "effort_rms_v": 172.49812516633284,
+        "effort_max_axis_v": 189.02989196777344
+      }
+    },
+    "R=5,V=150": {
+      "r_ohm": 5.0,
+      "magnitude_v": 150.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.709024000097997,
+        "settled_rmse_v": 0.6508852414692595,
+        "thd_pct": 1.5682827768653187e-14,
+        "effort_rms_v": 214.84709628606262,
+        "effort_max_axis_v": 214.82840993273402
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.789134004502557,
+        "settled_rmse_v": 42.331770758572596,
+        "thd_pct": 15.88952296178629,
+        "effort_rms_v": 162.76106343527601,
+        "effort_max_axis_v": 134.0
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 17.90980642545037,
+        "settled_rmse_v": 0.27131957438040955,
+        "thd_pct": 1.385782480531895e-11,
+        "effort_rms_v": 214.8704437020782,
+        "effort_max_axis_v": 214.91193536396236
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1476.3262192864204,
+        "settled_rmse_v": 40.90402098850099,
+        "thd_pct": 10.73882048403736,
+        "effort_rms_v": 171.76606928191842,
+        "effort_max_axis_v": 236.00775146484375
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1472.9340983758448,
+        "settled_rmse_v": 7.727147161188183,
+        "thd_pct": 4.322496617121552,
+        "effort_rms_v": 214.37990217581103,
+        "effort_max_axis_v": 234.3108673095703
+      }
+    },
+    "R=8.0064,V=10": {
+      "r_ohm": 8.0064,
+      "magnitude_v": 10.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.697403873782605,
+        "settled_rmse_v": 0.027095894576516285,
+        "thd_pct": 1.491774453650775e-14,
+        "effort_rms_v": 12.613255844589725,
+        "effort_max_axis_v": 12.611766274657066
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.559052887023427,
+        "settled_rmse_v": 0.027095894576516285,
+        "thd_pct": 1.491774453650775e-14,
+        "effort_rms_v": 12.613255844589725,
+        "effort_max_axis_v": 12.611766274657066
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.033927844953723,
+        "settled_rmse_v": 0.011181628714903951,
+        "thd_pct": 1.4818289972157933e-14,
+        "effort_rms_v": 12.614089635923877,
+        "effort_max_axis_v": 12.612774459131856
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1454.7801487788092,
+        "settled_rmse_v": 1.7497105877514354,
+        "thd_pct": 6.012458084351647,
+        "effort_rms_v": 11.657840992004736,
+        "effort_max_axis_v": 13.416376113891602
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1478.5909939964768,
+        "settled_rmse_v": 4.2437326973603255,
+        "thd_pct": 16.397290432230392,
+        "effort_rms_v": 14.682687573839866,
+        "effort_max_axis_v": 22.484514236450195
+      }
+    },
+    "R=8.0064,V=35": {
+      "r_ohm": 8.0064,
+      "magnitude_v": 35.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.756518628331833,
+        "settled_rmse_v": 0.0948356310178067,
+        "thd_pct": 1.4816615549458007e-14,
+        "effort_rms_v": 44.14639545606404,
+        "effort_max_axis_v": 44.14118196129972
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.566964661469683,
+        "settled_rmse_v": 0.09483563104550646,
+        "thd_pct": 1.4816615549458007e-14,
+        "effort_rms_v": 44.146395456445205,
+        "effort_max_axis_v": 44.14118196129993
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.008406870649196,
+        "settled_rmse_v": 0.0391357005021639,
+        "thd_pct": 1.5672235118995997e-14,
+        "effort_rms_v": 44.14931372573356,
+        "effort_max_axis_v": 44.144710606961276
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1463.4346761304187,
+        "settled_rmse_v": 0.966397855633244,
+        "thd_pct": 2.0570194972297897,
+        "effort_rms_v": 43.85385627408013,
+        "effort_max_axis_v": 46.96259689331055
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1540.7183946081204,
+        "settled_rmse_v": 2.6963175496313916,
+        "thd_pct": 7.691198362331184,
+        "effort_rms_v": 43.73929844616324,
+        "effort_max_axis_v": 46.25627899169922
+      }
+    },
+    "R=8.0064,V=50": {
+      "r_ohm": 8.0064,
+      "magnitude_v": 50.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.75356009299867,
+        "settled_rmse_v": 0.13547947288258128,
+        "thd_pct": 1.5424703362150048e-14,
+        "effort_rms_v": 63.06627922294863,
+        "effort_max_axis_v": 63.05883137328513
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.67632965312805,
+        "settled_rmse_v": 0.13547947291008602,
+        "thd_pct": 1.5424703362150048e-14,
+        "effort_rms_v": 63.066279223327115,
+        "effort_max_axis_v": 63.05883137328513
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 17.882511470816098,
+        "settled_rmse_v": 0.055908143574520106,
+        "thd_pct": 1.7632180648752902e-14,
+        "effort_rms_v": 63.070448179619376,
+        "effort_max_axis_v": 63.06387229565922
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1520.0982147653122,
+        "settled_rmse_v": 1.1806924115594033,
+        "thd_pct": 1.7270498536921561,
+        "effort_rms_v": 63.59555166832742,
+        "effort_max_axis_v": 68.69477844238281
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1511.1703478905838,
+        "settled_rmse_v": 2.5249949113259977,
+        "thd_pct": 5.9911264283813574,
+        "effort_rms_v": 62.745885122339395,
+        "effort_max_axis_v": 64.3669662475586
+      }
+    },
+    "R=8.0064,V=120": {
+      "r_ohm": 8.0064,
+      "magnitude_v": 120.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 22.27116651192773,
+        "settled_rmse_v": 0.3251507349181953,
+        "thd_pct": 1.7614405953857492e-14,
+        "effort_rms_v": 151.3590701350767,
+        "effort_max_axis_v": 151.34119529588514
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.93612729490269,
+        "settled_rmse_v": 7.4169911609449155,
+        "thd_pct": 4.517263598877382,
+        "effort_rms_v": 144.90099706032723,
+        "effort_max_axis_v": 134.0
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.10155314160511,
+        "settled_rmse_v": 0.13417954457884826,
+        "thd_pct": 1.575150255905472e-14,
+        "effort_rms_v": 151.3690756310865,
+        "effort_max_axis_v": 151.3532935095817
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1528.2845537440153,
+        "settled_rmse_v": 5.875589998542466,
+        "thd_pct": 2.7258598885998016,
+        "effort_rms_v": 153.56362013460202,
+        "effort_max_axis_v": 181.374267578125
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1457.8523961245082,
+        "settled_rmse_v": 5.419603133243134,
+        "thd_pct": 4.45462912373747,
+        "effort_rms_v": 153.2842834790856,
+        "effort_max_axis_v": 160.06520080566406
+      }
+    },
+    "R=8.0064,V=150": {
+      "r_ohm": 8.0064,
+      "magnitude_v": 150.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.86048969067633,
+        "settled_rmse_v": 0.40643841864774344,
+        "thd_pct": 1.5409010803446617e-14,
+        "effort_rms_v": 189.1988376688459,
+        "effort_max_axis_v": 189.1764941198561
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 27.92663112631999,
+        "settled_rmse_v": 31.03010447738386,
+        "thd_pct": 12.734979239466808,
+        "effort_rms_v": 156.9663423626499,
+        "effort_max_axis_v": 134.0
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.248030712129548,
+        "settled_rmse_v": 0.16772443072355964,
+        "thd_pct": 1.9726632993670965e-14,
+        "effort_rms_v": 189.21134453885816,
+        "effort_max_axis_v": 189.19161688697608
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1529.688472946873,
+        "settled_rmse_v": 8.030259491302964,
+        "thd_pct": 2.9391569912474007,
+        "effort_rms_v": 192.26104126469193,
+        "effort_max_axis_v": 230.0133056640625
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1506.8636924843304,
+        "settled_rmse_v": 8.601299836543783,
+        "thd_pct": 5.0405546875054315,
+        "effort_rms_v": 193.5283878440636,
+        "effort_max_axis_v": 203.42799377441406
+      }
+    },
+    "R=10,V=10": {
+      "r_ohm": 10.0,
+      "magnitude_v": 10.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.97086021967698,
+        "settled_rmse_v": 0.02169214766309257,
+        "thd_pct": 1.5989139915815633e-14,
+        "effort_rms_v": 12.059102223165715,
+        "effort_max_axis_v": 12.058655498735577
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.606265557347797,
+        "settled_rmse_v": 0.02169214766309257,
+        "thd_pct": 1.5989139915815633e-14,
+        "effort_rms_v": 12.059102223165715,
+        "effort_max_axis_v": 12.058655498735577
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 17.710557105601765,
+        "settled_rmse_v": 0.008891629213923492,
+        "thd_pct": 2.0103715387182712e-14,
+        "effort_rms_v": 12.059733684395908,
+        "effort_max_axis_v": 12.059409942325345
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1498.8041633041576,
+        "settled_rmse_v": 1.5672234972194121,
+        "thd_pct": 4.239750351595387,
+        "effort_rms_v": 11.12066963662728,
+        "effort_max_axis_v": 12.85382080078125
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1529.2818905727472,
+        "settled_rmse_v": 3.4225056881180445,
+        "thd_pct": 12.713074205036794,
+        "effort_rms_v": 14.240626019864846,
+        "effort_max_axis_v": 18.357519149780273
+      }
+    },
+    "R=10,V=35": {
+      "r_ohm": 10.0,
+      "magnitude_v": 35.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.750835159560665,
+        "settled_rmse_v": 0.07592251682082375,
+        "thd_pct": 1.4351142965487635e-14,
+        "effort_rms_v": 42.20685778108,
+        "effort_max_axis_v": 42.20529424557457
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.69490331027191,
+        "settled_rmse_v": 0.07592251682197951,
+        "thd_pct": 1.4351142965487635e-14,
+        "effort_rms_v": 42.20685778109319,
+        "effort_max_axis_v": 42.20529424557457
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.04142382752616,
+        "settled_rmse_v": 0.03112070224873228,
+        "thd_pct": 1.5201259908034073e-14,
+        "effort_rms_v": 42.20906789538567,
+        "effort_max_axis_v": 42.20793479813855
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1498.7516832188703,
+        "settled_rmse_v": 3.280928375505764,
+        "thd_pct": 5.486761252730056,
+        "effort_rms_v": 45.332448772662715,
+        "effort_max_axis_v": 56.43021011352539
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1436.6663639812032,
+        "settled_rmse_v": 2.072088216816463,
+        "thd_pct": 4.799307044680722,
+        "effort_rms_v": 41.500226232216086,
+        "effort_max_axis_v": 44.47196960449219
+      }
+    },
+    "R=10,V=50": {
+      "r_ohm": 10.0,
+      "magnitude_v": 50.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.620450159185566,
+        "settled_rmse_v": 0.1084607383154625,
+        "thd_pct": 1.530775360510926e-14,
+        "effort_rms_v": 60.295511115828575,
+        "effort_max_axis_v": 60.293277493677834
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.420108159072697,
+        "settled_rmse_v": 0.10846073831615295,
+        "thd_pct": 1.530775360510926e-14,
+        "effort_rms_v": 60.295511115836455,
+        "effort_max_axis_v": 60.293277493677834
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 17.60863016534131,
+        "settled_rmse_v": 0.044458146069617545,
+        "thd_pct": 1.6749766855258027e-14,
+        "effort_rms_v": 60.298668421979535,
+        "effort_max_axis_v": 60.297049711626826
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1428.1820860342123,
+        "settled_rmse_v": 6.449353698520584,
+        "thd_pct": 7.188055712480882,
+        "effort_rms_v": 67.34133181260577,
+        "effort_max_axis_v": 85.0783920288086
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1434.5015725994017,
+        "settled_rmse_v": 2.8748518854172076,
+        "thd_pct": 4.734925981962829,
+        "effort_rms_v": 58.49749755851821,
+        "effort_max_axis_v": 61.25581359863281
+      }
+    },
+    "R=10,V=120": {
+      "r_ohm": 10.0,
+      "magnitude_v": 120.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.824761581025086,
+        "settled_rmse_v": 0.2603057719571106,
+        "thd_pct": 1.4270919125734284e-14,
+        "effort_rms_v": 144.70922667798857,
+        "effort_max_axis_v": 144.70386598482733
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.4477396995062,
+        "settled_rmse_v": 4.303924639956619,
+        "thd_pct": 2.799053801209767,
+        "effort_rms_v": 141.45502282855634,
+        "effort_max_axis_v": 134.0
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 17.80370165943168,
+        "settled_rmse_v": 0.10669955056708215,
+        "thd_pct": 1.6256539963075532e-14,
+        "effort_rms_v": 144.71680421275087,
+        "effort_max_axis_v": 144.71291930790431
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1430.590664211195,
+        "settled_rmse_v": 20.883151681145073,
+        "thd_pct": 9.249851950524354,
+        "effort_rms_v": 164.5349207922993,
+        "effort_max_axis_v": 213.78915405273438
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1432.7127741853474,
+        "settled_rmse_v": 5.5907563374334455,
+        "thd_pct": 4.554995948533257,
+        "effort_rms_v": 145.7167058803251,
+        "effort_max_axis_v": 145.68763732910156
+      }
+    },
+    "R=10,V=150": {
+      "r_ohm": 10.0,
+      "magnitude_v": 150.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.653560059145093,
+        "settled_rmse_v": 0.3253822149463877,
+        "thd_pct": 1.703245159366138e-14,
+        "effort_rms_v": 180.8865333474857,
+        "effort_max_axis_v": 180.87983248103416
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.629499421687797,
+        "settled_rmse_v": 26.922421269764037,
+        "thd_pct": 11.457630555096054,
+        "effort_rms_v": 154.77575399949308,
+        "effort_max_axis_v": 134.0
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.029861355898902,
+        "settled_rmse_v": 0.13337443820885245,
+        "thd_pct": 1.6350355896079557e-14,
+        "effort_rms_v": 180.8960052659386,
+        "effort_max_axis_v": 180.89114913488027
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1424.6563808701467,
+        "settled_rmse_v": 27.008740373289616,
+        "thd_pct": 9.480937080225546,
+        "effort_rms_v": 210.06377529246356,
+        "effort_max_axis_v": 290.6741943359375
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1427.6234140415909,
+        "settled_rmse_v": 9.358751906521967,
+        "thd_pct": 5.185357198939965,
+        "effort_rms_v": 184.32433796671498,
+        "effort_max_axis_v": 190.16934204101562
+      }
+    },
+    "R=20,V=10": {
+      "r_ohm": 20.0,
+      "magnitude_v": 10.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.56706525036134,
+        "settled_rmse_v": 0.010840562395934988,
+        "thd_pct": 1.7703217996398406e-14,
+        "effort_rms_v": 10.971460547930175,
+        "effort_max_axis_v": 10.971451055405542
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.504511915845796,
+        "settled_rmse_v": 0.010840562395934988,
+        "thd_pct": 1.7703217996398406e-14,
+        "effort_rms_v": 10.971460547930175,
+        "effort_max_axis_v": 10.971451055405542
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 17.913826479343697,
+        "settled_rmse_v": 0.004293124930627644,
+        "thd_pct": 1.6649291200362625e-14,
+        "effort_rms_v": 10.971739729994974,
+        "effort_max_axis_v": 10.971737334259322
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1450.8211007196223,
+        "settled_rmse_v": 2.6658072735771494,
+        "thd_pct": 12.994007915380196,
+        "effort_rms_v": 10.274838487379096,
+        "effort_max_axis_v": 11.83892822265625
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1452.9160749225412,
+        "settled_rmse_v": 1.3075638510731065,
+        "thd_pct": 9.89730197618438,
+        "effort_rms_v": 70.22712588619042,
+        "effort_max_axis_v": 142.05677795410156
+      }
+    },
+    "R=20,V=35": {
+      "r_ohm": 20.0,
+      "magnitude_v": 35.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.871128333965316,
+        "settled_rmse_v": 0.03794196838577243,
+        "thd_pct": 1.5389452179912432e-14,
+        "effort_rms_v": 38.40011191775561,
+        "effort_max_axis_v": 38.400078693919376
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.57147715217434,
+        "settled_rmse_v": 0.037941968385772636,
+        "thd_pct": 1.5389452179912432e-14,
+        "effort_rms_v": 38.40011191775561,
+        "effort_max_axis_v": 38.400078693919376
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 17.744436976499856,
+        "settled_rmse_v": 0.015025937257196824,
+        "thd_pct": 1.6404379388180937e-14,
+        "effort_rms_v": 38.401089054982414,
+        "effort_max_axis_v": 38.40108066990744
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1511.2152437795885,
+        "settled_rmse_v": 5.325588214233225,
+        "thd_pct": 12.575928387758893,
+        "effort_rms_v": 41.3911022955462,
+        "effort_max_axis_v": 52.66720199584961
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1543.105254371767,
+        "settled_rmse_v": 2.683515822840324,
+        "thd_pct": 3.66191169728945,
+        "effort_rms_v": 52.09989757206332,
+        "effort_max_axis_v": 144.28399658203125
+      }
+    },
+    "R=20,V=50": {
+      "r_ohm": 20.0,
+      "magnitude_v": 50.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.633489344618283,
+        "settled_rmse_v": 0.0542028119796751,
+        "thd_pct": 1.424404040030549e-14,
+        "effort_rms_v": 54.857302739650876,
+        "effort_max_axis_v": 54.857255277027924
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 27.085002351668663,
+        "settled_rmse_v": 0.054202811979675254,
+        "thd_pct": 1.424404040030549e-14,
+        "effort_rms_v": 54.857302739650876,
+        "effort_max_axis_v": 54.857255277027924
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 17.87697515101172,
+        "settled_rmse_v": 0.021465624653138313,
+        "thd_pct": 1.551815107245208e-14,
+        "effort_rms_v": 54.858698649974876,
+        "effort_max_axis_v": 54.858686671295985
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1480.9160070726648,
+        "settled_rmse_v": 14.688361802493535,
+        "thd_pct": 17.33974947085808,
+        "effort_rms_v": 66.88156725925087,
+        "effort_max_axis_v": 98.12979888916016
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1512.3350232170196,
+        "settled_rmse_v": 2.8891942548500777,
+        "thd_pct": 3.891982860261789,
+        "effort_rms_v": 58.99813963469247,
+        "effort_max_axis_v": 137.60365295410156
+      }
+    },
+    "R=20,V=120": {
+      "r_ohm": 20.0,
+      "magnitude_v": 120.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.676853819168173,
+        "settled_rmse_v": 0.13008674875122017,
+        "thd_pct": 1.4857253954992174e-14,
+        "effort_rms_v": 131.65752657516208,
+        "effort_max_axis_v": 131.65741266486694
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.601725068758242,
+        "settled_rmse_v": 0.13008674875122075,
+        "thd_pct": 1.4857253954992174e-14,
+        "effort_rms_v": 131.65752657516208,
+        "effort_max_axis_v": 131.65741266486694
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.00710047245957,
+        "settled_rmse_v": 0.05151749916753197,
+        "thd_pct": 1.5035559517902343e-14,
+        "effort_rms_v": 131.6608767599397,
+        "effort_max_axis_v": 131.66084801111114
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1512.9953679279424,
+        "settled_rmse_v": 59.74799997718361,
+        "thd_pct": 25.853056353717157,
+        "effort_rms_v": 187.8888275927514,
+        "effort_max_axis_v": 291.30126953125
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1484.6609304076992,
+        "settled_rmse_v": 4.986588153281465,
+        "thd_pct": 3.093206562853423,
+        "effort_rms_v": 136.76745583610847,
+        "effort_max_axis_v": 206.91807556152344
+      }
+    },
+    "R=20,V=150": {
+      "r_ohm": 20.0,
+      "magnitude_v": 150.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.657847708207555,
+        "settled_rmse_v": 0.1626084359390251,
+        "thd_pct": 1.4576547359827154e-14,
+        "effort_rms_v": 164.57190821895264,
+        "effort_max_axis_v": 164.5717658310833
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.704402873292565,
+        "settled_rmse_v": 18.177711738601474,
+        "thd_pct": 8.434391521940189,
+        "effort_rms_v": 149.61191406950786,
+        "effort_max_axis_v": 134.0
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.04933458333835,
+        "settled_rmse_v": 0.06439687395941471,
+        "thd_pct": 1.5432409718632956e-14,
+        "effort_rms_v": 164.57609594992462,
+        "effort_max_axis_v": 164.57606001388868
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1526.089182269061,
+        "settled_rmse_v": 78.94020824607529,
+        "thd_pct": 26.83292265970853,
+        "effort_rms_v": 238.10372285139064,
+        "effort_max_axis_v": 373.26422119140625
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1488.754577090731,
+        "settled_rmse_v": 8.69186504104421,
+        "thd_pct": 4.243761651833798,
+        "effort_rms_v": 170.95580665078805,
+        "effort_max_axis_v": 203.76222229003906
+      }
+    },
+    "R=40,V=10": {
+      "r_ohm": 40.0,
+      "magnitude_v": 10.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.815955678699538,
+        "settled_rmse_v": 0.005414417670643417,
+        "thd_pct": 1.5050706831527143e-14,
+        "effort_rms_v": 10.442841731802998,
+        "effort_max_axis_v": 10.44281996540446
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 27.090699659311213,
+        "settled_rmse_v": 0.005414417670643417,
+        "thd_pct": 1.5050706831527143e-14,
+        "effort_rms_v": 10.442841731802998,
+        "effort_max_axis_v": 10.44281996540446
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.187587513239123,
+        "settled_rmse_v": 0.001993831700277195,
+        "thd_pct": 1.5688717263808943e-14,
+        "effort_rms_v": 10.44297064906537,
+        "effort_max_axis_v": 10.442955561119566
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1496.991470863577,
+        "settled_rmse_v": 5.702708887482965,
+        "thd_pct": 42.16773548499619,
+        "effort_rms_v": 21.70082742216944,
+        "effort_max_axis_v": 65.19698333740234
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1448.4137432300486,
+        "settled_rmse_v": 1.1632748226274983,
+        "thd_pct": 2.237126908340846,
+        "effort_rms_v": 195.3049948338857,
+        "effort_max_axis_v": 296.48052978515625
+      }
+    },
+    "R=40,V=35": {
+      "r_ohm": 40.0,
+      "magnitude_v": 35.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.68715769564733,
+        "settled_rmse_v": 0.01895046184725183,
+        "thd_pct": 1.5586291475554266e-14,
+        "effort_rms_v": 36.54994606131049,
+        "effort_max_axis_v": 36.549869878915665
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.746734263724647,
+        "settled_rmse_v": 0.01895046184725183,
+        "thd_pct": 1.5586291475554266e-14,
+        "effort_rms_v": 36.54994606131049,
+        "effort_max_axis_v": 36.549869878915665
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.05129823333118,
+        "settled_rmse_v": 0.0069784109509702565,
+        "thd_pct": 1.5271085082192627e-14,
+        "effort_rms_v": 36.55039727172879,
+        "effort_max_axis_v": 36.55034446391838
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1466.54672693694,
+        "settled_rmse_v": 6.42213639413335,
+        "thd_pct": 8.972243216562994,
+        "effort_rms_v": 36.72150689643725,
+        "effort_max_axis_v": 58.26119613647461
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1429.5767964213155,
+        "settled_rmse_v": 2.1204475859288574,
+        "thd_pct": 4.057667103993683,
+        "effort_rms_v": 216.29256202823763,
+        "effort_max_axis_v": 412.7447509765625
+      }
+    },
+    "R=40,V=50": {
+      "r_ohm": 40.0,
+      "magnitude_v": 50.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.62341613054741,
+        "settled_rmse_v": 0.027072088353217165,
+        "thd_pct": 1.4785972388595635e-14,
+        "effort_rms_v": 52.214208659014986,
+        "effort_max_axis_v": 52.21409982702233
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.4602961105993,
+        "settled_rmse_v": 0.027072088353217148,
+        "thd_pct": 1.4785972388595635e-14,
+        "effort_rms_v": 52.214208659014986,
+        "effort_max_axis_v": 52.21409982702233
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.189002439612523,
+        "settled_rmse_v": 0.00996915850138597,
+        "thd_pct": 1.648588974949011e-14,
+        "effort_rms_v": 52.21485324532684,
+        "effort_max_axis_v": 52.21477780559793
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1476.5829602692975,
+        "settled_rmse_v": 3.0969777107112737,
+        "thd_pct": 3.1092105821387532,
+        "effort_rms_v": 54.458906316695476,
+        "effort_max_axis_v": 131.0467529296875
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1454.3260375066893,
+        "settled_rmse_v": 2.7518719386449595,
+        "thd_pct": 4.128674726934027,
+        "effort_rms_v": 204.9658030873509,
+        "effort_max_axis_v": 444.9296875
+      }
+    },
+    "R=40,V=120": {
+      "r_ohm": 40.0,
+      "magnitude_v": 120.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.73918594396673,
+        "settled_rmse_v": 0.0649730120477207,
+        "thd_pct": 1.4301086624264553e-14,
+        "effort_rms_v": 125.31410078163597,
+        "effort_max_axis_v": 125.31383958485371
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.65902880835347,
+        "settled_rmse_v": 0.06497301204772069,
+        "thd_pct": 1.4301086624264553e-14,
+        "effort_rms_v": 125.31410078163597,
+        "effort_max_axis_v": 125.31383958485371
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.010884392424487,
+        "settled_rmse_v": 0.02392598040332607,
+        "thd_pct": 1.6136886902149636e-14,
+        "effort_rms_v": 125.31564778878443,
+        "effort_max_axis_v": 125.31546673343396
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1444.831428321777,
+        "settled_rmse_v": 77.37938568561377,
+        "thd_pct": 27.449768437788858,
+        "effort_rms_v": 212.27003307531265,
+        "effort_max_axis_v": 463.86688232421875
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1439.3845001904992,
+        "settled_rmse_v": 5.218488047845296,
+        "thd_pct": 4.754806233954335,
+        "effort_rms_v": 153.35900322378282,
+        "effort_max_axis_v": 423.87158203125
+      }
+    },
+    "R=40,V=150": {
+      "r_ohm": 40.0,
+      "magnitude_v": 150.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.852361296419986,
+        "settled_rmse_v": 0.08121626505965131,
+        "thd_pct": 1.7753018061690904e-14,
+        "effort_rms_v": 156.64262597704496,
+        "effort_max_axis_v": 156.6422994810672
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.63487101381179,
+        "settled_rmse_v": 13.631573155142283,
+        "thd_pct": 6.690778575664241,
+        "effort_rms_v": 146.60119107029982,
+        "effort_max_axis_v": 134.0
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.04041161085479,
+        "settled_rmse_v": 0.029907475504157868,
+        "thd_pct": 1.5842032954687573e-14,
+        "effort_rms_v": 156.64455973598052,
+        "effort_max_axis_v": 156.64433341679248
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1431.2691868690308,
+        "settled_rmse_v": 110.16749103697163,
+        "thd_pct": 29.346742851641817,
+        "effort_rms_v": 280.4188804707073,
+        "effort_max_axis_v": 593.36962890625
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1425.9844159532804,
+        "settled_rmse_v": 7.95293476022051,
+        "thd_pct": 5.023526374473304,
+        "effort_rms_v": 166.98775049597916,
+        "effort_max_axis_v": 382.0528869628906
+      }
+    },
+    "R=100,V=10": {
+      "r_ohm": 100.0,
+      "magnitude_v": 10.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.560399105306715,
+        "settled_rmse_v": 0.0021586216288275104,
+        "thd_pct": 1.6092835983779734e-14,
+        "effort_rms_v": 10.131458487282488,
+        "effort_max_axis_v": 10.131095547796038
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.46120540157426,
+        "settled_rmse_v": 0.0021586216288275104,
+        "thd_pct": 1.6092835983779734e-14,
+        "effort_rms_v": 10.131458487282488,
+        "effort_max_axis_v": 10.131095547796038
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 17.90357314166613,
+        "settled_rmse_v": 0.0006143136918594837,
+        "thd_pct": 1.6394755756902574e-14,
+        "effort_rms_v": 10.131505091099388,
+        "effort_max_axis_v": 10.131128790467304
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1428.3058919681935,
+        "settled_rmse_v": 12.180080213205807,
+        "thd_pct": 116.85346569797409,
+        "effort_rms_v": 32.048158927395846,
+        "effort_max_axis_v": 95.8805923461914
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1424.004504122422,
+        "settled_rmse_v": 1.8585161084268476,
+        "thd_pct": 4.5197478702968576e-05,
+        "effort_rms_v": 9.94027143497082,
+        "effort_max_axis_v": 11.549721717834473
+      }
+    },
+    "R=100,V=35": {
+      "r_ohm": 100.0,
+      "magnitude_v": 35.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.742400956805795,
+        "settled_rmse_v": 0.00755517570089642,
+        "thd_pct": 1.509037964613983e-14,
+        "effort_rms_v": 35.46010470548871,
+        "effort_max_axis_v": 35.45883441728622
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.68323679245077,
+        "settled_rmse_v": 0.007555175700896432,
+        "thd_pct": 1.509037964613983e-14,
+        "effort_rms_v": 35.46010470548871,
+        "effort_max_axis_v": 35.45883441728622
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.095023013302125,
+        "settled_rmse_v": 0.0021500979215082873,
+        "thd_pct": 1.6954235866988444e-14,
+        "effort_rms_v": 35.46026781884785,
+        "effort_max_axis_v": 35.45895076663567
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1428.0183855153155,
+        "settled_rmse_v": 31.3251853324307,
+        "thd_pct": 75.18931723688178,
+        "effort_rms_v": 91.63826327965502,
+        "effort_max_axis_v": 308.8953552246094
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1435.4500803892734,
+        "settled_rmse_v": 2.254574003125243,
+        "thd_pct": 0.01414617091065998,
+        "effort_rms_v": 34.17744797133476,
+        "effort_max_axis_v": 35.960975646972656
+      }
+    },
+    "R=100,V=50": {
+      "r_ohm": 100.0,
+      "magnitude_v": 50.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.6313427479472,
+        "settled_rmse_v": 0.010793108144137724,
+        "thd_pct": 1.435437620073727e-14,
+        "effort_rms_v": 50.65729243641244,
+        "effort_max_axis_v": 50.65547773898028
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.54788809013553,
+        "settled_rmse_v": 0.010793108144137724,
+        "thd_pct": 1.435437620073727e-14,
+        "effort_rms_v": 50.65729243641244,
+        "effort_max_axis_v": 50.65547773898028
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 17.99627389118541,
+        "settled_rmse_v": 0.0030715684592976383,
+        "thd_pct": 1.5584915795426267e-14,
+        "effort_rms_v": 50.65752545549694,
+        "effort_max_axis_v": 50.65564395233653
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1438.2071473519318,
+        "settled_rmse_v": 34.82658097741435,
+        "thd_pct": 54.16142361997861,
+        "effort_rms_v": 118.20124755006526,
+        "effort_max_axis_v": 435.5751953125
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1447.5700033508474,
+        "settled_rmse_v": 2.633176075156315,
+        "thd_pct": 0.25725624305157146,
+        "effort_rms_v": 48.95202182300539,
+        "effort_max_axis_v": 50.609657287597656
+      }
+    },
+    "R=100,V=120": {
+      "r_ohm": 100.0,
+      "magnitude_v": 120.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.616723646526225,
+        "settled_rmse_v": 0.02590345954593023,
+        "thd_pct": 1.5817489084662174e-14,
+        "effort_rms_v": 121.57750184738985,
+        "effort_max_axis_v": 121.57314657355258
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.422515365993604,
+        "settled_rmse_v": 0.025903459545930204,
+        "thd_pct": 1.5817489084662174e-14,
+        "effort_rms_v": 121.57750184738985,
+        "effort_max_axis_v": 121.57314657355258
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 17.930349189555272,
+        "settled_rmse_v": 0.007371764302314065,
+        "thd_pct": 1.5761791708608476e-14,
+        "effort_rms_v": 121.57806109319266,
+        "effort_max_axis_v": 121.57354548560755
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1437.0503081590869,
+        "settled_rmse_v": 36.49078268907918,
+        "thd_pct": 17.5768649601658,
+        "effort_rms_v": 195.72101041965237,
+        "effort_max_axis_v": 777.8777465820312
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1438.5983261163346,
+        "settled_rmse_v": 5.093122448115444,
+        "thd_pct": 3.4324838461191436,
+        "effort_rms_v": 491.9952499980709,
+        "effort_max_axis_v": 1273.61474609375
+      }
+    },
+    "R=100,V=150": {
+      "r_ohm": 100.0,
+      "magnitude_v": 150.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.603397802915424,
+        "settled_rmse_v": 0.03237932443241294,
+        "thd_pct": 1.4402821752125547e-14,
+        "effort_rms_v": 151.97187730923733,
+        "effort_max_axis_v": 151.96643321694086
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.651738022337668,
+        "settled_rmse_v": 10.908645629320109,
+        "thd_pct": 5.570066970132133,
+        "effort_rms_v": 144.60799399381935,
+        "effort_max_axis_v": 134.0
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 17.917295175720938,
+        "settled_rmse_v": 0.009214705377892578,
+        "thd_pct": 1.4891591892378178e-14,
+        "effort_rms_v": 151.9725763664908,
+        "effort_max_axis_v": 151.96693185700974
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1431.2814558652462,
+        "settled_rmse_v": 43.99905493747763,
+        "thd_pct": 14.93653711707846,
+        "effort_rms_v": 217.91288877425274,
+        "effort_max_axis_v": 954.8533325195312
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1440.2261913201073,
+        "settled_rmse_v": 8.059701711689817,
+        "thd_pct": 3.79381297725462,
+        "effort_rms_v": 518.1218214448812,
+        "effort_max_axis_v": 1331.978271484375
+      }
+    },
+    "R=1000,V=10": {
+      "r_ohm": 1000.0,
+      "magnitude_v": 10.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.441417960682884,
+        "settled_rmse_v": 0.00020512004390316755,
+        "thd_pct": 1.597591720887246e-14,
+        "effort_rms_v": 9.946926791796601,
+        "effort_max_axis_v": 9.946816164204531
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.404027303215116,
+        "settled_rmse_v": 0.00020512004390316755,
+        "thd_pct": 1.597591720887246e-14,
+        "effort_rms_v": 9.946926791796601,
+        "effort_max_axis_v": 9.946816164204531
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 17.903655898408033,
+        "settled_rmse_v": 0.00021395008351358087,
+        "thd_pct": 1.5085468177239237e-14,
+        "effort_rms_v": 9.94692673686323,
+        "effort_max_axis_v": 9.946818065914854
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1450.663688374334,
+        "settled_rmse_v": 113.52067769755486,
+        "thd_pct": 0.0017011725237205632,
+        "effort_rms_v": 113.31743544835088,
+        "effort_max_axis_v": 94.00334930419922
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1490.7128480699612,
+        "settled_rmse_v": 1.2138594999844667,
+        "thd_pct": 0.0005155046721780587,
+        "effort_rms_v": 10.308594015911032,
+        "effort_max_axis_v": 11.090598106384277
+      }
+    },
+    "R=1000,V=35": {
+      "r_ohm": 1000.0,
+      "magnitude_v": 35.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.695605140645057,
+        "settled_rmse_v": 0.0007179201536608945,
+        "thd_pct": 1.7362670217118818e-14,
+        "effort_rms_v": 34.814243771288105,
+        "effort_max_axis_v": 34.81385657471601
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.55489022436086,
+        "settled_rmse_v": 0.0007179201536608945,
+        "thd_pct": 1.7362670217118818e-14,
+        "effort_rms_v": 34.814243771288105,
+        "effort_max_axis_v": 34.81385657471601
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.050215803668834,
+        "settled_rmse_v": 0.0007488252922975835,
+        "thd_pct": 1.5414470500082973e-14,
+        "effort_rms_v": 34.8142435790213,
+        "effort_max_axis_v": 34.81386323070217
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1455.7716374401934,
+        "settled_rmse_v": 118.5474870087456,
+        "thd_pct": 30.07381169728336,
+        "effort_rms_v": 114.85632194327334,
+        "effort_max_axis_v": 135.01168823242188
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1427.9092186770868,
+        "settled_rmse_v": 1.5716174222338049,
+        "thd_pct": 0.00014438007890406706,
+        "effort_rms_v": 35.86065120261561,
+        "effort_max_axis_v": 36.753196716308594
+      }
+    },
+    "R=1000,V=50": {
+      "r_ohm": 1000.0,
+      "magnitude_v": 50.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 21.098409095429815,
+        "settled_rmse_v": 0.0010256002195156465,
+        "thd_pct": 1.511429690628347e-14,
+        "effort_rms_v": 49.73463395898301,
+        "effort_max_axis_v": 49.734080821022616
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 27.858446424943395,
+        "settled_rmse_v": 0.0010256002195156465,
+        "thd_pct": 1.511429690628347e-14,
+        "effort_rms_v": 49.73463395898301,
+        "effort_max_axis_v": 49.734080821022616
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 25.045293659786694,
+        "settled_rmse_v": 0.0010697504175679327,
+        "thd_pct": 1.6809471260480663e-14,
+        "effort_rms_v": 49.734633684316144,
+        "effort_max_axis_v": 49.73409032957422
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1458.441872149706,
+        "settled_rmse_v": 110.99992832957389,
+        "thd_pct": 111.44621818881097,
+        "effort_rms_v": 114.35650821631508,
+        "effort_max_axis_v": 174.06710815429688
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1447.2503398865229,
+        "settled_rmse_v": 1.897744509327779,
+        "thd_pct": 0.00010044422179463048,
+        "effort_rms_v": 51.215056388368986,
+        "effort_max_axis_v": 52.167747497558594
+      }
+    },
+    "R=1000,V=120": {
+      "r_ohm": 1000.0,
+      "magnitude_v": 120.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.782374936970882,
+        "settled_rmse_v": 0.002461440526837623,
+        "thd_pct": 1.5516564122008484e-14,
+        "effort_rms_v": 119.36312150155922,
+        "effort_max_axis_v": 119.36179397045422
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.32349326449912,
+        "settled_rmse_v": 0.002461440526837684,
+        "thd_pct": 1.5516564122008484e-14,
+        "effort_rms_v": 119.36312150155922,
+        "effort_max_axis_v": 119.36179397045422
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 17.84464427328203,
+        "settled_rmse_v": 0.0025674010021629425,
+        "thd_pct": 1.569560757798203e-14,
+        "effort_rms_v": 119.36312084235875,
+        "effort_max_axis_v": 119.36181679097805
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1467.1757263713516,
+        "settled_rmse_v": 153.74573428542078,
+        "thd_pct": 145.01179578076986,
+        "effort_rms_v": 298.6624405324025,
+        "effort_max_axis_v": 959.1065673828125
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1454.1861630714266,
+        "settled_rmse_v": 3.764626522050873,
+        "thd_pct": 3.5362485532629447e-05,
+        "effort_rms_v": 122.88819218438854,
+        "effort_max_axis_v": 124.0471420288086
+      }
+    },
+    "R=1000,V=150": {
+      "r_ohm": 1000.0,
+      "magnitude_v": 150.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.81148259458132,
+        "settled_rmse_v": 0.003076800658546559,
+        "thd_pct": 1.6061782390219817e-14,
+        "effort_rms_v": 149.20390187694903,
+        "effort_max_axis_v": 149.20224246306822
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.87328115280252,
+        "settled_rmse_v": 9.29838746500257,
+        "thd_pct": 4.905325808512062,
+        "effort_rms_v": 143.36174526835882,
+        "effort_max_axis_v": 134.0
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.175861783674918,
+        "settled_rmse_v": 0.003209251252704199,
+        "thd_pct": 1.5835466148625958e-14,
+        "effort_rms_v": 149.20390105294845,
+        "effort_max_axis_v": 149.20227098872257
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1422.1434115752345,
+        "settled_rmse_v": 178.76167958336066,
+        "thd_pct": 119.19656097854151,
+        "effort_rms_v": 371.7272991545233,
+        "effort_max_axis_v": 1311.15576171875
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1466.6560137993656,
+        "settled_rmse_v": 4.62281931204449,
+        "thd_pct": 3.308804656784441e-05,
+        "effort_rms_v": 153.6075047544059,
+        "effort_max_axis_v": 154.84498596191406
+      }
+    },
+    "R=5000,V=10": {
+      "r_ohm": 5000.0,
+      "magnitude_v": 10.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.594460031134076,
+        "settled_rmse_v": 3.156820527899637e-05,
+        "thd_pct": 1.505459283749584e-14,
+        "effort_rms_v": 9.930611691853345,
+        "effort_max_axis_v": 9.930438148872867
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.517645688727498,
+        "settled_rmse_v": 3.156820527899637e-05,
+        "thd_pct": 1.505459283749584e-14,
+        "effort_rms_v": 9.930611691853345,
+        "effort_max_axis_v": 9.930438148872867
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 18.067956349113956,
+        "settled_rmse_v": 0.00028743612017396953,
+        "thd_pct": 1.510642005670431e-14,
+        "effort_rms_v": 9.930607586707284,
+        "effort_max_axis_v": 9.93043591131247
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1439.6901817963226,
+        "settled_rmse_v": 543.2292260065209,
+        "thd_pct": 0.010003597187843775,
+        "effort_rms_v": 543.3592717013325,
+        "effort_max_axis_v": 393.3254089355469
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1463.2135313004255,
+        "settled_rmse_v": 14.702612548505257,
+        "thd_pct": 0.0021986611713636687,
+        "effort_rms_v": 17.896954034415895,
+        "effort_max_axis_v": 23.223899841308594
+      }
+    },
+    "R=5000,V=35": {
+      "r_ohm": 5000.0,
+      "magnitude_v": 35.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.88863600511104,
+        "settled_rmse_v": 0.0001104887184764372,
+        "thd_pct": 1.49419293349872e-14,
+        "effort_rms_v": 34.7571409214867,
+        "effort_max_axis_v": 34.756533521055076
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.690225437050685,
+        "settled_rmse_v": 0.00011048871847643747,
+        "thd_pct": 1.49419293349872e-14,
+        "effort_rms_v": 34.7571409214867,
+        "effort_max_axis_v": 34.756533521055076
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 17.978992822463624,
+        "settled_rmse_v": 0.0010060264206088138,
+        "thd_pct": 1.6281824789881837e-14,
+        "effort_rms_v": 34.7571265534755,
+        "effort_max_axis_v": 34.756525689593786
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1463.9620417146944,
+        "settled_rmse_v": 545.4329296722689,
+        "thd_pct": 0.0038439646891542537,
+        "effort_rms_v": 544.5336516692553,
+        "effort_max_axis_v": 425.8528137207031
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1472.0917575759813,
+        "settled_rmse_v": 14.746143748385213,
+        "thd_pct": 0.0006629238292273302,
+        "effort_rms_v": 38.81244162122339,
+        "effort_max_axis_v": 48.966087341308594
+      }
+    },
+    "R=5000,V=50": {
+      "r_ohm": 5000.0,
+      "magnitude_v": 50.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.735520098241977,
+        "settled_rmse_v": 0.0001578410263950118,
+        "thd_pct": 1.5580034824487894e-14,
+        "effort_rms_v": 49.65305845926672,
+        "effort_max_axis_v": 49.65219074436445
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.404528893181123,
+        "settled_rmse_v": 0.00015784102639501165,
+        "thd_pct": 1.5580034824487894e-14,
+        "effort_rms_v": 49.65305845926672,
+        "effort_max_axis_v": 49.65219074436445
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 17.898543024784885,
+        "settled_rmse_v": 0.0014371806008698172,
+        "thd_pct": 1.8542950119194543e-14,
+        "effort_rms_v": 49.653037933536424,
+        "effort_max_axis_v": 49.65217955656228
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1495.0331513537094,
+        "settled_rmse_v": 547.7903080396815,
+        "thd_pct": 0.002476849778248822,
+        "effort_rms_v": 545.7399410150878,
+        "effort_max_axis_v": 445.4336242675781
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1462.7698939148104,
+        "settled_rmse_v": 14.798848604486,
+        "thd_pct": 0.00038126013633088036,
+        "effort_rms_v": 53.414346220677494,
+        "effort_max_axis_v": 64.4426498413086
+      }
+    },
+    "R=5000,V=120": {
+      "r_ohm": 5000.0,
+      "magnitude_v": 120.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.803067469387315,
+        "settled_rmse_v": 0.00037881846334842035,
+        "thd_pct": 1.488874570440372e-14,
+        "effort_rms_v": 119.16734030224012,
+        "effort_max_axis_v": 119.16525778647443
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.82679174176883,
+        "settled_rmse_v": 0.0003788184633485145,
+        "thd_pct": 1.488874570440372e-14,
+        "effort_rms_v": 119.16734030224012,
+        "effort_max_axis_v": 119.16525778647443
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 17.96599119552411,
+        "settled_rmse_v": 0.0034492334420876815,
+        "thd_pct": 1.5936868348324614e-14,
+        "effort_rms_v": 119.16729104048741,
+        "effort_max_axis_v": 119.16523093574936
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1484.7438926663017,
+        "settled_rmse_v": 569.3103028838357,
+        "thd_pct": 1.9916658742933384,
+        "effort_rms_v": 557.0372872106847,
+        "effort_max_axis_v": 536.82275390625
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1465.818176206085,
+        "settled_rmse_v": 15.30016274111154,
+        "thd_pct": 0.00019294510559135055,
+        "effort_rms_v": 124.2373198432576,
+        "effort_max_axis_v": 136.66139221191406
+      }
+    },
+    "R=5000,V=150": {
+      "r_ohm": 5000.0,
+      "magnitude_v": 150.0,
+      "MPC N=5": {
+        "finite": true,
+        "cpu_us_per_step": 20.642288000090048,
+        "settled_rmse_v": 0.00047352307918573506,
+        "thd_pct": 1.5303303874207486e-14,
+        "effort_rms_v": 148.95917537780016,
+        "effort_max_axis_v": 148.95657223309308
+      },
+      "MPC N=5, \u00b1134 V": {
+        "finite": true,
+        "cpu_us_per_step": 26.47586350212805,
+        "settled_rmse_v": 9.161563365132993,
+        "thd_pct": 4.854578796923888,
+        "effort_rms_v": 143.2583858792131,
+        "effort_max_axis_v": 134.0
+      },
+      "MPC N=1": {
+        "finite": true,
+        "cpu_us_per_step": 17.857187005574815,
+        "settled_rmse_v": 0.00431154180260959,
+        "thd_pct": 1.752819336365356e-14,
+        "effort_rms_v": 148.9591138006093,
+        "effort_max_axis_v": 148.95653866968655
+      },
+      "DPC v3": {
+        "finite": true,
+        "cpu_us_per_step": 1459.0314290253446,
+        "settled_rmse_v": 581.0291797143724,
+        "thd_pct": 6.076166088183226,
+        "effort_rms_v": 562.13486761519,
+        "effort_max_axis_v": 575.98828125
+      },
+      "DPC v4 (default)": {
+        "finite": true,
+        "cpu_us_per_step": 1474.0793811215553,
+        "settled_rmse_v": 15.63665615205319,
+        "thd_pct": 0.00015422658198972032,
+        "effort_rms_v": 154.92648222784075,
+        "effort_max_axis_v": 167.58717346191406
+      }
+    }
+  }
+}
