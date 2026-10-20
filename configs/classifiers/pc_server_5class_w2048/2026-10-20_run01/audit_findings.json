@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "A2-synthetic-ball-cage",
+      "severity": "high",
+      "date": "2026-10-20",
+      "summary": "ball/cage: synthetic-only, uncalibrated amplitude. The ball and cage classes were trained on simulated faults whose mechanical amplitude (CALIBRATED_MECHANICAL_SEVERITY in datagen/scenario.py) is a placeholder: KAt has no clean single-defect code for these faults, so it cannot be calibrated without real data.",
+      "evidence": "docs/AI_TECHNICAL_AUDIT.md Sec. 8.4-8.5"
+    },
+    {
+      "id": "A2-startup",
+      "severity": "medium",
+      "date": "2026-10-20",
+      "summary": "2048-sample (205 ms) windows: start-up transient accuracy 0.60; steady state 1.00 at 150 rad/s, 0.96 at 100 rad/s (cage recall 1.00).",
+      "evidence": "docs/audit/ai/classifier_evaluation_5class_w2048.md"
+    },
+    {
+      "id": "sim-only",
+      "severity": "medium",
+      "date": "2026-10-20",
+      "summary": "Trained and evaluated on simulated data only. Recorded test accuracy 0.903; no real-machine validation exists.",
+      "evidence": "docs/audit/ai/classifier_evaluation_5class_w2048.md"
+    }
+  ]
+}

@@ -489,3 +489,28 @@ Evidence: [`classifier_evaluation_5class.md`](audit/ai/classifier_evaluation_5cl
 python experiments/promote_run.py configs/classifiers/pc_server_5class/2026-10-20_run01
 ```
 
+### 8.5 A2 follow-up — longer windows for the 5-class models (2026-10-20)
+
+**Cause.** Cage faults were missed at 100 and 115 rad/s because the 512-sample (51 ms) window holds about a third of a cage period there: cage runs at ≈ 0.38 × shaft speed, about 6 Hz at 100 rad/s.
+
+**What was done.** The same dataset and recipe were used with **2048-sample (205 ms) windows**. The new configs are `*_5class_w2048.yaml`; RPi5 and ESP32 were distilled from the new PC model. `report_classifier_evaluation.py` and `report_ood_detector.py` now use each run's own window size.
+
+Evidence: [`classifier_evaluation_5class_w2048.md`](audit/ai/classifier_evaluation_5class_w2048.md) and [`tflite_parity_report_5class_w2048.txt`](audit/tflite_parity_report_5class_w2048.txt).
+
+| Run | Recorded test acc. | 150 rad/s | 100 rad/s (cage recall) | 115 rad/s | 100 % noise | Start-up |
+|---|---|---|---|---|---|---|
+| `pc_server_5class_w2048` | **0.903** (512: 0.821) | 1.000 | 0.963 (**1.00**; 512: 0.01) | 1.000 (512: 0.811) | 1.000 | 0.60 |
+| `rpi5_resnet1d_se_5class_w2048` | 0.902 (512: 0.809) | 1.000 | 1.000 (1.00) | 1.000 | 1.000 | 0.50 |
+| `esp32_dscnn_5class_w2048` | 0.790 (512: 0.741) | 1.000 | 0.963 (0.81) | 0.750 | 0.863 | 0.50 |
+
+**Reading.**
+- **Accuracy recovered.** The PC and RPi5 models reach the 3-class model's level (0.914) while recognizing five classes, and the cage problem at low speed is solved.
+- **Costs.**
+  - **Start-up.** The start-up transient is worse (0.50–0.60): a 205 ms window spans most of it.
+  - **Smaller evaluation.** Each held-out condition has 4× fewer windows (80 instead of 380).
+  - **Latency.** A decision needs 205 ms of signal.
+- **RPi5 float16 export.** It matches Keras exactly (agreement 1.000).
+- **ESP32 INT8 export: not usable.** Agreement with Keras is 0.53 (accuracy 0.79 → 0.43). One declared retry calibrated on noise-free windows only, and gave 0.52. Quantization-aware training would be the fix. `tensorflow-model-optimization` does not support Keras 3, so it is not available in this stack. Recorded in the run's `audit_findings.json`.
+
+**Status.** Candidates, **not promoted**, with the same synthetic-only labels as §8.4. Of the 5-class sets, the PC and RPi5 `_w2048` runs are the ones to promote if the 5-class model is adopted. The ESP32 tier would keep its 3-class model.
+

@@ -124,7 +124,8 @@ def fresh_steady_state():
 
 def _recall(run_dir, df, cls):
     model, m = _load(run_dir)
-    X, y, _ = build_classification_windows(df, m["classes"], m["channels"], 512, level_scaling=m.get("level_scaling"))
+    window = load_classifier_config(run_dir / "config.yaml").input_window
+    X, y, _ = build_classification_windows(df, m["classes"], m["channels"], window, level_scaling=m.get("level_scaling"))
     probs = model.predict(X, verbose=0)
     assert np.all(np.isfinite(probs)) and np.allclose(probs.sum(axis=1), 1.0, atol=1e-5)
     k = m["classes"].index(cls)

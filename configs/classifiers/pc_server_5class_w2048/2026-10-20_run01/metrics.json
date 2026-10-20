@@ -619,5 +619,9 @@
     "val_nll_after": 0.23764259216859812,
     "abstain_below": 0.5248885103012569,
     "target_coverage": 0.95
-  }
+  },
+  "synthetic_only_classes": [
+    "ball",
+    "cage"
+  ]
 }

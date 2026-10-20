@@ -20,8 +20,12 @@ from driveflow.models.common import build_classification_windows, build_direct_f
 from experiments.train_model import _load_domain_dataframe
 
 
-def _representative_windows(domain: str, block: str, dataset_path: Path, config, metrics: dict, n: int):
+def _representative_windows(domain: str, block: str, dataset_path: Path, config, metrics: dict, n: int, noise_free: bool = False):
     df = _load_domain_dataframe(dataset_path, domain)
+    if noise_free and {"grid_electrical_noise_pct", "grid_mechanical_noise_pct"} <= set(df.columns):
+        # A2 follow-up: calibrate the int8 ranges on the grid's noise-free runs only, so the
+        # activation ranges are not set by the up-to-100 % noise windows.
+        df = df[(df["grid_electrical_noise_pct"] == 0) & (df["grid_mechanical_noise_pct"] == 0)]
     channels = metrics["channels"]
     if block == "classifier":
         X, _, _ = build_classification_windows(df, metrics["classes"], channels, config.input_window, cap_per_class=10_000, level_scaling=metrics.get("level_scaling"))
@@ -41,6 +45,7 @@ def main(argv=None) -> None:
     parser.add_argument("--block", required=True, choices=["classifier", "regressor"])
     parser.add_argument("--dataset", type=Path, help="Required for --tier esp32 (int8 calibration data); ignored for rpi5.")
     parser.add_argument("--n-calibration-samples", type=int, default=1000)
+    parser.add_argument("--calibration-noise-free", action="store_true", help="esp32: calibrate int8 ranges on the dataset's noise-free grid runs only")
     parser.add_argument("--run-dir", type=Path, default=None, help="export this run instead of the promoted one (e.g. a candidate awaiting promotion)")
     args = parser.parse_args(argv)
 
@@ -58,7 +63,7 @@ def main(argv=None) -> None:
     else:
         if args.dataset is None:
             raise SystemExit("--dataset is required for --tier esp32 (int8 calibration needs real windows).")
-        windows = _representative_windows(args.domain, args.block, args.dataset, config, metrics, args.n_calibration_samples)
+        windows = _representative_windows(args.domain, args.block, args.dataset, config, metrics, args.n_calibration_samples, noise_free=args.calibration_noise_free)
         export_int8(model, windows, out_path, n_calibration_samples=len(windows))
         print(f"Exported int8 TFLite: {out_path}")
 

@@ -17,7 +17,8 @@ from .test_classifier_evaluation import _recall
 pytestmark = pytest.mark.ai
 
 ROOT = Path(__file__).resolve().parents[2]
-RUNS = [ROOT / "configs" / "classifiers" / f"{c}_5class" / "2026-10-20_run01" for c in ("pc_server", "rpi5_resnet1d_se", "esp32_dscnn")]
+RUNS = [ROOT / "configs" / "classifiers" / f"{c}_5class{w}" / "2026-10-20_run01" for w in ("", "_w2048") for c in ("pc_server", "rpi5_resnet1d_se", "esp32_dscnn")]
+PC_W2048 = ROOT / "configs" / "classifiers" / "pc_server_5class_w2048" / "2026-10-20_run01"
 CLASSES = ["ball", "cage", "inner_race", "normal", "outer_race"]
 
 
@@ -45,7 +46,20 @@ def fresh_five_classes():
     return df[df["timestamp_s"] >= 0.5]
 
 
+@pytest.mark.parametrize("run_dir", [RUNS[0], PC_W2048], ids=["w512", "w2048"])
 @pytest.mark.parametrize("cls", CLASSES)
-def test_pc_5class_recognizes_every_class_at_the_nominal_point(fresh_five_classes, cls):
+def test_pc_5class_recognizes_every_class_at_the_nominal_point(fresh_five_classes, run_dir, cls):
     # Measured 2026-10-20 on the held-out evaluation: 1.000 for every class at 150 rad/s steady state.
-    assert _recall(RUNS[0], fresh_five_classes, cls) >= 0.9, cls
+    assert _recall(run_dir, fresh_five_classes, cls) >= 0.9, cls
+
+
+@pytest.fixture(scope="module")
+def cage_100_rad_s():
+    df = records_to_dataframe(run_scenario(Scenario(scenario_id="cage100", fault_type="cage", omega_ref_rad_s=100.0, duration_s=1.5, seed=902)))
+    return df[df["timestamp_s"] >= 0.5]
+
+
+def test_long_window_recognizes_cage_at_100_rad_s(cage_100_rad_s):
+    # The 512-sample window held a third of a cage period here and called it ball (recall 0.01);
+    # the 2048-sample window measured 1.00 on the held-out evaluation.
+    assert _recall(PC_W2048, cage_100_rad_s, "cage") >= 0.9

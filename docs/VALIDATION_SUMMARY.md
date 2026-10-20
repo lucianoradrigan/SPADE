@@ -164,7 +164,7 @@ One row per task of [`TODO_CLAUDE_CODE.md`](../TODO_CLAUDE_CODE.md).
 
 ### 7.2 Waiting for your decision (implemented, evidence written, not switched on)
 
-1. **Promote the 5-class classifiers (A2).** They are ready (`*_5class/2026-10-20_run01`, AI_TECHNICAL_AUDIT.md §8.4) and recognize ball and cage at nominal speed. Limits: synthetic-only, uncalibrated amplitude; cage is missed below 150 rad/s (called ball); the ESP32 INT8 export degrades (agreement 0.73).
+1. **Promote the 5-class classifiers (A2).** Best candidates: `pc_server_5class_w2048` and `rpi5_resnet1d_se_5class_w2048` (2048-sample windows, AI_TECHNICAL_AUDIT.md §8.5). They reach test accuracy 0.90 (the 3-class model: 0.91) and recognize cage at 100 rad/s. Limits: synthetic-only, uncalibrated amplitude; weaker start-up transient; the ESP32 int8 export is not usable (keep its 3-class model).
 2. **dc_motor regressor:** no use case is defined.
 
 ### 7.3 Open, not blocked on a decision
