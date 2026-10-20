@@ -283,7 +283,7 @@ Este bloque amplía esa cobertura sin datos reales.
 
 ### C1. Precisión del DPC en el punto nominal
 
-- [ ] **C1. Recuperar la precisión de v3 en el punto nominal sin perder el rango de v4**
+- [x] **C1. Recuperar la precisión de v3 en el punto nominal sin perder el rango de v4** — cerrada 2026-10-20 con la opción 1 (selección por punto de operación, sin reentrenar): metas cumplidas. **Pendiente de tu confirmación:** usarlo como controlador por defecto.
 
   **Estado actual:**
 

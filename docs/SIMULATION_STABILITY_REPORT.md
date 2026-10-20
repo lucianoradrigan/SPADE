@@ -181,6 +181,30 @@ On SPADE's plant, over R = 3.5 Ω – 5 kΩ and |v_ref| = 10–150 V ([`dpc_vs_m
 
 **CPU per step.** The MPC takes ≈ 21 µs per step and the DPC 1.5 ms. The DPC figure is an eager Keras call, so it measures framework overhead and is not an embedded-cost estimate.
 
+### 4.4 C1: DPC accuracy at the nominal point without losing v4's range (2026-10-20)
+
+**Approach.** Option 1 of TODO C1, no retraining. `ScheduledDpcController` uses v3 in a region of (R, |v_ref|) and v4 everywhere else, with 5 % hysteresis on the region's boundaries:
+- R = 7.25–8.75 Ω with |v_ref| ≤ 62.5 V;
+- |v_ref| ≤ 10 V with R = 5–12 Ω.
+
+**How the region was chosen.** It came from a design grid alone. A first rule was revised after its load-step run, and the revision is declared in [`dpc_operating_point_selection.md`](audit/stability/dpc_operating_point_selection.md).
+
+| | v3 | v4 (default) | Scheduled | C1 target |
+|---|---|---|---|---|
+| 8.0064 Ω, 50 V | 1.18 V | 2.52 V | **1.18 V** | ≤ 1.3 V |
+| 8.0064 Ω, 10 V | 1.75 V | 4.24 V | **1.75 V** | ≤ 2.0 V |
+| 4 / 20 / 1000 Ω, 50 V | 18.0 / 14.7 / 111 V | 3.10 / 2.89 / 1.90 V | **3.10 / 2.89 / 1.90 V** | ≤ 3.5 V |
+
+**Results.**
+- **Targets:** all met.
+- **Divergence:** none at any of the 49 evaluated points.
+- **Held-out grid:** the scheduled controller is never worse than v4 (R = 3.5–1000 Ω × 15–60 V), and better at 8 of the 44 points (7.75 and 8.25 Ω at every magnitude).
+- **Run-time switching:** in the load-step run 8 → 20 → 8 Ω and the setpoint-step run 50 → 75 → 50 V, it switches twice per run without a larger transient than v4 alone.
+
+**What is not covered.** Off the grid, at 9.5 Ω and 15 V, v3 is still better than v4, and the rule does not capture it. The MPC of §V2 remains about 10× better than either network.
+
+**Status.** Implemented and tested (`tests/control/test_dpc_scheduled.py`). **The default stays v4**: switching `datagen/runner.py` to the scheduled controller changes every DPC scenario and the thresholds of `test_dpc_robustness_grid.py`, so it waits for confirmation.
+
 ### 4.3 Cross-check against gym-electric-motor 3.0.3 (TODO V4, 2026-10-20)
 
 **How the references were made.** `tests/data/gen_ref_data_v4.py` was run once against the unmodified GEM 3.0.3 clone and recorded four trajectories in `tests/data/ref_data_v4.npz`. `tests/simulation/test_gem_equivalence.py` replays them without importing GEM:
