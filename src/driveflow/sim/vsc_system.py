@@ -4,18 +4,20 @@ directly by the same ``Adf``/``Bdf`` matrices used in control/dpc/loss.py's trai
 
 This is deliberately NOT built on SCMLSystem (sim/scml_system.py): that class assumes a
 Converter -> Motor -> MechanicalLoad chain with abc/dq transforms tied to a rotor angle, none of
-which exists here -- a VSC feeding an LCL filter into a resistive load has no motor, no mechanical
+which exists here -- a VSC feeding an L-C filter into a resistive load has no motor, no mechanical
 side, no rotor. Reusing SCMLSystem's machinery would mean forcing an unrelated physical system
 through motor-shaped abstractions. This plant reuses ADF/BDF directly instead: they ARE the
 identified discrete-time model (see control/dpc/loss.py's docstring), so simulating with them
 *is* simulating the same plant the network was trained to control -- not a re-derived
 approximation of it.
 
-Sample period: not documented anywhere in DPC4PowerElectronics -- inferred empirically from
-Data4train.mat's own horizon columns (the reference vector's phase advances by a highly
-consistent ~0.032 rad per horizon step across all 10000 rows, std ~0), which matches
-2*pi*50*TAU for TAU=1e-4s to within ~2%. That's also driveflow's own TAU (sim/scml_system.py,
-datagen/runner.py), so this plant reuses it rather than introducing a second unrelated constant.
+Sample period: Ts = 100 us. DPC4PowerElectronics does not state it. It was first inferred from
+Data4train.mat's horizon columns: the reference vector's phase advances ~0.032 rad per horizon
+step, which matches 2*pi*50*TAU for TAU = 1e-4 s to within ~2 %. It is now confirmed by
+identification: ADF/BDF are the exact ZOH discretization of L = 5.02 mH, R_f = 2 ohm,
+C = 15 uF at Ts = 100 us, and the identified C scales with the assumed Ts, so only Ts = 100 us
+yields the loss's CAPACITANCE_F (sim/vsc_params.py, tests/simulation/test_vsc_params.py). That is
+also driveflow's own TAU (sim/scml_system.py, datagen/runner.py).
 """
 
 from dataclasses import dataclass

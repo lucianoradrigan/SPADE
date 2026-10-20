@@ -18,7 +18,7 @@ planta (el motor DC de la Macro-fase A), difiriendo solo en la ley de control.
 ## Hallazgo
 
 `DPC4PowerElectronics` (el toolbox original portado en B.1/B.2) no controla un motor: controla un
-**Voltage Source Converter (VSC)** — un filtro LCL alimentando una carga resistiva, sin parte
+**Voltage Source Converter (VSC)** — un filtro L-C (modelo identificado de 2 estados; ver `sim/vsc_params.py`) alimentando una carga resistiva, sin parte
 mecánica ni rotor. Su loss basada en modelo (`Adf`/`Bdf`, ver `control/dpc/loss.py`) y su
 generador de referencia (un vector rotando a 50Hz/50V, `control/dpc/reference.py`) son específicos
 de ese dominio eléctrico de potencia, no de control de motores.

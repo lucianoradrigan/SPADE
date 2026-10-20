@@ -85,7 +85,7 @@ Este bloque amplía esa cobertura sin datos reales.
 
 ### V0. Fijar el modelo identificado del VSC
 
-- [ ] **V0. ADF/BDF son el ZOH exacto de un filtro L-C con parámetros físicos**
+- [x] **V0. ADF/BDF son el ZOH exacto de un filtro L-C con parámetros físicos** — cerrada 2026-10-20: `sim/vsc_params.py`, `tests/simulation/test_vsc_params.py`; V1 confirmó que el hardware original es LC (`Inverter_LC_filter1`).
 
   **Hecho ya verificado al preparar esta lista (2026-10-20, con scipy):**
   - `logm(ADF)/Ts` con Ts = 1e-4 s, y el despeje ZOH de BDF, dan exactamente L = 5,02 mH, R_f = 2,0 Ω y C = 15,0 µF, con los términos cruzados en ±1 (KCL y KVL);

@@ -5,9 +5,10 @@ What the loss does (ported line-for-line from the MATLAB, see Custom_Loss.txt): 
 10 outputs are read as 5 (real, imag) pairs -- the converter voltage command ``v_o`` the network
 proposes for each of the next 5 control steps. Instead of comparing that command against a label
 (there isn't one -- this is the whole point of differentiable predictive control), the loss
-*simulates* the filter+capacitor's own discrete-time model (``ADF``/``BDF``, the LCL filter state
-matrices for state=[i_f, v_c], identified offline in MATLAB/System Identification and pasted here
-as constants -- not something this port re-derives) forward for those 5 steps using the proposed
+*simulates* the filter+capacitor's own discrete-time model (``ADF``/``BDF``, the state
+matrices of a two-state L-C filter, state=[i_f, v_c], identified offline in MATLAB and pasted
+here as constants; sim/vsc_params.py shows they are the exact ZOH discretization of
+L = 5.02 mH, R_f = 2 ohm, C = 15 uF at Ts = 100 us) forward for those 5 steps using the proposed
 ``v_o`` as the input, starting from the batch's measured (i_f, v_c). It then penalizes:
 
 - ``voltage_loss``: predicted capacitor voltage vs. the reference voltage, at each horizon step.
@@ -30,7 +31,7 @@ import tensorflow as tf
 
 HORIZON = 5
 
-# Identified discrete-time LCL filter model, state=[i_f, v_c], pasted verbatim from
+# Identified discrete-time L-C filter model (2 states; see sim/vsc_params.py), state=[i_f, v_c], pasted verbatim from
 # Custom_Loss.txt -- these are NOT re-derived here, they come from the original MATLAB toolbox.
 ADF = np.array(
     [

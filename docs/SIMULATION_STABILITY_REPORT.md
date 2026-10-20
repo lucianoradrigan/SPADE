@@ -32,7 +32,7 @@
 | Linear MPC | Forward-Euler model of [i, ω] at τ; 20-step horizon; L-BFGS-B with box bounds on u; soft penalty above 0.85 × i_max. Friction is **not** modelled, so the MPC has no integrator. | — | — |
 | PMSM | GEM dq model: p = 3, l_d = 0.37 mH, l_q = 1.2 mH, r_s = 18 mΩ, ψ_p = 66 mWb. | Forward Euler, τ = 1e-4 s | SI |
 | dq FOC | PI per axis (magnitude optimum), cross-coupling decoupling, integrator clamp. MTPA locus in closed form; it matches GEM's torque-limit formula at nominal current (existing test). | — | — |
-| VSC | Identified discrete-time LCL model ADF/BDF; load i = v_c/R. | Discrete map; there is no step to choose. | V, A |
+| VSC | Identified discrete-time 2-state L-C model ADF/BDF (exact ZOH of L = 5.02 mH, R_f = 2 Ω, C = 15 µF, Ts = 100 µs; `sim/vsc_params.py`); load i = v_c/R. | Discrete map; there is no step to choose. | V, A |
 | DPC | Keras network, receding horizon (first of 5 actions), trained at R = 8.0064 Ω only. | — | — |
 | Fault injection | Torque ripple at the bearing order, tracked as an ODE phase state. Module B: modal vibration with impulse trains and background noise. | Euler (phase); Module B uses its own substeps (10 per τ) | N·m; vibration in **synthetic units** |
 
@@ -125,6 +125,17 @@ The other axes of the dashboard's robustness grid, at R = 8.0064 Ω:
 v4 is the default because its worst case over the dashboard's load range (4–20 Ω) is 3.1 V, against 18 V for v3. **Trade-off:** v4 is worse at the single point v3 was trained for, and at small references.
 
 A further round from v4 (LR 2e-4, adding 10 V and 150 V references) diverged at 20–25 Ω and was discarded: [`dpc_r_range_finetune_v5.json`](audit/stability/dpc_r_range_finetune_v5.json). v3 stays in `configs/` for comparison.
+
+### 4.2 Cross-check against DPC4PowerElectronics (TODO V0–V3, 2026-10-20)
+
+**V0. The identified model is a physical L-C filter.** ADF/BDF are the exact zero-order-hold discretization, at Ts = 100 µs, of:
+
+```
+di_f/dt = (v_o − v_c − R_f·i_f)/L
+dv_c/dt = (i_f − i_load)/C
+```
+
+with L = 5.02 mH, R_f = 2 Ω and C = 15 µF. `sim/vsc_params.discretize_zoh` reproduces both matrices to float32 precision, and `tests/simulation/test_vsc_params.py` pins it. The plant is therefore an LC filter, not "LCL" as seven earlier mentions said; those mentions are corrected. Ts = 100 µs is now confirmed, not inferred: the identified C scales with the assumed Ts. Because the matrices are now parametric, the plant can be re-discretized for a degraded capacitor (A4).
 
 ## 5. Controller performance (dynamic stability)
 

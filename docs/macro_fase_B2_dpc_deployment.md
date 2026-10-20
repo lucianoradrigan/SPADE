@@ -174,7 +174,7 @@ sistemas físicos a compartir un mismo cuerpo de loop hubiera sido una abstracci
 **Limitación honesta sobre el alcance de B (INSTRUCTIONS.md):** la sección B de
 `INSTRUCTIONS.md` habla de "comparar DPC vs. PI vs. MPC bajo las mismas condiciones" -- en la
 práctica, tal como está el toolbox `DPC4PowerElectronics` original, DPC controla un VSC (filtro
-LCL + carga resistiva) y PI/MPC (Macro-fase A/B futura) controlan un motor DC -- son plantas
+L-C de 2 estados + carga resistiva; ver `sim/vsc_params.py`) y PI/MPC (Macro-fase A/B futura) controlan un motor DC -- son plantas
 físicamente distintas, no la misma planta con controladores intercambiables. No se fuerza una
 comparación "bajo las mismas condiciones" que no existe en los datos/modelo original; el dataset
 ahora sí puede tener corridas DC (PI) y VSC (DPC) exportadas juntas en el mismo esquema, pero
