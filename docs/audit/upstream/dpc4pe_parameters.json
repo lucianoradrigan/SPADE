@@ -1,0 +1,2159 @@
+{
+  "upstream": "https://github.com/aipoweraau/DPC4PowerElectronics",
+  "upstream_commit": "cebbe8683a33bf4daca102502bcdf470070dd78f",
+  "text_files_sha256": {
+    "Main.txt": "c2141e76ac1c3598307f70927a761b6864ec43fa203513ec2db5f9385dddb063",
+    "Custom_Loss.txt": "3bf813845b0686094adbe7d048af388abb966f4cc798e9791cb60daff7c057d4",
+    "Model_gradients.txt": "409c322dbd82e99a23260cf713d0a832162dd58c9a7a5b2d03edfef27eba0204"
+  },
+  "models": {
+    "CCS_MPC.slx": {
+      "file": "CCS_MPC.slx",
+      "sha256": "b723d1421924f65c50afab9fed660b5cc3e90d2b98b49b9aabda15ed5257b5dc",
+      "init_fcn_assignments": {
+        "Rl": "2",
+        "Rload": "20",
+        "L": "5.02e-3",
+        "C": "15e-6",
+        "errorL": "0",
+        "errorC": "0",
+        "wref": "2*pi*50",
+        "Vdc": "200",
+        "Ts": "1e-4",
+        "Vref": "50",
+        "Vref1": "50",
+        "Td": "4e-6",
+        "Tsa": "1e-4",
+        "Rlr": "2",
+        "Lr": "L",
+        "Cr": "C"
+      },
+      "init_fcn_commented_arrays": [
+        "bias_fc1",
+        "bias_fc2",
+        "bias_fc3",
+        "weights_fc1",
+        "weights_fc2",
+        "weights_fc3"
+      ],
+      "solver": {
+        "StopTime": "1.1",
+        "FixedStep": "1e-7",
+        "SolverName": "FixedStepDiscrete"
+      },
+      "blocks": [
+        {
+          "file": "simulink/systems/system_136.xml",
+          "sid": "2610",
+          "block_type": "Saturate",
+          "source_type": null,
+          "path": "PRN_controller1/Saturation",
+          "active": false,
+          "params": {
+            "UpperLimit": "1",
+            "LowerLimit": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_136.xml",
+          "sid": "2611",
+          "block_type": "Saturate",
+          "source_type": null,
+          "path": "PRN_controller1/Saturation1",
+          "active": false,
+          "params": {
+            "UpperLimit": "467",
+            "LowerLimit": "-467"
+          }
+        },
+        {
+          "file": "simulink/systems/system_136.xml",
+          "sid": "2613",
+          "block_type": "Saturate",
+          "source_type": null,
+          "path": "PRN_controller1/Saturation3",
+          "active": false,
+          "params": {
+            "UpperLimit": "467",
+            "LowerLimit": "-467"
+          }
+        },
+        {
+          "file": "simulink/systems/system_136.xml",
+          "sid": "2615",
+          "block_type": "Saturate",
+          "source_type": null,
+          "path": "PRN_controller1/Saturation5",
+          "active": false,
+          "params": {
+            "UpperLimit": "467",
+            "LowerLimit": "-467"
+          }
+        },
+        {
+          "file": "simulink/systems/system_136.xml",
+          "sid": "2616",
+          "block_type": "Saturate",
+          "source_type": null,
+          "path": "PRN_controller1/Saturation6",
+          "active": true,
+          "params": {
+            "UpperLimit": "134",
+            "LowerLimit": "-134"
+          }
+        },
+        {
+          "file": "simulink/systems/system_136.xml",
+          "sid": "2617",
+          "block_type": "Saturate",
+          "source_type": null,
+          "path": "PRN_controller1/Saturation7",
+          "active": false,
+          "params": {
+            "UpperLimit": "467",
+            "LowerLimit": "-467"
+          }
+        },
+        {
+          "file": "simulink/systems/system_136.xml",
+          "sid": "2618",
+          "block_type": "Saturate",
+          "source_type": null,
+          "path": "PRN_controller1/Saturation9",
+          "active": true,
+          "params": {
+            "UpperLimit": "134",
+            "LowerLimit": "-134"
+          }
+        },
+        {
+          "file": "simulink/systems/system_150.xml",
+          "sid": "155",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC1/HiddenLayer1_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer1_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_150.xml",
+          "sid": "159",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC1/HiddenLayer2_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer2_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_150.xml",
+          "sid": "163",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC1/HiddenLayer3_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer3_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_150.xml",
+          "sid": "167",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC1/HiddenLayer4_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer4_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_150.xml",
+          "sid": "243",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC1/OutputLayer_Bias",
+          "active": false,
+          "params": {
+            "Value": "OutputLayer_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1572.xml",
+          "sid": "1592",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/Constant1",
+          "active": false,
+          "params": {
+            "Value": "Vdc"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1627.xml",
+          "sid": "1633",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/SVPWM1/扇区判断/Constant",
+          "active": false,
+          "params": {
+            "Value": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1627.xml",
+          "sid": "1636",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/SVPWM1/扇区判断/Constant3",
+          "active": false,
+          "params": {
+            "Value": "2"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1627.xml",
+          "sid": "1637",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/SVPWM1/扇区判断/Constant4",
+          "active": false,
+          "params": {
+            "Value": "3"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1627.xml",
+          "sid": "1638",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/SVPWM1/扇区判断/Constant5",
+          "active": false,
+          "params": {
+            "Value": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1627.xml",
+          "sid": "1639",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/SVPWM1/扇区判断/Constant6",
+          "active": false,
+          "params": {
+            "Value": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1627.xml",
+          "sid": "1640",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/SVPWM1/扇区判断/Constant7",
+          "active": false,
+          "params": {
+            "Value": "4"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1627.xml",
+          "sid": "1641",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/SVPWM1/扇区判断/Constant8",
+          "active": false,
+          "params": {
+            "Value": "6"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1627.xml",
+          "sid": "1642",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/SVPWM1/扇区判断/Constant9",
+          "active": false,
+          "params": {
+            "Value": "5"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1682.xml",
+          "sid": "1690",
+          "block_type": "Reference",
+          "source_type": "Repeating table",
+          "path": "PRN_controller1/SVPWM Controller1/SVPWM1/载波调制/Repeating Sequence",
+          "active": false,
+          "params": {
+            "rep_seq_t": "[0 Ts/2 Ts]",
+            "rep_seq_y": "[0 1 0]"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1703.xml",
+          "sid": "1722",
+          "block_type": "Reference",
+          "source_type": "Repeating table",
+          "path": "PRN_controller1/SVPWM Controller1/Subsystem/Repeating Sequence",
+          "active": false,
+          "params": {
+            "rep_seq_t": "[0 1/20000 1/10000]",
+            "rep_seq_y": "[0 1/20000 0]"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1703.xml",
+          "sid": "1792",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/Subsystem/Tpwm",
+          "active": false,
+          "params": {
+            "Value": "0.0001"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1703.xml",
+          "sid": "1793",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/Subsystem/Udc",
+          "active": false,
+          "params": {
+            "Value": "Vdc"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1703.xml",
+          "sid": "1838",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/Subsystem/gain",
+          "active": false,
+          "params": {
+            "Value": "2*pi"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1724.xml",
+          "sid": "1731",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/Subsystem/Sector Caculate/Constant1",
+          "active": false,
+          "params": {
+            "Value": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1777.xml",
+          "sid": "1781",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/Subsystem/Tcm123-Sabc/Constant1",
+          "active": false,
+          "params": {
+            "Value": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1794.xml",
+          "sid": "1802",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/Subsystem/Voltage_reference_creator/Constant1",
+          "active": false,
+          "params": {
+            "Value": "Vref"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1794.xml",
+          "sid": "1803",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/Subsystem/Voltage_reference_creator/Constant2",
+          "active": false,
+          "params": {
+            "Value": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1794.xml",
+          "sid": "1804",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/Subsystem/Voltage_reference_creator/Constant3",
+          "active": false,
+          "params": {
+            "Value": "Vref"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1794.xml",
+          "sid": "1805",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/Subsystem/Voltage_reference_creator/Constant4",
+          "active": false,
+          "params": {
+            "Value": "-120*pi/180"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1794.xml",
+          "sid": "1806",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/Subsystem/Voltage_reference_creator/Constant5",
+          "active": false,
+          "params": {
+            "Value": "Vref"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1794.xml",
+          "sid": "1807",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/Subsystem/Voltage_reference_creator/Constant6",
+          "active": false,
+          "params": {
+            "Value": "-240*pi/180"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1855.xml",
+          "sid": "1859",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/Time Calculation/Time Calculation/Constant",
+          "active": false,
+          "params": {
+            "Value": "Ts"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1870.xml",
+          "sid": "1872",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller1/Timer ( Signal Carrier )/Constant",
+          "active": false,
+          "params": {
+            "Value": "Ts"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1870.xml",
+          "sid": "1875",
+          "block_type": "Reference",
+          "source_type": "Repeating table",
+          "path": "PRN_controller1/SVPWM Controller1/Timer ( Signal Carrier )/Repeating Sequence",
+          "active": false,
+          "params": {
+            "rep_seq_t": "[0 Ts 2*Ts]",
+            "rep_seq_y": "[0 2*Ts 0]"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1883.xml",
+          "sid": "1903",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/Constant1",
+          "active": false,
+          "params": {
+            "Value": "Vdc"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1938.xml",
+          "sid": "1944",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/SVPWM1/扇区判断/Constant",
+          "active": false,
+          "params": {
+            "Value": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1938.xml",
+          "sid": "1947",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/SVPWM1/扇区判断/Constant3",
+          "active": false,
+          "params": {
+            "Value": "2"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1938.xml",
+          "sid": "1948",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/SVPWM1/扇区判断/Constant4",
+          "active": false,
+          "params": {
+            "Value": "3"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1938.xml",
+          "sid": "1949",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/SVPWM1/扇区判断/Constant5",
+          "active": false,
+          "params": {
+            "Value": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1938.xml",
+          "sid": "1950",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/SVPWM1/扇区判断/Constant6",
+          "active": false,
+          "params": {
+            "Value": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1938.xml",
+          "sid": "1951",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/SVPWM1/扇区判断/Constant7",
+          "active": false,
+          "params": {
+            "Value": "4"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1938.xml",
+          "sid": "1952",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/SVPWM1/扇区判断/Constant8",
+          "active": false,
+          "params": {
+            "Value": "6"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1938.xml",
+          "sid": "1953",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/SVPWM1/扇区判断/Constant9",
+          "active": false,
+          "params": {
+            "Value": "5"
+          }
+        },
+        {
+          "file": "simulink/systems/system_1993.xml",
+          "sid": "2001",
+          "block_type": "Reference",
+          "source_type": "Repeating table",
+          "path": "PRN_controller1/SVPWM Controller2/SVPWM1/载波调制/Repeating Sequence",
+          "active": false,
+          "params": {
+            "rep_seq_t": "[0 Ts/2 Ts]",
+            "rep_seq_y": "[0 1 0]"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2.xml",
+          "sid": "48",
+          "block_type": "Reference",
+          "source_type": "DC Voltage Source",
+          "path": "Inverter_LC_filter1/DC",
+          "active": true,
+          "params": {
+            "BlockRotation": "270",
+            "Amplitude": "Vdc",
+            "Measurements": "None"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2.xml",
+          "sid": "50",
+          "block_type": "Reference",
+          "source_type": "IGBT/Diode",
+          "path": "Inverter_LC_filter1/IGBT/Diode",
+          "active": true,
+          "params": {
+            "BlockRotation": "270",
+            "Ron": "1e-3",
+            "Rs": "1e5",
+            "Cs": "inf",
+            "Measurements": "off"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2.xml",
+          "sid": "51",
+          "block_type": "Reference",
+          "source_type": "IGBT/Diode",
+          "path": "Inverter_LC_filter1/IGBT/Diode1",
+          "active": true,
+          "params": {
+            "BlockRotation": "270",
+            "Ron": "1e-3",
+            "Rs": "1e5",
+            "Cs": "inf",
+            "Measurements": "off"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2.xml",
+          "sid": "52",
+          "block_type": "Reference",
+          "source_type": "IGBT/Diode",
+          "path": "Inverter_LC_filter1/IGBT/Diode2",
+          "active": true,
+          "params": {
+            "BlockRotation": "270",
+            "Ron": "1e-3",
+            "Rs": "1e5",
+            "Cs": "inf",
+            "Measurements": "off"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2.xml",
+          "sid": "53",
+          "block_type": "Reference",
+          "source_type": "IGBT/Diode",
+          "path": "Inverter_LC_filter1/IGBT/Diode3",
+          "active": true,
+          "params": {
+            "BlockRotation": "270",
+            "Ron": "1e-3",
+            "Rs": "1e5",
+            "Cs": "inf",
+            "Measurements": "off"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2.xml",
+          "sid": "54",
+          "block_type": "Reference",
+          "source_type": "IGBT/Diode",
+          "path": "Inverter_LC_filter1/IGBT/Diode4",
+          "active": true,
+          "params": {
+            "BlockRotation": "270",
+            "Ron": "1e-3",
+            "Rs": "1e5",
+            "Cs": "inf",
+            "Measurements": "off"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2.xml",
+          "sid": "55",
+          "block_type": "Reference",
+          "source_type": "IGBT/Diode",
+          "path": "Inverter_LC_filter1/IGBT/Diode5",
+          "active": true,
+          "params": {
+            "BlockRotation": "270",
+            "Ron": "1e-3",
+            "Rs": "1e5",
+            "Cs": "inf",
+            "Measurements": "off"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2.xml",
+          "sid": "83",
+          "block_type": "Reference",
+          "source_type": "Three-Phase Series RLC Branch",
+          "path": "Inverter_LC_filter1/capacitor",
+          "active": true,
+          "params": {
+            "BlockRotation": "270",
+            "BranchType": "C",
+            "Resistance": "Rl",
+            "Inductance": "Lc",
+            "Capacitance": "C+errorC",
+            "Measurements": "None"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2.xml",
+          "sid": "84",
+          "block_type": "Reference",
+          "source_type": "Three-Phase Series RLC Branch",
+          "path": "Inverter_LC_filter1/inductor",
+          "active": true,
+          "params": {
+            "BranchType": "RL",
+            "Resistance": "Rl",
+            "Inductance": "L+errorL",
+            "Capacitance": "1e-6",
+            "Measurements": "None"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2014.xml",
+          "sid": "2033",
+          "block_type": "Reference",
+          "source_type": "Repeating table",
+          "path": "PRN_controller1/SVPWM Controller2/Subsystem/Repeating Sequence",
+          "active": false,
+          "params": {
+            "rep_seq_t": "[0 1/100000 1/50000]",
+            "rep_seq_y": "[0 1/100000 0]"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2014.xml",
+          "sid": "2103",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/Subsystem/Tpwm",
+          "active": false,
+          "params": {
+            "Value": "0.00002"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2014.xml",
+          "sid": "2104",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/Subsystem/Udc",
+          "active": false,
+          "params": {
+            "Value": "Vdc"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2014.xml",
+          "sid": "2149",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/Subsystem/gain",
+          "active": false,
+          "params": {
+            "Value": "2*pi"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2035.xml",
+          "sid": "2042",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/Subsystem/Sector Caculate/Constant1",
+          "active": false,
+          "params": {
+            "Value": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2088.xml",
+          "sid": "2092",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/Subsystem/Tcm123-Sabc/Constant1",
+          "active": false,
+          "params": {
+            "Value": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2105.xml",
+          "sid": "2113",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/Subsystem/Voltage_reference_creator/Constant1",
+          "active": false,
+          "params": {
+            "Value": "Vref"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2105.xml",
+          "sid": "2114",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/Subsystem/Voltage_reference_creator/Constant2",
+          "active": false,
+          "params": {
+            "Value": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2105.xml",
+          "sid": "2115",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/Subsystem/Voltage_reference_creator/Constant3",
+          "active": false,
+          "params": {
+            "Value": "Vref"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2105.xml",
+          "sid": "2116",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/Subsystem/Voltage_reference_creator/Constant4",
+          "active": false,
+          "params": {
+            "Value": "-120*pi/180"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2105.xml",
+          "sid": "2117",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/Subsystem/Voltage_reference_creator/Constant5",
+          "active": false,
+          "params": {
+            "Value": "Vref"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2105.xml",
+          "sid": "2118",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/Subsystem/Voltage_reference_creator/Constant6",
+          "active": false,
+          "params": {
+            "Value": "-240*pi/180"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2166.xml",
+          "sid": "2170",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/Time Calculation/Time Calculation/Constant",
+          "active": false,
+          "params": {
+            "Value": "Ts"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2181.xml",
+          "sid": "2183",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller2/Timer ( Signal Carrier )/Constant",
+          "active": false,
+          "params": {
+            "Value": "Ts"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2181.xml",
+          "sid": "2186",
+          "block_type": "Reference",
+          "source_type": "Repeating table",
+          "path": "PRN_controller1/SVPWM Controller2/Timer ( Signal Carrier )/Repeating Sequence",
+          "active": false,
+          "params": {
+            "rep_seq_t": "[0 Ts 2*Ts]",
+            "rep_seq_y": "[0 2*Ts 0]"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2508.xml",
+          "sid": "2512",
+          "block_type": "Reference",
+          "source_type": "Repeating table",
+          "path": "PRN_controller1/SVPWM Controller4/Subsystem/Repeating Sequence",
+          "active": true,
+          "params": {
+            "rep_seq_t": "[0 1/20000 1/10000]",
+            "rep_seq_y": "[0 1/20000 0]"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2508.xml",
+          "sid": "2513",
+          "block_type": "Saturate",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller4/Subsystem/Saturation9",
+          "active": true,
+          "params": {
+            "UpperLimit": "6",
+            "LowerLimit": "1"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2508.xml",
+          "sid": "2585",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller4/Subsystem/Tpwm",
+          "active": true,
+          "params": {
+            "Value": "1e-4"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2508.xml",
+          "sid": "2586",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller4/Subsystem/Udc",
+          "active": true,
+          "params": {
+            "Value": "Vdc"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2515.xml",
+          "sid": "2522",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller4/Subsystem/Sector Caculate/Constant1",
+          "active": true,
+          "params": {
+            "Value": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_255.xml",
+          "sid": "260",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC2/HiddenLayer1_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer1_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_255.xml",
+          "sid": "264",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC2/HiddenLayer2_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer2_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_255.xml",
+          "sid": "268",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC2/HiddenLayer3_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer3_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_255.xml",
+          "sid": "272",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC2/HiddenLayer4_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer4_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_255.xml",
+          "sid": "348",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC2/OutputLayer_Bias",
+          "active": false,
+          "params": {
+            "Value": "OutputLayer_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2569.xml",
+          "sid": "2573",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller4/Subsystem/Tcm123-Sabc/Constant1",
+          "active": true,
+          "params": {
+            "Value": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2941.xml",
+          "sid": "2988",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "Voltage reference1/gain",
+          "active": true,
+          "params": {
+            "Value": "2*pi"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2959.xml",
+          "sid": "2967",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "Voltage reference1/Voltage_reference_creator/Constant2",
+          "active": true,
+          "params": {
+            "Value": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2959.xml",
+          "sid": "2968",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "Voltage reference1/Voltage_reference_creator/Constant3",
+          "active": true,
+          "params": {
+            "Value": "Vref"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2959.xml",
+          "sid": "2969",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "Voltage reference1/Voltage_reference_creator/Constant4",
+          "active": true,
+          "params": {
+            "Value": "-120*pi/180"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2959.xml",
+          "sid": "2970",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "Voltage reference1/Voltage_reference_creator/Constant6",
+          "active": true,
+          "params": {
+            "Value": "-240*pi/180"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2959.xml",
+          "sid": "2971",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "Voltage reference1/Voltage_reference_creator/Constant7",
+          "active": true,
+          "params": {
+            "Value": "Vref1"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2959.xml",
+          "sid": "2978",
+          "block_type": "Step",
+          "source_type": null,
+          "path": "Voltage reference1/Voltage_reference_creator/Step",
+          "active": true,
+          "params": {
+            "Time": "0.1",
+            "SampleTime": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_360.xml",
+          "sid": "365",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC3/HiddenLayer1_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer1_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_360.xml",
+          "sid": "369",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC3/HiddenLayer2_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer2_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_360.xml",
+          "sid": "373",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC3/HiddenLayer3_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer3_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_360.xml",
+          "sid": "377",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC3/HiddenLayer4_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer4_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_360.xml",
+          "sid": "453",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC3/OutputLayer_Bias",
+          "active": false,
+          "params": {
+            "Value": "OutputLayer_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_465.xml",
+          "sid": "470",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC4/HiddenLayer1_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer1_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_465.xml",
+          "sid": "474",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC4/HiddenLayer2_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer2_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_465.xml",
+          "sid": "478",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC4/HiddenLayer3_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer3_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_465.xml",
+          "sid": "482",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC4/HiddenLayer4_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer4_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_465.xml",
+          "sid": "558",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC4/OutputLayer_Bias",
+          "active": false,
+          "params": {
+            "Value": "OutputLayer_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_570.xml",
+          "sid": "575",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC5/HiddenLayer1_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer1_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_570.xml",
+          "sid": "579",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC5/HiddenLayer2_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer2_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_570.xml",
+          "sid": "583",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC5/HiddenLayer3_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer3_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_570.xml",
+          "sid": "587",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC5/HiddenLayer4_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer4_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_570.xml",
+          "sid": "663",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC5/OutputLayer_Bias",
+          "active": false,
+          "params": {
+            "Value": "OutputLayer_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_675.xml",
+          "sid": "680",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC6/HiddenLayer1_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer1_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_675.xml",
+          "sid": "684",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC6/HiddenLayer2_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer2_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_675.xml",
+          "sid": "688",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC6/HiddenLayer3_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer3_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_675.xml",
+          "sid": "692",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC6/HiddenLayer4_Bias",
+          "active": false,
+          "params": {
+            "Value": "HiddenLayer4_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_675.xml",
+          "sid": "768",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPC6/OutputLayer_Bias",
+          "active": false,
+          "params": {
+            "Value": "OutputLayer_bias"
+          }
+        },
+        {
+          "file": "simulink/systems/system_780.xml",
+          "sid": "785",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPCC/HiddenLayer1_Bias",
+          "active": false,
+          "params": {
+            "Value": "bias_fc1"
+          }
+        },
+        {
+          "file": "simulink/systems/system_780.xml",
+          "sid": "789",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPCC/HiddenLayer2_Bias",
+          "active": false,
+          "params": {
+            "Value": "bias_fc2"
+          }
+        },
+        {
+          "file": "simulink/systems/system_780.xml",
+          "sid": "865",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/DPC-CCS-MPCC/OutputLayer_Bias",
+          "active": false,
+          "params": {
+            "Value": "bias_fc3"
+          }
+        },
+        {
+          "file": "simulink/systems/system_91.xml",
+          "sid": "98",
+          "block_type": "Reference",
+          "source_type": "Three-Phase Series RLC Branch",
+          "path": "Linear Load1/Linear load3",
+          "active": true,
+          "params": {
+            "BranchType": "R",
+            "Resistance": "40",
+            "Inductance": "Lload",
+            "Capacitance": "1e-6",
+            "Measurements": "None"
+          }
+        },
+        {
+          "file": "simulink/systems/system_91.xml",
+          "sid": "129",
+          "block_type": "Reference",
+          "source_type": "Three-Phase Series RLC Branch",
+          "path": "Linear Load1/Load",
+          "active": true,
+          "params": {
+            "BranchType": "R",
+            "Resistance": "10",
+            "Inductance": "5e-3",
+            "Capacitance": "1e-6",
+            "Measurements": "None"
+          }
+        },
+        {
+          "file": "simulink/systems/system_91.xml",
+          "sid": "112",
+          "block_type": "Step",
+          "source_type": null,
+          "path": "Linear Load1/Step3",
+          "active": true,
+          "params": {
+            "Time": "0.6",
+            "SampleTime": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_91.xml",
+          "sid": "119",
+          "block_type": "Reference",
+          "source_type": "Three-Phase Breaker",
+          "path": "Linear Load1/Three-Phase Breaker",
+          "active": true,
+          "params": {
+            "InitialState": "open",
+            "SwitchA": "on",
+            "SwitchB": "on",
+            "SwitchC": "on",
+            "SwitchTimes": "[1/60  5/60]",
+            "External": "on",
+            "BreakerResistance": "0.01",
+            "SnubberResistance": "1e6",
+            "SnubberCapacitance": "inf",
+            "Measurements": "None"
+          }
+        }
+      ],
+      "matlab_functions": [
+        {
+          "file": "simulink/stateflow/chart_111.xml",
+          "path": "PRN_controller1/MATLAB Function",
+          "script_chars": 5114,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_127.xml",
+          "path": "PRN_controller1/SVPWM Controller2/Time Calculation/Sector detection1",
+          "script_chars": 382,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_140.xml",
+          "path": "PRN_controller1/",
+          "script_chars": 827,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_148.xml",
+          "path": "PRN_controller1/Input data vector generation",
+          "script_chars": 493,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_163.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC1/HiddenLayer1_ReLU",
+          "script_chars": 35,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_170.xml",
+          "path": "PRN_controller1/DPC-CCS-MPCC/HiddenLayer1_ReLU",
+          "script_chars": 47,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_177.xml",
+          "path": "PRN_controller1/DPC-CCS-MPCC/HiddenLayer4_ReLU",
+          "script_chars": 47,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_184.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC1/HiddenLayer2_ReLU",
+          "script_chars": 35,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_191.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC1/HiddenLayer3_ReLU",
+          "script_chars": 35,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_198.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC1/HiddenLayer4_ReLU",
+          "script_chars": 35,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_205.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC2/HiddenLayer1_ReLU",
+          "script_chars": 47,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_212.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC2/HiddenLayer2_ReLU",
+          "script_chars": 47,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_219.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC2/HiddenLayer3_ReLU",
+          "script_chars": 47,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_226.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC2/HiddenLayer4_ReLU",
+          "script_chars": 47,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_233.xml",
+          "path": "PRN_controller1/MATLAB Function2",
+          "script_chars": 1590,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_249.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC3/HiddenLayer1_ReLU",
+          "script_chars": 35,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_256.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC3/HiddenLayer2_ReLU",
+          "script_chars": 35,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_263.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC3/HiddenLayer3_ReLU",
+          "script_chars": 35,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_270.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC3/HiddenLayer4_ReLU",
+          "script_chars": 35,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_277.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC4/HiddenLayer1_ReLU",
+          "script_chars": 34,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_284.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC4/HiddenLayer2_ReLU",
+          "script_chars": 34,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_291.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC4/HiddenLayer3_ReLU",
+          "script_chars": 34,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_298.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC4/HiddenLayer4_ReLU",
+          "script_chars": 35,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_305.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC5/HiddenLayer1_ReLU",
+          "script_chars": 35,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_312.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC5/HiddenLayer2_ReLU",
+          "script_chars": 35,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_319.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC5/HiddenLayer3_ReLU",
+          "script_chars": 35,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_326.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC5/HiddenLayer4_ReLU",
+          "script_chars": 35,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_333.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC6/HiddenLayer1_ReLU",
+          "script_chars": 34,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_340.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC6/HiddenLayer2_ReLU",
+          "script_chars": 34,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_347.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC6/HiddenLayer3_ReLU",
+          "script_chars": 34,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_354.xml",
+          "path": "PRN_controller1/DPC-CCS-MPC6/HiddenLayer4_ReLU",
+          "script_chars": 35,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_361.xml",
+          "path": "PRN_controller1/MATLAB Function4",
+          "script_chars": 10093,
+          "active": true
+        },
+        {
+          "file": "simulink/stateflow/chart_54.xml",
+          "path": "PRN_controller1/MATLAB Function1",
+          "script_chars": 1573,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_70.xml",
+          "path": "PRN_controller1/SVPWM Controller1/Sector detection",
+          "script_chars": 284,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_77.xml",
+          "path": "PRN_controller1/SVPWM Controller1/Time Calculation/Sector detection1",
+          "script_chars": 382,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_90.xml",
+          "path": "PRN_controller1/SVPWM Controller2/Sector detection",
+          "script_chars": 284,
+          "active": false
+        },
+        {
+          "file": "simulink/stateflow/chart_97.xml",
+          "path": "PRN_controller1/Input data vector generation3",
+          "script_chars": 455,
+          "active": false
+        }
+      ]
+    },
+    "DPCvalidation.slx": {
+      "file": "DPCvalidation.slx",
+      "sha256": "eaea42cfc8d0331fdc8668055cc2f6a1f3200991085764adb505b18beb6b38b7",
+      "init_fcn_assignments": {},
+      "init_fcn_commented_arrays": [],
+      "solver": {
+        "StopTime": "10.0",
+        "FixedStep": "auto",
+        "SolverName": "VariableStepAuto"
+      },
+      "blocks": [
+        {
+          "file": "simulink/systems/system_100.xml",
+          "sid": "1398",
+          "block_type": "Reference",
+          "source_type": "Predict",
+          "path": "PRN_controller1/Predict1",
+          "active": true,
+          "params": {
+            "Network": "Network from MAT-file",
+            "NetworkFunction": "squeezenet",
+            "NetworkFilePath": "C:\\Users\\DU47TW\\OneDrive - Aalborg Universitet\\Desktop\\AI Basis\\tie-2969116-mm\\Supplementary files - new\\trainedNet1nDPCv3.mat",
+            "MiniBatchSize": "128",
+            "InputDataFormats": "{ 'input', 'C' }",
+            "Predictions": "on",
+            "Activations": "{}",
+            "ForceInterpretedSim": "off",
+            "EnableDLNetwork": "on"
+          }
+        },
+        {
+          "file": "simulink/systems/system_100.xml",
+          "sid": "2337",
+          "block_type": "Saturate",
+          "source_type": null,
+          "path": "PRN_controller1/Saturation2",
+          "active": true,
+          "params": {
+            "UpperLimit": "467",
+            "LowerLimit": "-467"
+          }
+        },
+        {
+          "file": "simulink/systems/system_100.xml",
+          "sid": "2339",
+          "block_type": "Saturate",
+          "source_type": null,
+          "path": "PRN_controller1/Saturation4",
+          "active": true,
+          "params": {
+            "UpperLimit": "467",
+            "LowerLimit": "-467"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2.xml",
+          "sid": "45",
+          "block_type": "Reference",
+          "source_type": "DC Voltage Source",
+          "path": "Inverter_LC_filter1/DC",
+          "active": true,
+          "params": {
+            "BlockRotation": "270",
+            "Amplitude": "Vdc",
+            "Measurements": "None"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2.xml",
+          "sid": "47",
+          "block_type": "Reference",
+          "source_type": "IGBT/Diode",
+          "path": "Inverter_LC_filter1/IGBT/Diode",
+          "active": true,
+          "params": {
+            "BlockRotation": "270",
+            "Ron": "1e-3",
+            "Rs": "1e5",
+            "Cs": "inf",
+            "Measurements": "off"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2.xml",
+          "sid": "48",
+          "block_type": "Reference",
+          "source_type": "IGBT/Diode",
+          "path": "Inverter_LC_filter1/IGBT/Diode1",
+          "active": true,
+          "params": {
+            "BlockRotation": "270",
+            "Ron": "1e-3",
+            "Rs": "1e5",
+            "Cs": "inf",
+            "Measurements": "off"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2.xml",
+          "sid": "49",
+          "block_type": "Reference",
+          "source_type": "IGBT/Diode",
+          "path": "Inverter_LC_filter1/IGBT/Diode2",
+          "active": true,
+          "params": {
+            "BlockRotation": "270",
+            "Ron": "1e-3",
+            "Rs": "1e5",
+            "Cs": "inf",
+            "Measurements": "off"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2.xml",
+          "sid": "50",
+          "block_type": "Reference",
+          "source_type": "IGBT/Diode",
+          "path": "Inverter_LC_filter1/IGBT/Diode3",
+          "active": true,
+          "params": {
+            "BlockRotation": "270",
+            "Ron": "1e-3",
+            "Rs": "1e5",
+            "Cs": "inf",
+            "Measurements": "off"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2.xml",
+          "sid": "51",
+          "block_type": "Reference",
+          "source_type": "IGBT/Diode",
+          "path": "Inverter_LC_filter1/IGBT/Diode4",
+          "active": true,
+          "params": {
+            "BlockRotation": "270",
+            "Ron": "1e-3",
+            "Rs": "1e5",
+            "Cs": "inf",
+            "Measurements": "off"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2.xml",
+          "sid": "52",
+          "block_type": "Reference",
+          "source_type": "IGBT/Diode",
+          "path": "Inverter_LC_filter1/IGBT/Diode5",
+          "active": true,
+          "params": {
+            "BlockRotation": "270",
+            "Ron": "1e-3",
+            "Rs": "1e5",
+            "Cs": "inf",
+            "Measurements": "off"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2.xml",
+          "sid": "77",
+          "block_type": "Reference",
+          "source_type": "Three-Phase Series RLC Branch",
+          "path": "Inverter_LC_filter1/capacitor",
+          "active": true,
+          "params": {
+            "BlockRotation": "270",
+            "BranchType": "C",
+            "Resistance": "Rl",
+            "Inductance": "Lc",
+            "Capacitance": "C+errorC",
+            "Measurements": "None"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2.xml",
+          "sid": "78",
+          "block_type": "Reference",
+          "source_type": "Three-Phase Series RLC Branch",
+          "path": "Inverter_LC_filter1/inductor",
+          "active": true,
+          "params": {
+            "BranchType": "RL",
+            "Resistance": "0",
+            "Inductance": "L+errorL",
+            "Capacitance": "1e-6",
+            "Measurements": "None"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2155.xml",
+          "sid": "2174",
+          "block_type": "Reference",
+          "source_type": "Repeating table",
+          "path": "PRN_controller1/SVPWM Controller3/Subsystem/Repeating Sequence",
+          "active": true,
+          "params": {
+            "rep_seq_t": "[0 1/100000 1/50000]",
+            "rep_seq_y": "[0 1/100000 0]"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2155.xml",
+          "sid": "2244",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller3/Subsystem/Tpwm",
+          "active": true,
+          "params": {
+            "Value": "0.00002"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2155.xml",
+          "sid": "2245",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller3/Subsystem/Udc",
+          "active": true,
+          "params": {
+            "Value": "Vdc"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2176.xml",
+          "sid": "2183",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller3/Subsystem/Sector Caculate/Constant1",
+          "active": true,
+          "params": {
+            "Value": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2229.xml",
+          "sid": "2233",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "PRN_controller1/SVPWM Controller3/Subsystem/Tcm123-Sabc/Constant1",
+          "active": true,
+          "params": {
+            "Value": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2357.xml",
+          "sid": "2365",
+          "block_type": "Reference",
+          "source_type": "On/Off Delay ",
+          "path": "Subsystem1/On Delay",
+          "active": true,
+          "params": {
+            "DelayType": "On delay",
+            "delay": "Td",
+            "ic": "0",
+            "Ts": "1e-6"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2357.xml",
+          "sid": "2366",
+          "block_type": "Reference",
+          "source_type": "On/Off Delay ",
+          "path": "Subsystem1/On Delay1",
+          "active": true,
+          "params": {
+            "DelayType": "On delay",
+            "delay": "Td",
+            "ic": "0",
+            "Ts": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2357.xml",
+          "sid": "2367",
+          "block_type": "Reference",
+          "source_type": "On/Off Delay ",
+          "path": "Subsystem1/On Delay2",
+          "active": true,
+          "params": {
+            "DelayType": "On delay",
+            "delay": "Td",
+            "ic": "0",
+            "Ts": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2375.xml",
+          "sid": "2417",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "Voltage reference1/gain",
+          "active": true,
+          "params": {
+            "Value": "2*pi"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2390.xml",
+          "sid": "2398",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "Voltage reference1/Voltage_reference_creator/Constant1",
+          "active": true,
+          "params": {
+            "Value": "Vref"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2390.xml",
+          "sid": "2399",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "Voltage reference1/Voltage_reference_creator/Constant2",
+          "active": true,
+          "params": {
+            "Value": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2390.xml",
+          "sid": "2400",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "Voltage reference1/Voltage_reference_creator/Constant3",
+          "active": true,
+          "params": {
+            "Value": "Vref"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2390.xml",
+          "sid": "2401",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "Voltage reference1/Voltage_reference_creator/Constant4",
+          "active": true,
+          "params": {
+            "Value": "-120*pi/180"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2390.xml",
+          "sid": "2402",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "Voltage reference1/Voltage_reference_creator/Constant5",
+          "active": true,
+          "params": {
+            "Value": "Vref"
+          }
+        },
+        {
+          "file": "simulink/systems/system_2390.xml",
+          "sid": "2403",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "Voltage reference1/Voltage_reference_creator/Constant6",
+          "active": true,
+          "params": {
+            "Value": "-240*pi/180"
+          }
+        },
+        {
+          "file": "simulink/systems/system_85.xml",
+          "sid": "87",
+          "block_type": "Reference",
+          "source_type": "Three-Phase Series RLC Branch",
+          "path": "Linear Load1/Linear load",
+          "active": true,
+          "params": {
+            "BranchType": "R",
+            "Resistance": "Rload",
+            "Inductance": "1e-3",
+            "Capacitance": "1e-6",
+            "Measurements": "None"
+          }
+        },
+        {
+          "file": "simulink/systems/system_85.xml",
+          "sid": "88",
+          "block_type": "Reference",
+          "source_type": "Three-Phase Series RLC Branch",
+          "path": "Linear Load1/Linear load1",
+          "active": true,
+          "params": {
+            "BranchType": "R",
+            "Resistance": "120",
+            "Inductance": "1e-3",
+            "Capacitance": "1e-6",
+            "Measurements": "None"
+          }
+        },
+        {
+          "file": "simulink/systems/system_85.xml",
+          "sid": "89",
+          "block_type": "Reference",
+          "source_type": "Three-Phase Series RLC Branch",
+          "path": "Linear Load1/Linear load2",
+          "active": true,
+          "params": {
+            "BranchType": "R",
+            "Resistance": "Rload",
+            "Inductance": "Lload",
+            "Capacitance": "1e-6",
+            "Measurements": "None"
+          }
+        },
+        {
+          "file": "simulink/systems/system_85.xml",
+          "sid": "90",
+          "block_type": "Step",
+          "source_type": null,
+          "path": "Linear Load1/Step",
+          "active": true,
+          "params": {
+            "Time": "0.04",
+            "SampleTime": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_85.xml",
+          "sid": "91",
+          "block_type": "Step",
+          "source_type": null,
+          "path": "Linear Load1/Step1",
+          "active": true,
+          "params": {
+            "Time": "0.07",
+            "SampleTime": "0"
+          }
+        },
+        {
+          "file": "simulink/systems/system_85.xml",
+          "sid": "92",
+          "block_type": "Reference",
+          "source_type": "Three-Phase Breaker",
+          "path": "Linear Load1/Three-Phase Breaker",
+          "active": true,
+          "params": {
+            "InitialState": "open",
+            "SwitchA": "on",
+            "SwitchB": "on",
+            "SwitchC": "on",
+            "SwitchTimes": "[1/60  5/60]",
+            "External": "on",
+            "BreakerResistance": "0.01",
+            "SnubberResistance": "1e6",
+            "SnubberCapacitance": "inf",
+            "Measurements": "None"
+          }
+        },
+        {
+          "file": "simulink/systems/system_85.xml",
+          "sid": "93",
+          "block_type": "Reference",
+          "source_type": "Three-Phase Breaker",
+          "path": "Linear Load1/Three-Phase Breaker1",
+          "active": true,
+          "params": {
+            "InitialState": "open",
+            "SwitchA": "on",
+            "SwitchB": "on",
+            "SwitchC": "on",
+            "SwitchTimes": "[1/60  5/60]",
+            "External": "on",
+            "BreakerResistance": "0.01",
+            "SnubberResistance": "1e6",
+            "SnubberCapacitance": "inf",
+            "Measurements": "None"
+          }
+        },
+        {
+          "file": "simulink/systems/system_root.xml",
+          "sid": "1",
+          "block_type": "Constant",
+          "source_type": null,
+          "path": "/Deadtime ON1",
+          "active": true,
+          "params": {
+            "Value": "0"
+          }
+        }
+      ],
+      "matlab_functions": [
+        {
+          "file": "simulink/stateflow/chart_23.xml",
+          "path": "PRN_controller1/MATLAB Function3",
+          "script_chars": 320,
+          "active": true
+        }
+      ]
+    }
+  },
+  "active_data_collection_mpc": [
+    {
+      "path": "PRN_controller1/MATLAB Function4",
+      "file": "simulink/stateflow/chart_361.xml",
+      "Adf": "0.896993414465221,\t-0.0190993472724508; 6.39191488718020,\t0.935192109010122",
+      "Bdf": "0.0190993472724508,\t0.0648078909898776; 0.0648078909898777,\t-6.52153066915996",
+      "prediction_horizon_N": "5",
+      "state_weight_Q": "diag([Qx,1])",
+      "Qx": "2",
+      "C": "15e-6",
+      "wref": "2*pi*50",
+      "closed_form_solution": true,
+      "explicit_constraints": false,
+      "one_step_delay_compensation": true,
+      "reference_extrapolation": true,
+      "targets_used": "c_target4,c_target5,c_target6,c_target7,c_target8,c_target9,c_target10"
+    }
+  ],
+  "data4train": {
+    "file": "Data4train.mat",
+    "sha256": "b7e4de25d238a846d94821ecf8f6b35515adc2cdd715047ef283f5a4300ee8b6",
+    "shape": [
+      10000,
+      15
+    ],
+    "load_resistance_ohm_counts": {
+      "8.0064": 5000,
+      "39.9984": 5000
+    },
+    "load_by_split": {
+      "train_rows_1_6000": {
+        "8.0064": 1000,
+        "39.9984": 5000
+      },
+      "holdout_rows_6001_10000": {
+        "8.0064": 4000
+      }
+    },
+    "v_ref_magnitude_v": [
+      50.001460874688654,
+      50.0014608747003
+    ],
+    "reference_phase_step_rad_median": 0.031722822236212034,
+    "v_c_magnitude_v": [
+      16.381883912881015,
+      50.173003009218675
+    ],
+    "i_f_magnitude_max_a": 7.082586773636999
+  }
+}

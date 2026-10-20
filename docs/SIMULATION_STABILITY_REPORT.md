@@ -137,6 +137,23 @@ dv_c/dt = (i_f − i_load)/C
 
 with L = 5.02 mH, R_f = 2 Ω and C = 15 µF. `sim/vsc_params.discretize_zoh` reproduces both matrices to float32 precision, and `tests/simulation/test_vsc_params.py` pins it. The plant is therefore an LC filter, not "LCL" as seven earlier mentions said; those mentions are corrected. Ts = 100 µs is now confirmed, not inferred: the identified C scales with the assumed Ts. Because the matrices are now parametric, the plant can be re-discretized for a degraded capacitor (A4).
 
+**V1. Parameters read from the original Simulink models.**
+
+`experiments/extract_dpc4pe_slx_params.py` reads `CCS_MPC.slx` and `DPCvalidation.slx` as zip archives; MATLAB is not needed. The table and evidence are in [`docs/audit/upstream/dpc4pe_parameters.md`](audit/upstream/dpc4pe_parameters.md).
+
+`CCS_MPC.slx`'s `InitFcn` sets:
+- L = 5.02e-3, Rl = 2, C = 15e-6;
+- Ts = 1e-4, wref = 2π·50;
+- Vref = 50, Vdc = 200.
+
+L, R_f, C, Ts, the reference and the identified ADF/BDF all match SPADE. The ADF/BDF match is to within 4.3e-8.
+
+Four findings come out of the comparison (S-09 to S-12, §6):
+- **S-09:** the converter voltage limit is missing from SPADE;
+- **S-10:** the data-collection controller is a 5-step MPC, not a one-step one;
+- **S-11:** most of the original training rows are at 40 Ω;
+- **S-12:** the validation model uses R_f = 0.
+
 ## 5. Controller performance (dynamic stability)
 
 **Metrics used.**
@@ -181,6 +198,10 @@ Figures: [`dc_small_step_vs_linear.png`](audit/stability/dc_small_step_vs_linear
 | **S-06** | Low | Invalid value in state vector | The bearing-fault phase state had limit = inf, so `state * limits` gave 0·inf = NaN in that slot and a `RuntimeWarning` on every step of every faulted run. | warnings in the baseline run; `test_denormalized_state_vector_is_finite_with_a_fault_injected` | **Fixed**: unit limit for phase states. Trajectories are unchanged (all existing byte-identical datagen tests pass). |
 | S-07 | Info | Physical behavior, not a bug | One-quadrant converter: negative speed references are not tracked (the motor coasts), and references above ≈ 394 rad/s saturate at the 65 V supply. | §2 | none (physics) |
 | S-08 | Info | Physical instability, correctly simulated | VSC with R < R\* = 3.3707 Ω diverges with or without a controller. | existing `test_dpc_robustness_grid.py` | none; alarm threshold fixed in AI-N03 |
+| **S-09** | Medium | Model scope (missing actuator limit) | SPADE never limits the converter voltage v_o. The upstream converter has V_dc = 200 V, and its active MPC output is clamped at ±134 V per axis (≈ 2·V_dc/3). The steady-state v_o needed for \|v_ref\| = 150 V is 149–232 V for every load, and 151 V at 8 Ω for 120 V. The 120 V and 150 V points of the dashboard range and of `test_dpc_robustness_grid.py` therefore describe an idealized converter with unlimited voltage. | `docs/audit/upstream/dpc4pe_parameters.md` S-09 | **Open.** Documented. Adding a limit changes defaults and the robustness thresholds, so it needs a decision. V2 measures the MPC with and without the clamp. |
+| **S-10** | Low | Upstream documentation vs. code | Upstream says the DPC learns from a one-step explicit MPC. The only active controller in `CCS_MPC.slx` is an unconstrained 5-step condensed MPC (Q = diag(2, 1)) with delay compensation and extrapolated references. `Data4train` logs its delay-compensated state and the references 3–7 steps ahead. SPADE's closed loop feeds the measured state and the references 0–4 steps ahead. | `dpc4pe_parameters.md` S-10; `CCS_MPC.slx` `MATLAB Function4` | **Open (documented).** V2 ports this controller. The input convention is not changed. |
+| S-11 | Info | Training data | `Data4train.mat` holds exactly two loads: 8.0064 Ω (= 10 Ω ∥ 40 Ω) and 39.9984 Ω, 5000 rows each. `Main.txt`'s training rows 1–6000 are 5000 rows at 40 Ω and 1000 at 8 Ω; the holdout is all 8 Ω. | `dpc4pe_parameters.json` `data4train` | none; relevant to C1 |
+| S-12 | Info | Upstream inconsistency | `DPCvalidation.slx`'s filter inductor has R = 0, while `CCS_MPC.slx` and the identified model have 2 Ω. The validation model has no `InitFcn`, so its other parameters are not in the repository. | `dpc4pe_parameters.md` S-12 | none in SPADE (it validates on the identified model) |
 
 ## 7. Limitations of this report
 

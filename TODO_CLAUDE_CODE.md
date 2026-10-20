@@ -102,7 +102,7 @@ Este bloque amplía esa cobertura sin datos reales.
 
 ### V1. Parámetros desde los `.slx` originales
 
-- [ ] **V1. Extraer parámetros de `CCS_MPC.slx` y `DPCvalidation.slx` sin MATLAB**
+- [x] **V1. Extraer parámetros de `CCS_MPC.slx` y `DPCvalidation.slx` sin MATLAB** — cerrada 2026-10-20: [`dpc4pe_parameters.md`](docs/audit/upstream/dpc4pe_parameters.md); hallazgos S-09…S-12.
   - Descargar a `data/upstream/dpc4pe/` (sin commitear) `CCS_MPC.slx`, `DPCvalidation.slx`, `Main.txt`, `Custom_Loss.txt`, `Model_gradients.txt` y `Data4train.mat`, todos con licencia MIT.
   - Un `.slx` es un zip (OPC). Descomprimirlo y parsear `simulink/blockdiagram.xml`, o `simulink/systems/*.xml` según la versión, para encontrar:
     - período de muestreo;

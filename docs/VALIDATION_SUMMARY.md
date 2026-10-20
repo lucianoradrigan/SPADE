@@ -105,6 +105,21 @@ New evidence scripts:
 | `tests.yml` | each push / PR | `pytest -m "not slow"` on Ubuntu (3.11, 3.12), `pip check`, and the smoke matrix on Ubuntu / Windows / macOS (3.12) with `smoke_test.py --launch` and `pytest -m compat` |
 | `validation-scheduled.yml` | weekly + manual | the slow tests, the stability battery and the classifier evaluation; results uploaded as artifacts |
 
+
+## 7. Cross-check against reference implementations (2026-10-20, TODO_CLAUDE_CODE.md)
+
+**What these checks are.** They compare SPADE with the implementations it was ported from:
+- DPC4PowerElectronics (MATLAB/Simulink);
+- gym-electric-motor.
+
+They are not checks against measured data. They show whether the port is faithful; they do not show that the models represent a real machine.
+
+| Task | What was checked | Result | Evidence |
+|---|---|---|---|
+| P0 | Baseline on Python 3.12 before the block | 655 passed (not slow), smoke 6/6, CI green on `5427819` | [`p0_baseline.txt`](audit/validation/p0_baseline.txt) |
+| V0 | ADF/BDF vs. the ZOH of a physical L-C filter | exact to float32 (L = 5.02 mH, R_f = 2 Ω, C = 15 µF, Ts = 100 µs); "LCL" → L-C | `tests/simulation/test_vsc_params.py` |
+| V1 | Parameters in `CCS_MPC.slx` / `DPCvalidation.slx` vs. SPADE | L, R_f, C, Ts, the reference and ADF/BDF match. New findings: S-09 (no converter voltage limit in SPADE; upstream V_dc = 200 V and a ±134 V clamp), S-10 (the data-collection MPC is 5-step), S-11, S-12 | [`dpc4pe_parameters.md`](audit/upstream/dpc4pe_parameters.md) |
+
 ## 6. Pending actions
 
 1. **Real data.** No real measurements exist in this project, so every model number above is from the simulator. A real hold-out set is the only way to validate any diagnosis claim: another machine or bearing, at least two speeds, inner and outer race faults.
