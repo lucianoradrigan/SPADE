@@ -19,7 +19,7 @@ import pandas as pd
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DATASET = REPO_ROOT / "data" / "vsc_dpc_grid_dataset.parquet"
-RUNS = ("pc_full/2026-10-19_run01", "rpi5_edge/2026-10-19_run01", "esp32_tiny/2026-10-19_run01",
+RUNS = ("pc_full/2026-10-19_run01", "rpi5_edge/2026-10-19_run01", "esp32_tiny/2026-10-19_run01", "rpi5_tcn/2026-10-20_run01",
         "pc_full/2026-09-01_run01", "rpi5_edge/2026-09-13_run01", "esp32_tiny/2026-09-13_run02")
 
 

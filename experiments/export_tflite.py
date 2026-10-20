@@ -6,6 +6,7 @@ Usage (run as a module -- the script imports experiments.train_model, so a direc
 `python experiments/export_tflite.py` fails with "No module named 'experiments'"):
     python -m experiments.export_tflite --domain dc_motor --tier rpi5 --block classifier
     python -m experiments.export_tflite --domain vsc_dpc --tier esp32 --block regressor --dataset data/vsc_dpc_dataset.parquet
+    python -m experiments.export_tflite --domain vsc_dpc --tier rpi5 --block regressor --run-dir configs/regressors/rpi5_tcn/<run>
 """
 
 import argparse
@@ -13,7 +14,7 @@ from pathlib import Path
 
 import numpy as np
 
-from driveflow.ai.registry import load_promoted_model, resolve
+from driveflow.ai.registry import load_promoted_model, load_run_model, resolve
 from driveflow.ai.tflite_export import export_float16, export_int8
 from driveflow.models.common import build_classification_windows, build_direct_forecast_windows
 from experiments.train_model import _load_domain_dataframe
@@ -40,10 +41,15 @@ def main(argv=None) -> None:
     parser.add_argument("--block", required=True, choices=["classifier", "regressor"])
     parser.add_argument("--dataset", type=Path, help="Required for --tier esp32 (int8 calibration data); ignored for rpi5.")
     parser.add_argument("--n-calibration-samples", type=int, default=1000)
+    parser.add_argument("--run-dir", type=Path, default=None, help="export this run instead of the promoted one (e.g. a candidate awaiting promotion)")
     args = parser.parse_args(argv)
 
-    model, config, metrics = load_promoted_model(args.domain, args.tier, args.block)
-    run_dir = resolve(args.domain, args.tier, args.block)
+    if args.run_dir is not None:
+        run_dir = args.run_dir
+        model, config, metrics = load_run_model(run_dir, args.block)
+    else:
+        model, config, metrics = load_promoted_model(args.domain, args.tier, args.block)
+        run_dir = resolve(args.domain, args.tier, args.block)
     out_path = run_dir / "model.tflite"
 
     if args.tier == "rpi5":

@@ -235,7 +235,7 @@ Este bloque amplía esa cobertura sin datos reales.
 
 ### A3. Pronosticador RPi5 sin operaciones Flex
 
-- [ ] **A3. Exportar el pronosticador RPi5 solo con operaciones nativas de TFLite**
+- [x] **A3. Exportar el pronosticador RPi5 solo con operaciones nativas de TFLite** — cerrada 2026-10-20: TCN `rpi5_tcn/2026-10-20_run01` sin Flex, RMSE ×1,01 del GRU. **Pendiente de tu confirmación:** promoverlo.
 
   **Problema:** `configs/regressors/rpi5_edge.yaml` usa un GRU, y la exportación cae en `SELECT_TF_OPS` (`ai/tflite_export.py`). Por eso no corre en tflite-runtime ni en LiteRT puro.
 

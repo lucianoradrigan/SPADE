@@ -21,7 +21,7 @@ import tensorflow as tf
 from sklearn.metrics import f1_score
 
 from driveflow.ai.deployment_status import tflite_op_names
-from driveflow.ai.registry import load_promoted_model, resolve
+from driveflow.ai.registry import load_run_model, resolve
 from driveflow.models.common import build_classification_windows, build_direct_forecast_windows, grouped_split, load_diagnosis_dataset
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -128,16 +128,21 @@ def _regressor_parity(model, tfl: Path, metrics: dict, df, config) -> dict:
     return out
 
 
-def report() -> dict:
+def report(candidates: list | None = None) -> dict:
+    """Promoted edge runs, plus any candidate run directories (not promoted) given explicitly."""
     rows = {}
-    for domain, tier, block in EDGE_RUNS:
-        key = f"{domain}/{tier}/{block}"
-        run_dir = resolve(domain, tier, block)
+    targets = [(f"{d}/{t}/{b}", d, b, resolve(d, t, b)) for d, t, b in EDGE_RUNS]
+    for run_dir in candidates or []:
+        run_dir = Path(run_dir).resolve()
+        m = json.loads((run_dir / "metrics.json").read_text())
+        block = "classifier" if m.get("kind") == "classifier" else "regressor"
+        targets.append((f"candidate {run_dir.relative_to(REPO_ROOT)}", m["domain"], block, run_dir))
+    for key, domain, block, run_dir in targets:
         tfl = run_dir / "model.tflite"
         if not tfl.exists():
             rows[key] = {"status": "not_exported"}
             continue
-        model, config, metrics = load_promoted_model(domain, tier, block)
+        model, config, metrics = load_run_model(run_dir, block)
         df = _load_df(domain, _dataset_path(domain, run_dir))
         base = {"run": str(run_dir.relative_to(REPO_ROOT)), "tflite_bytes": tfl.stat().st_size, "ops": _op_names(tfl)}
         try:
@@ -155,8 +160,9 @@ def report() -> dict:
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--candidate", type=Path, action="append", default=[], help="also evaluate this (not promoted) run directory")
     args = ap.parse_args(argv)
-    r = report()
+    r = report(args.candidate)
     if args.json:
         print(json.dumps(r, indent=2))
         return

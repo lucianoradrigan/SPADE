@@ -410,3 +410,21 @@ Results on the held-out conditions ([`forecaster_condition_split.json`](audit/ai
 
 The earlier evaluation measured 1.000 at 115, 190 and 250 rad/s. Neither the abstention threshold nor the OOD detector catches these failures well: at 50 rad/s, 9 % of windows are flagged by Mahalanobis and 33 % by the energy score.
 
+### 8.2 A3 — RPi5 forecaster without Flex ops
+
+**The run.** `configs/regressors/rpi5_tcn.yaml` is a causal dilated TCN: 7 layers × 32 filters, kernel 3, receptive field 255 steps. It is built by the existing `recurrent_type: none` path. It was trained by distillation from the promoted `vsc_dpc/pc/regressor` with the same data, epochs and seed as `rpi5_edge/2026-10-19_run01`, and exported to float16 with `python -m experiments.export_tflite ... --run-dir` (a new option for exporting a run that is not promoted).
+
+| | `rpi5_edge/2026-10-19_run01` (GRU, promoted) | `rpi5_tcn/2026-10-20_run01` (candidate) | Criterion |
+|---|---|---|---|
+| Flex ops | FlexTensorListReserve / SetItem / Stack | **none** (13 builtin ops) | 0 |
+| RMSE on held-out conditions | 0.0634 | **0.0642** (×1.01) | ≤ 1.1 × GRU |
+| Persistence baseline | 1.056 | 1.056 | better |
+| TFLite vs. Keras (test RMSE) | not runnable on a builtin interpreter | 0.0642 → 0.0643, max \|diff\| 0.0024 | parity |
+| File size | 38 KiB | 78 KiB | — |
+
+Evidence:
+- [`forecaster_condition_split.json`](audit/ai/forecaster_condition_split.json);
+- [`tflite_parity_report.txt`](audit/tflite_parity_report.txt), produced with `python -m experiments.report_tflite_parity --candidate configs/regressors/rpi5_tcn/2026-10-20_run01`.
+
+All A3 criteria are met. The run is **not promoted**: promotion needs confirmation (`python experiments/promote_run.py configs/regressors/rpi5_tcn/2026-10-20_run01`). The TFLite numbers are host-CPU measurements, not hardware.
+

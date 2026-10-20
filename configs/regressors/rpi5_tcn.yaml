@@ -1,0 +1,13 @@
+# Raspberry Pi 5-tier forecaster, TCN variant (TODO_CLAUDE_CODE.md A3): the same causal dilated
+# Conv1D tower as esp32_tiny.yaml (recurrent_type: none, kernel 3, dilation 2**i), wider and deeper
+# so its receptive field (1 + 2*(2**7 - 1) = 255 steps) covers the 256-step input window. Unlike
+# rpi5_edge.yaml's GRU, it converts to TFLite with builtin ops only (no SELECT_TF_OPS / Flex), so
+# it runs on tflite-runtime / LiteRT. Trained by distillation from the promoted
+# vsc_dpc/pc/regressor; input_window/horizon must match pc_full.yaml's (256/64).
+domain: vsc_dpc
+tier: rpi5
+input_window: 256
+horizon: 64
+recurrent_type: none
+layers: [32, 32, 32, 32, 32, 32, 32]
+use_attention: false

@@ -241,7 +241,13 @@ def load_promoted_model(domain: str, tier: str, block: str, registry_path: Path 
 
     Returns (model, config, metrics: dict).
     """
-    run_dir = resolve(domain, tier, block, registry_path)
+    return load_run_model(resolve(domain, tier, block, registry_path), block)
+
+
+def load_run_model(run_dir, block: str) -> tuple:
+    """Same as load_promoted_model, for any run directory (promoted or a candidate).
+    Returns (model, config, metrics: dict)."""
+    run_dir = Path(run_dir)
     with (run_dir / "metrics.json").open() as f:
         metrics = json.load(f)
     n_channels = len(metrics["channels"])

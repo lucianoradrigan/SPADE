@@ -1,15 +1,24 @@
 Measured on: host CPU, tf.lite.Interpreter 2.21.0 -- NOT target hardware
+
 dc_motor/esp32/classifier  (configs/classifiers/esp32_dscnn/2026-10-18_run01, 10 KiB, host median 0.02 ms/window)
   ops: 7 distinct, all builtin
   test (1440 windows): accuracy keras 0.940 -> tflite 0.942   macro-F1 0.940 -> 0.942   top-1 agreement 0.977   max |dp| 0.581
   all  (15120 windows): accuracy keras 0.921 -> tflite 0.913   macro-F1 0.921 -> 0.913   top-1 agreement 0.967   max |dp| 0.646
+
 dc_motor/rpi5/classifier  (configs/classifiers/rpi5_resnet1d_se/2026-10-18_run01, 26 KiB, host median 0.05 ms/window)
   ops: 12 distinct, all builtin
   test (1440 windows): accuracy keras 0.949 -> tflite 0.949   macro-F1 0.950 -> 0.950   top-1 agreement 0.999   max |dp| 0.003
   all  (15120 windows): accuracy keras 0.926 -> tflite 0.926   macro-F1 0.926 -> 0.926   top-1 agreement 1.000   max |dp| 0.006
+
 vsc_dpc/esp32/regressor  (configs/regressors/esp32_tiny/2026-10-19_run01, 18 KiB, host median 0.02 ms/window)
   ops: 12 distinct, all builtin
   test ( 72 windows): RMSE keras 0.1784 -> tflite 0.1843   RMSE(tflite, keras) 0.0267   max |diff| 0.0917
   all  (324 windows): RMSE keras 0.1932 -> tflite 0.1975   RMSE(tflite, keras) 0.0254   max |diff| 0.1092
+
 vsc_dpc/rpi5/regressor  (configs/regressors/rpi5_edge/2026-10-19_run01): not_runnable_builtin_interpreter -- Select TensorFlow op(s), included in the given model, is(are) not supported by this interpreter. Make sure you apply/link the Flex delegate before inference. For the Android, it can be resolved by adding "org.tensorflow:tensorflow-lite-select-tf-ops" dependency.
   ops: ['ADD', 'DEQUANTIZE', 'FILL', 'FULLY_CONNECTED', 'FlexTensorListReserve', 'FlexTensorListSetItem', 'FlexTensorListStack', 'GATHER', 'LESS', 'LOGICAL_AND', 'LOGISTIC', 'MUL', 'PACK', 'RESHAPE', 'SHAPE', 'SPLIT', 'STRIDED_SLICE', 'SUB', 'TANH', 'TRANSPOSE', 'WHILE']
+
+candidate configs/regressors/rpi5_tcn/2026-10-20_run01  (configs/regressors/rpi5_tcn/2026-10-20_run01, 78 KiB, host median 0.14 ms/window)
+  ops: 13 distinct, all builtin
+  test ( 72 windows): RMSE keras 0.0642 -> tflite 0.0643   RMSE(tflite, keras) 0.0006   max |diff| 0.0024
+  all  (324 windows): RMSE keras 0.0702 -> tflite 0.0703   RMSE(tflite, keras) 0.0005   max |diff| 0.0024

@@ -125,6 +125,7 @@ They are not checks against measured data. They show whether the port is faithfu
 | C2 | Optional PI setpoint weight b (S-04) | b = 1 unchanged (byte-identical datagen tests pass); small-step overshoot 15.1 % → 3.1 % (b = 0.7) → 0.4 % (b = 0.5), matching the linear model; disturbance rejection unchanged | `tests/control/test_controller_performance.py::TestPiSetpointWeighting` |
 | V4 | DC motor (Euler, solve_ivp; new load and voltage steps) and PMSM at 400 rad/s against GEM 3.0.3 | same solver: identical to the last bit (4 cases); DC Euler vs. RK45 0.19 % speed / 2.6 % current; GEM's own 1-step Euler diverges at 400 rad/s (S-01 confirmed independently); **S-13**: the default 3-substep Euler is 24.6 % off RK45 at 314 rad/s open loop | `tests/simulation/test_gem_equivalence.py`, `tests/data/gen_ref_data_v4.py` |
 | C1 | DPC nominal accuracy, option 1: v3/v4 selected by operating point (`ScheduledDpcController`), region chosen on a design grid | all C1 targets met (8 Ω: 1.18 V at 50 V, 1.75 V at 10 V; 4/20/1000 Ω ≤ 3.10 V); never worse than v4 on 44 held-out points; **default unchanged** (needs confirmation) | [`dpc_operating_point_selection.md`](audit/stability/dpc_operating_point_selection.md) |
+| A3 | RPi5 forecaster without Flex ops: TCN (7×32, kernel 3) distilled from the PC model | 0 Flex ops (GRU: 3); held-out RMSE 0.0642 vs. 0.0634 GRU (×1.01) and 1.056 persistence; TFLite/Keras parity 0.0643/0.0642; **not promoted** (needs confirmation) | [`AI_TECHNICAL_AUDIT.md`](AI_TECHNICAL_AUDIT.md) §8.2 |
 
 ## 6. Pending actions
 

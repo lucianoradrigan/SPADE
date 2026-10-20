@@ -29,6 +29,12 @@
       "persistence_rmse": 1.0560150146484375,
       "recorded_test_rmse": 0.17839510165094968
     },
+    "rpi5_tcn/2026-10-20_run01": {
+      "n_windows": 72,
+      "rmse": 0.06420393288135529,
+      "persistence_rmse": 1.0560150146484375,
+      "recorded_test_rmse": 0.06420393659236996
+    },
     "pc_full/2026-09-01_run01": {
       "n_windows": 72,
       "rmse": 0.14887231588363647,
