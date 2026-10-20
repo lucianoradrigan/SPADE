@@ -259,6 +259,34 @@ Figures: [`dc_small_step_vs_linear.png`](audit/stability/dc_small_step_vs_linear
 - PI has zero offset and is cheap.
 - Both are stable over every tested drift.
 
+### 5.1 C3: CPU cost of the MPC (2026-10-20)
+
+**The bottleneck.** The MPC's cost was the per-step L-BFGS-B call: a Python callback loop of up to 50 iterations. The condensed matrices and the warm start were already in place.
+
+**The option.** `MpcController(qp_solver="exact")` solves each step in three stages:
+1. the closed-form optimum, when no voltage bound and no current limit is active;
+2. otherwise, an exact piecewise-QP. For a fixed set of horizon steps over the current limit, the soft penalty is quadratic, so each pass is a bounded least-squares solve (scipy BVLS), iterated until that set stops changing;
+3. L-BFGS-B only as a last resort: 5 of 9000 steps in the hardest run.
+
+**The default stays `"lbfgsb"`**, bit-identical to the original controller; changing it needs confirmation. Evidence: [`mpc_exact_solver.json`](audit/stability/mpc_exact_solver.json), from `python experiments/benchmark_mpc_solver.py`, single-threaded BLAS.
+
+| Run | L-BFGS-B | Exact | Speed-up | max \|Δω\| | max \|Δi\| (RMS) |
+|---|---|---|---|---|---|
+| Start-up 0 → 150 rad/s, 0.6 s | 54.6 s | 1.24 s | **44×** | 0.86 rad/s | 136 A (6.1 A) |
+| Steps 100 → 200 → 150 rad/s, 0.9 s | 79.1 s | 9.6 s | **8.2×** | 8.5 rad/s | 277 A (64 A) |
+| Load step 10 N·m, 0.8 s | 72.2 s | 1.31 s | **55×** | 0.86 rad/s | 136 A (5.3 A) |
+| Torque 10 N·m, 0.3 s | 22.2 s | 0.12 s | **190×** | 0 | 0 |
+
+**MPC vs. PI.** The PI runs the 0.6 s start-up in 0.16 s. With the exact solver the MPC costs about **7.6×** the PI, against about 330× with L-BFGS-B in this measurement.
+
+**Why the trajectories differ.**
+- **The exact solver reaches the optimum and L-BFGS-B does not.** With its 50-iteration cap, L-BFGS-B stops short of the optimum: at steady state its current dithers by ±0.7 A, and it exceeds the 178.5 A soft limit (178.8 A). The exact solver holds 178.5 A and a constant steady-state current.
+- **Large instantaneous differences sit at one moment.** The 136 A difference is at the instant the current leaves the limit, where the exact solver releases it slightly earlier. The time to reach 90 % is 0.1433 s against 0.1442 s, and the settled tracking error is the same (RMS 0.058 rad/s).
+- **The speed-steps run falls in a physically infeasible regime.** Its last segment asks a one-quadrant converter to brake from 200 to 150 rad/s, which it cannot do (S-07). Both solvers fail to track there (RMS error 49.7 rad/s with L-BFGS-B, 43.3 rad/s exact), and their trajectories diverge.
+
+**Target.** The C3 target was at least 3× faster; the exact solver achieves 8–190×.
+
+
 ---
 
 ## 6. Findings

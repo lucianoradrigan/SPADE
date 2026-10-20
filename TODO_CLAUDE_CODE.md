@@ -326,7 +326,7 @@ Este bloque amplía esa cobertura sin datos reales.
 
 ### C3. Costo de CPU del MPC
 
-- [ ] **C3. Reducir las ≈65–75 veces que el MPC cuesta más que el PI**
+- [x] **C3. Reducir las ≈65–75 veces que el MPC cuesta más que el PI** — cerrada 2026-10-20: opción `qp_solver="exact"`, 8–190× más rápida. **Pendiente de tu confirmación:** hacerla el default.
   - Perfilar `control/mpc/controller.py` (`_solve` y `cost_and_grad`) y aplicar, en orden:
     1. precalcular las matrices condensadas;
     2. warm start con la solución desplazada;

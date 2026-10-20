@@ -180,3 +180,46 @@ class TestPiVsMpcComparison:
 
         for name, final_omega in results.items():
             assert final_omega == pytest.approx(omega_ref, rel=0.08), f"{name} failed to track omega_ref={omega_ref} within tolerance"
+
+
+class TestExactQpSolver:
+    """C3: MpcController(qp_solver="exact") -- docs/audit/stability/mpc_exact_solver.json. Measured
+    2026-10-20: 8-194x faster than the default L-BFGS-B on the four benchmark runs; the default is
+    unchanged (bit-identical to the original controller)."""
+
+    def test_box_qp_matches_a_reference_solver(self):
+        from scipy.optimize import minimize
+
+        from driveflow.control.mpc.controller import _box_qp
+
+        rng = np.random.default_rng(0)
+        for _ in range(50):
+            a = rng.normal(size=(8, 8))
+            h, g = a @ a.T + 0.1 * np.eye(8), rng.normal(size=8) * 5
+            u = _box_qp(h, g, 0.0, 1.0)
+            ref = minimize(lambda x: 0.5 * x @ h @ x + g @ x, np.zeros(8), jac=lambda x: h @ x + g, bounds=[(0, 1)] * 8,
+                           method="L-BFGS-B", options=dict(ftol=1e-15, gtol=1e-12)).x
+            assert np.all((u >= 0) & (u <= 1))
+            assert 0.5 * u @ h @ u + g @ u <= 0.5 * ref @ h @ ref + g @ ref + 1e-7
+
+    def test_exact_solver_tracks_and_respects_the_current_limit(self):
+        from driveflow.validation import run_dc_closed_loop
+
+        r = run_dc_closed_loop("MPC", 150.0, duration_s=0.4, controller_kwargs=dict(qp_solver="exact"))
+        assert abs(r["omega"][-1] - 150.0) < 0.2
+        assert r["i"].max() <= 210.0 * 0.85 + 0.1  # 178.5 A soft limit; the default solver reaches 178.8 A
+        assert np.all((r["u"] >= -1e-9))
+
+    def test_mostly_avoids_the_iterative_fallback(self):
+        system = build_system()
+        ctrl = MpcController(system, qp_solver="exact")
+        system.seed(np.random.SeedSequence(0))
+        state = system.reset()
+        ctrl.reset()
+        for _ in range(2000):
+            state = system.simulate(ctrl.control(state, 150.0))
+        assert ctrl.iterative_steps <= 0.01 * 2000
+
+    def test_rejects_unknown_solver(self):
+        with pytest.raises(ValueError):
+            MpcController(build_system(), qp_solver="cvx")

@@ -21,10 +21,23 @@ plant's own EulerSolver, not a re-derived approximation of it):
 
 import numpy as np
 import threadpoolctl
-from scipy.optimize import minimize
+from scipy.optimize import lsq_linear, minimize
 
 _TRACK_OMEGA = np.array([0.0, 1.0])
 _TRACK_CURRENT = np.array([1.0, 0.0])
+
+
+def _box_qp(h: np.ndarray, g: np.ndarray, lb: float, ub: float, u0: np.ndarray | None = None) -> np.ndarray | None:
+    """min 0.5 u'Hu + g'u subject to lb <= u <= ub, H positive definite. Rewritten as the bounded
+    least-squares problem min |L'u + L^-1 g|^2 (H = L L') and solved exactly by scipy's BVLS
+    (Stark & Parker). Returns None if the factorization or the solver fails."""
+    try:
+        chol = np.linalg.cholesky(h)
+    except np.linalg.LinAlgError:
+        return None
+    rhs = -np.linalg.solve(chol, g)
+    res = lsq_linear(chol.T, rhs, bounds=(lb, ub), method="bvls", tol=1e-12)
+    return np.clip(res.x, lb, ub) if res.success else None  # BVLS can return -5e-17 for a bound at 0
 
 
 class MpcController:
@@ -40,6 +53,7 @@ class MpcController:
         r_effort: float = 1e-6,
         q_current_penalty: float = 50.0,
         current_safety_margin: float = 0.85,
+        qp_solver: str = "lbfgsb",
     ):
         """
         Args:
@@ -60,7 +74,16 @@ class MpcController:
                 applied directly to the predicted state instead).
             current_safety_margin: Same role as PICascadeController's own parameter -- fraction of
                 the current limit the soft penalty is centered on.
+            qp_solver: "lbfgsb" (default, the original behavior): scipy L-BFGS-B, at most 50
+                iterations, warm-started. "exact" (C3, docs/SIMULATION_STABILITY_REPORT.md §5.1):
+                the closed-form optimum when no bound or current limit is active, otherwise an
+                exact piecewise-QP solution (bounded least squares on the active current-limit
+                set), with L-BFGS-B only as a last resort; 8-190x faster on the benchmark runs and
+                closer to the true optimum, so trajectories differ slightly from "lbfgsb".
         """
+        if qp_solver not in ("lbfgsb", "exact"):
+            raise ValueError(f"qp_solver must be 'lbfgsb' or 'exact', got {qp_solver!r}")
+        self.qp_solver = qp_solver
         motor_params = system.electrical_motor.motor_parameter
         self.r_a = motor_params["r_a"]
         self.l_a = motor_params["l_a"]
@@ -101,6 +124,21 @@ class MpcController:
         self._m_omega = self._sel_omega @ self.su  # (n, n): predicted omega trajectory, linear part in U
         self._m_current = self._sel_current @ self.su  # (n, n): predicted current trajectory, linear part in U
         self._i_pred_slope = self._sel_current @ self.su  # same matrix, named for the soft-penalty use below
+        self._sx_omega = self._sel_omega @ self.sx  # (n, 2): free response of the tracked state
+        self._sx_current = self._sel_current @ self.sx
+
+        # Closed-form solution of the QP without bounds or current penalty (C3): the minimizer of
+        # q*|m u + y0|^2 + r*|u|^2 is u* = -K y0 with K = (q m'm + r I)^-1 q m'. When u* already
+        # satisfies the voltage bounds and the current limit, the penalty and its gradient are zero
+        # there, so u* is the exact optimum of the full convex problem and L-BFGS-B is skipped.
+        eye = np.eye(n)
+        self._h_omega = q_track * self._m_omega.T @ self._m_omega + r_effort * eye
+        self._h_current = q_track * self._m_current.T @ self._m_current + r_effort * eye
+        self._k_omega = np.linalg.solve(self._h_omega, q_track * self._m_omega.T)
+        self._k_current = np.linalg.solve(self._h_current, q_track * self._m_current.T)
+        self.closed_form_steps = 0
+        self.box_qp_steps = 0
+        self.iterative_steps = 0
 
         self._warm_start = None
 
@@ -118,8 +156,49 @@ class MpcController:
         """Solves the horizon's QP for a reference on the state selected by `sel`/`m`
         (omega or current -- see control()/control_torque()) and returns only the first step's
         voltage command (standard receding-horizon deployment, same idea as DpcController)."""
-        y0_track = sel @ self.sx @ x0 - ref
-        i_pred_x0 = self._sel_current @ self.sx @ x0  # predicted-current offset, for the soft safety penalty
+        tracking_omega = m is self._m_omega
+        y0_track = (self._sx_omega if tracking_omega else self._sx_current) @ x0 - ref
+        i_pred_x0 = self._sx_current @ x0  # predicted-current offset, for the soft safety penalty
+
+        if self.qp_solver == "lbfgsb":
+            return self._solve_lbfgsb(y0_track, i_pred_x0, m, u_sup)
+        u_star = -((self._k_omega if tracking_omega else self._k_current) @ y0_track)
+        current_ok = lambda u: np.all(np.abs(i_pred_x0 + self._i_pred_slope @ u) <= self.i_max)  # noqa: E731
+        if np.all(u_star >= 0.0) and np.all(u_star <= u_sup) and current_ok(u_star):
+            self.closed_form_steps += 1
+            self._warm_start = np.concatenate([u_star[1:], u_star[-1:]])
+            return float(u_star[0])
+        # Otherwise the soft current penalty q_pen * sum(max(|i_k| - i_max, 0)^2) is piecewise
+        # quadratic: for a fixed set A of horizon steps that exceed the limit (with their signs) the
+        # problem is a box-constrained QP, solved exactly by _box_qp. Iterate on A until it stops
+        # changing; the result then satisfies the KKT conditions of the full convex problem.
+        h0 = self._h_omega if tracking_omega else self._h_current
+        m_track = self._m_omega if tracking_omega else self._m_current
+        b0 = self.q_track * (m_track.T @ y0_track)
+        u = np.clip(u_star, 0.0, u_sup)
+        active = None
+        for _ in range(20):
+            i_pred = i_pred_x0 + self._i_pred_slope @ u
+            sign = np.where(i_pred > self.i_max, 1.0, np.where(i_pred < -self.i_max, -1.0, 0.0))
+            if active is not None and np.array_equal(sign, active):
+                self.box_qp_steps += 1
+                self._warm_start = np.concatenate([u[1:], u[-1:]])
+                return float(u[0])
+            active = sign
+            rows = self._i_pred_slope[sign != 0]
+            target = i_pred_x0[sign != 0] - sign[sign != 0] * self.i_max
+            h = h0 + self.q_current_penalty * rows.T @ rows
+            b = b0 + self.q_current_penalty * rows.T @ target
+            u_new = _box_qp(h, b, 0.0, u_sup, u)
+            if u_new is None:
+                break
+            u = u_new
+        self.iterative_steps += 1
+        return self._solve_lbfgsb(y0_track, i_pred_x0, m, u_sup)
+
+    def _solve_lbfgsb(self, y0_track: np.ndarray, i_pred_x0: np.ndarray, m: np.ndarray, u_sup: float) -> float:
+        """The original solver: L-BFGS-B on the full cost, warm-started from the shifted previous
+        solution."""
 
         def cost_and_grad(u):
             r_track = m @ u + y0_track
