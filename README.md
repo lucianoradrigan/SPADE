@@ -215,6 +215,30 @@ CUDA is needed. Step-by-step guides with troubleshooting, per operating system:
 [macOS (Apple Silicon / Intel)](docs/INSTALL_MACOS.md) -- Intel Macs need
 `-c constraints/macos-intel.txt`.
 
+### Assisted setup with an AI coding assistant
+
+[`SETUP_CON_AGENTE.md`](SETUP_CON_AGENTE.md) (in Spanish) is a self-contained setup guide for
+Windows, Linux and macOS, written to be handed to a coding assistant such as Claude Code or Codex.
+Attach the file, or point the assistant at it, and ask:
+
+> Sigue las instrucciones de `SETUP_CON_AGENTE.md` para instalar y abrir SPADE en mi computador.
+> *(Follow the instructions in `SETUP_CON_AGENTE.md` to install and open SPADE on my computer.)*
+
+The guide makes the assistant:
+1. Detect the operating system and CPU architecture.
+2. Install into a local `.venv`.
+3. Run the smoke test.
+4. Open the GUI at http://localhost:8501.
+5. Finish with a short report.
+
+Before any system-level change (installing Python or Git, `sudo`, the Windows registry, the
+PowerShell execution policy), the assistant asks for confirmation. It does not edit the repository
+or retrain models.
+
+A person can follow the same file by hand.
+
+### Manual setup
+
 ```bash
 uv venv --python 3.11 .venv
 source .venv/bin/activate
