@@ -354,7 +354,7 @@ Este bloque amplía esa cobertura sin datos reales.
 
 ### P2. Página de Transfer Learning con Streamlit 1.60
 
-- [ ] **P2. Corregir el fallo de AppTest al saltar al paso 4**
+- [x] **P2. Corregir el fallo de AppTest al saltar al paso 4** — cerrada 2026-10-20: 0 fallos con el conjunto Mac Intel emulado (687 aprobadas).
   - Reproducirlo en Linux con `constraints/macos-intel.txt`. Ya se emuló así antes: ver `docs/audit/install/macos_intel_emulated_on_linux.txt`, que reporta 3 fallos.
   - Corregir la página (`viz/pages/transfer_learning.py` y `viz/transfer_learning_dashboard.py`) para que el paso 4 sin pasos previos muestre un estado vacío claro en vez de fallar.
   - Revisar también el fallo de la heurística de tamaño TFLite de esa misma emulación.

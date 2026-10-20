@@ -327,6 +327,15 @@ def _step_promote(domain: str, block: str) -> None:
         st.success(f"Promoted to {st.session_state['tl_promoted']}. Roll back from the Model Registry page if needed.")
 
 
+#: Step widgets whose values outlive the step that renders them (see render()).
+_PERSISTED_WIDGET_KEYS = (
+    "tl_n_scenarios", "tl_duration", "tl_faults", "tl_mix_ratio", "tl_val_frac", "tl_test_frac", "tl_seed",
+    "tl_strategy", "tl_frozen_layers", "tl_lr_fe", "tl_base_lr", "tl_head_mult", "tl_adapter_layers", "tl_lr_adapter",
+    "tl_epochs", "tl_batch_size", "tl_thr_f1_drop", "tl_thr_min_recall", "tl_thr_rmse_inc",
+    "tl_model_card", "tl_approver", "tl_approve",
+)
+
+
 def render() -> None:
     page_header(
         "Intelligence / Transfer learning",
@@ -348,6 +357,14 @@ def render() -> None:
     head = f"macro-F1 {m['test_macro_f1']:.3f}" if m.get("test_macro_f1") is not None else f"RMSE {m.get('test_rmse', float('nan')):.4f} (normalized)"
     st.caption(f"Base model: **{base['run_dir'].split('configs/')[-1]}** — {head}, channels {', '.join(m['channels'])}" + (f", classes {', '.join(m['classes'])}" if m.get("classes") else "") + ". Loaded read-only; fine-tuning trains a copy.")
 
+    # Each step renders only its own widgets, and Streamlit drops the state of a widget that is not
+    # rendered in a run. Re-assigning the keys that exist keeps a step's settings when the user moves
+    # to another step and back (the pattern Streamlit documents for this). It also keeps those keys
+    # valid for Streamlit <= 1.61's AppTest, which otherwise raised a KeyError for a step-2 widget
+    # after jumping to step 4 (docs/audit/install/macos_intel_emulated_on_linux.txt; TODO P2).
+    for key in _PERSISTED_WIDGET_KEYS:
+        if key in st.session_state:
+            st.session_state[key] = st.session_state[key]
     done = {i for i, k in ((1, "tl_dataset"), (2, "tl_result"), (3, "tl_result"), (4, "tl_promoted")) if st.session_state.get(k) is not None}
     labels = [f"{i} · {t}" for i, (t, _) in enumerate(STEPS, start=1)]
     # A step change requested by a button handler is applied here, BEFORE the radio exists in

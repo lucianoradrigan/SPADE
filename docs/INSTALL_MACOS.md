@@ -19,7 +19,7 @@ This guide takes a Mac to a running SPADE GUI and a passing smoke test. It needs
 | NumPy | 2.x | **1.26.x.** TF 2.16 is built against NumPy 1.x. |
 | Python | 3.11 or 3.12 | **3.12 only.** With 3.11 the resolver falls back to TF 2.14 + Keras 2.14, which cannot run SPADE's Keras-3 code. |
 | Extra step | none | install with `-c constraints/macos-intel.txt` (§4). Without it, pip pairs NumPy 1.26 with pyarrow 26, which fails at import with *"pyarrow requires NumPy 2.0 or newer"*. |
-| Streamlit | current (1.62 or later) | **1.61 at most.** TF 2.16 needs protobuf < 5, and Streamlit ≥ 1.62 needs protobuf ≥ 5.26, so the resolver installs 1.60. Under it, one GUI test flow fails: the Transfer Learning wizard navigating to *Promote* raises a `KeyError` inside Streamlit's `AppTest` harness. Whether the same happens in a real browser is **not verified**. See §7. |
+| Streamlit | current (1.62 or later) | **1.61 at most.** TF 2.16 needs protobuf < 5, and Streamlit ≥ 1.62 needs protobuf ≥ 5.26, so the resolver installs 1.60. An earlier version of the Transfer Learning page failed one `AppTest` flow under it (a `KeyError` after jumping to *Promote*); the page now keeps each step's widget state, and the full non-slow suite passes with this pinned set emulated on Linux (`docs/audit/install/macos_intel_emulated_on_linux_p2.txt`). A real Intel Mac was not used. |
 | `tensorflow-metal` | **do not install.** SPADE does not need it, and it was not tested. | n/a |
 
 Check which Mac you have: `uname -m` prints `arm64` (Apple Silicon) or `x86_64` (Intel).
@@ -106,5 +106,3 @@ For a basic manual test:
 | `requires a different Python: 3.13.x` | Homebrew's default `python3` is too new | Use `python3.12` explicitly. |
 | `streamlit: command not found` | Environment not active | `source .venv/bin/activate`, or `python -m streamlit run ...`. |
 | Very slow first import of TensorFlow | Gatekeeper scanning the new binaries | Expected once per install. |
-| Intel Mac: *Transfer Learning* page errors when you jump to step 4 | Streamlit ≤ 1.61 (forced by TF 2.16's protobuf < 5); seen only in the `AppTest` harness | Go through the steps in order. Training with every strategy works under 1.60 (tested). If it persists, report it: there is no newer Streamlit compatible with TF 2.16. |
-| `test_tflite_export.py::TestExportInt8::test_is_smaller_than_float16` fails on an Intel Mac | With TF 2.16 the INT8 export of the tiny test model is 92 bytes larger than the FP16 one (4560 vs. 4468 B) | Expected with TF 2.16. It is a size heuristic on a toy model and does not affect SPADE's shipped `.tflite` files. |

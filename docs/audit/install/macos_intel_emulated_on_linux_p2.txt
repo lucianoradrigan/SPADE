@@ -1,0 +1,9 @@
+P2 (TODO_CLAUDE_CODE.md) -- Intel-Mac dependency set emulated on Linux x86_64, 2026-10-20
+Environment: uv venv --python 3.12 .venv_macintel; uv pip install -e '.[dev,viz]' -c constraints/macos-intel.txt
+Resolved: 2.16.2 1.26.4 1.60.0 24.0.0  (tensorflow numpy streamlit pyarrow)
+Command: python -m pytest -m 'not slow' -q -p no:warnings
+Before (docs/audit/install/macos_intel_emulated_on_linux.txt): 631 passed, 3 failed
+
+........................................                                 [100%]
+687 passed, 9 deselected, 1 xfailed in 873.59s (0:14:33)
+exit=0

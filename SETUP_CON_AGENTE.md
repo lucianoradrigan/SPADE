@@ -257,7 +257,6 @@ python scripts/smoke_test.py
 | `streamlit: command not found` | El entorno no está activado | Activa `.venv`, o usa `python -m streamlit …`. |
 | Puerto 8501 ocupado | Otra instancia de Streamlit | Agrega `--server.port 8502`. |
 | Avisos de CUDA, cuDNN u oneDNN | Mensajes informativos de TensorFlow | Ignóralos. Para ocultarlos: `TF_CPP_MIN_LOG_LEVEL=2` (`$env:TF_CPP_MIN_LOG_LEVEL="2"` en PowerShell). |
-| Mac Intel: la página *Transfer Learning* falla al saltar al paso 4 | Streamlit ≤ 1.61, forzado por TensorFlow 2.16 | Recorre los pasos en orden. |
 
 Las guías detalladas de cada sistema están en el repositorio: `docs/INSTALL_UBUNTU.md`, `docs/INSTALL_WINDOWS.md` y `docs/INSTALL_MACOS.md`.
 

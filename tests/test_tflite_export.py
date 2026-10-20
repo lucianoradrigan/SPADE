@@ -73,14 +73,23 @@ class TestExportInt8:
         assert input_details[0]["dtype"] == np.int8
         assert output_details[0]["dtype"] == np.int8
 
-    def test_is_smaller_than_float16(self, tmp_path, tiny_model):
-        model, config = tiny_model
-        representative = np.random.randn(20, config.input_window, 2).astype(np.float32)
-        int8_path = tmp_path / "int8.tflite"
-        fp16_path = tmp_path / "fp16.tflite"
+    def test_is_smaller_than_float16_once_weights_dominate_the_file(self, tmp_path):
+        """On the 4-filter toy model the flatbuffer's metadata dominates the file, and with TF 2.16
+        (the Intel-Mac pin) its int8 file came out 92 bytes larger than the float16 one
+        (docs/audit/install/macos_intel_emulated_on_linux.txt; TODO P2). The property that matters
+        -- int8 halves the weight storage -- is checked on a model whose ~20k weights dominate."""
+        config = ClassifierConfig(
+            domain="dc_motor", tier="esp32", input_window=64, num_classes=3,
+            blocks=(ConvBlockConfig(filters=32, kernel_size=7), ConvBlockConfig(filters=64, kernel_size=5)),
+            dense_units=(64,), dropout=0.0,
+        )
+        model = build_classifier(config, n_channels=2)
+        model(tf.zeros((1, 64, 2)))
+        representative = np.random.randn(20, 64, 2).astype(np.float32)
+        int8_path, fp16_path = tmp_path / "int8.tflite", tmp_path / "fp16.tflite"
         export_int8(model, representative, int8_path)
         export_float16(model, fp16_path)
-        assert int8_path.stat().st_size <= fp16_path.stat().st_size
+        assert int8_path.stat().st_size < 0.8 * fp16_path.stat().st_size
 
     def test_empty_representative_windows_raises(self, tmp_path, tiny_model):
         model, _ = tiny_model
