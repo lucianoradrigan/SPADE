@@ -3,7 +3,9 @@
 - One ServerAgent and one GatewayAgent per domain per SESSION (same lesson as the legacy LM tab:
   a cache_resource agent leaked one user's alerts into another's).
 - A run log: every simulation/monitoring/TL run gets a run_id with its parameters FROZEN at run
-  time, so changing a control afterwards never relabels an earlier result (guide Sec. 5.3)."""
+  time, so changing a control afterwards never relabels an earlier result (guide Sec. 5.3). Since task
+  E0 each record is also mirrored to the durable run store as a 'legacy_session' Run (parameters
+  and summary only), so it outlives the session; the in-session log keeps its 30-entry cap."""
 
 from __future__ import annotations
 
@@ -14,6 +16,7 @@ import json
 import streamlit as st
 
 from driveflow.monitoring.agents.agent_server import ServerAgent
+from driveflow.viz.adapters.jobs_adapter import mirror_session_run
 
 MAX_RUN_LOG = 30
 
@@ -43,6 +46,7 @@ def record_run(kind: str, params: dict, summary: dict | None = None) -> dict:
     log = st.session_state.setdefault("_run_log", [])
     log.append(record)
     del log[:-MAX_RUN_LOG]
+    mirror_session_run(record)  # durable 'legacy_session' copy (task E0); never raises
     return record
 
 

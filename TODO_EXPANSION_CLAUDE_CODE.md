@@ -107,7 +107,7 @@ Orden    ID    Tarea    Prioridad    Esfuerzo    Depende de    Requiere
 Esfuerzo: S ≈ menos de media jornada · M ≈ 1 jornada · L ≈ 2 o más jornadas.
 
 E0. Fundaciones
- E0. Contratos, persistencia de runs, jobs y componentes base
+- [x] E0. Contratos, persistencia de runs, jobs y componentes base
 
 Por qué: la spec exige que los trabajos largos (barridos PLECS, optimización, RL) sobrevivan a cambios de página y recargas. Hoy viz/adapters/session.py guarda como máximo 30 runs en st.session_state.
 
@@ -136,7 +136,7 @@ Pruebas: esquemas (ida y vuelta, versión); store (concurrencia básica); worker
 Criterio de cierre: se cumple el criterio de la spec §13 Fase 0. Un job de prueba (por ejemplo, una corrida corta de run_scenario) sobrevive al cambio de página y a la recarga, se cancela de forma honesta y deja logs y comando reproducible. Evidencia en docs/audit/expansion/e0_foundations.md.
 
 E1. Entornos Gymnasium nativos
- E1. gymnasium.Env para las plantas de SPADE + página Environments (funcionalidad #2)
+- [ ] E1. gymnasium.Env para las plantas de SPADE + página Environments (funcionalidad #2)
 
 Origen: Fund. 7_Reinforcement_Learning/RL_buck_control.ipynb (BuckAvgEnv). Se toma solo el diseño: observación normalizada, reset con condiciones aleatorias por semilla y recompensa por términos. Ese BuckAvgEnv ni siquiera hereda de gymnasium.Env; no se copia.
 
@@ -158,7 +158,7 @@ con acción igual a la del controlador PI de runner.py, el entorno reproduce bit
 Criterio de cierre: las pruebas en verde, con marcador simulation. La página muestra los dos entornos con su contrato.
 
 E2. PLECS por RPC (rutas Dataset y Diagnostics)
- E2. Cliente RPC de PLECS, perfiles de planta y PLECS Plant Studio (rutas no Gym) (funcionalidad #1, parte a)
+- [ ] E2. Cliente RPC de PLECS, perfiles de planta y PLECS Plant Studio (rutas no Gym) (funcionalidad #1, parte a)
 
 Origen: Fund. 8_PE_Simulation_Automation/PlecsAutomation/Data acquisition.ipynb: patrón plecs.load / plecs.simulate(model, {"ModelVars": …}) / plecs.close, con tiempo límite por corrida y registro de las que no convergen. Sin sus defectos (ver Decisión 6).
 
@@ -186,7 +186,7 @@ Evidencia real: en una máquina con PLECS, correr un barrido pequeño (por ejemp
 Criterio de cierre: pruebas en verde sin PLECS; ruta Dataset funcional; nada en la GUI sugiere un Gym.
 
 E3. Spike FMU paso a paso (go/no-go)
- E3. ¿Puede SPADE controlar un circuito PLECS paso a paso vía FMU? (funcionalidad #1, parte c)
+- [ ] E3. ¿Puede SPADE controlar un circuito PLECS paso a paso vía FMU? (funcionalidad #1, parte c)
 
 Requiere confirmación: agregar fmpy (FMI 2.0/3.0 en Python) como dependencia opcional ([plecs]). También requiere una máquina con PLECS 5.0 y licencia. Sin eso, la tarea queda bloqueada y se documenta así.
 
@@ -210,7 +210,7 @@ Entregable: docs/audit/plecs/fmu_stepping_spike.{md,json} con veredicto GO / NO-
 Criterio de cierre: veredicto escrito y respaldado por un log. Un NO-GO es un resultado válido: se documenta como hallazgo y E4 queda bloqueada.
 
 E4. PLECS como planta Gym (ruta principal del investigador)
- E4. PlecsGymEnv + asistente de 6 etapas + verificación + publicación (funcionalidad #1, completa)
+- [ ] E4. PlecsGymEnv + asistente de 6 etapas + verificación + publicación (funcionalidad #1, completa)
 
 Solo si E3 = GO.
 
@@ -236,7 +236,7 @@ de integración marcadas slow + plecs, que se saltan si no hay PLECS. Nunca se m
 Criterio de cierre: se cumplen los criterios de la spec §3.11 y §20 "PLECS: creación de Gym". Evidencia en docs/audit/plecs/e4_plecs_gym.md, con el log de la máquina con PLECS.
 
 E5. Surrogate y comparación SPADE vs PLECS
- E5. Planta sustituta desde barridos PLECS + vista "Compare with SPADE" (funcionalidad #1, parte b)
+- [ ] E5. Planta sustituta desde barridos PLECS + vista "Compare with SPADE" (funcionalidad #1, parte b)
 
 Hacer:
 
@@ -251,7 +251,7 @@ Caso de validación: el buck nativo de E6 frente al buck de PLECS. Si hay un VSC
 Criterio de cierre: se cumplen la spec §3.14.3 y §20 "dataset/surrogate/comparación". Reporte en docs/audit/plecs/e5_surrogate_and_comparison.md.
 
 E6. Planta Buck nativa
- E6. sim/buck_system.py + página Simulation / DC-DC Converters (pestaña Buck) (funcionalidad #5)
+- [ ] E6. sim/buck_system.py + página Simulation / DC-DC Converters (pestaña Buck) (funcionalidad #5)
 
 Origen: Fund. BuckAvgEnv (modelo promediado: L, C, R, Vin, duty) y 9_Case_Studies_PE/Buck_Design/. Se reimplementa; no se copia.
 
@@ -270,7 +270,7 @@ las pruebas byte a byte de datagen siguen sin cambios.
 Criterio de cierre: pruebas simulation en verde y página funcional. Este buck es la referencia para E3, E4 y E5.
 
 E7. Tuning Studio
- E7. Optimización de sintonía de controladores (funcionalidad #3)
+- [ ] E7. Optimización de sintonía de controladores (funcionalidad #3)
 
 Origen: Fund. 1_MHA/Single_Objective_MHA/ (PSO con pyswarms), 1_MHA/Multi_Objective_MHA/ (pymoo) y 2_Classic_ML/gaussian_process_bayesian_optimization.ipynb (scikit-learn).
 
@@ -290,7 +290,7 @@ Primer caso de uso: el escalón pequeño de S-04 en el PI del motor DC. Coordina
 Criterio de cierre: se cumple la spec §13 Fase 3 en la parte de optimización. Reporte en docs/audit/expansion/e7_tuning_s04.md, incluido el caso en que no se mejora la sintonía actual.
 
 E8. RL Lab
- E8. DQN y DDPG en Keras + editor de recompensa + benchmark (funcionalidad #4)
+- [ ] E8. DQN y DDPG en Keras + editor de recompensa + benchmark (funcionalidad #4)
 
 Origen: Fund. 7_Reinforcement_Learning/RL_buck_control.ipynb (DQN: replay, target network, acciones discretas Δduty) y DDPG_buck_control.ipynb (DDPG: ruido Ornstein-Uhlenbeck, soft updates, penalización de la suavidad del duty). Están en PyTorch, así que se reimplementan en Keras.
 
@@ -311,7 +311,7 @@ ninguna política queda como default sin aprobación.
 Reporte en docs/audit/expansion/e8_rl_benchmark.md.
 
 E9. DAB (opcional, requiere decisión)
- E9. DAB como planta PLECS + modulación TPS sugerida por IA (funcionalidad #6)
+- [ ] E9. DAB como planta PLECS + modulación TPS sugerida por IA (funcionalidad #6)
 
 Antes de empezar:
 
@@ -327,7 +327,7 @@ GUI (spec §8.1): pestaña DAB con selector de estrategia y diagrama de desfases
 Criterio de cierre: a definir con Luciano cuando apruebe la tarea.
 
 E10. IA avanzada en la GUI
- E10a. Estado "Unknown condition" en AI Diagnostics (funcionalidad #7)
+- [ ] E10a. Estado "Unknown condition" en AI Diagnostics (funcionalidad #7)
 
 Depende de A1 (TODO_CLAUDE_CODE.md), que implementa ai/ood.py. Esta tarea no implementa el detector, salvo que se quiera agregar un ensemble o una red de densidad de mezcla (MDN), inspirados en Fund. 4_Neural_Network/Multi_Modal_Distribution/, como método candidato adicional dentro del reporte de A1 y bajo su misma regla anti-fuga.
 
@@ -335,7 +335,7 @@ Hacer (spec §8.2): tres salidas distinguibles: Known condition, Uncertain — l
 
 Criterio de cierre: pruebas AppTest de los tres estados + Input invalid + "detector ausente".
 
- E10b. Pestaña Parameter Identification (PINN) en VSC / DPC (funcionalidad #8)
+- [ ] E10b. Pestaña Parameter Identification (PINN) en VSC / DPC (funcionalidad #8)
 
 Origen: Fund. 5_PIML/PINN/pinn_ode.ipynb (PyTorch, se reimplementa en Keras). Depende de V0 (discretize_zoh y los parámetros L, R_f, C) y alimenta a A4.
 
@@ -348,7 +348,7 @@ GUI (spec §8.3) con el texto fijo Parameter estimate — not a validated fault 
 Criterio de cierre: reporte docs/audit/ai/pinn_identification.{md,json} con el error de recuperación por parámetro y por nivel de ruido.
 
 E11. Prognostics: RUL de IGBT (opcional, requiere decisión)
- E11. Pronóstico probabilístico de vida útil de IGBT con datos NASA (funcionalidad #9)
+- [ ] E11. Pronóstico probabilístico de vida útil de IGBT con datos NASA (funcionalidad #9)
 
 Por qué requiere decisión:
 
@@ -371,7 +371,7 @@ GUI (spec §8.4) con la etiqueta MEASURED · EXTERNAL DATASET y el texto This da
 Criterio de cierre: reporte docs/audit/ai/igbt_rul.{md,json} y su audit_findings.json con los límites conocidos.
 
 E12. Algorithm Guide
- E12. Página Help / Algorithm Guide (funcionalidad #10)
+- [ ] E12. Página Help / Algorithm Guide (funcionalidad #10)
 
 Origen: Sel. (solo la idea del asistente What-Which-How; no se copia código porque no hay licencia).
 
@@ -380,8 +380,8 @@ Hacer (spec §8.6): tres preguntas (fase del ciclo de vida, tarea, origen de los
 Criterio de cierre: AppTest recorre todas las combinaciones sin enlaces rotos.
 
 E14. Regresor para dc_motor: detector de anomalías por residuo
- E14.0. Confirmar el caso de uso y los criterios (requiere decisión de Luciano; no se programa antes)
- E14.1–E14.6. Implementación (solo después de E14.0)
+- [ ] E14.0. Confirmar el caso de uso y los criterios (requiere decisión de Luciano; no se programa antes)
+- [ ] E14.1–E14.6. Implementación (solo después de E14.0)
 
 Contexto:
 
@@ -453,7 +453,7 @@ Unitarias: el umbral se calcula solo con datos sanos de validación (la prueba f
 De regresión: el residuo de una ventana sana de entrenamiento queda bajo el umbral, y el de una ventana con rizado sintético grande queda sobre él.
 AppTest: los paneles de Monitoring y AI Diagnostics en tres casos: sin modelo registrado (Residual detector not available), sano y anómalo.
 E13. Cierre
- E13. Resumen consolidado y PR
+- [ ] E13. Resumen consolidado y PR
 Actualizar docs/VALIDATION_SUMMARY.md con:
 una sección "Expansion (E0–E12)";
 la tabla de pruebas;

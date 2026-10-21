@@ -71,6 +71,23 @@ STATUS_META = {
     "info": ("INFO", "i", "primary"),
     "approved": ("APPROVED", "✓", "healthy"),
     "blocked": ("BLOCKED", "✕", "critical"),
+    # Job and run states (driveflow.jobs.schemas.JobState, runs.schemas.RUN_STATUSES -- task E0).
+    "queued": ("QUEUED", "…", "unknown"),
+    "preparing": ("PREPARING", "…", "primary"),
+    "running": ("RUNNING", "▶", "primary"),
+    "cancelling": ("CANCELLATION REQUESTED", "…", "warning"),
+    "completed": ("COMPLETED", "✓", "healthy"),
+    "partially_completed": ("PARTIALLY COMPLETED", "◐", "warning"),
+    "failed": ("FAILED", "✕", "critical"),
+    "cancelled": ("CANCELLED", "–", "unknown"),
+    "legacy_session": ("SESSION RECORD", "i", "unknown"),
+    "no_improvement": ("NO IMPROVEMENT", "–", "warning"),
+    # The five states every E0 component renders (spec Sec. 9).
+    "empty": ("EMPTY", "○", "unknown"),
+    "loading": ("LOADING", "…", "primary"),
+    "error": ("ERROR", "✕", "critical"),
+    "success": ("OK", "✓", "healthy"),
+    "negative": ("NEGATIVE RESULT", "▲", "warning"),
 }
 
 #: Data-source labels (guide Sec. 4.2): what produced the numbers on screen.
@@ -83,6 +100,13 @@ SOURCE_META = {
     "unavailable": ("NO SOURCE", "unknown"),
     "synthetic": ("SYNTHETIC DATA", "primary"),
     "external": ("EXTERNAL FILE", "warning"),
+    # Provenance labels of persistent runs (driveflow.runs.schemas.ORIGINS, spec Sec. 0). There is
+    # deliberately no LIVE label: a reachable simulator is a tool, not telemetry.
+    "SIMULATED": ("SIMULATED", "primary"),
+    "SIMULATED · PLECS": ("SIMULATED · PLECS", "primary"),
+    "SIMULATED · SURROGATE": ("SIMULATED · SURROGATE", "training"),
+    "EXTERNAL FILE": ("EXTERNAL FILE", "warning"),
+    "MEASURED · EXTERNAL DATASET": ("MEASURED · EXTERNAL DATASET", "primary"),
 }
 
 

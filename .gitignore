@@ -44,3 +44,6 @@ configs/motor_profiles.json
 scripts/edge_benchmark/vectors/
 scripts/edge_benchmark/esp32/main/model_data.*
 scripts/edge_benchmark/esp32/main/test_vectors.h
+
+# Durable runs and jobs (SQLite + per-run artifacts) -- expansion task E0; local state, never committed.
+/workspace/

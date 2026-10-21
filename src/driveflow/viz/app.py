@@ -14,11 +14,15 @@ LM -> Monitoring + Alert History.
 
 import streamlit as st
 
+from driveflow.viz.adapters.jobs_adapter import queue_summary
 from driveflow.viz.adapters.workspace import workspace_status
 from driveflow.viz.theme.css import inject_base_css
 
 PAGES = {
-    "Workspace": [("pages/overview.py", "Overview", ":material/home:")],
+    "Workspace": [
+        ("pages/overview.py", "Overview", ":material/home:"),
+        ("pages/experiment_runs.py", "Experiment Runs", ":material/work_history:"),
+    ],
     "Simulation": [
         ("pages/dc_motor.py", "DC Motor", ":material/electric_bolt:"),
         ("pages/pmsm.py", "PMSM / FOC", ":material/radio_button_checked:"),
@@ -44,6 +48,12 @@ def _sidebar_status() -> None:
         n_ok = sum(1 for c in status["checks"] if c["ok"])
         icon = ":material/check_circle:" if n_ok == len(status["checks"]) else ":material/warning:"
         st.caption(f"{icon} {n_ok}/{len(status['checks'])} workspace checks pass · data source: simulation only · v{status['version']}")
+        jobs = queue_summary()
+        if jobs.get("error"):
+            st.caption(":material/warning: Jobs: store unavailable")
+        else:
+            st.caption(f":material/work_history: Jobs: {jobs['running']} running · {jobs['queued']} queued · {jobs['workers']} worker(s)")
+        st.page_link("pages/experiment_runs.py", label="Open queue", icon=":material/list:")
 
 
 def main() -> None:
