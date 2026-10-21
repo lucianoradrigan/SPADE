@@ -221,6 +221,59 @@ def _create_plant() -> None:
         _provenance(run, p)
 
 
+# ----------------------------------------------------------------------------- Compare with SPADE
+def _compare() -> None:
+    from driveflow.viz.adapters import surrogate_adapter as sa
+
+    st.markdown("#### Native SPADE buck vs. surrogate")
+    sur, run = sa.load()
+    if sur is None:
+        st.info("No surrogate has been fitted yet (experiments/fit_buck_surrogate.py).", icon=":material/info:")
+    else:
+        st.html('<div class="spade-root spade-badges">' + source_badge_html("SIMULATED", "Native averaged buck") + source_badge_html("SIMULATED · SURROGATE", f"Fitted surrogate {run}") + "</div>")
+        st.caption(f"Surrogate run {run}, fitted to SPADE's own averaged buck — it checks the surrogate mechanics, not fidelity to a PLECS circuit. "
+                   f"Validated range: V_in {sur['domain']['v_in_v']} V, R {sur['domain']['load_resistance_ohm']} Ω. Both plants are driven by the same PI with the same reference and load step.")
+        c1, c2, c3, c4, c5 = st.columns(5)
+        family = c1.selectbox("Surrogate family", ["zoh", "mlp"], index=["zoh", "mlp"].index(sur["default_family"]), key="cmp_family",
+                              format_func=lambda f: {"zoh": "ZOH grey box", "mlp": "MLP"}[f] + (" (default)" if f == sur["default_family"] else ""))
+        vin = c2.number_input("V_in (V)", 5.0, 120.0, 48.0, 1.0, key="cmp_vin")
+        r = c3.number_input("Load R (Ω)", 0.5, 200.0, 12.0, 0.5, key="cmp_r")
+        vref = c4.number_input("v_ref (V)", 1.0, 119.0, 24.0, 1.0, key="cmp_vref")
+        step = c5.number_input("Load step to (Ω), 0 = none", 0.0, 200.0, 6.0, 0.5, key="cmp_step")
+        if vref >= vin:
+            st.error("v_ref must be below V_in for a buck.", icon=":material/error:")
+        elif st.button("Run comparison", type="primary", key="cmp_run", icon=":material/compare:"):
+            st.session_state["cmp_result"] = sa.compare(sur, family, float(vin), float(r), float(vref), float(step) or None)
+        res = st.session_state.get("cmp_result")
+        if res is None:
+            st.info("No comparison has been generated yet. Select compatible plants and run the comparison.", icon=":material/info:")
+        else:
+            if res["out_of_domain"]:
+                st.warning(f"**Surrogate outside validated operating range**: {'; '.join(res['out_of_domain'])}. The comparison is shown, but it does not claim equivalence.", icon=":material/warning:")
+            if res["status"] == "failed":
+                st.error("Failed: the surrogate trajectory became non-finite.", icon=":material/error:")
+            else:
+                st.caption(f"{res['family']}: v_out RMSE {res['rmse_v_out_v']:.4f} V, max |Δv_out| {res['max_abs_v_out_v']:.4f} V, i_L RMSE {res['rmse_i_l_a']:.4f} A over 20 ms.")
+            df = sa.overlay_frame(res)
+            g1, g2 = st.columns(2)
+            for col, ch, unit in ((g1, "v_out", "V"), (g2, "i_l", "A")):
+                fig = go.Figure(go.Scatter(x=df["t_ms"], y=df[f"native_{ch}"], mode="lines", name="native (SIMULATED)", line=dict(width=2, color=series_color("base"))))
+                fig.add_trace(go.Scatter(x=df["t_ms"], y=df[f"surrogate_{ch}"], mode="lines", name="surrogate", line=dict(width=1.6, dash="dash", color=series_color("candidate"))))
+                style_figure(fig, height=280, x_title="Time (ms)", y_title=f"{ch} ({unit})")
+                col.plotly_chart(fig, width="stretch", config=PLOTLY_CONFIG, key=f"cmp_{ch}")
+        with st.expander("Error per condition (validation, test and out-of-range conditions of the fit)", icon=":material/table:"):
+            if st.button("Run the condition grid", key="cmp_grid"):
+                st.session_state["cmp_grid_table"] = (family, sa.grid_table(sur, family))
+            g = st.session_state.get("cmp_grid_table")
+            if g is not None and g[0] == family:
+                st.dataframe(g[1], hide_index=True, width="stretch")
+                st.caption("Reference 0.5·V_in, load halved at 10 ms. Failed and out-of-range rows are listed, not hidden.")
+    st.divider()
+    st.markdown("#### PLECS circuit vs. SPADE")
+    st.info("No comparison has been generated yet. Select compatible plants and run the comparison.", icon=":material/info:")
+    st.caption("Needs PLECS simulation data of a circuit (PLECS Plant Studio → Generate simulation datasets on a machine with PLECS). None exists yet.")
+
+
 # ----------------------------------------------------------------------------- Diagnostics
 def _diagnostics() -> None:
     url = st.text_input("PLECS RPC endpoint", pa.DEFAULT_URL, key="plecs_url", help=LOCAL_RPC)
@@ -272,7 +325,6 @@ def render() -> None:
     with t_create:
         _create_plant()
     with t_compare:
-        st.info("No comparison has been generated yet. Select compatible plants and run the comparison.", icon=":material/info:")
-        st.caption("Not available in this version: the comparison view arrives with the surrogate task (E5).")
+        _compare()
     with t_diag:
         _diagnostics()

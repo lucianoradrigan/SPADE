@@ -236,7 +236,7 @@ de integración marcadas slow + plecs, que se saltan si no hay PLECS. Nunca se m
 Criterio de cierre: se cumplen los criterios de la spec §3.11 y §20 "PLECS: creación de Gym". Evidencia en docs/audit/plecs/e4_plecs_gym.md, con el log de la máquina con PLECS.
 
 E5. Surrogate y comparación SPADE vs PLECS
-- [ ] E5. Planta sustituta desde barridos PLECS + vista "Compare with SPADE" (funcionalidad #1, parte b)
+- [x] E5. Planta sustituta desde barridos PLECS + vista "Compare with SPADE" (funcionalidad #1, parte b)
 
 Hacer:
 

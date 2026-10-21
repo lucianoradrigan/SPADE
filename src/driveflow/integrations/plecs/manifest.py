@@ -7,6 +7,11 @@ here. It lists
 - ``outputs``: the top-level outports in PORT ORDER (PLECS returns one signal per outport, in that
   order), each with a unit.
 
+Surrogate plants (task E5, decision D3 of 2026-10-21): the surrogate's ACTION is the duty cycle.
+For a PLECS circuit to feed a surrogate, the duty is expected to be exposed either as a ModelVar
+named ``D`` (a sweep variable, e.g. a duty sequence parameter) or as an input of the atomic subsystem
+(FMU route, tasks E3/E4), and declared here like any other ModelVar or input.
+
 A manifest that does not match the circuit is caught at run time, not here: the RPC client rejects a
 result whose number of signals differs from ``outputs``.
 """

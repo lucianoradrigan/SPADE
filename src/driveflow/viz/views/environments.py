@@ -36,6 +36,15 @@ def reward_text(c: dict) -> str:
     return " + ".join(f"{t['weight']:g}·{t['kind']}" for t in c["reward_terms"] if t["enabled"]) + "  (penalties, reward = −sum)"
 
 
+def surrogate_text(c: dict) -> str:
+    s = c.get("surrogate")
+    if not s:
+        return "—"
+    e = s["fit_error"]
+    return (f"{s['family']}: open-loop v_out {e['rollout_rel_rmse_v_out']:.1%} rel. RMSE, closed-loop v_out {e['closed_loop_rmse_v_out_v']:.3f} V RMSE (median over validation conditions); "
+            f"valid for V_in {s['validity_domain']['v_in_v']} V, R {s['validity_domain']['load_resistance_ohm']} Ω")
+
+
 def table_rows(contracts: list[dict], planned: list[dict]) -> list[dict]:
     rows = []
     for c in contracts:
@@ -47,7 +56,8 @@ def table_rows(contracts: list[dict], planned: list[dict]) -> list[dict]:
                      "Observation": observation_text(c), "Action": action_text(c), "Default reward": reward_text(c),
                      "Physical limits": ", ".join(f"{k} {_fmt(v)}" for k, v in c["limits"].items()),
                      "Step / horizon": f"{c['tau_s'] * 1e6:g} µs × {c['horizon_steps']}",
-                     "Terminations": "; ".join(c["terminations"]), "Compatible algorithms": "; ".join(c["compatible_algorithms"])})
+                     "Terminations": "; ".join(c["terminations"]), "Compatible algorithms": "; ".join(c["compatible_algorithms"]),
+                     "Fit error (validation)": surrogate_text(c)})
     for p in planned:
         rows.append({"Environment ID": p["name"], "Plant": p["plant"], "Status": f"Not registered (task: {p['task']})"})
     return rows
@@ -71,6 +81,9 @@ def _details(c: dict) -> None:
                        f"reference policy: {c['baseline_controller']} · plant profile {c['plant_profile_id']}")
             st.markdown("**Episode end** — terminated: " + "; ".join(t for t in c["terminations"] if "truncated" not in t) + ". Truncated: horizon reached.")
             st.caption("Actions outside the bounds are clipped; info['action_applied'] and info['action_clipped'] show what reached the plant. A non-finite action is rejected.")
+            if c.get("surrogate"):
+                st.warning(f"**Surrogate, not the plant.** Fitted to SPADE's own averaged buck (not to PLECS); run {c['surrogate']['run']}. {surrogate_text(c)}. "
+                           "Outside that range every step reports info['out_of_domain'] (Surrogate outside validated operating range).", icon=":material/model_training:")
         with tabs[1]:
             st.dataframe(pd.DataFrame([{"Term": t["kind"], "Weight": t["weight"], "Penalty": t["formula"],
                                         "Threshold": t["threshold"] if t["kind"] == "overcurrent" else None} for t in c["reward_terms"]]),

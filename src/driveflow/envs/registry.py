@@ -57,6 +57,12 @@ ENVIRONMENTS = {
                 ("Continuous-action RL (DDPG, SAC, PPO)", "DQN after discretizing the duty cycle", "PI cascade (reference policy)"),
                 ("|i_L| > 2 × i_max (30 A)", "non-finite state", "horizon reached → truncated"),
                 "control.classical.buck_pi.BuckVoltageController", {"vout_ref_v": 24.0, "load_resistance_ohm": 6.0, "duration_s": 0.02}),
+        # E5 (round 2026-10-21): fitted to SPADE's own buck, not to PLECS; see envs/surrogate_env.py.
+        EnvSpec("SPADE/BuckSurrogate-v0", "driveflow.envs.surrogate_env:BuckSurrogateEnv", "surrogate:buck_surrogate",
+                "Buck surrogate (fitted to the native buck) — voltage regulation", 0, "SIMULATED · SURROGATE",
+                ("Continuous-action RL (DDPG, SAC, PPO)", "DQN after discretizing the duty cycle", "PI cascade (reference policy)"),
+                ("|i_L| > 2 × i_max (30 A)", "non-finite state", "horizon reached → truncated", "info['out_of_domain'] outside the fitted range (warning, not a termination)"),
+                "control.classical.buck_pi.BuckVoltageController", {"vout_ref_v": 24.0, "load_resistance_ohm": 6.0, "duration_s": 0.02}),
     )
 }
 
@@ -103,6 +109,8 @@ def describe(env_id: str) -> dict:
             "reward_terms": [{**t.to_dict(), "formula": rw.TERM_KINDS[t.kind][1]} for t in u.reward_terms],
             "terminations": spec.terminations, "compatible_algorithms": spec.compatible_algorithms,
             "baseline_controller": spec.baseline_controller, "defaults": dict(spec.defaults),
+            **({"surrogate": {"family": md["surrogate_family"], "run": md["surrogate_run"], "validity_domain": md["validity_domain"], "fit_error": md["fit_error"]}}
+               if "surrogate_family" in md else {}),
         }
     finally:
         env.close()

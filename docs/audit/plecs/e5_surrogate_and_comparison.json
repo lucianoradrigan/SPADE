@@ -1,0 +1,631 @@
+{
+ "meta": {
+  "command": "python experiments/fit_buck_surrogate.py --seed 0 --epochs 30",
+  "date": "2026-10-21",
+  "machine": "Linux x86_64, Python 3.12.13",
+  "runtime_s": 7.2,
+  "surrogate_run": "configs/surrogates/buck_surrogate/2026-10-21_run01",
+  "split": {
+   "36V_6ohm": "validation",
+   "60V_24ohm": "validation",
+   "48V_12ohm": "test",
+   "24V_3ohm": "test"
+  },
+  "extrapolation": [
+   "72V_12ohm",
+   "48V_40ohm"
+  ]
+ },
+ "zoh_identified": {
+  "l_h": 0.00022,
+  "c_f": 0.00022,
+  "r_l_ohm": 0.049999999999999906
+ },
+ "nominal": {
+  "l_h": 0.00022,
+  "c_f": 0.00022,
+  "r_l_ohm": 0.05
+ },
+ "domain": {
+  "v_in_v": [
+   24.0,
+   60.0
+  ],
+  "load_resistance_ohm": [
+   3.0,
+   24.0
+  ],
+  "duty": [
+   0.05,
+   0.85
+  ],
+  "i_l_a": [
+   -46.86596926918374,
+   51.610344373574435
+  ],
+  "v_out_v": [
+   -33.21732150702698,
+   93.38479430541547
+  ]
+ },
+ "default_family": "zoh",
+ "default_rule": "lower median relative v_out rollout RMSE on the validation conditions",
+ "validation": {
+  "zoh": {
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_rel_rmse_i_l": 0.0,
+   "closed_loop_rmse_v_out_v": 0.0
+  },
+  "mlp": {
+   "rollout_rel_rmse_v_out": 0.15961984732085122,
+   "rollout_rel_rmse_i_l": 0.3759564050329623,
+   "closed_loop_rmse_v_out_v": 0.06332307010668008
+  }
+ },
+ "rows": [
+  {
+   "v_in_v": 24.0,
+   "load_resistance_ohm": 3.0,
+   "split": "test",
+   "family": "zoh",
+   "one_step_rmse_i_l_a": 0.0,
+   "one_step_rmse_v_out_v": 0.0,
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.0,
+   "closed_loop_max_abs_v_out_v": 0.0,
+   "out_of_domain": [
+    "load_resistance_ohm = 1.5 outside [3, 24]"
+   ]
+  },
+  {
+   "v_in_v": 24.0,
+   "load_resistance_ohm": 3.0,
+   "split": "test",
+   "family": "mlp",
+   "one_step_rmse_i_l_a": 0.03211124362003418,
+   "one_step_rmse_v_out_v": 0.01717569194814291,
+   "rollout_rel_rmse_i_l": 0.10682460421735523,
+   "rollout_rel_rmse_v_out": 0.042335096989974286,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.06566351537584098,
+   "closed_loop_max_abs_v_out_v": 0.6524818449351311,
+   "out_of_domain": [
+    "load_resistance_ohm = 1.5 outside [3, 24]"
+   ]
+  },
+  {
+   "v_in_v": 24.0,
+   "load_resistance_ohm": 6.0,
+   "split": "train",
+   "family": "zoh",
+   "one_step_rmse_i_l_a": 0.0,
+   "one_step_rmse_v_out_v": 0.0,
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.0,
+   "closed_loop_max_abs_v_out_v": 0.0,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 24.0,
+   "load_resistance_ohm": 6.0,
+   "split": "train",
+   "family": "mlp",
+   "one_step_rmse_i_l_a": 0.037536625842135095,
+   "one_step_rmse_v_out_v": 0.011695867413688743,
+   "rollout_rel_rmse_i_l": 0.2154153579631827,
+   "rollout_rel_rmse_v_out": 0.109419203186232,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.019374553985696482,
+   "closed_loop_max_abs_v_out_v": 0.19679159426139048,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 24.0,
+   "load_resistance_ohm": 12.0,
+   "split": "train",
+   "family": "zoh",
+   "one_step_rmse_i_l_a": 0.0,
+   "one_step_rmse_v_out_v": 0.0,
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.0,
+   "closed_loop_max_abs_v_out_v": 0.0,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 24.0,
+   "load_resistance_ohm": 12.0,
+   "split": "train",
+   "family": "mlp",
+   "one_step_rmse_i_l_a": 0.0365871079728459,
+   "one_step_rmse_v_out_v": 0.021930926948293784,
+   "rollout_rel_rmse_i_l": 0.30151782399199595,
+   "rollout_rel_rmse_v_out": 0.152873927289483,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.039140486512759275,
+   "closed_loop_max_abs_v_out_v": 0.39144630464767083,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 24.0,
+   "load_resistance_ohm": 24.0,
+   "split": "train",
+   "family": "zoh",
+   "one_step_rmse_i_l_a": 0.0,
+   "one_step_rmse_v_out_v": 0.0,
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.0,
+   "closed_loop_max_abs_v_out_v": 0.0,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 24.0,
+   "load_resistance_ohm": 24.0,
+   "split": "train",
+   "family": "mlp",
+   "one_step_rmse_i_l_a": 0.024267498339769464,
+   "one_step_rmse_v_out_v": 0.016568345177442725,
+   "rollout_rel_rmse_i_l": 0.22290907085947295,
+   "rollout_rel_rmse_v_out": 0.11283318490153482,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.07192770691311894,
+   "closed_loop_max_abs_v_out_v": 0.703465448811313,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 36.0,
+   "load_resistance_ohm": 3.0,
+   "split": "train",
+   "family": "zoh",
+   "one_step_rmse_i_l_a": 0.0,
+   "one_step_rmse_v_out_v": 0.0,
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.0,
+   "closed_loop_max_abs_v_out_v": 0.0,
+   "out_of_domain": [
+    "load_resistance_ohm = 1.5 outside [3, 24]"
+   ]
+  },
+  {
+   "v_in_v": 36.0,
+   "load_resistance_ohm": 3.0,
+   "split": "train",
+   "family": "mlp",
+   "one_step_rmse_i_l_a": 0.019431207612503464,
+   "one_step_rmse_v_out_v": 0.011852823775179936,
+   "rollout_rel_rmse_i_l": 0.04691822176965033,
+   "rollout_rel_rmse_v_out": 0.019403209076799627,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.11232227062963493,
+   "closed_loop_max_abs_v_out_v": 0.7246668711959119,
+   "out_of_domain": [
+    "load_resistance_ohm = 1.5 outside [3, 24]"
+   ]
+  },
+  {
+   "v_in_v": 36.0,
+   "load_resistance_ohm": 6.0,
+   "split": "validation",
+   "family": "zoh",
+   "one_step_rmse_i_l_a": 0.0,
+   "one_step_rmse_v_out_v": 0.0,
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.0,
+   "closed_loop_max_abs_v_out_v": 0.0,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 36.0,
+   "load_resistance_ohm": 6.0,
+   "split": "validation",
+   "family": "mlp",
+   "one_step_rmse_i_l_a": 0.031139216134262508,
+   "one_step_rmse_v_out_v": 0.012398797436561146,
+   "rollout_rel_rmse_i_l": 0.13210685364560118,
+   "rollout_rel_rmse_v_out": 0.048577489684042977,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.02314780824857586,
+   "closed_loop_max_abs_v_out_v": 0.2811405996074763,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 36.0,
+   "load_resistance_ohm": 12.0,
+   "split": "train",
+   "family": "zoh",
+   "one_step_rmse_i_l_a": 0.0,
+   "one_step_rmse_v_out_v": 0.0,
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.0,
+   "closed_loop_max_abs_v_out_v": 0.0,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 36.0,
+   "load_resistance_ohm": 12.0,
+   "split": "train",
+   "family": "mlp",
+   "one_step_rmse_i_l_a": 0.024321263165907787,
+   "one_step_rmse_v_out_v": 0.024321101982248117,
+   "rollout_rel_rmse_i_l": 0.204863862383122,
+   "rollout_rel_rmse_v_out": 0.08766554977356501,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.037438549875223576,
+   "closed_loop_max_abs_v_out_v": 0.30701563106825347,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 36.0,
+   "load_resistance_ohm": 24.0,
+   "split": "train",
+   "family": "zoh",
+   "one_step_rmse_i_l_a": 0.0,
+   "one_step_rmse_v_out_v": 0.0,
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.0,
+   "closed_loop_max_abs_v_out_v": 0.0,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 36.0,
+   "load_resistance_ohm": 24.0,
+   "split": "train",
+   "family": "mlp",
+   "one_step_rmse_i_l_a": 0.020249097442140908,
+   "one_step_rmse_v_out_v": 0.010491204447847631,
+   "rollout_rel_rmse_i_l": 0.09734414227047154,
+   "rollout_rel_rmse_v_out": 0.037909056036354916,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.05716979005285394,
+   "closed_loop_max_abs_v_out_v": 0.5059866474214267,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 3.0,
+   "split": "train",
+   "family": "zoh",
+   "one_step_rmse_i_l_a": 0.0,
+   "one_step_rmse_v_out_v": 0.0,
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.0,
+   "closed_loop_max_abs_v_out_v": 0.0,
+   "out_of_domain": [
+    "load_resistance_ohm = 1.5 outside [3, 24]"
+   ]
+  },
+  {
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 3.0,
+   "split": "train",
+   "family": "mlp",
+   "one_step_rmse_i_l_a": 0.025293697788553438,
+   "one_step_rmse_v_out_v": 0.02521635252274559,
+   "rollout_rel_rmse_i_l": 0.048067823812224075,
+   "rollout_rel_rmse_v_out": 0.025605277311398535,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.9798563607761236,
+   "closed_loop_max_abs_v_out_v": 1.5017367998131057,
+   "out_of_domain": [
+    "load_resistance_ohm = 1.5 outside [3, 24]"
+   ]
+  },
+  {
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 6.0,
+   "split": "train",
+   "family": "zoh",
+   "one_step_rmse_i_l_a": 0.0,
+   "one_step_rmse_v_out_v": 0.0,
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.0,
+   "closed_loop_max_abs_v_out_v": 0.0,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 6.0,
+   "split": "train",
+   "family": "mlp",
+   "one_step_rmse_i_l_a": 0.029291314436258115,
+   "one_step_rmse_v_out_v": 0.02027501545585725,
+   "rollout_rel_rmse_i_l": 0.11210682618533531,
+   "rollout_rel_rmse_v_out": 0.044032397315368246,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.020389860606697986,
+   "closed_loop_max_abs_v_out_v": 0.25130489022199853,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 12.0,
+   "split": "test",
+   "family": "zoh",
+   "one_step_rmse_i_l_a": 0.0,
+   "one_step_rmse_v_out_v": 0.0,
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.0,
+   "closed_loop_max_abs_v_out_v": 0.0,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 12.0,
+   "split": "test",
+   "family": "mlp",
+   "one_step_rmse_i_l_a": 0.03055219305460318,
+   "one_step_rmse_v_out_v": 0.029670527166887433,
+   "rollout_rel_rmse_i_l": 0.1826690017703605,
+   "rollout_rel_rmse_v_out": 0.0739038999273695,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.03713272246182489,
+   "closed_loop_max_abs_v_out_v": 0.3154780045230634,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 24.0,
+   "split": "train",
+   "family": "zoh",
+   "one_step_rmse_i_l_a": 0.0,
+   "one_step_rmse_v_out_v": 0.0,
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.0,
+   "closed_loop_max_abs_v_out_v": 0.0,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 24.0,
+   "split": "train",
+   "family": "mlp",
+   "one_step_rmse_i_l_a": 0.035739310860386696,
+   "one_step_rmse_v_out_v": 0.0333108471564703,
+   "rollout_rel_rmse_i_l": 0.22933464379061957,
+   "rollout_rel_rmse_v_out": 0.1148763342846584,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.07497380918958434,
+   "closed_loop_max_abs_v_out_v": 0.6401561640286513,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 60.0,
+   "load_resistance_ohm": 3.0,
+   "split": "train",
+   "family": "zoh",
+   "one_step_rmse_i_l_a": 0.0,
+   "one_step_rmse_v_out_v": 0.0,
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.0,
+   "closed_loop_max_abs_v_out_v": 0.0,
+   "out_of_domain": [
+    "load_resistance_ohm = 1.5 outside [3, 24]"
+   ]
+  },
+  {
+   "v_in_v": 60.0,
+   "load_resistance_ohm": 3.0,
+   "split": "train",
+   "family": "mlp",
+   "one_step_rmse_i_l_a": 0.051514082755732576,
+   "one_step_rmse_v_out_v": 0.029041541871306604,
+   "rollout_rel_rmse_i_l": 0.057704613703567574,
+   "rollout_rel_rmse_v_out": 0.03066953718864042,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 2.3611917342241044,
+   "closed_loop_max_abs_v_out_v": 3.4365636215205484,
+   "out_of_domain": [
+    "load_resistance_ohm = 1.5 outside [3, 24]"
+   ]
+  },
+  {
+   "v_in_v": 60.0,
+   "load_resistance_ohm": 6.0,
+   "split": "train",
+   "family": "zoh",
+   "one_step_rmse_i_l_a": 0.0,
+   "one_step_rmse_v_out_v": 0.0,
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.0,
+   "closed_loop_max_abs_v_out_v": 0.0,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 60.0,
+   "load_resistance_ohm": 6.0,
+   "split": "train",
+   "family": "mlp",
+   "one_step_rmse_i_l_a": 0.03192168549453671,
+   "one_step_rmse_v_out_v": 0.02880767640408011,
+   "rollout_rel_rmse_i_l": 0.08753645235141552,
+   "rollout_rel_rmse_v_out": 0.029020893903694597,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.04525964298362017,
+   "closed_loop_max_abs_v_out_v": 0.3760819758876224,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 60.0,
+   "load_resistance_ohm": 12.0,
+   "split": "train",
+   "family": "zoh",
+   "one_step_rmse_i_l_a": 0.0,
+   "one_step_rmse_v_out_v": 0.0,
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.0,
+   "closed_loop_max_abs_v_out_v": 0.0,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 60.0,
+   "load_resistance_ohm": 12.0,
+   "split": "train",
+   "family": "mlp",
+   "one_step_rmse_i_l_a": 0.061332884599413266,
+   "one_step_rmse_v_out_v": 0.04046244672316066,
+   "rollout_rel_rmse_i_l": 0.16302775373389317,
+   "rollout_rel_rmse_v_out": 0.07073434630714158,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.03460067207176146,
+   "closed_loop_max_abs_v_out_v": 0.2854678431504185,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 60.0,
+   "load_resistance_ohm": 24.0,
+   "split": "validation",
+   "family": "zoh",
+   "one_step_rmse_i_l_a": 0.0,
+   "one_step_rmse_v_out_v": 0.0,
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.0,
+   "closed_loop_max_abs_v_out_v": 0.0,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 60.0,
+   "load_resistance_ohm": 24.0,
+   "split": "validation",
+   "family": "mlp",
+   "one_step_rmse_i_l_a": 0.09838736669021975,
+   "one_step_rmse_v_out_v": 0.05410852755312138,
+   "rollout_rel_rmse_i_l": 0.6198059564203234,
+   "rollout_rel_rmse_v_out": 0.27066220495765947,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.1034983319647843,
+   "closed_loop_max_abs_v_out_v": 0.7633334428601302,
+   "out_of_domain": []
+  },
+  {
+   "v_in_v": 72.0,
+   "load_resistance_ohm": 12.0,
+   "split": "extrapolation",
+   "family": "zoh",
+   "one_step_rmse_i_l_a": 0.0,
+   "one_step_rmse_v_out_v": 0.0,
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.0,
+   "closed_loop_max_abs_v_out_v": 0.0,
+   "out_of_domain": [
+    "v_in_v = 72 outside [24, 60]"
+   ]
+  },
+  {
+   "v_in_v": 72.0,
+   "load_resistance_ohm": 12.0,
+   "split": "extrapolation",
+   "family": "mlp",
+   "one_step_rmse_i_l_a": 0.16011115511561852,
+   "one_step_rmse_v_out_v": 0.043983232068340275,
+   "rollout_rel_rmse_i_l": 0.24025373318036716,
+   "rollout_rel_rmse_v_out": 0.09349619015261584,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.08373188463156188,
+   "closed_loop_max_abs_v_out_v": 0.6157480922459122,
+   "out_of_domain": [
+    "v_in_v = 72 outside [24, 60]"
+   ]
+  },
+  {
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 40.0,
+   "split": "extrapolation",
+   "family": "zoh",
+   "one_step_rmse_i_l_a": 3.1103686158402808e-15,
+   "one_step_rmse_v_out_v": 0.0,
+   "rollout_rel_rmse_i_l": 1.2350651741669358e-14,
+   "rollout_rel_rmse_v_out": 8.066093180114002e-15,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 1.7151849844245543e-15,
+   "closed_loop_max_abs_v_out_v": 7.105427357601002e-15,
+   "out_of_domain": [
+    "load_resistance_ohm = 40 outside [3, 24]"
+   ]
+  },
+  {
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 40.0,
+   "split": "extrapolation",
+   "family": "mlp",
+   "one_step_rmse_i_l_a": 0.13260210273156864,
+   "one_step_rmse_v_out_v": 0.13218765370805566,
+   "rollout_rel_rmse_i_l": 0.867119849467363,
+   "rollout_rel_rmse_v_out": 0.5621028128265342,
+   "rollout_finite": true,
+   "closed_loop_status": "ok",
+   "closed_loop_rmse_v_out_v": 0.06682925971201162,
+   "closed_loop_max_abs_v_out_v": 0.4544150320345359,
+   "out_of_domain": [
+    "load_resistance_ohm = 40 outside [3, 24]"
+   ]
+  }
+ ]
+}
