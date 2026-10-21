@@ -171,6 +171,9 @@ class Scenario:
     buck_load_step_ohm: float = None
     buck_load_step_time_s: float = None
     buck_parameter_overrides: dict = None
+    plecs_model_vars: dict = None
+    plecs_time_limit_s: float = None
+    plecs_output_points: int = None
 
     _VALID_PAIRS = {("PI", "dc_perm_ex_v1"), ("MPC", "dc_perm_ex_v1"), ("DPC", "vsc_dpc_v1"), ("FOC_MTPA", "pmsm_v1"), ("FOC_naive", "pmsm_v1"),
                     ("PI", "buck_v1")}
@@ -178,8 +181,20 @@ class Scenario:
     #: |i_s| limit of the PMSM (control/classical/pmsm_foc.py I_LIM).
     _PMSM_CURRENT_LIMIT_A = 400.0
 
+    #: plant_config_id prefix of a PLECS batch profile (task E2); its controller lives in the circuit.
+    PLECS_PREFIX = "plecs:"
+    PLECS_CONTROLLER = "circuit"
+
+    @property
+    def is_plecs(self) -> bool:
+        return isinstance(self.plant_config_id, str) and self.plant_config_id.startswith(self.PLECS_PREFIX)
+
     def __post_init__(self):
-        if (self.controller_type, self.plant_config_id) not in self._VALID_PAIRS:
+        if self.is_plecs or self.controller_type == self.PLECS_CONTROLLER:
+            if not (self.is_plecs and self.controller_type == self.PLECS_CONTROLLER):
+                raise NotImplementedError(f"PLECS plants ('{self.PLECS_PREFIX}<profile_id>') run with controller_type={self.PLECS_CONTROLLER!r} (the control lives inside the circuit) "
+                                          f"and nothing else does; got ({self.controller_type!r}, {self.plant_config_id!r})")
+        elif (self.controller_type, self.plant_config_id) not in self._VALID_PAIRS:
             raise NotImplementedError(
                 f"(controller_type={self.controller_type!r}, plant_config_id={self.plant_config_id!r}) "
                 f"is not a supported pairing -- valid pairs are {sorted(self._VALID_PAIRS)}. "
@@ -235,6 +250,18 @@ class Scenario:
             if key not in self._BUCK_PARAMETERS:
                 raise ValueError(f"Scenario.buck_parameter_overrides: unknown parameter {key!r}; expected one of {self._BUCK_PARAMETERS}")
             finite(f"buck_parameter_overrides[{key!r}]", value, 0.0, strict=key != "r_l_ohm")
+        plecs_fields = {"plecs_model_vars": self.plecs_model_vars, "plecs_time_limit_s": self.plecs_time_limit_s, "plecs_output_points": self.plecs_output_points}
+        if self.is_plecs:
+            from driveflow.integrations.plecs.batch import check_profile_id
+
+            check_profile_id(self.plant_config_id[len(self.PLECS_PREFIX):])
+            finite("plecs_time_limit_s", self.plecs_time_limit_s, 0.0, strict=True)
+            if self.plecs_output_points is not None and (isinstance(self.plecs_output_points, bool) or not isinstance(self.plecs_output_points, int) or self.plecs_output_points < 2):
+                raise ValueError(f"Scenario.plecs_output_points must be an int >= 2, got {self.plecs_output_points!r}")
+            for key, value in (self.plecs_model_vars or {}).items():
+                finite(f"plecs_model_vars[{key!r}]", value)
+        elif any(v is not None for v in plecs_fields.values()):
+            raise ValueError(f"Scenario.{next(k for k, v in plecs_fields.items() if v is not None)} applies only to PLECS plants ('{self.PLECS_PREFIX}<profile_id>')")
         if self.plant_config_id == "buck_v1":
             vin = self.buck_vin_v if self.buck_vin_v is not None else 48.0
             vref = self.buck_vout_ref_v if self.buck_vout_ref_v is not None else 24.0

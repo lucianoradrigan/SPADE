@@ -475,11 +475,43 @@ _SCENARIO_RUNNERS = {
 }
 
 
+def _run_plecs_scenario(scenario: Scenario) -> list:
+    """One PLECS RPC simulation of a ``plecs_rpc_batch`` profile (task E2, dataset route only:
+    the control lives in the circuit). Records carry timestamp_s, the manifest's outputs and the
+    ModelVars of THIS run on every row; they do not follow the motor schema of export_parquet
+    (records_to_dataframe), which describes SPADE's native plants."""
+    from driveflow.integrations.plecs import batch
+    from driveflow.integrations.plecs.rpc_client import PlecsRpcClient
+    from driveflow.runs.profiles import is_stale
+    from driveflow.runs.store import RunStore
+
+    profile = RunStore().get_profile(scenario.plant_config_id[len(Scenario.PLECS_PREFIX):])
+    if profile.kind != batch.KIND:
+        raise ValueError(f"profile {profile.profile_id} is a {profile.kind} profile, not {batch.KIND}")
+    if is_stale(profile, profile.parameters["circuit_path"]):
+        raise ValueError(f"profile {profile.profile_id} is stale: the circuit changed since it was created. Re-run verification.")
+    man = batch.profile_manifest(profile)
+    values = {v.name: v.default for v in man.model_vars}
+    values.update(scenario.plecs_model_vars or {})
+    client = PlecsRpcClient(profile.parameters["rpc_url"])
+    model = client.load(profile.parameters["circuit_path"])
+    try:
+        df, _ = batch.run_condition(client, model, man, values, scenario.duration_s, scenario.plecs_time_limit_s or 60.0, scenario.plecs_output_points)
+    finally:
+        client.close(model)
+    df["plant_config_id"], df["controller_type"], df["dataset_id"], df["source_file"], df["seed"] = (
+        scenario.plant_config_id, scenario.controller_type, scenario.scenario_id, scenario.scenario_id, scenario.seed)
+    return df.to_dict(orient="records")
+
+
 def run_scenario(scenario: Scenario) -> list:
     """Runs one Scenario to completion and returns its per-timestep records (list of dict).
     Dispatches on plant_config_id -- see this module's docstring for why the DC-motor and VSC
-    paths are separate functions rather than branches inside one loop.
+    paths are separate functions rather than branches inside one loop. "plecs:<profile_id>"
+    goes to the PLECS RPC path (task E2).
     """
+    if scenario.is_plecs:
+        return _run_plecs_scenario(scenario)
     return _SCENARIO_RUNNERS[scenario.plant_config_id](scenario)
 
 

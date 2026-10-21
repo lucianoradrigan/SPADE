@@ -29,6 +29,7 @@ PAGES = {
         ("pages/pmsm.py", "PMSM / FOC", ":material/radio_button_checked:"),
         ("pages/vsc_dpc.py", "VSC / DPC", ":material/power:"),
         ("pages/dcdc_converters.py", "DC-DC Converters", ":material/bolt:"),
+        ("pages/plecs_plant_studio.py", "PLECS Plant Studio", ":material/schema:"),
     ],
     "Intelligence": [
         ("pages/ai_diagnostics.py", "AI Diagnostics", ":material/psychology:"),

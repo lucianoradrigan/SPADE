@@ -177,6 +177,14 @@ class RunStore:
             body = _load(row["body"])
         return PlantProfile.from_dict(body)
 
+    def list_profiles(self, kind: str | None = None) -> list[PlantProfile]:
+        """The latest version of every stored profile (optionally of one kind), by id."""
+        with self._conn() as conn:
+            rows = conn.execute("SELECT p.body FROM profiles p JOIN (SELECT id, MAX(version) AS v FROM profiles GROUP BY id) m "
+                                "ON p.id = m.id AND p.version = m.v ORDER BY p.id").fetchall()
+        profiles = [PlantProfile.from_dict(_load(r["body"])) for r in rows]
+        return [p for p in profiles if kind is None or p.kind == kind]
+
     # ---------------------------------------------------------------- approvals
     def record_approval(self, record: ApprovalRecord) -> ApprovalRecord:
         """Append-only. Enforced here, not by a disabled button: an 'approved' decision is refused

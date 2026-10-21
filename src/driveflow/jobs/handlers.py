@@ -11,6 +11,11 @@ condition outcomes into the job's final state:
 Kinds:
 - ``scenario_sweep``: runs datagen.runner.run_scenario once per condition (each condition is a
   dict of Scenario fields) and saves one Parquet file per successful condition.
+- ``plecs_sweep`` (task E2): one PLECS RPC simulation per condition (a dict of ModelVars) on a
+  ``plecs_rpc_batch`` profile; engine "plecs_rpc", so the worker runs one at a time. Failed
+  conditions keep their error and are never interpolated. The dataset (one Parquet per completed
+  condition, each row carrying its own ModelVars, plus manifest.json and conditions.csv) is written
+  to data/plecs/<profile_id>/<run_id>/ and to the run's artifacts.
 - ``selftest.steps``: no physics; sleeps ``step_s`` per step. Used by the tests to exercise the
   worker (cancel, kill, recover) deterministically, and by "Check worker" in the GUI.
 """
@@ -114,6 +119,125 @@ def scenario_sweep(ctx: JobContext) -> HandlerResult:
     return HandlerResult(conditions=conditions, metrics={"n_conditions": n, "n_ok": sum(c["status"] == "ok" for c in conditions)})
 
 
+# --------------------------------------------------------------------------- plecs_sweep
+def _plecs_profile(spec: ExperimentSpec):
+    from driveflow.integrations.plecs import batch
+    from driveflow.runs.store import RunStore
+
+    if not spec.plant_profile_id:
+        raise SpadeError(ErrorCode.INVALID_SPEC, "plecs_sweep needs plant_profile_id")
+    profile = RunStore().get_profile(spec.plant_profile_id, spec.params.get("profile_version"))
+    if profile.kind != batch.KIND:
+        raise SpadeError(ErrorCode.INVALID_SPEC, f"profile {profile.profile_id} is a {profile.kind} profile, not {batch.KIND}")
+    return profile
+
+
+def _validate_plecs_sweep(spec: ExperimentSpec) -> None:
+    from driveflow.integrations.plecs import batch, manifest as mf
+
+    profile = _plecs_profile(spec)
+    man = batch.profile_manifest(profile)
+    if not spec.conditions:
+        raise SpadeError(ErrorCode.INVALID_SPEC, "plecs_sweep needs at least one condition (a dict of ModelVars)")
+    for i, cond in enumerate(spec.conditions):
+        try:
+            man.check_values(dict(cond))
+        except (mf.ManifestError, AttributeError, TypeError) as exc:
+            raise SpadeError(ErrorCode.INVALID_SPEC, f"condition {i}: {exc}") from None
+    try:
+        batch.solver_options(float(spec.params.get("time_span_s", float("nan"))), spec.params.get("n_output_points"))
+    except (TypeError, ValueError) as exc:
+        raise SpadeError(ErrorCode.INVALID_SPEC, str(exc)) from None
+    limit = spec.params.get("time_limit_s", 60.0)
+    if not (isinstance(limit, (int, float)) and 0 < limit <= 3600):
+        raise SpadeError(ErrorCode.INVALID_SPEC, "time_limit_s must be in (0, 3600] s")
+
+
+def plecs_sweep(ctx: JobContext) -> HandlerResult:
+    import json
+
+    import pandas as pd
+
+    from driveflow.integrations.plecs import batch
+    from driveflow.integrations.plecs.rpc_client import PlecsRpcClient, PlecsRpcError
+    from driveflow.runs.profiles import is_stale
+
+    profile = _plecs_profile(ctx.spec)
+    man = batch.profile_manifest(profile)
+    p = profile.parameters
+    time_span, limit, n_pts = float(ctx.spec.params["time_span_s"]), float(ctx.spec.params.get("time_limit_s", 60.0)), ctx.spec.params.get("n_output_points")
+    conds = [dict(c) for c in ctx.spec.conditions]
+    n = len(conds)
+    out_dir = batch.data_root() / profile.profile_id / ctx.run_id
+    manifest_doc = {"profile_id": profile.profile_id, "profile_version": profile.version, "circuit_name": p["circuit_name"], "circuit_sha256": profile.file_hash,
+                    "model_name": p["model_name"], "origin": batch.ORIGIN, "interface": man.to_dict(), "time_span_s": time_span, "time_limit_s": limit,
+                    "n_output_points": n_pts, "method": ctx.spec.algorithm, "seed": ctx.spec.seed, "run_id": ctx.run_id, "note": batch.NOT_GYM}
+
+    def finish(conditions, metrics):
+        rows = [{"condition_index": c["index"], "status": c["status"], **c["condition"], "seconds": c.get("seconds"), "error": c.get("error"), "file": c.get("file")} for c in conditions]
+        table = pd.DataFrame(rows).to_csv(index=False)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "conditions.csv").write_text(table)
+        (out_dir / "manifest.json").write_text(json.dumps({**manifest_doc, "n_conditions": n, "n_ok": metrics.get("n_ok", 0)}, indent=2))
+        ctx.write_artifact("conditions.csv", table.encode())
+        ctx.write_artifact("manifest.json", json.dumps(manifest_doc, indent=2).encode())
+        metrics["dataset_dir"] = str(out_dir.relative_to(batch.data_root().parent)) if out_dir.is_relative_to(batch.data_root().parent) else out_dir.name
+        return HandlerResult(conditions=conditions, metrics=metrics, origin=batch.ORIGIN)
+
+    if is_stale(profile, p["circuit_path"]):
+        ctx.log("circuit file changed or is missing since the profile was created: profile is stale")
+        reason = "The circuit or mapping changed. Re-run verification. (circuit SHA-256 no longer matches the profile)"
+        return finish([{"index": i, "condition": c, "status": "failed", "error": reason} for i, c in enumerate(conds)], {"n_conditions": n, "n_ok": 0, "stale": True})
+
+    client = PlecsRpcClient(p["rpc_url"])
+    conditions = []
+    try:
+        model = client.load(p["circuit_path"])
+        ctx.log(f"loaded {p['circuit_name']} (sha256 {profile.file_hash[:12]}) as model {model!r}")
+    except PlecsRpcError as exc:
+        ctx.log(f"could not load the circuit: {exc}")
+        return finish([{"index": i, "condition": c, "status": "failed", "error": f"[{exc.code.value}] {exc}"} for i, c in enumerate(conds)], {"n_conditions": n, "n_ok": 0})
+    try:
+        for i, cond in enumerate(conds):
+            if ctx.cancel_requested():
+                conditions += [{"index": j, "condition": c, "status": "skipped", "error": "Cancelled before this condition started."} for j, c in enumerate(conds[i:], start=i)]
+                break
+            ctx.progress(i, n, f"condition {i + 1}/{n}")
+            try:
+                df, wall = batch.run_condition(client, model, man, cond, time_span, limit, n_pts)
+                df.insert(0, "condition_index", i)
+                df["profile_id"], df["run_id"] = profile.profile_id, ctx.run_id
+                buf = io.BytesIO()
+                df.to_parquet(buf, index=False)
+                name = f"condition_{i:04d}.parquet"
+                out_dir.mkdir(parents=True, exist_ok=True)
+                (out_dir / name).write_bytes(buf.getvalue())
+                art = ctx.write_artifact(name, buf.getvalue())
+                summary = {f"{o}_final": float(df[o].iloc[-1]) for o in man.output_names}
+                conditions.append({"index": i, "condition": cond, "status": "ok", "metrics": {"n_samples": int(len(df)), **summary}, "artifact": art["path"], "file": name, "seconds": round(wall, 3)})
+                ctx.log(f"condition {i + 1}/{n} ok in {wall:.2f} s ({len(df)} samples)")
+            except PlecsRpcError as exc:
+                conditions.append({"index": i, "condition": cond, "status": "failed", "error": f"[{exc.code.value}] {exc}"})
+                ctx.log(f"condition {i + 1}/{n} failed: [{exc.code.value}] {exc}")
+            except Exception as exc:  # one failed condition never hides the others
+                conditions.append({"index": i, "condition": cond, "status": "failed", "error": f"{type(exc).__name__}: {exc}"})
+                ctx.log(f"condition {i + 1}/{n} failed: {type(exc).__name__}: {exc}")
+    finally:
+        try:
+            client.close(model)
+        except PlecsRpcError as exc:
+            ctx.log(f"closing the model failed: {exc}")
+    ctx.progress(sum(c["status"] != "skipped" for c in conditions), n, "finished")
+    walls = [c["seconds"] for c in conditions if c["status"] == "ok"]
+    n_ok = sum(c["status"] == "ok" for c in conditions)
+    if n_ok:
+        from driveflow.runs.store import RunStore
+
+        RunStore().save_profile(batch.mark_batch_shown(profile, ctx.run_id, n_ok, n))
+        ctx.log(f"profile {profile.profile_id}: batch simulation shown by this run (new version {profile.version + 1})")
+    return finish(conditions, {"n_conditions": n, "n_ok": sum(c["status"] == "ok" for c in conditions), "wall_s_median": float(pd.Series(walls).median()) if walls else None})
+
+
 # --------------------------------------------------------------------------- selftest.steps
 def _validate_selftest(spec: ExperimentSpec) -> None:
     steps, step_s = spec.params.get("steps", 3), spec.params.get("step_s", 0.1)
@@ -142,6 +266,7 @@ def selftest_steps(ctx: JobContext) -> HandlerResult:
 
 HANDLERS = {
     "scenario_sweep": HandlerInfo(scenario_sweep, _validate_scenario_sweep, "Scenario sweep (datagen.runner)"),
+    "plecs_sweep": HandlerInfo(plecs_sweep, _validate_plecs_sweep, "PLECS RPC sweep (dataset)", engine="plecs_rpc"),
     "selftest.steps": HandlerInfo(selftest_steps, _validate_selftest, "Worker self-test (no physics)", engine="selftest"),
 }
 

@@ -158,7 +158,7 @@ con acción igual a la del controlador PI de runner.py, el entorno reproduce bit
 Criterio de cierre: las pruebas en verde, con marcador simulation. La página muestra los dos entornos con su contrato.
 
 E2. PLECS por RPC (rutas Dataset y Diagnostics)
-- [ ] E2. Cliente RPC de PLECS, perfiles de planta y PLECS Plant Studio (rutas no Gym) (funcionalidad #1, parte a)
+- [x] E2. Cliente RPC de PLECS, perfiles de planta y PLECS Plant Studio (rutas no Gym) (funcionalidad #1, parte a)
 
 Origen: Fund. 8_PE_Simulation_Automation/PlecsAutomation/Data acquisition.ipynb: patrón plecs.load / plecs.simulate(model, {"ModelVars": …}) / plecs.close, con tiempo límite por corrida y registro de las que no convergen. Sin sus defectos (ver Decisión 6).
 
