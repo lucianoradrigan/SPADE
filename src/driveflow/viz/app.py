@@ -39,7 +39,10 @@ PAGES = {
         ("pages/monitoring.py", "Monitoring", ":material/monitor_heart:"),
         ("pages/alert_history.py", "Alert History", ":material/list_alt:"),
     ],
-    "Help": [("pages/documentation.py", "Documentation", ":material/menu_book:")],
+    "Help": [
+        ("pages/documentation.py", "Documentation", ":material/menu_book:"),
+        ("pages/algorithm_guide.py", "Algorithm Guide", ":material/alt_route:"),
+    ],
 }
 
 

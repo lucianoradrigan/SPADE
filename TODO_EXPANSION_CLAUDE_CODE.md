@@ -371,7 +371,7 @@ GUI (spec §8.4) con la etiqueta MEASURED · EXTERNAL DATASET y el texto This da
 Criterio de cierre: reporte docs/audit/ai/igbt_rul.{md,json} y su audit_findings.json con los límites conocidos.
 
 E12. Algorithm Guide
-- [ ] E12. Página Help / Algorithm Guide (funcionalidad #10)
+- [x] E12. Página Help / Algorithm Guide (funcionalidad #10)
 
 Origen: Sel. (solo la idea del asistente What-Which-How; no se copia código porque no hay licencia).
 

@@ -1,0 +1,161 @@
+# Algorithm Guide (expansion task E12; spec Sec. 8.6) -- the recommendation table behind
+# Help / Algorithm Guide. Three questions (life-cycle phase, task, data source) -> an algorithm
+# family with why / assumptions / limitations -> the SPADE page that implements it, or none.
+#
+# Content idea: the What-Which-How structure of XinzeLee/AI_for_PE_Algorithm_Selector, which is the
+# companion of the paper below. That repository has no license, so none of its code or text is
+# copied; the entries here are SPADE's own, written against what SPADE implements today.
+#
+# page: a path registered in viz/app.py PAGES, or null (the GUI then says "Not available in this
+# version"). accepts: the data sources that page can work with; for any other source the link is
+# replaced by "Not available in this version for this data source" (e.g. no page reads PLECS data
+# yet). tests/test_algorithm_guide_page.py walks every combination and checks every page.
+
+citation:
+  authors: "Xinze Li, Fanfan Lin, Juan J. Rodríguez-Andina, Sergio Vazquez, Homer Alan Mantooth, Leopoldo García Franquelo"
+  title: "Fundamentals of Artificial Intelligence for Power Electronics"
+  venue: "IEEE Transactions on Industrial Electronics"
+  year: 2026
+  companion: "https://github.com/XinzeLee/AI_for_PE_Algorithm_Selector"
+
+phases:
+  design: "Design"
+  control: "Control"
+  maintenance: "Maintenance"
+
+data_sources:
+  simulated: "Simulation (SPADE plants)"
+  plecs: "Circuit simulation (PLECS)"
+  measured: "Measured data (your own files)"
+
+# Notes added to every recommendation for a data source, after the entry's own text.
+data_source_notes:
+  simulated:
+    assumptions: "The simulated plant is a faithful enough model of the system you care about."
+    limitations: "Results are evidence about the model, not about a physical converter or machine."
+  plecs:
+    assumptions: "A validated PLECS model of the circuit exists and PLECS (with a license) is available where it runs."
+    limitations: "SPADE does not run PLECS in this version: PLECS plants arrive with the PLECS tasks."
+  measured:
+    assumptions: "The measurements carry the channels and sample rate the method needs, with labels where it is supervised."
+    limitations: "SPADE's promoted models were trained on simulation only; measured inputs may be out of distribution."
+
+tasks:
+  # ---------------------------------------------------------------- design
+  - id: controller_tuning
+    phase: design
+    label: "Tune controller gains against an objective"
+    family: "Metaheuristic and Bayesian optimization (PSO, Bayesian optimization, multi-objective)"
+    why: "The objective (overshoot, settling, ripple, losses) is a black box of a simulation run; these methods need only evaluations, no gradients."
+    assumptions: "Each candidate can be simulated under the same conditions; the objective is defined before searching."
+    limitations: "Many simulations per result; a tuned set is only as good as the scenarios it was scored on."
+    page: null
+  - id: surrogate_model
+    phase: design
+    label: "Replace a slow circuit simulation with a fast model"
+    family: "Neural-network surrogate trained on simulation sweeps"
+    why: "A sweep of the circuit gives input-output pairs; a network interpolates between them at a fraction of the cost."
+    assumptions: "The sweep covers the operating region where the surrogate will be used."
+    limitations: "No guarantees outside the sweep; it must be checked against the circuit at held-out points."
+    page: null
+  - id: converter_sizing
+    phase: design
+    label: "Size or explore a converter's operating point"
+    family: "Physics-based averaged models (white box)"
+    why: "Averaged state-space models give steady state and closed-loop dynamics directly from L, C, R and the duty."
+    assumptions: "Dynamics of interest are well below the switching frequency."
+    limitations: "No switching ripple, losses or discontinuous conduction."
+    page: "pages/dcdc_converters.py"
+    accepts: [simulated]
+
+  # ---------------------------------------------------------------- control
+  - id: model_based_control
+    phase: control
+    label: "Control a plant whose model is known"
+    family: "Classical and model-predictive control (PI cascade, MPC, FOC)"
+    why: "With a model, gains or an optimal action can be computed and their stability argued; no training data is needed."
+    assumptions: "The model's parameters are known well enough; constraints are explicit."
+    limitations: "Performance degrades with model mismatch; MPC costs computation per step."
+    page: "pages/dc_motor.py"
+    accepts: [simulated]
+  - id: learned_controller
+    phase: control
+    label: "Learn a fast controller from a known model"
+    family: "Neural-network controller trained through the model (differentiable predictive control, DPC)"
+    why: "Training against the model's own equations gives an explicit policy that is cheap to evaluate at run time."
+    assumptions: "The identified model used in training matches the plant; operating points are inside the training range."
+    limitations: "Off the training range the network can fail without warning (SPADE schedules two networks by operating point for this reason)."
+    page: "pages/vsc_dpc.py"
+    accepts: [simulated]
+  - id: model_free_control
+    phase: control
+    label: "Learn a policy by interacting with a simulated plant"
+    family: "Reinforcement learning (DQN, DDPG)"
+    why: "The policy is learned from reward alone, so it can trade objectives that are hard to put in a cost function."
+    assumptions: "A safe, fast simulated environment and a reward that encodes the goal."
+    limitations: "Sample-hungry; no stability guarantee; a policy trained in simulation must not reach hardware without verification."
+    page: null
+  - id: rl_environment
+    phase: control
+    label: "Expose a plant as a training environment"
+    family: "Gymnasium environments of SPADE's plants"
+    why: "Any RL library that speaks Gymnasium can train against the same physics SPADE's pages simulate."
+    assumptions: "The environment's observation, action and reward contract fits the task."
+    limitations: "Environments only: training algorithms are not part of this version."
+    page: "pages/environments.py"
+    accepts: [simulated]
+
+  # ---------------------------------------------------------------- maintenance
+  - id: fault_classification
+    phase: maintenance
+    label: "Classify the fault type from signals"
+    family: "Neural-network classifier (1-D CNN / RNN on windows), with calibration"
+    why: "Fault signatures in current and vibration are learned from labelled windows; calibration makes the confidence usable."
+    assumptions: "Labelled windows of every fault class; the deployment conditions resemble training."
+    limitations: "A fault type absent from training gets a confident wrong class unless an OOD check is in place."
+    page: "pages/ai_diagnostics.py"
+    accepts: [simulated, measured]
+  - id: unknown_condition
+    phase: maintenance
+    label: "Detect conditions the model was not trained on"
+    family: "Out-of-distribution detection (Mahalanobis / energy score)"
+    why: "It scores how far an input is from the training features, independently of which class is picked."
+    assumptions: "A detector fitted on in-distribution training and validation windows only."
+    limitations: "Detection rates for unseen faults can be low; a model without a fitted detector cannot report this state."
+    page: "pages/ai_diagnostics.py"
+    accepts: [simulated, measured]
+  - id: parameter_identification
+    phase: maintenance
+    label: "Estimate physical parameters (e.g. capacitor aging)"
+    family: "Physics-informed ML (PINN) and model-based least squares"
+    why: "The circuit equations constrain the fit, so few samples suffice and the result is a physical parameter, not a black-box score."
+    assumptions: "The model structure is right (no unmodelled ESR or nonlinearity) and the operating point is given."
+    limitations: "A parameter estimate, not a validated fault diagnosis; noise biases the estimate."
+    page: "pages/vsc_dpc.py"
+    accepts: [simulated, measured]
+  - id: adaptation
+    phase: maintenance
+    label: "Adapt a trained model to new data"
+    family: "Transfer learning (fine-tuning)"
+    why: "A model trained on simulation is updated with a smaller set of new labelled windows."
+    assumptions: "The new data shares the channels and labels of the original model."
+    limitations: "Few new samples can overfit; the adapted model needs its own evaluation."
+    page: "pages/transfer_learning.py"
+    accepts: [simulated, measured]
+  - id: anomaly_monitoring
+    phase: maintenance
+    label: "Monitor for anomalies against simulated hypotheses"
+    family: "Simulation-based agents and rule-based monitoring"
+    why: "The observed run is compared with simulations of each fault hypothesis at the same operating point; rules catch hard limits."
+    assumptions: "The simulator reproduces the healthy and faulty behaviour; the operating point is known or estimable."
+    limitations: "Several simulations per check; the anomaly score is heuristic, not a calibrated probability."
+    page: "pages/monitoring.py"
+    accepts: [simulated]
+  - id: remaining_useful_life
+    phase: maintenance
+    label: "Predict remaining useful life"
+    family: "Probabilistic sequence models (RNN with a Gaussian output)"
+    why: "Degradation trajectories are extrapolated with an uncertainty band."
+    assumptions: "Run-to-failure data of comparable units."
+    limitations: "Needs measured aging data; a split by unit is required to avoid leakage."
+    page: null
