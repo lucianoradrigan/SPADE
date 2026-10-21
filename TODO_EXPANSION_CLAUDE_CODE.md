@@ -327,7 +327,7 @@ GUI (spec §8.1): pestaña DAB con selector de estrategia y diagrama de desfases
 Criterio de cierre: a definir con Luciano cuando apruebe la tarea.
 
 E10. IA avanzada en la GUI
-- [ ] E10a. Estado "Unknown condition" en AI Diagnostics (funcionalidad #7)
+- [x] E10a. Estado "Unknown condition" en AI Diagnostics (funcionalidad #7)
 
 Depende de A1 (TODO_CLAUDE_CODE.md), que implementa ai/ood.py. Esta tarea no implementa el detector, salvo que se quiera agregar un ensemble o una red de densidad de mezcla (MDN), inspirados en Fund. 4_Neural_Network/Multi_Modal_Distribution/, como método candidato adicional dentro del reporte de A1 y bajo su misma regla anti-fuga.
 

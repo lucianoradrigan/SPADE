@@ -154,6 +154,7 @@ def test_backend_failure_is_reported_honestly(monkeypatch):
         raise RegistryError("registry unavailable (simulated failure)")
 
     monkeypatch.setattr(ai, "promoted_model", _raise)
+    monkeypatch.setattr(ai.da_ai, "promoted_model", _raise)
     at = _page("ai_diagnostics")
     at.button(key="ia_generate").click().run()
     assert not at.exception
