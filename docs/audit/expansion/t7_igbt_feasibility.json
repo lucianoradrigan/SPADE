@@ -1,0 +1,48 @@
+{
+ "task": "T7/E11",
+ "status": "stopped at feasibility check",
+ "license": "U.S. Government work (https://www.usa.gov/government-works), public access",
+ "archive": {
+  "file": "IGBTAgingData_04022009.zip",
+  "bytes": 240501751,
+  "sha256": "77cc930c68d7674e694b4aa4f33b94e854bb66b147deb170d0131662f176c2e0"
+ },
+ "devices": [
+  {
+   "id": "DC gate 20080429T135531",
+   "protocol": "DC gate",
+   "samples": 301680,
+   "hours": 4.19,
+   "failure": "latch-up (Readme)"
+  },
+  {
+   "id": "A17",
+   "protocol": "square gate",
+   "steady_state_records": 41752,
+   "transients": 418,
+   "hours": 2.86,
+   "failure": "unknown from data; device of the Autotestcon paper"
+  },
+  {
+   "id": "Device 2-5",
+   "protocol": "square gate + SMU",
+   "files": 10,
+   "hours_per_file": [
+    0.41,
+    0.93
+   ],
+   "issues": [
+    "transients missing (Readme)",
+    "collector current drift ~600 mA (Readme)",
+    "steady state not scaled (Readme)"
+   ],
+   "failure": "unknown; aging log is .xls (needs xlrd, not a dependency)"
+  }
+ ],
+ "blocking": "at most two run-to-failure devices with different protocols: a split by device cannot estimate 90 % coverage",
+ "proposal": [
+  "E11a data audit (xls log)",
+  "E11b model only with >= 3 comparable run-to-failure devices",
+  "alternative NASA PCoE dataset after a license check"
+ ]
+}

@@ -43,3 +43,16 @@ license, to reproduce the pieces of this repo that depend on them.
   checkpoints (`configs/*.weights.h5`) are the small (~21KB) *fitted weights*, not the training
   data itself; retraining or re-evaluating from scratch requires downloading `Data4train.mat` from
   the original repository first.
+
+## NASA IGBT accelerated aging dataset (task E11, round 2026-10-21)
+
+- **Source:** NASA Prognostics Center of Excellence (PCoE), "Insulated Gate Bipolar Transistor (IGBT) Accelerated Aging". https://data.nasa.gov/dataset/insulated-gate-bipolar-transistor-igbt-accelerated-aging. Maintainer listed: Christopher Teubert. Contact in the archive's Readme: Jose R. Celaya and Kai Goebel.
+- **Download:** `IGBTAgingData_04022009.zip` (240,501,751 bytes, SHA-256 `77cc930c68d7674e694b4aa4f33b94e854bb66b147deb170d0131662f176c2e0`), from https://data.nasa.gov/docs/legacy/IGBTAgingData_04022009.zip on 2026-10-21. Stored in `data/upstream/fund/igbt/`, extracted to `extracted/`. Not committed.
+- **License:** the catalogue entry's license field points to https://www.usa.gov/government-works (U.S. Government work, public domain in the U.S.). Access level "public". No use restriction or citation is stated on the page.
+  - The archive cites Sonnenfeld, Goebel, Celaya, "An Agile Accelerated Aging, Characterization and Scenario Simulation System for Gate Controlled Power Transistors", IEEE Autotestcon 2008, and includes that PDF. Cite it in derived work.
+  - The `.mat` copy inside Fund. (`9_Case_Studies_PE/IGBT_Maintenance/`) was not used. Fund.'s non-code content is CC BY-NC 4.0, so the original NASA download is used instead.
+- **Contents** (from the archive's Readme files):
+  - 6 aged devices: one with a DC gate bias (continuous slow signals, 4.2 h, failed by latch-up); one with a square-wave gate (A17, 2.9 h, steady-state records plus transients); four with a square-wave gate and SMU characterization (Devices 2–5, 0.4–0.9 h per file, two to three files each).
+  - SMU characterization of 40 new devices.
+  - The Readme of the four-device set states: "many of the transient measurements are missing… the collector-current measurements are not accurate and have a drift of ~600mA… the steady-state measurements are not scaled properly". Those devices were sent to the University of Padova, which suggests they were not aged to failure. Confirming that needs the aging log `Device Aging log.xls`, which needs an `.xls` reader that is not a SPADE dependency.
+- **What depends on it:** nothing yet. E11 stopped at the feasibility check: `docs/audit/expansion/t7_igbt_feasibility.md`.
