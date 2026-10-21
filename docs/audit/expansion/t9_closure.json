@@ -1,0 +1,160 @@
+{
+  "date": "2026-10-21",
+  "branch": "feat/E13-partial-closure",
+  "command": "PYTHONPATH=src python -m pytest -q",
+  "suite_per_task": {
+    "baseline": "760 passed",
+    "E0": "823 passed",
+    "E1": "845 passed",
+    "E6": "871 passed",
+    "E10a": "890 passed",
+    "E10b": "905 passed",
+    "E12": "949 passed",
+    "E2": "1002 passed",
+    "T1": "1007 passed, 2 xfailed",
+    "T2_E14": "1023 passed, 4 xfailed",
+    "T3_E7": "1038 passed, 4 xfailed",
+    "T4_E5": "1050 passed, 4 xfailed",
+    "T5_E8": "1063 passed, 4 xfailed",
+    "T6_pmsm_env": "1070 passed, 4 xfailed",
+    "T7_E11": "not run: stopped at feasibility check (docs only)",
+    "T8_E9_prep": "1083 passed, 4 xfailed",
+    "T9": "1083 passed, 4 xfailed"
+  },
+  "plecs_runs": [],
+  "plecs_note": "nothing ran with PLECS; E2 tests and screenshots use tests/integrations/plecs/fake_plecs.py",
+  "findings": [
+    "AI-N15",
+    "AI-N16",
+    "AI-N17",
+    "S-14",
+    "AI-N18",
+    "AI-N19",
+    "AI-N20"
+  ],
+  "strict_xfails": [
+    "AI-N15",
+    "AI-N16",
+    "AI-N18",
+    "AI-N20"
+  ],
+  "spec_14_matrix": [
+    {
+      "case": "change_page_during_rl",
+      "result": "passed",
+      "reason": "generic job path; no RL-specific navigation test"
+    },
+    {
+      "case": "reload_browser",
+      "result": "passed",
+      "reason": ""
+    },
+    {
+      "case": "plecs_rpc_not_configured",
+      "result": "passed",
+      "reason": ""
+    },
+    {
+      "case": "plecs_remote",
+      "result": "passed",
+      "reason": ""
+    },
+    {
+      "case": "import_without_ports",
+      "result": "partial",
+      "reason": "import blocked; editable mapping wizard not run (E3/E4, D7)"
+    },
+    {
+      "case": "partially_failed_sweep",
+      "result": "passed",
+      "reason": ""
+    },
+    {
+      "case": "surrogate_out_of_range",
+      "result": "partial",
+      "reason": "warning passed; link to real sweep not run (no PLECS sweep)"
+    },
+    {
+      "case": "stepwise_without_fmi",
+      "result": "passed",
+      "reason": ""
+    },
+    {
+      "case": "dqn_continuous_actions",
+      "result": "passed",
+      "reason": ""
+    },
+    {
+      "case": "convergence_without_improvement",
+      "result": "passed",
+      "reason": ""
+    },
+    {
+      "case": "comparison_different_grids",
+      "result": "passed",
+      "reason": ""
+    },
+    {
+      "case": "ood_unknown_priority",
+      "result": "passed",
+      "reason": ""
+    },
+    {
+      "case": "ood_absent_no_third_class",
+      "result": "passed",
+      "reason": ""
+    },
+    {
+      "case": "pinn_unvalidated_uncertainty",
+      "result": "passed",
+      "reason": ""
+    },
+    {
+      "case": "rul_unverified_license",
+      "result": "not_run",
+      "reason": "no RUL screen: T7 stopped"
+    },
+    {
+      "case": "default_change_without_gate",
+      "result": "passed",
+      "reason": ""
+    },
+    {
+      "case": "themes_mobile_keyboard",
+      "result": "partial",
+      "reason": "light/dark screenshots only; contrast, mobile, keyboard not run"
+    },
+    {
+      "case": "copy_reproducible_command",
+      "result": "passed",
+      "reason": ""
+    }
+  ],
+  "spec_14_totals": {
+    "passed": 14,
+    "partial": 3,
+    "not_run": 1,
+    "failed": 0
+  },
+  "screenshots": {
+    "dir": "docs/screenshots/expansion",
+    "files": 50,
+    "screen_states": 25,
+    "themes": [
+      "dark",
+      "light"
+    ]
+  },
+  "pending": [
+    "contrast of colour tokens not measured",
+    "worker heartbeat on Windows: pid_alive returns None, heartbeat-age only, never run on Windows",
+    "My Plants does not show a failed sweep",
+    "E3/E4",
+    "real E2 3x3 sweep",
+    "E14 promotion decision",
+    "E7 effort term",
+    "E11 option",
+    "DAB training"
+  ],
+  "pr_dev_to_main": "not opened (instruction)"
+}

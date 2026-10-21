@@ -453,7 +453,7 @@ Unitarias: el umbral se calcula solo con datos sanos de validación (la prueba f
 De regresión: el residuo de una ventana sana de entrenamiento queda bajo el umbral, y el de una ventana con rizado sintético grande queda sobre él.
 AppTest: los paneles de Monitoring y AI Diagnostics en tres casos: sin modelo registrado (Residual detector not available), sano y anómalo.
 E13. Cierre
-- [ ] E13. Resumen consolidado y PR
+- [ ] E13. Resumen consolidado y PR — **parcial (2026-10-21, T9)**: resumen en docs/VALIDATION_SUMMARY.md §8 y docs/audit/expansion/t9_closure.md; matriz §14/§20 y capturas hechas; PR dev→main no abierto por instrucción.
 Actualizar docs/VALIDATION_SUMMARY.md con:
 una sección "Expansion (E0–E12)";
 la tabla de pruebas;

@@ -192,3 +192,81 @@ One row per task of [`TODO_CLAUDE_CODE.md`](../TODO_CLAUDE_CODE.md).
 2. **AI-N14.** The classifier's accuracy is 0.58 at 50 rad/s, below the training grid, and 0.68 at 150 % noise. Extend the training grid down in speed and up in noise.
 3. **Installation.** Run the guides once by hand on Windows 11, an Apple-Silicon Mac, an Intel Mac and Ubuntu 22.04. CI covers the smoke test only.
 4. **Hardware.** No `.tflite` model has been run on a Raspberry Pi 5 or an ESP32. `scripts/edge_benchmark/` (P3) is ready for when one is available.
+
+## 8. Expansion (E0–E14), round of 2026-10-21 — partial closure
+
+Full detail, with the evidence for each row: [`audit/expansion/t9_closure.md`](audit/expansion/t9_closure.md) (and `.json`). There is no PR from `dev` to `main`.
+
+### 8.1 Tests per task
+
+Each count is a full suite run with `PYTHONPATH=src python -m pytest -q`. The logs are `docs/audit/expansion/*_branch_pytest.txt`.
+
+| Task | Suite |
+|---|---|
+| Baseline (before E0) | 760 passed |
+| E0 jobs and runs | 823 passed |
+| E1 Gym envs | 845 passed |
+| E6 buck | 871 passed |
+| E10a Unknown condition | 890 passed |
+| E10b PINN | 905 passed |
+| E12 Algorithm Guide | 949 passed |
+| E2 PLECS RPC | 1002 passed |
+| T1 findings | 1007 passed, 2 xfailed |
+| T2 E14 residual | 1023 passed, 4 xfailed |
+| T3 E7 Tuning Studio | 1038 passed, 4 xfailed |
+| T4 E5 surrogate | 1050 passed, 4 xfailed |
+| T5 E8 RL Lab | 1063 passed, 4 xfailed |
+| T6 Pmsm-v0 | 1070 passed, 4 xfailed |
+| T7 E11 IGBT | no code (stopped at the feasibility check) |
+| T8 E9 DAB prep | 1083 passed, 4 xfailed |
+| T9 closure | 1083 passed, 4 xfailed |
+
+The 4 xfails are strict and tied to AI-N15, AI-N16, AI-N18 and AI-N20.
+
+### 8.2 PLECS
+
+Nothing ran with PLECS. No machine with PLECS 5.0 and a license was available. E2 is tested only against the local test double. E3/E4 were not started (D7), and the real 3×3 sweep was not run.
+
+### 8.3 Findings of the round
+
+| ID | Summary |
+|---|---|
+| AI-N15 | PINN estimates C low (−1.3 to −9.1 %) |
+| AI-N16 | PINN interval coverage 52–78 % vs 90 % nominal |
+| AI-N17 | No OOD block in the promoted classifier (D6) |
+| S-14 | DPC divergence vs capacitance, per load |
+| AI-N18 | Residual threshold inflated by start-up windows |
+| AI-N19 | Residual AUROC optimistic on noise-free signals |
+| AI-N20 | Edge residual detectors not usable |
+
+Negative results without an ID:
+
+| Task | Result |
+|---|---|
+| E7 | The bandwidth goes to its bound (no effort term). |
+| E8 | RL loses to the PI in steady state. |
+| T7 | Too few IGBT run-to-failure devices. |
+
+### 8.4 Spec §14 matrix and §20 criteria
+
+§14, 18 rows:
+
+| Result | Rows |
+|---|---|
+| Passed | 14 |
+| Partial | 3: import mapping wizard; link from an out-of-range surrogate to a real sweep; mobile/keyboard/contrast |
+| Not run | 1: RUL license label (no RUL screen) |
+| Failed | 0 |
+
+In §20, the PLECS Gym criteria that depend on E3/E4 are not run.
+
+### 8.5 Screenshots
+
+`docs/screenshots/expansion/` holds 25 screen-state pairs, light and dark. Its README says, per screen, which of the 5 states could not be reached and why.
+
+### 8.6 Pending
+
+- Measure the contrast of the colour tokens.
+- Run the worker heartbeat path on Windows. There, a dead worker is detected by heartbeat age only, and this has never run on Windows.
+- Make My Plants show a failed sweep.
+- Decisions listed in §7.2 and in `t9_closure.md` §6.
