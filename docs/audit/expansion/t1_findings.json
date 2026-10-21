@@ -1,0 +1,81 @@
+{
+ "round": "2026-10-21",
+ "task": "T1",
+ "findings": [
+  {
+   "id": "AI-N15",
+   "type": "AI",
+   "severity": "Medium",
+   "status": "open",
+   "summary": "The VSC PINN estimates C systematically low: mean error -1.3/-3.0/-4.5/-9.1 % at 0/1/2/5 % noise (worst -24.3 %).",
+   "evidence": {
+    "command": "python experiments/report_pinn_identification.py",
+    "files": [
+     "docs/audit/ai/pinn_identification.md",
+     "docs/audit/ai/pinn_identification.json"
+    ]
+   },
+   "doc": "docs/AI_TECHNICAL_AUDIT.md \u00a79.1",
+   "tests": [
+    "tests/test_findings_e10.py::test_ai_n15_pinn_capacitance_unbiased_with_noise (strict xfail)",
+    "tests/test_findings_e10.py::test_ai_n15_bias_is_recorded_as_negative_and_growing_with_noise"
+   ]
+  },
+  {
+   "id": "AI-N16",
+   "type": "AI",
+   "severity": "Medium",
+   "status": "open",
+   "summary": "The PINN 5-95 % bootstrap interval is not calibrated: C coverage 0/52/70/78 % at 0/1/2/5 % noise vs 90 % nominal. GUI now shows 'Coverage not validated.'",
+   "evidence": {
+    "command": "python experiments/report_pinn_identification.py",
+    "files": [
+     "docs/audit/ai/pinn_identification.json"
+    ]
+   },
+   "doc": "docs/AI_TECHNICAL_AUDIT.md \u00a79.2",
+   "tests": [
+    "tests/test_findings_e10.py::test_ai_n16_pinn_interval_has_nominal_coverage (strict xfail)",
+    "tests/test_findings_e10.py::test_ai_n16_gui_says_coverage_not_validated"
+   ],
+   "code_change": "src/driveflow/viz/views/vsc_parameter_identification.py (warning)"
+  },
+  {
+   "id": "AI-N17",
+   "type": "AI",
+   "severity": "High",
+   "status": "open",
+   "summary": "The promoted dc_motor PC classifier (pc_server_5class_w2048/2026-10-20_run01) has no OOD detector; the A1 detector flagged 13 % of ball windows (AI-N13). Not integrated by decision D6.",
+   "evidence": {
+    "command": "python experiments/report_ood_detector.py (A1); metrics.json of the promoted run",
+    "files": [
+     "docs/audit/ai/ood_detector.md",
+     "docs/audit/expansion/e10a_unknown_condition.md"
+    ]
+   },
+   "doc": "docs/AI_TECHNICAL_AUDIT.md \u00a79.3",
+   "tests": [
+    "tests/test_findings_e10.py::test_ai_n17_promoted_classifier_has_no_ood_detector"
+   ]
+  },
+  {
+   "id": "S-14",
+   "type": "Simulation",
+   "severity": "Medium",
+   "status": "documented",
+   "summary": "DPC closed loop diverges as C degrades; threshold depends on load: C<=x0.84 at 4 ohm, <=x0.67 at 5 ohm, <=x0.42 at 8.0064 ohm; stable to x0.40 at 10-20 ohm.",
+   "evidence": {
+    "command": "python experiments/measure_dpc_capacitor_divergence.py",
+    "files": [
+     "docs/audit/stability/dpc_capacitor_divergence.md",
+     "docs/audit/stability/dpc_capacitor_divergence.json"
+    ]
+   },
+   "doc": "docs/SIMULATION_STABILITY_REPORT.md \u00a76",
+   "tests": [
+    "tests/test_findings_e10.py::test_s14_dpc_loop_vs_capacitor_at_the_nominal_load[0.5-False]",
+    "tests/test_findings_e10.py::test_s14_dpc_loop_vs_capacitor_at_the_nominal_load[0.4-True]"
+   ]
+  }
+ ]
+}

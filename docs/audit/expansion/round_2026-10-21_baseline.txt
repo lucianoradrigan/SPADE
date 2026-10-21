@@ -1,0 +1,10 @@
+# Round 2026-10-21 baseline (2026-10-21T16:16:26Z)
+## dev...origin/dev
+HEAD acebd43  origin/dev acebd43
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1002 passed, 256 warnings in 674.56s (0:11:14)
+
+Command: git fetch origin && git status -sb; .venv/bin/python -m pytest -q -p no:cacheprovider (SPADE-dev/.venv, Python 3.12.13).
+Matches the expected state (dev == origin/dev at acebd43, 1002 passed).
+Note: while this suite ran, src/driveflow/viz/views/vsc_parameter_identification.py was edited in the working tree for T1 (one added st.warning); the tests that render that tab passed either way.

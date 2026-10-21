@@ -151,6 +151,11 @@ def render_tab() -> None:
                    f"{' (each with a new network seed)' if result['estimator'] == 'pinn' else ''}; with few refits the interval is coarse. "
                    f"Window: {result['window_samples']} samples; R = {result['load_resistance_ohm']:g} Ω (given). Time: {result['elapsed_s']:.1f} s.")
         val = ia.validation_summary(result["estimator"], p.get("noise_pct", 0.0))
+        cov = "" if val is None else (f" In simulation at {val['Noise (%)'].iloc[0]:g} % noise it covered the true value in "
+                                      f"{val['Interval coverage'].min():.0%}–{val['Interval coverage'].max():.0%} of runs, depending on the parameter.")
+        st.warning(f"**Coverage not validated.** The 5–95 % interval is not a calibrated 90 % interval (finding AI-N16).{cov}"
+                   + (" PINN estimates of C are biased low, more so with noise (finding AI-N15)." if result["estimator"] == "pinn" else ""),
+                   icon=":material/rule:")
         with st.expander("Validation of this estimator (simulation)", icon=":material/fact_check:"):
             if val is None:
                 st.caption("No validation report found (docs/audit/ai/pinn_identification.json).")

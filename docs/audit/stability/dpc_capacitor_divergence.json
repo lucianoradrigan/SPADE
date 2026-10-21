@@ -1,0 +1,1826 @@
+{
+ "meta": {
+  "generated_by": "experiments/measure_dpc_capacitor_divergence.py",
+  "date": "2026-10-21",
+  "machine": "Linux x86_64, Python 3.12.13",
+  "duration_s": 0.2,
+  "reference_magnitude_v": 50.0,
+  "blowup_factor": 10.0,
+  "c_factors": [
+   0.7,
+   0.69,
+   0.68,
+   0.67,
+   0.66,
+   0.65,
+   0.64,
+   0.63,
+   0.62,
+   0.61,
+   0.6,
+   0.59,
+   0.58,
+   0.57,
+   0.56,
+   0.55,
+   0.54,
+   0.53,
+   0.52,
+   0.51,
+   0.5,
+   0.49,
+   0.48,
+   0.47,
+   0.46,
+   0.45,
+   0.44,
+   0.43,
+   0.42,
+   0.41,
+   0.4
+  ],
+  "loads_ohm": [
+   4.0,
+   5.0,
+   8.0064,
+   10.0,
+   15.0,
+   20.0
+  ],
+  "runtime_s": 588.0
+ },
+ "per_load": [
+  {
+   "load_ohm": 4.0,
+   "largest_diverging_c_scale": 0.84,
+   "smallest_stable_c_scale": 0.85,
+   "monotone": true,
+   "rmse_at_c_0_70_v": null
+  },
+  {
+   "load_ohm": 5.0,
+   "largest_diverging_c_scale": 0.67,
+   "smallest_stable_c_scale": 0.68,
+   "monotone": true,
+   "rmse_at_c_0_70_v": 2.813325080184108
+  },
+  {
+   "load_ohm": 8.0064,
+   "largest_diverging_c_scale": 0.42,
+   "smallest_stable_c_scale": 0.43,
+   "monotone": true,
+   "rmse_at_c_0_70_v": 0.9634862728316489
+  },
+  {
+   "load_ohm": 10.0,
+   "largest_diverging_c_scale": null,
+   "smallest_stable_c_scale": 0.4,
+   "monotone": true,
+   "rmse_at_c_0_70_v": 2.9941417476909558
+  },
+  {
+   "load_ohm": 15.0,
+   "largest_diverging_c_scale": null,
+   "smallest_stable_c_scale": 0.4,
+   "monotone": true,
+   "rmse_at_c_0_70_v": 2.224865322496038
+  },
+  {
+   "load_ohm": 20.0,
+   "largest_diverging_c_scale": null,
+   "smallest_stable_c_scale": 0.4,
+   "monotone": true,
+   "rmse_at_c_0_70_v": 2.8755820060841066
+  }
+ ],
+ "runs": [
+  {
+   "c_scale": 0.7,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0206,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.69,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.019200000000000002,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.68,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0182,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.67,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0172,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.66,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0162,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.65,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0154,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.64,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0146,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.63,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.014,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.62,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0134,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.61,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0128,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.6,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.012400000000000001,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.59,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0118,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.58,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0114,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.57,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.011000000000000001,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.56,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0106,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.55,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0102,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.54,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.01,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.53,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.009600000000000001,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.52,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0094,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.51,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.009000000000000001,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.5,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0088,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.49,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0085,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.48,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0082,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.47,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.008,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.46,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0078000000000000005,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.45,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0076,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.44,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0074,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.43,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.007200000000000001,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.42,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.007,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.41,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0068000000000000005,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.4,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0066,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.7,
+   "load_ohm": 5.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 54.92754838634795,
+   "rmse_second_half_v": 2.813325080184108
+  },
+  {
+   "c_scale": 0.69,
+   "load_ohm": 5.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 54.92547073725536,
+   "rmse_second_half_v": 2.8115068093873368
+  },
+  {
+   "c_scale": 0.68,
+   "load_ohm": 5.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 55.23082905039328,
+   "rmse_second_half_v": 2.8537029944000887
+  },
+  {
+   "c_scale": 0.67,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 1.4173046464806662e+31,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.66,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.11520000000000001,
+   "peak_vc_second_half_v": 6.98939865801661e+37,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.65,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0756,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.64,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.056600000000000004,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.63,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.045200000000000004,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.62,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0378,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.61,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0324,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.6,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0284,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.59,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.025400000000000002,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.58,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.023,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.57,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.021,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.56,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.019200000000000002,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.55,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0178,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.54,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0166,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.53,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.015600000000000001,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.52,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0146,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.51,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.013800000000000002,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.5,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.013000000000000001,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.49,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.012400000000000001,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.48,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0118,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.47,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0112,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.46,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0108,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.45,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0102,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.44,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0098,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.43,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0094,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.42,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.009000000000000001,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.41,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0088,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.4,
+   "load_ohm": 5.0,
+   "diverged": true,
+   "first_non_finite_s": 0.008400000000000001,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.7,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.33552549901983,
+   "rmse_second_half_v": 0.9634862728316489
+  },
+  {
+   "c_scale": 0.69,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.342503426004775,
+   "rmse_second_half_v": 0.9589373606698383
+  },
+  {
+   "c_scale": 0.68,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.34946729175968,
+   "rmse_second_half_v": 0.9545957545913416
+  },
+  {
+   "c_scale": 0.67,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.356392206579116,
+   "rmse_second_half_v": 0.9504732766719179
+  },
+  {
+   "c_scale": 0.66,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.363246572743016,
+   "rmse_second_half_v": 0.9465750159547531
+  },
+  {
+   "c_scale": 0.65,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.36999987257657,
+   "rmse_second_half_v": 0.9428981443090791
+  },
+  {
+   "c_scale": 0.64,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.37748464007128,
+   "rmse_second_half_v": 0.9392843036276557
+  },
+  {
+   "c_scale": 0.63,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.3851120611497,
+   "rmse_second_half_v": 0.9359596836482293
+  },
+  {
+   "c_scale": 0.62,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.39265159464159,
+   "rmse_second_half_v": 0.9328325125084466
+  },
+  {
+   "c_scale": 0.61,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.400090650684355,
+   "rmse_second_half_v": 0.9299119456032754
+  },
+  {
+   "c_scale": 0.6,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.40736147634036,
+   "rmse_second_half_v": 0.9272086563816851
+  },
+  {
+   "c_scale": 0.59,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.41436812206821,
+   "rmse_second_half_v": 0.9247601551595055
+  },
+  {
+   "c_scale": 0.58,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.42120333220196,
+   "rmse_second_half_v": 0.922615392879795
+  },
+  {
+   "c_scale": 0.57,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.42781449917678,
+   "rmse_second_half_v": 0.9206825583656406
+  },
+  {
+   "c_scale": 0.56,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.434210143683075,
+   "rmse_second_half_v": 0.9189927586268338
+  },
+  {
+   "c_scale": 0.55,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.440348004981,
+   "rmse_second_half_v": 0.9175570927742394
+  },
+  {
+   "c_scale": 0.54,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.446179898402626,
+   "rmse_second_half_v": 0.9163563970229865
+  },
+  {
+   "c_scale": 0.53,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.45164488521431,
+   "rmse_second_half_v": 0.9153956148701996
+  },
+  {
+   "c_scale": 0.52,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.45667702029379,
+   "rmse_second_half_v": 0.9146873645018544
+  },
+  {
+   "c_scale": 0.51,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.46122953807873,
+   "rmse_second_half_v": 0.914228759889829
+  },
+  {
+   "c_scale": 0.5,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.46523870019594,
+   "rmse_second_half_v": 0.9140128659209191
+  },
+  {
+   "c_scale": 0.49,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.468499898493675,
+   "rmse_second_half_v": 0.913993761994221
+  },
+  {
+   "c_scale": 0.48,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.47068876701428,
+   "rmse_second_half_v": 0.9139430369327965
+  },
+  {
+   "c_scale": 0.47,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.472121786083264,
+   "rmse_second_half_v": 0.9137613695690989
+  },
+  {
+   "c_scale": 0.46,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.47247795987557,
+   "rmse_second_half_v": 0.9137609781910001
+  },
+  {
+   "c_scale": 0.45,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.47068009971938,
+   "rmse_second_half_v": 0.9141949786612223
+  },
+  {
+   "c_scale": 0.44,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.46683886415285,
+   "rmse_second_half_v": 0.9149705899664959
+  },
+  {
+   "c_scale": 0.43,
+   "load_ohm": 8.0064,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.45934515608737,
+   "rmse_second_half_v": 0.9164809638971694
+  },
+  {
+   "c_scale": 0.42,
+   "load_ohm": 8.0064,
+   "diverged": true,
+   "first_non_finite_s": 0.0935,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.41,
+   "load_ohm": 8.0064,
+   "diverged": true,
+   "first_non_finite_s": 0.0487,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.4,
+   "load_ohm": 8.0064,
+   "diverged": true,
+   "first_non_finite_s": 0.0337,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.7,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.38426506090869,
+   "rmse_second_half_v": 2.9941417476909558
+  },
+  {
+   "c_scale": 0.69,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.37429586344107,
+   "rmse_second_half_v": 2.997607436310738
+  },
+  {
+   "c_scale": 0.68,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.36199489709937,
+   "rmse_second_half_v": 3.0010920274663753
+  },
+  {
+   "c_scale": 0.67,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.351030797549335,
+   "rmse_second_half_v": 3.0046291181986162
+  },
+  {
+   "c_scale": 0.66,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.347204643871706,
+   "rmse_second_half_v": 3.0082447518221924
+  },
+  {
+   "c_scale": 0.65,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.35328859781952,
+   "rmse_second_half_v": 3.0118689838922132
+  },
+  {
+   "c_scale": 0.64,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.364594541227845,
+   "rmse_second_half_v": 3.0151701594407987
+  },
+  {
+   "c_scale": 0.63,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.370760365052,
+   "rmse_second_half_v": 3.0181054948112864
+  },
+  {
+   "c_scale": 0.62,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.37709707838218,
+   "rmse_second_half_v": 3.021493902565955
+  },
+  {
+   "c_scale": 0.61,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.40111998794354,
+   "rmse_second_half_v": 3.0260767658069305
+  },
+  {
+   "c_scale": 0.6,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.42358590004639,
+   "rmse_second_half_v": 3.032551663870769
+  },
+  {
+   "c_scale": 0.59,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.6834946902755,
+   "rmse_second_half_v": 3.0416818168712294
+  },
+  {
+   "c_scale": 0.58,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.17960689219146,
+   "rmse_second_half_v": 3.0548032788603083
+  },
+  {
+   "c_scale": 0.57,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.321234282677786,
+   "rmse_second_half_v": 3.0779497396091906
+  },
+  {
+   "c_scale": 0.56,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 52.83818255375072,
+   "rmse_second_half_v": 3.137882391678872
+  },
+  {
+   "c_scale": 0.55,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 54.45669141877038,
+   "rmse_second_half_v": 3.2181162988785403
+  },
+  {
+   "c_scale": 0.54,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 55.431164978136515,
+   "rmse_second_half_v": 3.228041128129787
+  },
+  {
+   "c_scale": 0.53,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 57.41145109338187,
+   "rmse_second_half_v": 3.6926840000184202
+  },
+  {
+   "c_scale": 0.52,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 63.35507128390709,
+   "rmse_second_half_v": 4.977306756067057
+  },
+  {
+   "c_scale": 0.51,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 73.93488510613575,
+   "rmse_second_half_v": 9.286275134073302
+  },
+  {
+   "c_scale": 0.5,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 71.78197588413762,
+   "rmse_second_half_v": 9.419486973034973
+  },
+  {
+   "c_scale": 0.49,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 73.64867175066979,
+   "rmse_second_half_v": 13.692061927929613
+  },
+  {
+   "c_scale": 0.48,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 77.92271038757853,
+   "rmse_second_half_v": 15.274443527039361
+  },
+  {
+   "c_scale": 0.47,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 82.07519266353188,
+   "rmse_second_half_v": 15.051122432856667
+  },
+  {
+   "c_scale": 0.46,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 86.45750932922981,
+   "rmse_second_half_v": 16.57638454043357
+  },
+  {
+   "c_scale": 0.45,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 93.45685788273539,
+   "rmse_second_half_v": 18.47169433412629
+  },
+  {
+   "c_scale": 0.44,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 92.68818735868891,
+   "rmse_second_half_v": 18.922678627768285
+  },
+  {
+   "c_scale": 0.43,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 87.13928013785191,
+   "rmse_second_half_v": 19.532098791368583
+  },
+  {
+   "c_scale": 0.42,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 93.31131059157357,
+   "rmse_second_half_v": 20.864760189322087
+  },
+  {
+   "c_scale": 0.41,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 92.83401625215492,
+   "rmse_second_half_v": 22.745537152769682
+  },
+  {
+   "c_scale": 0.4,
+   "load_ohm": 10.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 94.10542097158681,
+   "rmse_second_half_v": 24.62293267304029
+  },
+  {
+   "c_scale": 0.7,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.820892900584326,
+   "rmse_second_half_v": 2.224865322496038
+  },
+  {
+   "c_scale": 0.69,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.81873295084885,
+   "rmse_second_half_v": 2.2283233344150775
+  },
+  {
+   "c_scale": 0.68,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.815917635654976,
+   "rmse_second_half_v": 2.2315362957023326
+  },
+  {
+   "c_scale": 0.67,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.81243490875397,
+   "rmse_second_half_v": 2.2364217334778314
+  },
+  {
+   "c_scale": 0.66,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.80834222356016,
+   "rmse_second_half_v": 2.24426029881982
+  },
+  {
+   "c_scale": 0.65,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.80364818185461,
+   "rmse_second_half_v": 2.2527986412433436
+  },
+  {
+   "c_scale": 0.64,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.79848129342632,
+   "rmse_second_half_v": 2.2597294066506555
+  },
+  {
+   "c_scale": 0.63,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.792961269204675,
+   "rmse_second_half_v": 2.2644132546562004
+  },
+  {
+   "c_scale": 0.62,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.78726140194473,
+   "rmse_second_half_v": 2.272105521009398
+  },
+  {
+   "c_scale": 0.61,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.781665695556164,
+   "rmse_second_half_v": 2.2852514282884777
+  },
+  {
+   "c_scale": 0.6,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.776511237071745,
+   "rmse_second_half_v": 2.3086521721039626
+  },
+  {
+   "c_scale": 0.59,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.772269147838884,
+   "rmse_second_half_v": 2.3446731089962713
+  },
+  {
+   "c_scale": 0.58,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.76954214503249,
+   "rmse_second_half_v": 2.4859127744823954
+  },
+  {
+   "c_scale": 0.57,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.78093345508466,
+   "rmse_second_half_v": 2.4446946371657936
+  },
+  {
+   "c_scale": 0.56,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.79754198126236,
+   "rmse_second_half_v": 2.327391289556182
+  },
+  {
+   "c_scale": 0.55,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 55.25534292433869,
+   "rmse_second_half_v": 2.9901569157220034
+  },
+  {
+   "c_scale": 0.54,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 77.27266739957415,
+   "rmse_second_half_v": 12.92462179127666
+  },
+  {
+   "c_scale": 0.53,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 86.34032795047108,
+   "rmse_second_half_v": 13.897462679512563
+  },
+  {
+   "c_scale": 0.52,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 95.53639343471718,
+   "rmse_second_half_v": 17.179882716099435
+  },
+  {
+   "c_scale": 0.51,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 95.822734696877,
+   "rmse_second_half_v": 18.58289201108514
+  },
+  {
+   "c_scale": 0.5,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 106.95858839789109,
+   "rmse_second_half_v": 19.99688377254543
+  },
+  {
+   "c_scale": 0.49,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 108.02177194429119,
+   "rmse_second_half_v": 21.31135520487451
+  },
+  {
+   "c_scale": 0.48,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 113.96236680765247,
+   "rmse_second_half_v": 23.83159213946214
+  },
+  {
+   "c_scale": 0.47,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 121.2246092065853,
+   "rmse_second_half_v": 26.420669059280446
+  },
+  {
+   "c_scale": 0.46,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 125.79485281641136,
+   "rmse_second_half_v": 42.378048745418624
+  },
+  {
+   "c_scale": 0.45,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 139.5069855411752,
+   "rmse_second_half_v": 49.18325098036658
+  },
+  {
+   "c_scale": 0.44,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 144.1924379255819,
+   "rmse_second_half_v": 55.10734240808347
+  },
+  {
+   "c_scale": 0.43,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 146.51082449952804,
+   "rmse_second_half_v": 59.12974906884996
+  },
+  {
+   "c_scale": 0.42,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 137.1989343734268,
+   "rmse_second_half_v": 66.35622955438498
+  },
+  {
+   "c_scale": 0.41,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 146.7895261983097,
+   "rmse_second_half_v": 72.81689268272905
+  },
+  {
+   "c_scale": 0.4,
+   "load_ohm": 15.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 193.73034155296654,
+   "rmse_second_half_v": 75.92155124729469
+  },
+  {
+   "c_scale": 0.7,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 50.189732206093275,
+   "rmse_second_half_v": 2.8755820060841066
+  },
+  {
+   "c_scale": 0.69,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 50.187473992036416,
+   "rmse_second_half_v": 2.880111592402982
+  },
+  {
+   "c_scale": 0.68,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 50.1851242521667,
+   "rmse_second_half_v": 2.8861677168692057
+  },
+  {
+   "c_scale": 0.67,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 50.18522295063008,
+   "rmse_second_half_v": 2.8944384285235607
+  },
+  {
+   "c_scale": 0.66,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 50.18599183870049,
+   "rmse_second_half_v": 2.9037267683799497
+  },
+  {
+   "c_scale": 0.65,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 50.18739356078304,
+   "rmse_second_half_v": 2.909094932257859
+  },
+  {
+   "c_scale": 0.64,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 50.18916602877046,
+   "rmse_second_half_v": 2.913268691341444
+  },
+  {
+   "c_scale": 0.63,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 50.1912479187984,
+   "rmse_second_half_v": 2.9168943773181324
+  },
+  {
+   "c_scale": 0.62,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 50.19052720511499,
+   "rmse_second_half_v": 2.9231844780729324
+  },
+  {
+   "c_scale": 0.61,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 50.18764348675665,
+   "rmse_second_half_v": 2.934279153374414
+  },
+  {
+   "c_scale": 0.6,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 50.18251957882062,
+   "rmse_second_half_v": 2.9423352225554225
+  },
+  {
+   "c_scale": 0.59,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 50.17739046498139,
+   "rmse_second_half_v": 2.9451957197331113
+  },
+  {
+   "c_scale": 0.58,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 50.186563985193715,
+   "rmse_second_half_v": 2.942953117745184
+  },
+  {
+   "c_scale": 0.57,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 50.19754647782675,
+   "rmse_second_half_v": 2.9305263043397316
+  },
+  {
+   "c_scale": 0.56,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 50.209952427946064,
+   "rmse_second_half_v": 2.942622610512231
+  },
+  {
+   "c_scale": 0.55,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 51.6380374828981,
+   "rmse_second_half_v": 3.1148598289998297
+  },
+  {
+   "c_scale": 0.54,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 53.263994842117754,
+   "rmse_second_half_v": 3.130303558223097
+  },
+  {
+   "c_scale": 0.53,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 58.4383457899499,
+   "rmse_second_half_v": 3.6694292804068445
+  },
+  {
+   "c_scale": 0.52,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 91.2792789817747,
+   "rmse_second_half_v": 10.822844753589552
+  },
+  {
+   "c_scale": 0.51,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 93.85847128236712,
+   "rmse_second_half_v": 14.67137595060228
+  },
+  {
+   "c_scale": 0.5,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 104.48377794667255,
+   "rmse_second_half_v": 17.719278213556972
+  },
+  {
+   "c_scale": 0.49,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 125.29301356785784,
+   "rmse_second_half_v": 26.66406974017366
+  },
+  {
+   "c_scale": 0.48,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 124.2762835920987,
+   "rmse_second_half_v": 30.291226238427004
+  },
+  {
+   "c_scale": 0.47,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 134.0757481707372,
+   "rmse_second_half_v": 35.90834137689419
+  },
+  {
+   "c_scale": 0.46,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 131.4730550465074,
+   "rmse_second_half_v": 36.91721549253992
+  },
+  {
+   "c_scale": 0.45,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 141.4159192486304,
+   "rmse_second_half_v": 37.92879594741565
+  },
+  {
+   "c_scale": 0.44,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 154.39073589598223,
+   "rmse_second_half_v": 44.29819129034519
+  },
+  {
+   "c_scale": 0.43,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 162.56504000040883,
+   "rmse_second_half_v": 50.47566555807689
+  },
+  {
+   "c_scale": 0.42,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 169.39847571864854,
+   "rmse_second_half_v": 56.1676336644339
+  },
+  {
+   "c_scale": 0.41,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 176.79766915255385,
+   "rmse_second_half_v": 64.2276697260153
+  },
+  {
+   "c_scale": 0.4,
+   "load_ohm": 20.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 183.8406502833028,
+   "rmse_second_half_v": 69.19893461091588
+  },
+  {
+   "c_scale": 0.71,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.022000000000000002,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.72,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0238,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.73,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0258,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.74,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.028,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.75,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.031,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.76,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0344,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.77,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.039,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.78,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0448,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.79,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.0526,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.8,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.06420000000000001,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.81,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.082,
+   "peak_vc_second_half_v": null,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.82,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.114,
+   "peak_vc_second_half_v": 6.771365863983186e+37,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.83,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": 0.1872,
+   "peak_vc_second_half_v": 6.131463327466121e+37,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.84,
+   "load_ohm": 4.0,
+   "diverged": true,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 300706198337389.8,
+   "rmse_second_half_v": null
+  },
+  {
+   "c_scale": 0.85,
+   "load_ohm": 4.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 55.97834800476055,
+   "rmse_second_half_v": 3.0823062142137085
+  },
+  {
+   "c_scale": 0.86,
+   "load_ohm": 4.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 55.973471264706625,
+   "rmse_second_half_v": 3.08330562587595
+  },
+  {
+   "c_scale": 0.87,
+   "load_ohm": 4.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 55.97231282147677,
+   "rmse_second_half_v": 3.0843170695703392
+  },
+  {
+   "c_scale": 0.88,
+   "load_ohm": 4.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 55.971496682137236,
+   "rmse_second_half_v": 3.08533544859659
+  },
+  {
+   "c_scale": 0.89,
+   "load_ohm": 4.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 55.97061827756935,
+   "rmse_second_half_v": 3.0863566741826305
+  },
+  {
+   "c_scale": 0.9,
+   "load_ohm": 4.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 55.9697521322404,
+   "rmse_second_half_v": 3.0873831579726345
+  },
+  {
+   "c_scale": 0.91,
+   "load_ohm": 4.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 55.96897041993597,
+   "rmse_second_half_v": 3.0884107663696865
+  },
+  {
+   "c_scale": 0.92,
+   "load_ohm": 4.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 55.96828656989172,
+   "rmse_second_half_v": 3.0894400341669357
+  },
+  {
+   "c_scale": 0.93,
+   "load_ohm": 4.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 55.96766867387893,
+   "rmse_second_half_v": 3.090470069555325
+  },
+  {
+   "c_scale": 0.94,
+   "load_ohm": 4.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 55.9671198953013,
+   "rmse_second_half_v": 3.091498326565945
+  },
+  {
+   "c_scale": 0.95,
+   "load_ohm": 4.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 55.96660504551447,
+   "rmse_second_half_v": 3.092527538164936
+  },
+  {
+   "c_scale": 0.96,
+   "load_ohm": 4.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 55.96608636144509,
+   "rmse_second_half_v": 3.0935587946238474
+  },
+  {
+   "c_scale": 0.97,
+   "load_ohm": 4.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 55.965546357393265,
+   "rmse_second_half_v": 3.094592580527709
+  },
+  {
+   "c_scale": 0.98,
+   "load_ohm": 4.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 55.96499384309949,
+   "rmse_second_half_v": 3.0956296116673676
+  },
+  {
+   "c_scale": 0.99,
+   "load_ohm": 4.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 55.964403909486016,
+   "rmse_second_half_v": 3.096666808344825
+  },
+  {
+   "c_scale": 1.0,
+   "load_ohm": 4.0,
+   "diverged": false,
+   "first_non_finite_s": null,
+   "peak_vc_second_half_v": 55.96376566055153,
+   "rmse_second_half_v": 3.09770863760027
+  }
+ ]
+}

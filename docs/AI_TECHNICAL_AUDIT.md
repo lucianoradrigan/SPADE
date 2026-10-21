@@ -234,6 +234,9 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N08 | Low | Risk | **Fixed + tested** (§7.3) |
 | AI-N13 | High | Negative result | **Open** (§8.1): a feature-space OOD detector does not catch ball/cage faults at a usable false-alarm rate |
 | AI-N14 | Medium | Defect (generalization) | **Open** (§8.1): below the training speed range (50 rad/s) accuracy on answered windows is 0.58; at 150 % noise 0.68 |
+| AI-N17 | High | Risk (extends AI-N12/AI-N13) | **Open** (§9.3): the promoted 5-class classifier carries no OOD detector; the GUI says "OOD detection unavailable". Not integrated by decision D6 (2026-10-21); re-evaluated with E14 |
+| AI-N15 | Medium | Defect (estimator bias) | **Open** (§9.1): the VSC PINN estimates C systematically low, −1.3 % to −9.1 % mean error at 0–5 % noise |
+| AI-N16 | Medium | Defect (uncertainty) | **Open** (§9.2): the PINN's 5–95 % bootstrap interval covers the truth in 52–78 % of noisy runs for C; the GUI says "Coverage not validated" |
 
 ---
 
@@ -522,3 +525,54 @@ Evidence: [`classifier_evaluation_5class_w2048.md`](audit/ai/classifier_evaluati
 
 **Distillation.** `train_model.py --distill` now refuses a teacher whose class count differs from the student's, and suggests `--teacher-run`.
 
+
+## 9. Fourth pass (2026-10-21): findings from expansion tasks E10a and E10b
+
+Registered in round T1 of `DECISIONES_EXPANSION_2026-10-21.md`. Tests: `tests/test_findings_e10.py`.
+
+### 9.1 AI-N15 — the PINN estimates the VSC filter capacitance systematically low · **Medium** · Defect (estimator bias) · **Open**
+
+**Evidence.** `python experiments/report_pinn_identification.py` → [`pinn_identification.md`](audit/ai/pinn_identification.md) / `.json`. The setup is 10 simulated closed-loop VSC/DPC cases with known L, R_f, C; a 20 ms window; Gaussian noise on i_f and v_c; 3 noise realisations per noisy level. Signed mean error of the PINN's C over the 9 identifiable cases:
+
+| Noise | 0 % | 1 % | 2 % | 5 % |
+|---|---|---|---|---|
+| Mean C error | −1.3 % | −3.0 % | −4.5 % | −9.1 % |
+| Worst case | −2.5 % | −7.2 % | −11.5 % | −24.3 % |
+| Share of estimates below the truth | 89 % | 100 % | 100 % | 96 % |
+
+The bias grows with noise and with degradation: −15 % at C ×0.5 with 5 % noise.
+
+**What was tried.** More Adam steps (6000), more collocation points (4 per step), a wider network (64) and a lower learning rate did not reduce the noise-free bias. Computing the held load current from the network's v_c instead of the noisy measurement did not change the noisy one. A likely cause, not demonstrated: a smooth network cannot follow the kinks that the held inputs put into di/dt.
+
+**Consequence.** A PINN C below nominal is not evidence of degradation unless it exceeds the bias at that noise level.
+
+**Tests.** `test_ai_n15_pinn_capacitance_unbiased_with_noise` (strict xfail) and `test_ai_n15_bias_is_recorded_as_negative_and_growing_with_noise`.
+
+### 9.2 AI-N16 — the PINN's bootstrap interval is not calibrated · **Medium** · Defect (uncertainty) · **Open**
+
+**Evidence.** The same report. The 5–95 % moving-block bootstrap interval (5 refits) contains the true value in this share of runs:
+
+| Parameter | 0 % noise | 1 % | 2 % | 5 % |
+|---|---|---|---|---|
+| C | 0 % | 52 % | 70 % | 78 % |
+| L | 0 % | 26 % | 44 % | 63 % |
+| R_f | 78 % | 96 % | 96 % | 93 % |
+
+The interval measures resampling and optimiser spread, not the bias of AI-N15. With noise-free data it is narrow around a biased estimate.
+
+**GUI.** The Parameter Identification tab now shows **"Coverage not validated."** next to every result, with the measured coverage at the closest noise level and, for the PINN, a pointer to AI-N15.
+
+**Tests.** `test_ai_n16_pinn_interval_has_nominal_coverage` (strict xfail) and `test_ai_n16_gui_says_coverage_not_validated`.
+
+### 9.3 AI-N17 — the promoted classifier has no out-of-distribution detector · **High** · Risk (extends AI-N12 and AI-N13) · **Open**
+
+**Evidence.** `configs/classifiers/pc_server_5class_w2048/2026-10-20_run01/metrics.json` has no `ood` block. With it, `ai/condition.ood_availability` reports "This model has no fitted OOD detector", and AI Diagnostics shows *OOD detection unavailable*: the *Unknown condition* state cannot occur with the promoted model (E10a, `docs/audit/expansion/e10a_unknown_condition.md`).
+
+**Context.**
+- The only detector evaluated (A1, §8.1, on the earlier 3-class model) flags 13 % of ball windows at its 95 % in-distribution threshold. That evaluation is AI-N13.
+- The 5-class model now has a ball class, so a ball fault is no longer out of vocabulary for it.
+- Faults outside its five classes are still answered without an OOD check. The 1.3× order fault in `ood_detector_custom_orders.md` is one example.
+
+**Decision D6 (2026-10-21).** No detector is added to the promoted run. This is re-evaluated with the E14 residual detector, which does not depend on the classifier's classes.
+
+**Test.** `test_ai_n17_promoted_classifier_has_no_ood_detector` pins the documented state.
