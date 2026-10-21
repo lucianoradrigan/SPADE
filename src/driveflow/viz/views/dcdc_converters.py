@@ -113,11 +113,58 @@ def _buck_tab() -> None:
             st.download_button("Export run (CSV)", df.to_csv(index=False), file_name=f"spade_{run['run_id']}.csv", key="buck_export_csv", width="stretch", icon=":material/download:")
 
 
+def _dab_tab() -> None:
+    """Dual active bridge (task E9 preparation): the modulation selector and the phase-shift
+    diagram from the chosen parameters. No DAB simulation exists in SPADE yet, so every result panel
+    is in its empty state with the reason."""
+    import plotly.graph_objects as go
+
+    from driveflow.viz.adapters import dab_adapter as dab
+    from driveflow.viz.theme.plotly import series_color, style_figure
+
+    ctrl, view = st.columns([1, 3], gap="medium")
+    with ctrl, st.container(border=True):
+        st.markdown("**Modulation**")
+        strategy = st.selectbox("Strategy", list(dab.STRATEGIES), index=3, key="dab_strategy", help="TPS shown because the PLECS circuit supports triple phase shift.")
+        st.caption(dab.STRATEGIES[strategy])
+        d0 = st.slider("Outer phase shift D0 (× Ts/2)", -1.0, 1.0, 0.3, 0.01, key="dab_d0")
+        d1 = st.slider("Primary inner shift D1", 0.0, 1.0, 0.8, 0.01, key="dab_d1", disabled=strategy == "SPS")
+        d2 = st.slider("Secondary inner shift D2", 0.0, 1.0, 0.9, 0.01, key="dab_d2", disabled=strategy in ("SPS", "DPS", "EPS"))
+    d0, d1, d2 = dab.constrain(strategy, d0, d1, d2)
+    status = dab.data_status()
+    with view:
+        st.markdown("##### Phase-shift diagram (from the selected parameters — not a simulation)")
+        w = dab.bridge_waveforms(d0, d1, d2)
+        fig = go.Figure(go.Scatter(x=w["t"], y=w["v_p"], mode="lines", name="v_p / V_in (primary bridge)", line=dict(width=2, shape="hv", color=series_color("candidate"))))
+        fig.add_trace(go.Scatter(x=w["t"], y=w["v_s"] * 0.9, mode="lines", name="v_s / V_o (secondary bridge, drawn at 0.9)", line=dict(width=2, shape="hv", color=series_color("mechanical"))))
+        style_figure(fig, height=260, x_title="t / Ts", y_title="Normalized bridge voltage")
+        st.plotly_chart(fig, width="stretch", config=PLOTLY_CONFIG, key="dab_phase_diagram")
+        st.caption(f"D0 = {d0:.2f}, D1 = {d1:.2f}, D2 = {d2:.2f} ({strategy}). Each bridge is a three-level square wave; "
+                   "its non-zero part lasts D·Ts/2 per half-period and the secondary is delayed by D0·Ts/2.")
+        c1, c2 = st.columns(2)
+        with c1, st.container(border=True):
+            st.markdown("**Simulated waveforms and performance**")
+            st.info("No simulation has been executed for this configuration.", icon=":material/info:")
+            st.caption("The DAB plant is a PLECS circuit (Fund. DAB_sample1.plecs, licence unclear: non-commercial use, not shipped). "
+                       + ("It is present in data/upstream/fund/dab/; " if status["circuit_available"] else "It is not present on this machine; ")
+                       + "running it needs PLECS (not executed: no PLECS) and top-level outports added to the circuit. Use PLECS Plant Studio → DAB template.")
+        with c2, st.container(border=True):
+            st.markdown("**Modulation suggestion**")
+            st.html('<div class="spade-root spade-badges">' + badge_html("AI SUGGESTION — REQUIRES VERIFICATION", "warning", "▲") + "</div>")
+            if status["trained_runs"]:
+                st.caption(f"Trained DAB performance run(s) on disk: {', '.join(status['trained_runs'])}. Suggestions are not wired to this page until real PLECS data exists.")
+            else:
+                st.info("No DAB performance model has been trained: it needs a PLECS sweep table (none exists).", icon=":material/info:")
+            st.button("Compare suggested vs baseline", key="dab_compare", disabled=True, help="Needs a suggestion and PLECS runs of both modulations under the same conditions.")
+
+
 def render() -> None:
     page_header("Simulation / DC-DC Converters", "DC-DC Converters",
                 "Switched-mode DC-DC converters under closed-loop control. Buck: averaged model of a synchronous buck with an average-current-mode "
-                "PI cascade regulating the output voltage. The DAB tab is added with its own task.",
+                "PI cascade regulating the output voltage. DAB: modulation selector and phase-shift diagram; its simulation needs PLECS.",
                 [source_badge_html("simulated"), badge_html("AVERAGED MODEL", "unknown", "◆", "No switching ripple; valid well below f_sw")])
-    (tab_buck,) = st.tabs(["Buck"])
+    tab_buck, tab_dab = st.tabs(["Buck", "DAB"])
     with tab_buck:
         _buck_tab()
+    with tab_dab:
+        _dab_tab()

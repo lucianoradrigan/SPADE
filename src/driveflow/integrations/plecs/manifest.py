@@ -155,3 +155,27 @@ EXAMPLE_BUCK = {
         {"name": "i_L", "unit": "A", "description": "outport 2"},
     ],
 }
+
+
+#: DAB template (task E9 preparation, round 2026-10-21, D8), declared by hand from the
+#: initialization commands of Fund.'s DAB_sample1.plecs (8_PE_Simulation_Automation/PlecsAutomation,
+#: downloaded to data/upstream/fund/dab/, not committed; licence unclear -> non-commercial use):
+#: the notebook passes D1, D2, P and Vref from Python and sets Ro = Vref^2/P; Vin = 200 V, fs = 50 kHz,
+#: Lr = 50 µH, Cf = 160 µF are fixed in the file. The ModelVar ranges below are a template, not
+#: values read from the circuit. IMPORTANT: DAB_sample1.plecs has NO top-level outports (it records
+#: with scopes), so plecs.simulate returns no Time/Values for it over RPC until outports are added in
+#: PLECS; the outputs listed here are the ones such outports would need to provide, in port order.
+EXAMPLE_DAB = {
+    "model_vars": [
+        {"name": "D1", "unit": "-", "default": 1.0, "minimum": 0.0, "maximum": 1.0, "description": "inner phase-shift ratio, primary bridge (TPS)"},
+        {"name": "D2", "unit": "-", "default": 1.0, "minimum": 0.0, "maximum": 1.0, "description": "inner phase-shift ratio, secondary bridge (TPS)"},
+        {"name": "P", "unit": "W", "default": 600.0, "minimum": 100.0, "maximum": 1200.0, "description": "power reference of the circuit's own PI loop"},
+        {"name": "Vref", "unit": "V", "default": 200.0, "minimum": 100.0, "maximum": 300.0, "description": "output voltage reference"},
+        {"name": "Ro", "unit": "Ohm", "default": 66.67, "minimum": 5.0, "maximum": 1000.0, "description": "load resistance; the notebook sets Ro = Vref^2 / P"},
+    ],
+    "outputs": [
+        {"name": "v_out", "unit": "V", "description": "outport 1 (to be added in PLECS)"},
+        {"name": "i_Lr", "unit": "A", "description": "outport 2: leakage-inductor current (to be added in PLECS)"},
+    ],
+}
+TEMPLATES = {"Buck (spec Sec. 3.6)": EXAMPLE_BUCK, "DAB (Fund. DAB_sample1, needs outports)": EXAMPLE_DAB}

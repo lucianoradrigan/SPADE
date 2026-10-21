@@ -1,0 +1,13 @@
+# DAB TPS performance model, PC tier (task E9 preparation, round 2026-10-21, D8). Domain dab only.
+# Inputs: operating point (Vref, P) and the TPS inner phase shifts (D1, D2); outputs: inductor
+# current peak-to-peak and RMS. Trained on a PLECS sweep table with these columns (none exists yet:
+# no PLECS run; see docs/audit/expansion/t8_dab_prep.md). The split keeps each operating point
+# (group_by) in one of train/val/test.
+task: dab_performance
+domain: dab
+tier: pc
+inputs: [Vref, P, D1, D2]
+outputs: [ipk2pk, irms]
+group_by: [Vref, P]
+valid_column: Validity
+hidden: [64, 64]

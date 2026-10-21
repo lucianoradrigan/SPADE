@@ -83,7 +83,14 @@ def _import_circuit() -> None:
         st.markdown("**Interface manifest** — declared by hand; SPADE does not read the circuit's blocks.")
         st.caption("`model_vars`: the ModelVars a sweep may set (unit, default, range). `outputs`: the top-level outports in port order (unit).")
         st.html('<div class="spade-root spade-badges">' + badge_html("EXAMPLE CONFIGURATION — NOT EXECUTED", "unknown", "◇", "Template from the spec's buck example; edit it to match your circuit") + "</div>")
-        text = st.text_area("Manifest (JSON)", json.dumps(pa.EXAMPLE_MANIFEST, indent=2), height=300, key="plecs_new_manifest")
+        tpl = st.selectbox("Template", list(pa.TEMPLATES), key="plecs_new_template", help="A starting point for the manifest; edit it to match your circuit.")
+        if "DAB" in tpl:
+            st.caption("DAB template from Fund.'s DAB_sample1.plecs (licence unclear: non-commercial use; the file is not shipped with SPADE). "
+                       "That circuit has no top-level outports: add them in PLECS before a sweep can return signals.")
+        if st.session_state.get("plecs_new_template_last") != tpl:
+            st.session_state["plecs_new_manifest"] = json.dumps(pa.TEMPLATES[tpl], indent=2)
+            st.session_state["plecs_new_template_last"] = tpl
+        text = st.text_area("Manifest (JSON)", height=300, key="plecs_new_manifest")
         if st.button("Import circuit", key="plecs_import", icon=":material/add:"):
             try:
                 p = pa.create_profile(pid.strip(), name.strip(), text, _url(), uploaded, local)

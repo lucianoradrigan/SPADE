@@ -79,6 +79,10 @@ def _load_any_config(config_path: Path):
         raw = yaml.safe_load(f)
     if not isinstance(raw, dict):
         raise ValueError(f"{config_path}: expected a mapping, got {raw!r}")
+    if raw.get("task") == "dab_performance":
+        from driveflow.models.dab.schemas import load_dab_config
+
+        return "dab_performance", load_dab_config(config_path)
     if "blocks" in raw:
         return "classifier", load_classifier_config(config_path)
     if "recurrent_type" in raw:
@@ -94,6 +98,10 @@ def _load_domain_dataframe(dataset_path: Path, domain: str) -> pd.DataFrame:
     if domain == "vsc_dpc":
         df = pd.read_parquet(dataset_path)
         return df[df["plant_config_id"] == _PLANT_CONFIG_ID_BY_DOMAIN["vsc_dpc"]].reset_index(drop=True)
+    if domain == "dab":
+        # A PLECS sweep table (CSV or Parquet) with the config's input/output columns -- its own
+        # domain, never mixed with the motor/VSC telemetry schema.
+        return pd.read_csv(dataset_path) if str(dataset_path).endswith(".csv") else pd.read_parquet(dataset_path)
     raise ValueError(f"unknown domain {domain!r} -- expected one of {sorted(_PLANT_CONFIG_ID_BY_DOMAIN)}")
 
 
@@ -260,6 +268,38 @@ def _train_forecaster(
     return model, metrics
 
 
+def _train_dab(config, df: pd.DataFrame, epochs: int, batch_size: int, seed: int) -> tuple:
+    """DAB performance model (task E9 prep): standardized inputs -> standardized outputs, split by
+    operating point (config.group_by) so the same point never sits in two splits."""
+    from driveflow.models.dab.builder import build_dab_model
+
+    missing = [c for c in (*config.inputs, *config.outputs) if c not in df.columns]
+    if missing:
+        raise ValueError(f"dataset lacks columns {missing}")
+    if config.valid_column:
+        if config.valid_column not in df.columns:
+            raise ValueError(f"dataset lacks the validity column {config.valid_column!r}")
+        df = df[df[config.valid_column] == 1]
+    df = df.dropna(subset=list(config.inputs) + list(config.outputs)).reset_index(drop=True)
+    groups = df[list(config.group_by)].astype(str).agg("|".join, axis=1).to_numpy()
+    split = grouped_train_val_test_split(groups, val_frac=0.2, test_frac=0.2, seed=seed)
+    X, Y = df[list(config.inputs)].to_numpy(np.float32), df[list(config.outputs)].to_numpy(np.float32)
+    x_mu, x_sd = X[split.train_idx].mean(0), X[split.train_idx].std(0) + 1e-9
+    y_mu, y_sd = Y[split.train_idx].mean(0), Y[split.train_idx].std(0) + 1e-9
+    model = build_dab_model(config)
+    model.compile(optimizer="adam", loss="mse")
+    model.fit((X[split.train_idx] - x_mu) / x_sd, (Y[split.train_idx] - y_mu) / y_sd, epochs=epochs, batch_size=batch_size, verbose=0,
+              validation_data=((X[split.val_idx] - x_mu) / x_sd, (Y[split.val_idx] - y_mu) / y_sd))
+    pred = model.predict((X[split.test_idx] - x_mu) / x_sd, verbose=0) * y_sd + y_mu
+    rmse = np.sqrt(np.mean((pred - Y[split.test_idx]) ** 2, axis=0))
+    metrics = {"kind": "dab_performance", "domain": "dab", "tier": config.tier, "inputs": list(config.inputs), "outputs": list(config.outputs),
+               "x_mean": x_mu.tolist(), "x_std": x_sd.tolist(), "y_mean": y_mu.tolist(), "y_std": y_sd.tolist(),
+               "n_train": int(len(split.train_idx)), "n_val": int(len(split.val_idx)), "n_test": int(len(split.test_idx)),
+               "test_rmse_per_output": {o: float(r) for o, r in zip(config.outputs, rmse)},
+               "test_groups": sorted(set(groups[split.test_idx].tolist())), "split": "grouped by operating point " + "+".join(config.group_by)}
+    return model, metrics
+
+
 def _next_run_dir(config_path: Path) -> Path:
     """<config_dir>/<config_stem>/<date>_run<NN>/, matching Sec. 6.4's own example layout."""
     run_root = config_path.parent / config_path.stem
@@ -332,6 +372,10 @@ def train_from_config(
         model, metrics = _train_classifier(
             config, df, epochs, batch_size, seed, teacher=teacher, distill_alpha=distill_alpha, level_scaling=level_scaling, cap_per_class=cap_per_class
         )
+    elif kind == "dab_performance":
+        if distill:
+            raise ValueError("distillation is not supported for the DAB performance model")
+        model, metrics = _train_dab(config, df, epochs, batch_size, seed)
     else:
         model, metrics = _train_forecaster(config, df, epochs, batch_size, seed, teacher=teacher, distill_alpha=distill_alpha)
 

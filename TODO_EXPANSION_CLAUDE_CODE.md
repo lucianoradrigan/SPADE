@@ -311,7 +311,7 @@ ninguna política queda como default sin aprobación.
 Reporte en docs/audit/expansion/e8_rl_benchmark.md.
 
 E9. DAB (opcional, requiere decisión)
-- [ ] E9. DAB como planta PLECS + modulación TPS sugerida por IA (funcionalidad #6)
+- [ ] E9. (parcial 2026-10-21: preparación sin PLECS hecha, ver docs/audit/expansion/t8_dab_prep.md) DAB como planta PLECS + modulación TPS sugerida por IA (funcionalidad #6)
 
 Antes de empezar:
 

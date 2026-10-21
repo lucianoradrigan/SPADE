@@ -20,6 +20,7 @@ from driveflow.runs.schemas import ExperimentSpec, PlantProfile, Run, SpadeError
 from driveflow.runs.store import RunStore
 
 EXAMPLE_MANIFEST = mf.EXAMPLE_BUCK
+TEMPLATES = mf.TEMPLATES
 
 
 def test_connection(url: str) -> dict:

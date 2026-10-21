@@ -19,18 +19,22 @@ def _page() -> AppTest:
     return at
 
 
-def test_empty_state_before_generate_and_only_buck_tab():
+def _buck_charts(at):
+    return [c for c in at.get("plotly_chart") if str(c.key).startswith("buck_")]
+
+
+def test_empty_state_before_generate_and_tabs():
     at = _page()
-    assert [t.label for t in at.tabs] == ["Buck"]  # DAB only with E9
+    assert [t.label for t in at.tabs] == ["Buck", "DAB"]  # DAB tab added in round 2026-10-21 (D8)
     assert any("Generate Buck scenario" in i.value for i in at.info)
-    assert not at.get("plotly_chart")
+    assert not _buck_charts(at)  # no Buck chart before a run (the DAB tab only draws its parameter diagram)
 
 
 def test_generate_runs_the_real_scenario():
     at = _page()
     at.button(key="buck_run_button").click().run()
     assert not at.exception, at.exception
-    assert len(at.get("plotly_chart")) == 3
+    assert len(_buck_charts(at)) == 3
     html = " ".join(str(h.body) for h in at.get("html"))
     assert "Start-up settling" in html and "buck-001" in html
     assert at.button(key="buck_run_button").disabled  # unchanged controls -> no duplicate run
