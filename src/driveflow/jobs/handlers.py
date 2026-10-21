@@ -16,6 +16,10 @@ Kinds:
   conditions keep their error and are never interpolated. The dataset (one Parquet per completed
   condition, each row carrying its own ModelVars, plus manifest.json and conditions.csv) is written
   to data/plecs/<profile_id>/<run_id>/ and to the run's artifacts.
+- ``controller_tuning`` (task E7): runs an optimiser (``pso``, ``bayes`` or ``nsga2``,
+  driveflow.optim) on optim.objectives over the TUNING grid, then simulates the baseline and the
+  candidate(s) on the separate EVALUATION grid. One condition per objective evaluation. The result
+  is a candidate: nothing is changed (``Use as default`` goes through ApprovalGate).
 - ``selftest.steps``: no physics; sleeps ``step_s`` per step. Used by the tests to exercise the
   worker (cancel, kill, recover) deterministically, and by "Check worker" in the GUI.
 """
@@ -27,6 +31,8 @@ import io
 import math
 import time
 from typing import Callable
+
+import numpy as np
 
 from driveflow.runs.schemas import ErrorCode, ExperimentSpec, SpadeError
 
@@ -238,6 +244,101 @@ def plecs_sweep(ctx: JobContext) -> HandlerResult:
     return finish(conditions, {"n_conditions": n, "n_ok": sum(c["status"] == "ok" for c in conditions), "wall_s_median": float(pd.Series(walls).median()) if walls else None})
 
 
+# --------------------------------------------------------------------------- controller_tuning
+TUNING_METHODS = ("pso", "bayes", "nsga2")
+
+
+class _Cancelled(Exception):
+    pass
+
+
+def _validate_tuning(spec: ExperimentSpec) -> None:
+    from driveflow.optim import objectives as ob
+
+    if spec.algorithm not in TUNING_METHODS:
+        raise SpadeError(ErrorCode.INVALID_SPEC, f"controller_tuning needs algorithm in {TUNING_METHODS}, got {spec.algorithm!r}")
+    if spec.seed is None:
+        raise SpadeError(ErrorCode.INVALID_SPEC, "controller_tuning needs a seed")
+    bounds = spec.params.get("bounds")
+    try:
+        b = [[float(lo), float(hi)] for lo, hi in bounds]
+    except (TypeError, ValueError):
+        raise SpadeError(ErrorCode.INVALID_SPEC, f"bounds must be {len(ob.PARAMS)} [low, high] pairs") from None
+    if len(b) != len(ob.PARAMS):
+        raise SpadeError(ErrorCode.INVALID_SPEC, f"bounds must be {len(ob.PARAMS)} [low, high] pairs for {ob.PARAMS}")
+    for (lo, hi), (alo, ahi), name in zip(b, ob.BOUNDS, ob.PARAMS):
+        if not (alo <= lo < hi <= ahi):
+            raise SpadeError(ErrorCode.INVALID_SPEC, f"{name}: [{lo}, {hi}] must lie inside [{alo}, {ahi}] with low < high")
+    budget = (spec.budget or {}).get("evaluations")
+    if not (isinstance(budget, int) and 4 <= budget <= 2000):
+        raise SpadeError(ErrorCode.INVALID_SPEC, "budget.evaluations must be an int in [4, 2000]")
+
+
+def controller_tuning(ctx: JobContext) -> HandlerResult:
+    import json
+
+    from driveflow.optim import objectives as ob
+    from driveflow.optim.bayes import bayes_opt
+    from driveflow.optim.multiobjective import nsga2
+    from driveflow.optim.pso import pso
+
+    spec = ctx.spec
+    bounds = [[float(lo), float(hi)] for lo, hi in spec.params["bounds"]]
+    n_eval = int(spec.budget["evaluations"])
+    seed = int(spec.seed)
+    conditions = []
+
+    def callback(i, x, fx):
+        f = np.atleast_1d(np.asarray(fx, dtype=float))
+        conditions.append({"index": i - 1, "condition": ob.as_kwargs(x), "status": "ok" if np.all(np.isfinite(f)) else "failed",
+                           "metrics": {"objective": [float(v) for v in f]}, **({} if np.all(np.isfinite(f)) else {"error": "non-finite simulation"})})
+        ctx.progress(i, n_eval, f"evaluation {i}/{n_eval}")
+        if ctx.cancel_requested():
+            raise _Cancelled
+
+    method = spec.algorithm
+    try:
+        if method == "pso":
+            n_part = max(4, min(16, n_eval // 4))
+            res = pso(ob.scalar_objective, bounds, n_particles=n_part, iterations=max(1, n_eval // n_part), seed=seed, callback=callback)
+            candidates = [{"label": "best", "params": ob.as_kwargs(res.x_best)}]
+        elif method == "bayes":
+            n_init = max(4, n_eval // 4)
+            res = bayes_opt(ob.scalar_objective, bounds, n_init=n_init, iterations=n_eval - n_init, seed=seed, callback=callback)
+            candidates = [{"label": "best", "params": ob.as_kwargs(res.x_best)}]
+        else:
+            pop = max(4, min(24, (n_eval // 4) // 2 * 2))
+            res = nsga2(ob.vector_objective, bounds, population=pop, generations=max(1, n_eval // pop), seed=seed, callback=callback)
+            front = sorted(res.front_idx.tolist(), key=lambda k: float(res.F[k][0]))
+            candidates = [{"label": f"pareto_{j}", "params": ob.as_kwargs(res.X[k]), "objectives": [float(v) for v in res.F[k]]} for j, k in enumerate(front)]
+    except _Cancelled:
+        conditions.append({"index": len(conditions), "condition": {}, "status": "skipped", "error": "Cancelled before the remaining evaluations."})
+        return HandlerResult(conditions=conditions, metrics={"method": method, "n_evaluations": len(conditions) - 1})
+
+    ctx.log(f"{method}: {len(conditions)} evaluations; evaluating baseline and {len(candidates)} candidate(s) on the evaluation grid")
+    base_sum, base_rows = ob.evaluate(ob.BASELINE, ob.EVALUATION_GRID)
+    base_tune, _ = ob.evaluate(ob.BASELINE, ob.TUNING_GRID)
+    evaluated = []
+    for c in candidates[:12]:
+        es, er = ob.evaluate(c["params"], ob.EVALUATION_GRID)
+        ts, _ = ob.evaluate(c["params"], ob.TUNING_GRID)
+        evaluated.append({**c, "tuning": ts, "evaluation": es, "evaluation_rows": er})
+    history = {"method": method, "seed": seed, "bounds": bounds, "params": list(ob.PARAMS),
+               "X": [list(map(float, c["condition"].values())) for c in conditions if c["status"] != "skipped"],
+               "objective": [c["metrics"]["objective"] for c in conditions if c["status"] != "skipped"]}
+    ctx.write_artifact("tuning_history.json", json.dumps(history).encode())
+    report = {"baseline": {"params": ob.BASELINE, "tuning": base_tune, "evaluation": base_sum, "evaluation_rows": base_rows}, "candidates": evaluated,
+              "tuning_grid": [c.name for c in ob.TUNING_GRID], "evaluation_grid": [c.name for c in ob.EVALUATION_GRID],
+              "evaluation_reused_tuning_conditions": ob.grids_overlap(), "objective": "J = mean overshoot % + 0.1 x mean settling ms + 2 x mean load dip rad/s",
+              "status": "candidate -- no default changed"}
+    ctx.write_artifact("tuning_report.json", json.dumps(report, default=float).encode())
+    best = min(evaluated, key=lambda c: c["tuning"]["J"]) if evaluated else None
+    metrics = {"method": method, "n_evaluations": len(conditions), "baseline_J_tuning": base_tune["J"], "baseline_J_evaluation": base_sum["J"],
+               "best_J_tuning": best["tuning"]["J"] if best else None, "best_J_evaluation": best["evaluation"]["J"] if best else None,
+               "best_params": best["params"] if best else None, "n_candidates": len(evaluated)}
+    return HandlerResult(conditions=conditions, metrics=metrics)
+
+
 # --------------------------------------------------------------------------- selftest.steps
 def _validate_selftest(spec: ExperimentSpec) -> None:
     steps, step_s = spec.params.get("steps", 3), spec.params.get("step_s", 0.1)
@@ -267,6 +368,7 @@ def selftest_steps(ctx: JobContext) -> HandlerResult:
 HANDLERS = {
     "scenario_sweep": HandlerInfo(scenario_sweep, _validate_scenario_sweep, "Scenario sweep (datagen.runner)"),
     "plecs_sweep": HandlerInfo(plecs_sweep, _validate_plecs_sweep, "PLECS RPC sweep (dataset)", engine="plecs_rpc"),
+    "controller_tuning": HandlerInfo(controller_tuning, _validate_tuning, "Controller tuning (PSO / BO / NSGA-II)"),
     "selftest.steps": HandlerInfo(selftest_steps, _validate_selftest, "Worker self-test (no physics)", engine="selftest"),
 }
 

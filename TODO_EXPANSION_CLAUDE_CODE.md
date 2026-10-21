@@ -270,7 +270,7 @@ las pruebas byte a byte de datagen siguen sin cambios.
 Criterio de cierre: pruebas simulation en verde y página funcional. Este buck es la referencia para E3, E4 y E5.
 
 E7. Tuning Studio
-- [ ] E7. Optimización de sintonía de controladores (funcionalidad #3)
+- [x] E7. Optimización de sintonía de controladores (funcionalidad #3)
 
 Origen: Fund. 1_MHA/Single_Objective_MHA/ (PSO con pyswarms), 1_MHA/Multi_Objective_MHA/ (pymoo) y 2_Classic_ML/gaussian_process_bayesian_optimization.ipynb (scikit-learn).
 

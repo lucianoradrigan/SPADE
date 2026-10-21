@@ -31,6 +31,9 @@ PAGES = {
         ("pages/dcdc_converters.py", "DC-DC Converters", ":material/bolt:"),
         ("pages/plecs_plant_studio.py", "PLECS Plant Studio", ":material/schema:"),
     ],
+    "Design & Control": [
+        ("pages/tuning_studio.py", "Tuning Studio", ":material/tune:"),
+    ],
     "Intelligence": [
         ("pages/ai_diagnostics.py", "AI Diagnostics", ":material/psychology:"),
         ("pages/transfer_learning.py", "Transfer Learning", ":material/sync_alt:"),

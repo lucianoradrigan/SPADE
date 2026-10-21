@@ -20,7 +20,7 @@ from driveflow.viz.theme.tokens import DARK, LIGHT
 
 ROOT = Path(__file__).resolve().parents[1]
 APP_PATH = str(ROOT / "src" / "driveflow" / "viz" / "app.py")
-PAGES = ["overview", "experiment_runs", "environments", "dc_motor", "pmsm", "vsc_dpc", "dcdc_converters", "plecs_plant_studio", "ai_diagnostics", "transfer_learning", "model_registry", "monitoring", "alert_history", "documentation", "algorithm_guide"]
+PAGES = ["overview", "experiment_runs", "environments", "dc_motor", "pmsm", "vsc_dpc", "dcdc_converters", "plecs_plant_studio", "tuning_studio", "ai_diagnostics", "transfer_learning", "model_registry", "monitoring", "alert_history", "documentation", "algorithm_guide"]
 #: Spanish UI words that used to appear in the legacy dashboard ("Fase", tab titles) -- the
 #: frontend must be English (guide Sec. 0).
 _SPANISH = re.compile(r"\b(Fase|Corrientes|Envolvente|Plano|Generar|vibración|Evaluar|Monitoreo)\b")
