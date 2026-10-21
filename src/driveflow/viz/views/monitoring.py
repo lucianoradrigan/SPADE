@@ -94,7 +94,7 @@ def render() -> None:
                         status = "not_applicable" if a["availability"] == "NOT_CONFIGURED" else ("warning" if a["emitted"] else "pass")
                         items.append((f"{name} · {a['availability']}", status, a["detail"] + (" — emitted an event this pass" if a["emitted"] else "")))
                     check_list(items)
-                    st.caption("Consensus rule: the domain takes the HIGHEST severity among all active alerts from any agent. Agents do not vote; a disagreement (e.g. rule clear, detector alerting) is shown, not averaged away. Classifier confidence never raises an alert by itself.")
+                    st.caption("Consensus rule: the domain takes the HIGHEST severity among all active alerts from any agent. Agents do not vote; a disagreement (e.g. rule clear, detector alerting) is shown, not averaged away. Classifier confidence and the forecast residual never raise an alert by themselves.")
             if result is not None:
                 with st.container(border=True):
                     st.markdown("##### Simulation-based detector")

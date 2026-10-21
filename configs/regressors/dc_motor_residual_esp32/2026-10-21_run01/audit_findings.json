@@ -1,0 +1,39 @@
+{
+  "findings": [
+    {
+      "id": "sim-only",
+      "severity": "medium",
+      "date": "2026-10-21",
+      "summary": "Trained on healthy simulated runs of the dc_motor grid (7 speeds, noise 0-100 %, plant drift) and evaluated on simulated held-out conditions only (115/190/250 rad/s, 100 % noise, drift). No measured data.",
+      "evidence": "docs/audit/ai/dc_motor_residual_anomaly.md"
+    },
+    {
+      "id": "AI-N18-threshold-startup",
+      "severity": "medium",
+      "date": "2026-10-21",
+      "summary": "The 99th-percentile threshold is fitted on ALL healthy validation windows, start-up included; start-up residuals dominate it, so at the fixed threshold only part of the faulted steady-state windows are flagged although the AUROC is 1.000. Reference steps: 8.3 % false alarms (n=36). Fitting on steady-state windows (a regime filter) is a pending decision.",
+      "evidence": "docs/audit/ai/dc_motor_residual_anomaly.md (criteria 2 and 5); docs/AI_TECHNICAL_AUDIT.md \u00a710"
+    },
+    {
+      "id": "AI-N19-trivial-separation",
+      "severity": "medium",
+      "date": "2026-10-21",
+      "summary": "In the simulator healthy steady-state current_r and rpm are constant (rpm carries no sensor noise), so any fault ripple separates perfectly (AUROC 1.000) and persistence is exact (criterion 1 undefined on steady-state windows). The AUROC overstates what a noisy real machine would allow.",
+      "evidence": "docs/audit/ai/dc_motor_residual_anomaly.md (criterion 1 deviation)"
+    },
+    {
+      "id": "voltage-v-effect",
+      "severity": "low",
+      "date": "2026-10-21",
+      "summary": "Two variants with and without voltage_v as an input were trained; both reach AUROC 1.000 on the held-out conditions, so the hypothesis that the PI's compensation through voltage_v hides the ripple was not observed here (detection at the fixed threshold differs: see the report).",
+      "evidence": "docs/audit/ai/dc_motor_residual_anomaly.md"
+    },
+    {
+      "id": "AI-N20-edge-residual",
+      "severity": "high",
+      "date": "2026-10-21",
+      "summary": "Distilled 2-layer conv model: fails criterion 1 for rpm (1.168 / 1.893) and its threshold (1083.7) flags 0 % of faulted windows at severity x1. TFLite int8 agrees with Keras on every decision (no Flex ops) but the detector is not usable.",
+      "evidence": "docs/audit/ai/dc_motor_residual_anomaly.md (esp32_distilled, criterion 6)"
+    }
+  ]
+}

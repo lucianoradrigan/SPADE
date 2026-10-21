@@ -190,7 +190,11 @@ def _train_classifier(
 def _train_forecaster(
     config: ForecasterConfig, df: pd.DataFrame, epochs: int, batch_size: int, seed: int, teacher=None, distill_alpha: float = 0.5
 ) -> tuple:
-    channels = _channels_for_domain(df, config.domain, config.input_window)
+    if config.label_filter is not None:
+        df = df[df["label"] == config.label_filter].reset_index(drop=True)
+        if df.empty:
+            raise ValueError(f"no rows with label {config.label_filter!r}")
+    channels = list(config.channels) or _channels_for_domain(df, config.domain, config.input_window)
     if not channels:
         raise ValueError(f"no channels found for domain {config.domain!r}")
 
@@ -198,10 +202,16 @@ def _train_forecaster(
     if X is None:
         raise ValueError("no forecast windows could be built -- dataset too short for input_window+horizon")
 
-    # No discrete label to stratify by -- grouped_split's stratified attempt fails on a
-    # single-valued y_pool and falls back to a plain grouped split (see splits.py).
-    dummy_labels = np.zeros(len(X), dtype=int)
-    idx_train, idx_test = grouped_split(np.arange(len(X)), dummy_labels, groups, test_frac=0.2, seed=seed)
+    idx_val = np.array([], dtype=int)
+    if config.split == "three_way":
+        # E14: groups (runs) go to train / validation / test; validation fits the residual threshold.
+        manifest = grouped_train_val_test_split(groups, val_frac=0.2, test_frac=0.1, seed=seed)
+        idx_train, idx_val, idx_test = manifest.train_idx, manifest.val_idx, manifest.test_idx
+    else:
+        # No discrete label to stratify by -- grouped_split's stratified attempt fails on a
+        # single-valued y_pool and falls back to a plain grouped split (see splits.py).
+        dummy_labels = np.zeros(len(X), dtype=int)
+        idx_train, idx_test = grouped_split(np.arange(len(X)), dummy_labels, groups, test_frac=0.2, seed=seed)
 
     model = build_forecaster(config, n_channels=len(channels))
     model.compile(optimizer="adam", loss="mse")
@@ -217,7 +227,8 @@ def _train_forecaster(
     mse = float(np.mean((Y_pred - Y[idx_test]) ** 2)) if len(idx_test) else None
     # AI-N11: the naive baseline every forecaster must beat -- repeat the last context sample over
     # the horizon (same normalized space as test_rmse).
-    persistence_mse = float(np.mean((np.repeat(X[idx_test][:, -1:, :], config.horizon, axis=1) - Y[idx_test]) ** 2)) if len(idx_test) else None
+    persistence = np.repeat(X[idx_test][:, -1:, :], config.horizon, axis=1) if len(idx_test) else None
+    persistence_mse = float(np.mean((persistence - Y[idx_test]) ** 2)) if len(idx_test) else None
     metrics = {
         "kind": "forecaster",
         "domain": config.domain,
@@ -230,6 +241,22 @@ def _train_forecaster(
         "persistence_test_rmse": float(np.sqrt(persistence_mse)) if persistence_mse is not None else None,
         "test_groups": sorted(str(g) for g in np.unique(groups[idx_test])),
     }
+    if config.split == "three_way":
+        metrics.update({
+            "input_window": config.input_window, "horizon": config.horizon, "label_filter": config.label_filter,
+            "n_val": int(len(idx_val)), "val_groups": sorted(str(g) for g in np.unique(groups[idx_val])),
+            "train_groups": sorted(str(g) for g in np.unique(groups[idx_train])),
+            "test_rmse_per_channel": {c: float(np.sqrt(np.mean((Y_pred[..., j] - Y[idx_test][..., j]) ** 2))) for j, c in enumerate(channels)} if len(idx_test) else None,
+            "persistence_test_rmse_per_channel": {c: float(np.sqrt(np.mean((persistence[..., j] - Y[idx_test][..., j]) ** 2))) for j, c in enumerate(channels)} if len(idx_test) else None,
+        })
+    if config.target_channels:
+        from driveflow.ai import residual
+
+        val_df = df[df["source_file"].isin(metrics["val_groups"])]
+        seg, _, labels, _ = residual.raw_windows(val_df, channels, config.input_window, config.horizon)
+        pred = residual.forecast(model, seg, channels, config.input_window)
+        rmse = residual.channel_rmse(seg, pred, channels, list(config.target_channels), config.input_window)
+        metrics["residual_detector"] = residual.fit_threshold(rmse, labels, list(config.target_channels))
     return model, metrics
 
 

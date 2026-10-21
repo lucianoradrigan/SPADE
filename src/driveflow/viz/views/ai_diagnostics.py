@@ -247,6 +247,38 @@ def _regressor_panel(domain: str, df: pd.DataFrame) -> None:
     st.caption(f"Tier: {config.tier}. Horizon: {config.horizon} steps. Test RMSE (normalized) at training time: {metrics.get('test_rmse')} on n={metrics.get('n_test')} windows.")
 
 
+def _residual_panel(domain: str, df: pd.DataFrame) -> None:
+    """Forecast-residual detector (task E14): forecast vs. measured signal over the horizon, the
+    score against its healthy-validation threshold. It suggests, it does not classify."""
+    st.markdown("##### Forecast residual")
+    r = da_ai.residual_assessment(domain, df, TIER)
+    if not r["available"]:
+        st.info(r["reason"], icon=":material/info:")
+        st.caption("The detector is a forecaster trained only on healthy simulated runs; it appears here once a dc_motor regressor with a residual detector is promoted.")
+        return
+    above = r["score"] > r["threshold"]
+    st.html('<div class="spade-root spade-badges">' + badge_html("AI SUGGESTION — REQUIRES VERIFICATION", "warning", "▲") + source_badge_html("simulated") + badge_html(r["model_id"], "training") + "</div>")
+    msg = (f"Residual score **{r['score']:.2f}** vs. threshold **{r['threshold']:.2f}** (the {r['quantile']:.0%} quantile on healthy validation windows). "
+           f"{r['share_above']:.0%} of the run's {r['n_windows']} window(s) are above it.")
+    if above:
+        st.warning(f"**Above threshold:** {da_ai.RESIDUAL_TEXT}. {msg}", icon=":material/troubleshoot:")
+    else:
+        st.info(f"**Below threshold.** {msg}", icon=":material/check:")
+    fig = go.Figure()
+    w, h = r["input_window"], r["horizon"]
+    t_ctx, t_fut = np.arange(-min(w, 4 * h), 0), np.arange(0, h)
+    for i, ch in enumerate(r["target_channels"]):
+        j = r["channels"].index(ch)
+        color = _PALETTE[i % len(_PALETTE)]
+        fig.add_trace(go.Scatter(x=t_ctx, y=r["window"][w - len(t_ctx):w, j], mode="lines", name=f"{ch} (input)", line=dict(color=color, width=1.2), opacity=0.55))
+        fig.add_trace(go.Scatter(x=t_fut, y=r["window"][w:, j], mode="lines", name=f"{ch} (measured)", line=dict(color=color, width=2)))
+        fig.add_trace(go.Scatter(x=t_fut, y=r["forecast"][:, j], mode="lines", name=f"{ch} (forecast)", line=dict(color=color, width=2, dash="dash")))
+    fig.add_vline(x=0, line_dash="dot", line_color=series_color("reference"))
+    style_figure(fig, height=340, x_title="Step relative to forecast start (1 step = 0.1 ms)", y_title="Value (physical units)")
+    st.plotly_chart(fig, width="stretch", config=PLOTLY_CONFIG, key=f"ia_residual_{domain}")
+    st.caption(f"A high residual means {da_ai.RESIDUAL_TEXT}. Trained and validated on simulated windows only; it does not raise an alert by itself.")
+
+
 def render() -> None:
     page_header(
         "Intelligence / AI diagnostics",
@@ -309,6 +341,9 @@ def render() -> None:
         with c1:
             _classifier_panel(domain, df, data_key, operating_point, source_rows)
         with c2:
-            _regressor_panel(domain, df)
+            if domain == "dc_motor":
+                _residual_panel(domain, df)
+            else:
+                _regressor_panel(domain, df)
         if source_rows:
             provenance_table(source_rows, "Input provenance")

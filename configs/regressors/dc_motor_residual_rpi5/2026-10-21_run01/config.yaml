@@ -1,0 +1,15 @@
+# dc_motor forecast-residual detector, rpi5 tier (expansion task E14). Distilled from the PC variant
+# chosen for the GUI (dc_motor_residual_pc, inputs current_r/rpm/voltage_v) with
+#   train_model.py --distill --teacher-run configs/regressors/dc_motor_residual_pc/2026-10-21_run01
+# Architecture from rpi5_tcn.yaml (TCN, recurrent_type none: no Flex ops); window, horizon, channels and the healthy-only three-way split as the PC model.
+domain: dc_motor
+tier: rpi5
+input_window: 256
+horizon: 16
+recurrent_type: none
+layers: [32, 32, 32, 32, 32, 32, 32]
+use_attention: false
+channels: [current_r, rpm, voltage_v]
+target_channels: [current_r, rpm]
+label_filter: normal
+split: three_way

@@ -235,6 +235,9 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N13 | High | Negative result | **Open** (§8.1): a feature-space OOD detector does not catch ball/cage faults at a usable false-alarm rate |
 | AI-N14 | Medium | Defect (generalization) | **Open** (§8.1): below the training speed range (50 rad/s) accuracy on answered windows is 0.58; at 150 % noise 0.68 |
 | AI-N17 | High | Risk (extends AI-N12/AI-N13) | **Open** (§9.3): the promoted 5-class classifier carries no OOD detector; the GUI says "OOD detection unavailable". Not integrated by decision D6 (2026-10-21); re-evaluated with E14 |
+| AI-N20 | High | Negative result (edge) | **Open** (§10): the distilled RPi5/ESP32 residual detectors fail criterion 1 for rpm and flag 0–6 % of faulted windows at their thresholds; not usable |
+| AI-N18 | Medium | Design (threshold) | **Open, decision pending** (§10): the residual threshold includes start-up windows, so the PC detector flags ≈ 50 % of faulted windows at AUROC 1.000; 8.3 % false alarms on reference steps |
+| AI-N19 | Medium | Evaluation limit | **Documented** (§10): simulated healthy current/rpm are constant in steady state, so the residual AUROC (1.000) and the persistence baseline are optimistic |
 | AI-N15 | Medium | Defect (estimator bias) | **Open** (§9.1): the VSC PINN estimates C systematically low, −1.3 % to −9.1 % mean error at 0–5 % noise |
 | AI-N16 | Medium | Defect (uncertainty) | **Open** (§9.2): the PINN's 5–95 % bootstrap interval covers the truth in 52–78 % of noisy runs for C; the GUI says "Coverage not validated" |
 
@@ -576,3 +579,52 @@ The interval measures resampling and optimiser spread, not the bias of AI-N15. W
 **Decision D6 (2026-10-21).** No detector is added to the promoted run. This is re-evaluated with the E14 residual detector, which does not depend on the classifier's classes.
 
 **Test.** `test_ai_n17_promoted_classifier_has_no_ood_detector` pins the documented state.
+
+## 10. E14 (2026-10-21): dc_motor forecast-residual anomaly detector
+
+**Decision and criteria.** D2 of `DECISIONES_EXPANSION_2026-10-21.md`.
+
+**Command and evidence.**
+- `python experiments/report_residual_anomaly.py --runs … --agent --edge-runs …`
+- [`dc_motor_residual_anomaly.md`](audit/ai/dc_motor_residual_anomaly.md) / `.json`.
+
+**Models.** Forecasters of current_r and rpm, trained on healthy grid runs only, with a 256-sample context and a 16-sample horizon. The horizon is under half the period of the 196 Hz inner-race frequency at 250 rad/s. The score is the physical residual RMSE, normalised per channel by its median on healthy validation windows. The threshold is the 99th percentile on healthy validation windows.
+
+**Results.**
+
+| Model | Crit. 1 (≤ 0.8) | Crit. 2 AUROC outer / inner | Crit. 3 false alarms | Detection at threshold, ×1 outer / inner | Start-up / steps false alarms |
+|---|---|---|---|---|---|
+| PC, with voltage_v (GUI) | PASS* | 1.000 / 1.000 | 0 % everywhere | 50.8 % / 47.5 % | 1.4 % / 8.3 % |
+| PC, without voltage_v | PASS* | 1.000 / 1.000 | 0 % everywhere | 66.7 % / 68.6 % | 4.9 % / 5.6 % |
+| RPi5 TCN (distilled) | FAIL (rpm) | 1.000 / 1.000 | 0 % | 5.6 % / 0.0 % | 0.9 % / 8.3 % |
+| ESP32 (distilled) | FAIL (rpm) | 1.000 / 1.000 | 0 % | 0.0 % / 0.0 % | 1.4 % / 5.6 % |
+
+\* Declared deviation: on steady-state healthy windows the signals are constant, so the persistence ratio is undefined. Every evaluable reading passes: whole held-out runs, and the train-time test split.
+
+The simulation-based agent and the PC residual detectors both reach run-level AUROC 1.000 on the same runs. At its 0.7 threshold the agent alerts on 80 % of the faulted runs and 0 % of the healthy ones.
+
+**AI-N18 (open, decision pending).**
+- **Cause.** The threshold is fitted on all healthy validation windows, and start-up windows have residuals hundreds of times the steady-state median, so they set the 99th percentile (273 for the PC model).
+- **Effect.** Faulted steady-state windows are perfectly ranked (AUROC 1.000), but only about half exceed that threshold.
+- **Reference steps.** They produce 8.3 % false alarms (n = 36).
+- **Proposal.** Fitting the threshold on steady-state validation windows (a regime filter) is the decision D2 said to propose separately. Not done.
+
+**AI-N19 (documented).**
+- **What the simulator does.** The simulator adds noise to current and vibration only. Healthy steady-state rpm is exactly constant, and noise-free current too.
+- **Consequence.** Any fault ripple separates perfectly, and the persistence baseline is exact.
+- **What it means.** These AUROCs say the mechanism works in simulation. They do not predict its performance on a measured machine.
+
+**AI-N20 (open, negative result).**
+- **Accuracy.** The distilled edge forecasters are less accurate on rpm (ratios above 0.8).
+- **Thresholds.** Their thresholds (1084–1901) flag almost no faulted window.
+- **TFLite.** The export itself is faithful: 100 % decision agreement and no Flex ops.
+- **Consequence.** No edge export of the residual detector is proposed.
+
+**voltage_v.** The hypothesis that the PI hides the ripple through voltage_v did not show in AUROC. The variant without voltage_v flags more at its own threshold. The rule chose the GUI variant on healthy-data criteria only; it was not chosen on detection.
+
+**GUI.** Integrated as the 4th Monitoring detector (it never alerts on its own), as the "Forecast residual" panel of AI Diagnostics, and in Model Registry. With no promoted dc_motor regressor, every view shows "Residual detector not available". The runs are **not promoted** (D2).
+
+**Tests.**
+- `tests/ai/test_residual.py`
+- `tests/test_residual_gui.py`
+- `tests/test_findings_e14.py`

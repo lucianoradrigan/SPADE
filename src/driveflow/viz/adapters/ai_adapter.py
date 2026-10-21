@@ -156,3 +156,40 @@ def condition_evidence(a, model_id: str, provenance: dict | None, agent_result: 
     if agent_result is not None:
         ev["secondary_agent_hypothesis"] = agent_result
     return ev
+
+
+RESIDUAL_NOT_AVAILABLE = "Residual detector not available"
+RESIDUAL_TEXT = "behaviour differs from learned healthy dynamics — not a fault class"
+
+
+def residual_assessment(domain: str, df: pd.DataFrame, tier: str = "pc") -> dict:
+    """Forecast-residual detector (task E14) on df: the promoted regressor of the domain, if it
+    carries metrics.json["residual_detector"]. Returns {"available": False, "reason": ...} otherwise.
+
+    The last complete window is scored and returned with its forecast for display, and every
+    window of the run is scored (the share above the threshold). It never raises an alert: it is
+    an AI suggestion that a consensus may show next to the other detectors."""
+    from driveflow.ai import residual
+
+    try:
+        model, config, metrics, run_dir = promoted_model(domain, tier, "regressor")
+    except RegistryError:
+        return {"available": False, "reason": f"{RESIDUAL_NOT_AVAILABLE}. No regressor is registered yet for {domain} (nothing promoted at dc_motor/{tier}/regressor)."}
+    det = metrics.get("residual_detector")
+    if not det:
+        return {"available": False, "reason": f"{RESIDUAL_NOT_AVAILABLE}: the promoted {domain} regressor has no residual detector."}
+    channels, window, horizon = list(metrics["channels"]), int(metrics["input_window"]), int(metrics["horizon"])
+    missing = [c for c in channels if c not in df.columns or df[c].isna().all()]
+    if missing:
+        return {"available": False, "reason": f"{RESIDUAL_NOT_AVAILABLE}: missing channel(s) {', '.join(missing)}."}
+    data = df.assign(source_file="run")  # one run: windows placed exactly as at training time
+    seg, _, _, t0 = residual.raw_windows(data, channels, window, horizon, cap_per_group=10_000)
+    if not len(seg):
+        return {"available": False, "reason": f"{RESIDUAL_NOT_AVAILABLE}: need at least {window + horizon} rows."}
+    scores = residual.score(model, seg, metrics)
+    last = seg[-1:]
+    pred = residual.forecast(model, last, channels, window, metrics.get("level_scaling"))[0]
+    return {"available": True, "model_id": f"{run_dir.parent.name}/{run_dir.name}", "score": float(scores[-1]), "threshold": float(det["threshold"]),
+            "quantile": det["quantile"], "share_above": float(np.mean(scores > det["threshold"])), "n_windows": int(len(scores)),
+            "target_channels": list(det["target_channels"]), "channels": channels, "window": last[0], "forecast": pred, "input_window": window, "horizon": horizon,
+            "t_start": float(t0[-1])}

@@ -165,7 +165,26 @@ One row per task of [`TODO_CLAUDE_CODE.md`](../TODO_CLAUDE_CODE.md).
 
 ### 7.2 Waiting for your decision (implemented, evidence written, not switched on)
 
-1. **dc_motor regressor:** no use case is defined.
+1. **dc_motor regressor (E14, 2026-10-21): use case defined and evaluated, not promoted.**
+   - **What exists:** forecast-residual anomaly detector trained on healthy runs only. Runs `configs/regressors/dc_motor_residual_{pc,pc_novv,rpi5,esp32}/2026-10-21_run01`. Report in [`dc_motor_residual_anomaly.md`](audit/ai/dc_motor_residual_anomaly.md).
+   - **PC variant chosen for the GUI (inputs current_r, rpm, voltage_v):**
+     - Criterion 1 passes on the evaluable readings. This is a declared deviation: persistence is exact on constant steady-state signals.
+     - Criterion 2 passes (AUROC 1.000 outer and inner race).
+     - Criterion 3 passes (0 % false alarms in every held-out condition).
+   - **Limits:**
+     - At the fixed threshold it flags only 51 % / 48 % of faulted windows: start-up windows inflate the threshold (AI-N18).
+     - Reference steps give 8.3 % false alarms.
+     - The perfect AUROC reflects noise-free simulated signals (AI-N19).
+     - The distilled RPi5/ESP32 detectors are not usable (AI-N20).
+   - **Integrated, but inactive until promoted:**
+     - Monitoring consensus, as a 4th detector that never alerts on its own.
+     - AI Diagnostics "Forecast residual" panel.
+     - Model Registry.
+     - With nothing promoted, the GUI shows "Residual detector not available".
+   - **Decisions:**
+     - (a) promote `dc_motor_residual_pc/2026-10-21_run01`;
+     - (b) refit the threshold on steady-state validation windows (a regime filter);
+     - (c) which variant: the variant without voltage_v detects more at its threshold (67 % / 69 %) but was not eligible under the selection rule (criteria 1 and 3 only).
 
 ### 7.3 Open, not blocked on a decision
 

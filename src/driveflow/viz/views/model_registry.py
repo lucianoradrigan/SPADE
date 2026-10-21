@@ -83,6 +83,10 @@ def _detail(r: dict) -> None:
         tabs = st.tabs(["Overview", "Artifacts", "Metrics", "Lineage", "Deployment"])
         m = r["metrics"]
         with tabs[0]:
+            if m.get("residual_detector"):
+                d = m["residual_detector"]
+                st.caption(f"Forecast-residual detector (E14): threshold {d['threshold']:.3f} = {d['quantile']:.0%} quantile on {d['fitted_on']['n']} healthy validation windows; "
+                           f"scores {', '.join(d['target_channels'])}. Trained on '{m.get('label_filter')}' runs only.")
             provenance_table({"Domain / block": f"{r['domain']} / {r['block']}", "Origin": r["origin"], "Input channels": ", ".join(m.get("channels", [])), "Classes": ", ".join(m.get("classes", []) or []) or "— (regressor)", "Train / val / test windows": f"{m.get('n_train', '?')} / {m.get('n_val', '—')} / {m.get('n_test', '?')}", "Headline": r["headline"], "Evaluation set": "simulated windows, grouped-by-run test split (see metrics.json)"})
         with tabs[1]:
             artifact_table(r["run_dir"], r["run"])

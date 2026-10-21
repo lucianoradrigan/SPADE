@@ -46,6 +46,15 @@ class ForecasterConfig:
     recurrent_type: str
     layers: tuple
     use_attention: bool = False
+    #: Optional (task E14): explicit input channels instead of discovering every live one; the
+    #: channels a residual detector scores (a subset of `channels`); a label the training rows are
+    #: restricted to (e.g. "normal" for a healthy-only model); and "three_way" for a grouped
+    #: train/validation/test split whose validation part fits the residual threshold. Empty/None
+    #: keeps the original behaviour exactly.
+    channels: tuple = ()
+    target_channels: tuple = ()
+    label_filter: str | None = None
+    split: str = "two_way"
 
     def __post_init__(self):
         if not self.domain:
@@ -67,6 +76,12 @@ class ForecasterConfig:
             raise ForecasterConfigError("layers must be non-empty when recurrent_type is 'lstm' or 'gru'")
         if any(u <= 0 for u in self.layers):
             raise ForecasterConfigError(f"all layers units must be > 0, got {self.layers}")
+        if self.split not in ("two_way", "three_way"):
+            raise ForecasterConfigError(f"split must be 'two_way' or 'three_way', got {self.split!r}")
+        if self.target_channels and not set(self.target_channels) <= set(self.channels):
+            raise ForecasterConfigError(f"target_channels {list(self.target_channels)} must be a subset of channels {list(self.channels)}")
+        if self.target_channels and self.split != "three_way":
+            raise ForecasterConfigError("a residual detector (target_channels) needs split: three_way, so its threshold is fitted on validation windows")
 
 
 def load_forecaster_config(path) -> ForecasterConfig:
@@ -79,6 +94,9 @@ def load_forecaster_config(path) -> ForecasterConfig:
         raise ForecasterConfigError(f"{path}: expected a mapping, got {raw!r}")
     raw = dict(raw)
     layers = tuple(raw.pop("layers", ()) or ())
+    for key in ("channels", "target_channels"):
+        if key in raw:
+            raw[key] = tuple(raw[key] or ())
     try:
         return ForecasterConfig(layers=layers, **raw)
     except TypeError as exc:

@@ -380,8 +380,8 @@ Hacer (spec §8.6): tres preguntas (fase del ciclo de vida, tarea, origen de los
 Criterio de cierre: AppTest recorre todas las combinaciones sin enlaces rotos.
 
 E14. Regresor para dc_motor: detector de anomalías por residuo
-- [ ] E14.0. Confirmar el caso de uso y los criterios (requiere decisión de Luciano; no se programa antes)
-- [ ] E14.1–E14.6. Implementación (solo después de E14.0)
+- [x] E14.0. Confirmar el caso de uso y los criterios (requiere decisión de Luciano; no se programa antes)
+- [x] E14.1–E14.6. Implementación (solo después de E14.0)
 
 Contexto:
 

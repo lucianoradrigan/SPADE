@@ -1,0 +1,1277 @@
+{
+ "meta": {
+  "command": "python experiments/report_residual_anomaly.py --runs configs/regressors/dc_motor_residual_pc/2026-10-21_run01 configs/regressors/dc_motor_residual_pc_novv/2026-10-21_run01 configs/regressors/dc_motor_residual_rpi5/2026-10-21_run01 configs/regressors/dc_motor_residual_esp32/2026-10-21_run01 --names with_voltage_v without_voltage_v rpi5_tcn_distilled esp32_distilled --edge-runs configs/regressors/dc_motor_residual_rpi5/2026-10-21_run01 configs/regressors/dc_motor_residual_esp32/2026-10-21_run01 --agent --selection with_voltage_v, chosen with criteria 1 and 3 only (healthy data): criterion 3 ties at 0 % false alarms in every held-out condition, and criterion 1 favours it (whole held-out runs: rpm ratio 0.219 vs 0.227, current_r 0.726 vs 0.727; train-time test: rpm 0.555 vs 0.652). The AUROC (criterion 2) was 1.000 for both, so it could not influence the choice. The edge tiers are distilled from it.",
+  "date": "2026-10-21",
+  "machine": "Linux x86_64, Python 3.12.13",
+  "cache": "data/eval_cache_5class.parquet",
+  "held_out_conditions": [
+   "unseen_speed_115_rad_s",
+   "unseen_speed_190_rad_s",
+   "extrapolated_speed_250_rad_s",
+   "noise_100pct",
+   "plant_drift_psi-10pct_J+50pct"
+  ],
+  "settle_s": 0.5
+ },
+ "variants": {
+  "with_voltage_v": {
+   "run": "configs/regressors/dc_motor_residual_pc/2026-10-21_run01",
+   "channels": [
+    "current_r",
+    "rpm",
+    "voltage_v"
+   ],
+   "threshold": 273.43795440195464,
+   "quantile": 0.99,
+   "n_val_windows": 1260,
+   "train_time_test_rmse_per_channel": {
+    "current_r": 0.7771012187004089,
+    "rpm": 0.023148339241743088,
+    "voltage_v": 0.029244715347886086
+   },
+   "train_time_persistence_rmse_per_channel": {
+    "current_r": 1.1221251487731934,
+    "rpm": 0.041710786521434784,
+    "voltage_v": 0.040140558034181595
+   },
+   "criterion_1": {
+    "pooled": {
+     "current_r": {
+      "model_rmse": 17.14842414855957,
+      "persistence_rmse": 23.84623908996582,
+      "ratio": 0.7191248936095503
+     },
+     "rpm": {
+      "model_rmse": 0.0043917433358728886,
+      "persistence_rmse": 0.0,
+      "ratio": null
+     }
+    },
+    "readings": {
+     "steady_state_held_out": {
+      "current_r": {
+       "model_rmse": 17.14842414855957,
+       "persistence_rmse": 23.84623908996582,
+       "ratio": 0.7191248936095503
+      },
+      "rpm": {
+       "model_rmse": 0.0043917433358728886,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     },
+     "whole_runs_held_out": {
+      "current_r": {
+       "model_rmse": 17.178173065185547,
+       "persistence_rmse": 23.67207908630371,
+       "ratio": 0.7256723417726567
+      },
+      "rpm": {
+       "model_rmse": 0.5768427848815918,
+       "persistence_rmse": 2.6316349506378174,
+       "ratio": 0.21919559350045303
+      }
+     },
+     "train_time_test_split_normalized": {
+      "current_r": {
+       "model_rmse": 0.7771012187004089,
+       "persistence_rmse": 1.1221251487731934,
+       "ratio": 0.6925263367905129
+      },
+      "rpm": {
+       "model_rmse": 0.023148339241743088,
+       "persistence_rmse": 0.041710786521434784,
+       "ratio": 0.5549724944612917
+      }
+     }
+    },
+    "per_condition": {
+     "unseen_speed_115_rad_s": {
+      "current_r": {
+       "model_rmse": 0.02307126857340336,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      },
+      "rpm": {
+       "model_rmse": 0.00270747859030962,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     },
+     "unseen_speed_190_rad_s": {
+      "current_r": {
+       "model_rmse": 0.023075487464666367,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      },
+      "rpm": {
+       "model_rmse": 0.002735199173912406,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     },
+     "extrapolated_speed_250_rad_s": {
+      "current_r": {
+       "model_rmse": 0.02306598611176014,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      },
+      "rpm": {
+       "model_rmse": 0.0027000727131962776,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     },
+     "noise_100pct": {
+      "current_r": {
+       "model_rmse": 38.34501647949219,
+       "persistence_rmse": 53.32181167602539,
+       "ratio": 0.7191244122099646
+      },
+      "rpm": {
+       "model_rmse": 0.008185625076293945,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     },
+     "plant_drift_psi-10pct_J+50pct": {
+      "current_r": {
+       "model_rmse": 0.02307126857340336,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      },
+      "rpm": {
+       "model_rmse": 0.00270747859030962,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     }
+    },
+    "steady_state_undefined_channels": [
+     "rpm"
+    ],
+    "pass": true
+   },
+   "criterion_3": {
+    "per_condition": {
+     "unseen_speed_115_rad_s": {
+      "n_windows": 144,
+      "false_alarm_rate": 0.0
+     },
+     "unseen_speed_190_rad_s": {
+      "n_windows": 144,
+      "false_alarm_rate": 0.0
+     },
+     "extrapolated_speed_250_rad_s": {
+      "n_windows": 144,
+      "false_alarm_rate": 0.0
+     },
+     "noise_100pct": {
+      "n_windows": 144,
+      "false_alarm_rate": 0.0
+     },
+     "plant_drift_psi-10pct_J+50pct": {
+      "n_windows": 144,
+      "false_alarm_rate": 0.0
+     }
+    },
+    "pass": true
+   },
+   "criterion_2": {
+    "per_fault": {
+     "outer_race": {
+      "auroc_held_out_x1": 1.0,
+      "detection_rate_x1": 0.5083333333333333,
+      "n_pos": 720,
+      "auroc_per_condition": {
+       "unseen_speed_115_rad_s": 1.0,
+       "unseen_speed_190_rad_s": 1.0,
+       "extrapolated_speed_250_rad_s": 1.0,
+       "noise_100pct": 1.0,
+       "plant_drift_psi-10pct_J+50pct": 1.0
+      },
+      "auroc_severity_x2_150rad_s": 1.0,
+      "detection_rate_severity_x2": 1.0,
+      "detection_rate_unseen_severity_x0.6": 0.6388888888888888
+     },
+     "inner_race": {
+      "auroc_held_out_x1": 1.0,
+      "detection_rate_x1": 0.475,
+      "n_pos": 720,
+      "auroc_per_condition": {
+       "unseen_speed_115_rad_s": 1.0,
+       "unseen_speed_190_rad_s": 1.0,
+       "extrapolated_speed_250_rad_s": 1.0,
+       "noise_100pct": 1.0,
+       "plant_drift_psi-10pct_J+50pct": 1.0
+      },
+      "auroc_severity_x2_150rad_s": 1.0,
+      "detection_rate_severity_x2": 1.0,
+      "detection_rate_unseen_severity_x0.6": 0.19444444444444445
+     }
+    },
+    "min_auroc": 1.0,
+    "pass": true,
+    "negative_result": false
+   },
+   "criterion_4": {
+    "ball": {
+     "auroc": 1.0,
+     "detection_rate": 0.5069444444444444,
+     "n": 720
+    },
+    "cage": {
+     "auroc": 1.0,
+     "detection_rate": 0.5930555555555556,
+     "n": 720
+    },
+    "order_1.3x": {
+     "auroc": 1.0,
+     "detection_rate": 0.6513888888888889,
+     "n": 1440,
+     "note": "runs at 80/125/175/220 rad/s (grid speeds), severity x0.5/1/2; negatives = held-out healthy windows"
+    }
+   },
+   "criterion_5": {
+    "startup_false_alarm_rate": 0.013888888888888888,
+    "startup_n": 432,
+    "reference_step_false_alarm_rate": 0.08333333333333333,
+    "reference_step_n": 36,
+    "steps": [
+     "150 -> 175 rad/s at 0.75 s",
+     "150 -> 125 rad/s at 0.75 s",
+     "100 -> 200 rad/s at 0.75 s"
+    ],
+    "window_rule": "windows overlapping the step or starting within 0.3 s after it"
+   }
+  },
+  "without_voltage_v": {
+   "run": "configs/regressors/dc_motor_residual_pc_novv/2026-10-21_run01",
+   "channels": [
+    "current_r",
+    "rpm"
+   ],
+   "threshold": 95.54094165616485,
+   "quantile": 0.99,
+   "n_val_windows": 1260,
+   "train_time_test_rmse_per_channel": {
+    "current_r": 0.7778094410896301,
+    "rpm": 0.027194248512387276
+   },
+   "train_time_persistence_rmse_per_channel": {
+    "current_r": 1.1221251487731934,
+    "rpm": 0.041710786521434784
+   },
+   "criterion_1": {
+    "pooled": {
+     "current_r": {
+      "model_rmse": 17.153926849365234,
+      "persistence_rmse": 23.84623908996582,
+      "ratio": 0.7193556512055345
+     },
+     "rpm": {
+      "model_rmse": 0.010444755665957928,
+      "persistence_rmse": 0.0,
+      "ratio": null
+     }
+    },
+    "readings": {
+     "steady_state_held_out": {
+      "current_r": {
+       "model_rmse": 17.153926849365234,
+       "persistence_rmse": 23.84623908996582,
+       "ratio": 0.7193556512055345
+      },
+      "rpm": {
+       "model_rmse": 0.010444755665957928,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     },
+     "whole_runs_held_out": {
+      "current_r": {
+       "model_rmse": 17.218461990356445,
+       "persistence_rmse": 23.67207908630371,
+       "ratio": 0.7273743014959245
+      },
+      "rpm": {
+       "model_rmse": 0.5963684320449829,
+       "persistence_rmse": 2.6316349506378174,
+       "ratio": 0.22661518152449062
+      }
+     },
+     "train_time_test_split_normalized": {
+      "current_r": {
+       "model_rmse": 0.7778094410896301,
+       "persistence_rmse": 1.1221251487731934,
+       "ratio": 0.693157480642868
+      },
+      "rpm": {
+       "model_rmse": 0.027194248512387276,
+       "persistence_rmse": 0.041710786521434784,
+       "ratio": 0.6519716068746967
+      }
+     }
+    },
+    "per_condition": {
+     "unseen_speed_115_rad_s": {
+      "current_r": {
+       "model_rmse": 0.03334752470254898,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      },
+      "rpm": {
+       "model_rmse": 0.009872707538306713,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     },
+     "unseen_speed_190_rad_s": {
+      "current_r": {
+       "model_rmse": 0.033353500068187714,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      },
+      "rpm": {
+       "model_rmse": 0.01020008698105812,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     },
+     "extrapolated_speed_250_rad_s": {
+      "current_r": {
+       "model_rmse": 0.03334258869290352,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      },
+      "rpm": {
+       "model_rmse": 0.009854673407971859,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     },
+     "noise_100pct": {
+      "current_r": {
+       "model_rmse": 38.3572883605957,
+       "persistence_rmse": 53.32181167602539,
+       "ratio": 0.719354559699665
+      },
+      "rpm": {
+       "model_rmse": 0.01222159806638956,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     },
+     "plant_drift_psi-10pct_J+50pct": {
+      "current_r": {
+       "model_rmse": 0.03334752470254898,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      },
+      "rpm": {
+       "model_rmse": 0.009872707538306713,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     }
+    },
+    "steady_state_undefined_channels": [
+     "rpm"
+    ],
+    "pass": true
+   },
+   "criterion_3": {
+    "per_condition": {
+     "unseen_speed_115_rad_s": {
+      "n_windows": 144,
+      "false_alarm_rate": 0.0
+     },
+     "unseen_speed_190_rad_s": {
+      "n_windows": 144,
+      "false_alarm_rate": 0.0
+     },
+     "extrapolated_speed_250_rad_s": {
+      "n_windows": 144,
+      "false_alarm_rate": 0.0
+     },
+     "noise_100pct": {
+      "n_windows": 144,
+      "false_alarm_rate": 0.0
+     },
+     "plant_drift_psi-10pct_J+50pct": {
+      "n_windows": 144,
+      "false_alarm_rate": 0.0
+     }
+    },
+    "pass": true
+   },
+   "criterion_2": {
+    "per_fault": {
+     "outer_race": {
+      "auroc_held_out_x1": 1.0,
+      "detection_rate_x1": 0.6666666666666666,
+      "n_pos": 720,
+      "auroc_per_condition": {
+       "unseen_speed_115_rad_s": 1.0,
+       "unseen_speed_190_rad_s": 1.0,
+       "extrapolated_speed_250_rad_s": 1.0,
+       "noise_100pct": 1.0,
+       "plant_drift_psi-10pct_J+50pct": 1.0
+      },
+      "auroc_severity_x2_150rad_s": 1.0,
+      "detection_rate_severity_x2": 0.9722222222222222,
+      "detection_rate_unseen_severity_x0.6": 0.4722222222222222
+     },
+     "inner_race": {
+      "auroc_held_out_x1": 1.0,
+      "detection_rate_x1": 0.6861111111111111,
+      "n_pos": 720,
+      "auroc_per_condition": {
+       "unseen_speed_115_rad_s": 1.0,
+       "unseen_speed_190_rad_s": 1.0,
+       "extrapolated_speed_250_rad_s": 1.0,
+       "noise_100pct": 1.0,
+       "plant_drift_psi-10pct_J+50pct": 1.0
+      },
+      "auroc_severity_x2_150rad_s": 1.0,
+      "detection_rate_severity_x2": 0.9444444444444444,
+      "detection_rate_unseen_severity_x0.6": 0.6944444444444444
+     }
+    },
+    "min_auroc": 1.0,
+    "pass": true,
+    "negative_result": false
+   },
+   "criterion_4": {
+    "ball": {
+     "auroc": 1.0,
+     "detection_rate": 0.7458333333333333,
+     "n": 720
+    },
+    "cage": {
+     "auroc": 1.0,
+     "detection_rate": 0.4583333333333333,
+     "n": 720
+    },
+    "order_1.3x": {
+     "auroc": 1.0,
+     "detection_rate": 0.6916666666666667,
+     "n": 1440,
+     "note": "runs at 80/125/175/220 rad/s (grid speeds), severity x0.5/1/2; negatives = held-out healthy windows"
+    }
+   },
+   "criterion_5": {
+    "startup_false_alarm_rate": 0.04861111111111111,
+    "startup_n": 432,
+    "reference_step_false_alarm_rate": 0.05555555555555555,
+    "reference_step_n": 36,
+    "steps": [
+     "150 -> 175 rad/s at 0.75 s",
+     "150 -> 125 rad/s at 0.75 s",
+     "100 -> 200 rad/s at 0.75 s"
+    ],
+    "window_rule": "windows overlapping the step or starting within 0.3 s after it"
+   }
+  },
+  "rpi5_tcn_distilled": {
+   "run": "configs/regressors/dc_motor_residual_rpi5/2026-10-21_run01",
+   "channels": [
+    "current_r",
+    "rpm",
+    "voltage_v"
+   ],
+   "threshold": 1900.6979443358473,
+   "quantile": 0.99,
+   "n_val_windows": 1260,
+   "train_time_test_rmse_per_channel": {
+    "current_r": 0.7820680737495422,
+    "rpm": 0.04594207927584648,
+    "voltage_v": 0.06655716896057129
+   },
+   "train_time_persistence_rmse_per_channel": {
+    "current_r": 1.1221251487731934,
+    "rpm": 0.041710786521434784,
+    "voltage_v": 0.040140558034181595
+   },
+   "criterion_1": {
+    "pooled": {
+     "current_r": {
+      "model_rmse": 17.138803482055664,
+      "persistence_rmse": 23.84623908996582,
+      "ratio": 0.718721447746762
+     },
+     "rpm": {
+      "model_rmse": 0.0029814373701810837,
+      "persistence_rmse": 0.0,
+      "ratio": null
+     }
+    },
+    "readings": {
+     "steady_state_held_out": {
+      "current_r": {
+       "model_rmse": 17.138803482055664,
+       "persistence_rmse": 23.84623908996582,
+       "ratio": 0.718721447746762
+      },
+      "rpm": {
+       "model_rmse": 0.0029814373701810837,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     },
+     "whole_runs_held_out": {
+      "current_r": {
+       "model_rmse": 17.239259719848633,
+       "persistence_rmse": 23.67207908630371,
+       "ratio": 0.7282528778734519
+      },
+      "rpm": {
+       "model_rmse": 1.6229887008666992,
+       "persistence_rmse": 2.6316349506378174,
+       "ratio": 0.616722581706609
+      }
+     },
+     "train_time_test_split_normalized": {
+      "current_r": {
+       "model_rmse": 0.7820680737495422,
+       "persistence_rmse": 1.1221251487731934,
+       "ratio": 0.6969526301095456
+      },
+      "rpm": {
+       "model_rmse": 0.04594207927584648,
+       "persistence_rmse": 0.041710786521434784,
+       "ratio": 1.1014436098498712
+      }
+     }
+    },
+    "per_condition": {
+     "unseen_speed_115_rad_s": {
+      "current_r": {
+       "model_rmse": 0.016742737963795662,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      },
+      "rpm": {
+       "model_rmse": 0.00248676142655313,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     },
+     "unseen_speed_190_rad_s": {
+      "current_r": {
+       "model_rmse": 0.01674599200487137,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      },
+      "rpm": {
+       "model_rmse": 0.002793650608509779,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     },
+     "extrapolated_speed_250_rad_s": {
+      "current_r": {
+       "model_rmse": 0.016739429906010628,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      },
+      "rpm": {
+       "model_rmse": 0.0025054169818758965,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     },
+     "noise_100pct": {
+      "current_r": {
+       "model_rmse": 38.32351303100586,
+       "persistence_rmse": 53.32181167602539,
+       "ratio": 0.71872113543053
+      },
+      "rpm": {
+       "model_rmse": 0.004242084454745054,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     },
+     "plant_drift_psi-10pct_J+50pct": {
+      "current_r": {
+       "model_rmse": 0.016742737963795662,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      },
+      "rpm": {
+       "model_rmse": 0.00248676142655313,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     }
+    },
+    "steady_state_undefined_channels": [
+     "rpm"
+    ],
+    "pass": false
+   },
+   "criterion_3": {
+    "per_condition": {
+     "unseen_speed_115_rad_s": {
+      "n_windows": 144,
+      "false_alarm_rate": 0.0
+     },
+     "unseen_speed_190_rad_s": {
+      "n_windows": 144,
+      "false_alarm_rate": 0.0
+     },
+     "extrapolated_speed_250_rad_s": {
+      "n_windows": 144,
+      "false_alarm_rate": 0.0
+     },
+     "noise_100pct": {
+      "n_windows": 144,
+      "false_alarm_rate": 0.0
+     },
+     "plant_drift_psi-10pct_J+50pct": {
+      "n_windows": 144,
+      "false_alarm_rate": 0.0
+     }
+    },
+    "pass": true
+   },
+   "criterion_2": {
+    "per_fault": {
+     "outer_race": {
+      "auroc_held_out_x1": 1.0,
+      "detection_rate_x1": 0.05555555555555555,
+      "n_pos": 720,
+      "auroc_per_condition": {
+       "unseen_speed_115_rad_s": 1.0,
+       "unseen_speed_190_rad_s": 1.0,
+       "extrapolated_speed_250_rad_s": 1.0,
+       "noise_100pct": 1.0,
+       "plant_drift_psi-10pct_J+50pct": 1.0
+      },
+      "auroc_severity_x2_150rad_s": 1.0,
+      "detection_rate_severity_x2": 0.9722222222222222,
+      "detection_rate_unseen_severity_x0.6": 0.0
+     },
+     "inner_race": {
+      "auroc_held_out_x1": 1.0,
+      "detection_rate_x1": 0.0,
+      "n_pos": 720,
+      "auroc_per_condition": {
+       "unseen_speed_115_rad_s": 1.0,
+       "unseen_speed_190_rad_s": 1.0,
+       "extrapolated_speed_250_rad_s": 1.0,
+       "noise_100pct": 1.0,
+       "plant_drift_psi-10pct_J+50pct": 1.0
+      },
+      "auroc_severity_x2_150rad_s": 1.0,
+      "detection_rate_severity_x2": 0.25,
+      "detection_rate_unseen_severity_x0.6": 0.0
+     }
+    },
+    "min_auroc": 1.0,
+    "pass": true,
+    "negative_result": false
+   },
+   "criterion_4": {
+    "ball": {
+     "auroc": 1.0,
+     "detection_rate": 0.11944444444444445,
+     "n": 720
+    },
+    "cage": {
+     "auroc": 1.0,
+     "detection_rate": 0.1486111111111111,
+     "n": 720
+    },
+    "order_1.3x": {
+     "auroc": 1.0,
+     "detection_rate": 0.3736111111111111,
+     "n": 1440,
+     "note": "runs at 80/125/175/220 rad/s (grid speeds), severity x0.5/1/2; negatives = held-out healthy windows"
+    }
+   },
+   "criterion_5": {
+    "startup_false_alarm_rate": 0.009259259259259259,
+    "startup_n": 432,
+    "reference_step_false_alarm_rate": 0.08333333333333333,
+    "reference_step_n": 36,
+    "steps": [
+     "150 -> 175 rad/s at 0.75 s",
+     "150 -> 125 rad/s at 0.75 s",
+     "100 -> 200 rad/s at 0.75 s"
+    ],
+    "window_rule": "windows overlapping the step or starting within 0.3 s after it"
+   }
+  },
+  "esp32_distilled": {
+   "run": "configs/regressors/dc_motor_residual_esp32/2026-10-21_run01",
+   "channels": [
+    "current_r",
+    "rpm",
+    "voltage_v"
+   ],
+   "threshold": 1083.6779938831385,
+   "quantile": 0.99,
+   "n_val_windows": 1260,
+   "train_time_test_rmse_per_channel": {
+    "current_r": 0.7932298183441162,
+    "rpm": 0.07894919067621231,
+    "voltage_v": 0.0843295305967331
+   },
+   "train_time_persistence_rmse_per_channel": {
+    "current_r": 1.1221251487731934,
+    "rpm": 0.041710786521434784,
+    "voltage_v": 0.040140558034181595
+   },
+   "criterion_1": {
+    "pooled": {
+     "current_r": {
+      "model_rmse": 17.185266494750977,
+      "persistence_rmse": 23.84623908996582,
+      "ratio": 0.7206698897010685
+     },
+     "rpm": {
+      "model_rmse": 0.024205824360251427,
+      "persistence_rmse": 0.0,
+      "ratio": null
+     }
+    },
+    "readings": {
+     "steady_state_held_out": {
+      "current_r": {
+       "model_rmse": 17.185266494750977,
+       "persistence_rmse": 23.84623908996582,
+       "ratio": 0.7206698897010685
+      },
+      "rpm": {
+       "model_rmse": 0.024205824360251427,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     },
+     "whole_runs_held_out": {
+      "current_r": {
+       "model_rmse": 17.527097702026367,
+       "persistence_rmse": 23.67207908630371,
+       "ratio": 0.7404122653581057
+      },
+      "rpm": {
+       "model_rmse": 3.0747992992401123,
+       "persistence_rmse": 2.6316349506378174,
+       "ratio": 1.1683988687317317
+      }
+     },
+     "train_time_test_split_normalized": {
+      "current_r": {
+       "model_rmse": 0.7932298183441162,
+       "persistence_rmse": 1.1221251487731934,
+       "ratio": 0.7068995995779485
+      },
+      "rpm": {
+       "model_rmse": 0.07894919067621231,
+       "persistence_rmse": 0.041710786521434784,
+       "ratio": 1.8927763597946314
+      }
+     }
+    },
+    "per_condition": {
+     "unseen_speed_115_rad_s": {
+      "current_r": {
+       "model_rmse": 0.021030066534876823,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      },
+      "rpm": {
+       "model_rmse": 0.006165230646729469,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     },
+     "unseen_speed_190_rad_s": {
+      "current_r": {
+       "model_rmse": 0.021035904064774513,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      },
+      "rpm": {
+       "model_rmse": 0.005845610052347183,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     },
+     "extrapolated_speed_250_rad_s": {
+      "current_r": {
+       "model_rmse": 0.02102556824684143,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      },
+      "rpm": {
+       "model_rmse": 0.006142453756183386,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     },
+     "noise_100pct": {
+      "current_r": {
+       "model_rmse": 38.42740249633789,
+       "persistence_rmse": 53.32181167602539,
+       "ratio": 0.7206694838092994
+      },
+      "rpm": {
+       "model_rmse": 0.05274171754717827,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     },
+     "plant_drift_psi-10pct_J+50pct": {
+      "current_r": {
+       "model_rmse": 0.021030066534876823,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      },
+      "rpm": {
+       "model_rmse": 0.006165230646729469,
+       "persistence_rmse": 0.0,
+       "ratio": null
+      }
+     }
+    },
+    "steady_state_undefined_channels": [
+     "rpm"
+    ],
+    "pass": false
+   },
+   "criterion_3": {
+    "per_condition": {
+     "unseen_speed_115_rad_s": {
+      "n_windows": 144,
+      "false_alarm_rate": 0.0
+     },
+     "unseen_speed_190_rad_s": {
+      "n_windows": 144,
+      "false_alarm_rate": 0.0
+     },
+     "extrapolated_speed_250_rad_s": {
+      "n_windows": 144,
+      "false_alarm_rate": 0.0
+     },
+     "noise_100pct": {
+      "n_windows": 144,
+      "false_alarm_rate": 0.0
+     },
+     "plant_drift_psi-10pct_J+50pct": {
+      "n_windows": 144,
+      "false_alarm_rate": 0.0
+     }
+    },
+    "pass": true
+   },
+   "criterion_2": {
+    "per_fault": {
+     "outer_race": {
+      "auroc_held_out_x1": 0.999945987654321,
+      "detection_rate_x1": 0.0,
+      "n_pos": 720,
+      "auroc_per_condition": {
+       "unseen_speed_115_rad_s": 1.0,
+       "unseen_speed_190_rad_s": 1.0,
+       "extrapolated_speed_250_rad_s": 1.0,
+       "noise_100pct": 1.0,
+       "plant_drift_psi-10pct_J+50pct": 1.0
+      },
+      "auroc_severity_x2_150rad_s": 1.0,
+      "detection_rate_severity_x2": 0.7222222222222222,
+      "detection_rate_unseen_severity_x0.6": 0.0
+     },
+     "inner_race": {
+      "auroc_held_out_x1": 1.0,
+      "detection_rate_x1": 0.0,
+      "n_pos": 720,
+      "auroc_per_condition": {
+       "unseen_speed_115_rad_s": 1.0,
+       "unseen_speed_190_rad_s": 1.0,
+       "extrapolated_speed_250_rad_s": 1.0,
+       "noise_100pct": 1.0,
+       "plant_drift_psi-10pct_J+50pct": 1.0
+      },
+      "auroc_severity_x2_150rad_s": 1.0,
+      "detection_rate_severity_x2": 0.0,
+      "detection_rate_unseen_severity_x0.6": 0.0
+     }
+    },
+    "min_auroc": 0.999945987654321,
+    "pass": true,
+    "negative_result": false
+   },
+   "criterion_4": {
+    "ball": {
+     "auroc": 0.9999922839506173,
+     "detection_rate": 0.0,
+     "n": 720
+    },
+    "cage": {
+     "auroc": 0.9999961419753086,
+     "detection_rate": 0.20833333333333334,
+     "n": 720
+    },
+    "order_1.3x": {
+     "auroc": 0.9999922839506173,
+     "detection_rate": 0.175,
+     "n": 1440,
+     "note": "runs at 80/125/175/220 rad/s (grid speeds), severity x0.5/1/2; negatives = held-out healthy windows"
+    }
+   },
+   "criterion_5": {
+    "startup_false_alarm_rate": 0.013888888888888888,
+    "startup_n": 432,
+    "reference_step_false_alarm_rate": 0.05555555555555555,
+    "reference_step_n": 36,
+    "steps": [
+     "150 -> 175 rad/s at 0.75 s",
+     "150 -> 125 rad/s at 0.75 s",
+     "100 -> 200 rad/s at 0.75 s"
+    ],
+    "window_rule": "windows overlapping the step or starting within 0.3 s after it"
+   }
+  }
+ },
+ "design": {
+  "fault_frequencies_hz": {
+   "80": {
+    "outer_race": 39.09568584866661,
+    "inner_race": 62.763477730146406,
+    "ball": 25.918991729301204,
+    "cage": 4.8869607310833265
+   },
+   "100": {
+    "outer_race": 48.86960731083327,
+    "inner_race": 78.45434716268299,
+    "ball": 32.39873966162651,
+    "cage": 6.108700913854158
+   },
+   "115": {
+    "outer_race": 56.200048407458254,
+    "inner_race": 90.22249923708546,
+    "ball": 37.25855061087048,
+    "cage": 7.025006050932282
+   },
+   "125": {
+    "outer_race": 61.08700913854159,
+    "inner_race": 98.06793395335376,
+    "ball": 40.498424577033134,
+    "cage": 7.635876142317699
+   },
+   "150": {
+    "outer_race": 73.3044109662499,
+    "inner_race": 117.6815207440245,
+    "ball": 48.59810949243976,
+    "cage": 9.163051370781238
+   },
+   "175": {
+    "outer_race": 85.5218127939582,
+    "inner_race": 137.29510753469526,
+    "ball": 56.69779440784639,
+    "cage": 10.690226599244776
+   },
+   "190": {
+    "outer_race": 92.8522538905832,
+    "inner_race": 149.06325960909768,
+    "ball": 61.55760535709035,
+    "cage": 11.6065317363229
+   },
+   "200": {
+    "outer_race": 97.73921462166653,
+    "inner_race": 156.90869432536599,
+    "ball": 64.79747932325301,
+    "cage": 12.217401827708317
+   },
+   "220": {
+    "outer_race": 107.51313608383319,
+    "inner_race": 172.5995637579026,
+    "ball": 71.27722725557831,
+    "cage": 13.439142010479149
+   },
+   "250": {
+    "outer_race": 122.17401827708318,
+    "inner_race": 196.13586790670752,
+    "ball": 80.99684915406627,
+    "cage": 15.271752284635397
+   }
+  },
+  "highest_fault_hz": 196.13586790670752,
+  "half_period_samples": 25.49253256614064,
+  "horizon": 16,
+  "ripple_harmonics": "fundamental + 3 overtones (datagen/fault_injection._HARMONIC_WEIGHTS)"
+ },
+ "selection": "with_voltage_v, chosen with criteria 1 and 3 only (healthy data): criterion 3 ties at 0 % false alarms in every held-out condition, and criterion 1 favours it (whole held-out runs: rpm ratio 0.219 vs 0.227, current_r 0.726 vs 0.727; train-time test: rpm 0.555 vs 0.652). The AUROC (criterion 2) was 1.000 for both, so it could not influence the choice. The edge tiers are distilled from it.",
+ "agent": {
+  "runs": [
+   {
+    "condition": "unseen_speed_115_rad_s",
+    "label": "normal",
+    "agent_score": 0.018067747647314565,
+    "agent_closest": "healthy",
+    "agent_s": 23.11,
+    "with_voltage_v_mean_score": 0.24524152113332617,
+    "with_voltage_v_flagged_share": 0.0,
+    "without_voltage_v_mean_score": 0.4829776455961243,
+    "without_voltage_v_flagged_share": 0.0,
+    "rpi5_tcn_distilled_mean_score": 0.501758050331061,
+    "rpi5_tcn_distilled_flagged_share": 0.0,
+    "esp32_distilled_mean_score": 0.4992243431317134,
+    "esp32_distilled_flagged_share": 0.0
+   },
+   {
+    "condition": "unseen_speed_115_rad_s",
+    "label": "outer_race",
+    "agent_score": 0.9933541117479553,
+    "agent_closest": "moderate",
+    "agent_s": 0.18,
+    "with_voltage_v_mean_score": 546.7754006313971,
+    "with_voltage_v_flagged_share": 0.6388888888888888,
+    "without_voltage_v_mean_score": 172.54922179505854,
+    "without_voltage_v_flagged_share": 0.7777777777777778,
+    "rpi5_tcn_distilled_mean_score": 1660.2793511663663,
+    "rpi5_tcn_distilled_flagged_share": 0.2777777777777778,
+    "esp32_distilled_mean_score": 322.0568959357862,
+    "esp32_distilled_flagged_share": 0.0
+   },
+   {
+    "condition": "unseen_speed_115_rad_s",
+    "label": "inner_race",
+    "agent_score": 0.9904757600030557,
+    "agent_closest": "inner_race_moderate",
+    "agent_s": 0.18,
+    "with_voltage_v_mean_score": 397.6047622965576,
+    "with_voltage_v_flagged_share": 0.5833333333333334,
+    "without_voltage_v_mean_score": 152.47619528114808,
+    "without_voltage_v_flagged_share": 0.8055555555555556,
+    "rpi5_tcn_distilled_mean_score": 768.6619903096282,
+    "rpi5_tcn_distilled_flagged_share": 0.0,
+    "esp32_distilled_mean_score": 228.6268696388811,
+    "esp32_distilled_flagged_share": 0.0
+   },
+   {
+    "condition": "unseen_speed_190_rad_s",
+    "label": "normal",
+    "agent_score": 0.029234118707041287,
+    "agent_closest": "healthy",
+    "agent_s": 23.13,
+    "with_voltage_v_mean_score": 0.24772752810522755,
+    "with_voltage_v_flagged_share": 0.0,
+    "without_voltage_v_mean_score": 0.49887377707233704,
+    "without_voltage_v_flagged_share": 0.0,
+    "rpi5_tcn_distilled_mean_score": 0.5634629807006715,
+    "rpi5_tcn_distilled_flagged_share": 0.0,
+    "esp32_distilled_mean_score": 0.4734575589596594,
+    "esp32_distilled_flagged_share": 0.0
+   },
+   {
+    "condition": "unseen_speed_190_rad_s",
+    "label": "outer_race",
+    "agent_score": 0.9847633069195534,
+    "agent_closest": "moderate",
+    "agent_s": 0.18,
+    "with_voltage_v_mean_score": 392.8847392559692,
+    "with_voltage_v_flagged_share": 0.5555555555555556,
+    "without_voltage_v_mean_score": 146.0596948532482,
+    "without_voltage_v_flagged_share": 0.8055555555555556,
+    "rpi5_tcn_distilled_mean_score": 750.453458387597,
+    "rpi5_tcn_distilled_flagged_share": 0.0,
+    "esp32_distilled_mean_score": 229.13004873446164,
+    "esp32_distilled_flagged_share": 0.0
+   },
+   {
+    "condition": "unseen_speed_190_rad_s",
+    "label": "inner_race",
+    "agent_score": 0.9796506474162768,
+    "agent_closest": "inner_race_moderate",
+    "agent_s": 0.18,
+    "with_voltage_v_mean_score": 300.6483904801223,
+    "with_voltage_v_flagged_share": 0.5833333333333334,
+    "without_voltage_v_mean_score": 126.81473768408347,
+    "without_voltage_v_flagged_share": 0.6944444444444444,
+    "rpi5_tcn_distilled_mean_score": 449.00479428178534,
+    "rpi5_tcn_distilled_flagged_share": 0.0,
+    "esp32_distilled_mean_score": 191.35671312465504,
+    "esp32_distilled_flagged_share": 0.0
+   },
+   {
+    "condition": "extrapolated_speed_250_rad_s",
+    "label": "normal",
+    "agent_score": 0.03684547181810416,
+    "agent_closest": "healthy",
+    "agent_s": 23.05,
+    "with_voltage_v_mean_score": 0.24457690907336616,
+    "with_voltage_v_flagged_share": 0.0,
+    "without_voltage_v_mean_score": 0.48210148587918894,
+    "without_voltage_v_flagged_share": 0.0,
+    "rpi5_tcn_distilled_mean_score": 0.5055086770554486,
+    "rpi5_tcn_distilled_flagged_share": 0.0,
+    "esp32_distilled_mean_score": 0.49738763155986276,
+    "esp32_distilled_flagged_share": 0.0
+   },
+   {
+    "condition": "extrapolated_speed_250_rad_s",
+    "label": "outer_race",
+    "agent_score": 0.9831947926040221,
+    "agent_closest": "moderate",
+    "agent_s": 0.18,
+    "with_voltage_v_mean_score": 342.6038367752519,
+    "with_voltage_v_flagged_share": 0.6388888888888888,
+    "without_voltage_v_mean_score": 138.27992281431247,
+    "without_voltage_v_flagged_share": 0.7222222222222222,
+    "rpi5_tcn_distilled_mean_score": 640.4506473536776,
+    "rpi5_tcn_distilled_flagged_share": 0.0,
+    "esp32_distilled_mean_score": 201.16829623458798,
+    "esp32_distilled_flagged_share": 0.0
+   },
+   {
+    "condition": "extrapolated_speed_250_rad_s",
+    "label": "inner_race",
+    "agent_score": 0.9719323613043153,
+    "agent_closest": "inner_race_moderate",
+    "agent_s": 0.18,
+    "with_voltage_v_mean_score": 173.411722126317,
+    "with_voltage_v_flagged_share": 0.25,
+    "without_voltage_v_mean_score": 83.39527283297292,
+    "without_voltage_v_flagged_share": 0.4166666666666667,
+    "rpi5_tcn_distilled_mean_score": 309.3904815562376,
+    "rpi5_tcn_distilled_flagged_share": 0.0,
+    "esp32_distilled_mean_score": 143.57036739384375,
+    "esp32_distilled_flagged_share": 0.0
+   },
+   {
+    "condition": "noise_100pct",
+    "label": "normal",
+    "agent_score": 0.48098152023606044,
+    "agent_closest": "healthy",
+    "agent_s": 23.03,
+    "with_voltage_v_mean_score": 4.557377157441794,
+    "with_voltage_v_flagged_share": 0.0,
+    "without_voltage_v_mean_score": 4.60006270862279,
+    "without_voltage_v_flagged_share": 0.0,
+    "rpi5_tcn_distilled_mean_score": 4.620785517938829,
+    "rpi5_tcn_distilled_flagged_share": 0.0,
+    "esp32_distilled_mean_score": 6.4433336896680125,
+    "esp32_distilled_flagged_share": 0.0
+   },
+   {
+    "condition": "noise_100pct",
+    "label": "outer_race",
+    "agent_score": 0.7639969226742508,
+    "agent_closest": "moderate",
+    "agent_s": 0.18,
+    "with_voltage_v_mean_score": 450.28951472461756,
+    "with_voltage_v_flagged_share": 0.7222222222222222,
+    "without_voltage_v_mean_score": 291.92039229414723,
+    "without_voltage_v_flagged_share": 1.0,
+    "rpi5_tcn_distilled_mean_score": 869.3011873722656,
+    "rpi5_tcn_distilled_flagged_share": 0.0,
+    "esp32_distilled_mean_score": 317.5498224040001,
+    "esp32_distilled_flagged_share": 0.0
+   },
+   {
+    "condition": "noise_100pct",
+    "label": "inner_race",
+    "agent_score": 0.6989496391669148,
+    "agent_closest": "inner_race_moderate",
+    "agent_s": 0.18,
+    "with_voltage_v_mean_score": 377.3296999758612,
+    "with_voltage_v_flagged_share": 0.6944444444444444,
+    "without_voltage_v_mean_score": 156.10584287983409,
+    "without_voltage_v_flagged_share": 0.7222222222222222,
+    "rpi5_tcn_distilled_mean_score": 572.3585155107351,
+    "rpi5_tcn_distilled_flagged_share": 0.0,
+    "esp32_distilled_mean_score": 218.91995856369758,
+    "esp32_distilled_flagged_share": 0.0
+   },
+   {
+    "condition": "plant_drift_psi-10pct_J+50pct",
+    "label": "normal",
+    "agent_score": 0.16462383929910895,
+    "agent_closest": "healthy",
+    "agent_s": 0.18,
+    "with_voltage_v_mean_score": 0.24524152113332617,
+    "with_voltage_v_flagged_share": 0.0,
+    "without_voltage_v_mean_score": 0.4829776455961243,
+    "without_voltage_v_flagged_share": 0.0,
+    "rpi5_tcn_distilled_mean_score": 0.501758050331061,
+    "rpi5_tcn_distilled_flagged_share": 0.0,
+    "esp32_distilled_mean_score": 0.4992243431317134,
+    "esp32_distilled_flagged_share": 0.0
+   },
+   {
+    "condition": "plant_drift_psi-10pct_J+50pct",
+    "label": "outer_race",
+    "agent_score": 0.7073793587490353,
+    "agent_closest": "moderate",
+    "agent_s": 0.18,
+    "with_voltage_v_mean_score": 81.7285186088812,
+    "with_voltage_v_flagged_share": 0.0,
+    "without_voltage_v_mean_score": 43.743319462577716,
+    "without_voltage_v_flagged_share": 0.027777777777777776,
+    "rpi5_tcn_distilled_mean_score": 542.010390291101,
+    "rpi5_tcn_distilled_flagged_share": 0.0,
+    "esp32_distilled_mean_score": 63.48376065043303,
+    "esp32_distilled_flagged_share": 0.0
+   },
+   {
+    "condition": "plant_drift_psi-10pct_J+50pct",
+    "label": "inner_race",
+    "agent_score": 0.6976544339518954,
+    "agent_closest": "inner_race_incipient",
+    "agent_s": 0.19,
+    "with_voltage_v_mean_score": 247.24507487431563,
+    "with_voltage_v_flagged_share": 0.2777777777777778,
+    "without_voltage_v_mean_score": 104.0530198548168,
+    "without_voltage_v_flagged_share": 0.7777777777777778,
+    "rpi5_tcn_distilled_mean_score": 460.1810257384651,
+    "rpi5_tcn_distilled_flagged_share": 0.0,
+    "esp32_distilled_mean_score": 144.30016736496037,
+    "esp32_distilled_flagged_share": 0.0
+   }
+  ],
+  "run_level_auroc": {
+   "agent": 1.0,
+   "with_voltage_v": 1.0,
+   "without_voltage_v": 1.0,
+   "rpi5_tcn_distilled": 1.0,
+   "esp32_distilled": 1.0
+  },
+  "agent_alert_threshold": 0.7,
+  "agent_alert_rate_healthy": 0.0,
+  "agent_alert_rate_faulty": 0.8
+ },
+ "edge": [
+  {
+   "run": "configs/regressors/dc_motor_residual_rpi5/2026-10-21_run01",
+   "exported": true,
+   "tier": "rpi5",
+   "n_windows": 480,
+   "max_abs_diff_normalized": 0.0023818016052246094,
+   "rmse_diff_normalized": 0.00044364784844219685,
+   "decision_agreement": 1.0,
+   "host_ms_per_window_median": 0.13864898937754333,
+   "flex_ops": [],
+   "size_kb": 64.42578125,
+   "keras_detection_rate_faulty": 0.0375,
+   "tflite_detection_rate_faulty": 0.0375
+  },
+  {
+   "run": "configs/regressors/dc_motor_residual_esp32/2026-10-21_run01",
+   "exported": true,
+   "tier": "esp32",
+   "n_windows": 480,
+   "max_abs_diff_normalized": 0.1350330114364624,
+   "rmse_diff_normalized": 0.029798511415719986,
+   "decision_agreement": 1.0,
+   "host_ms_per_window_median": 0.01876999158412218,
+   "flex_ops": [],
+   "size_kb": 10.953125,
+   "keras_detection_rate_faulty": 0.0,
+   "tflite_detection_rate_faulty": 0.0
+  }
+ ]
+}

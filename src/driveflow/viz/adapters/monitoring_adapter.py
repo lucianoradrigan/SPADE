@@ -27,7 +27,7 @@ from driveflow.datagen import Scenario, run_scenario
 from driveflow.monitoring.agents.agent_gateway import Alert, GatewayAgent
 from driveflow.monitoring.agents.agent_server import ServerAgent
 from driveflow.monitoring.rules.schema import load_all_rulesets
-from driveflow.viz.adapters.ai_adapter import classify_last_window
+from driveflow.viz.adapters.ai_adapter import classify_last_window, residual_assessment
 
 RULES_DIR = Path(__file__).resolve().parents[2] / "monitoring" / "rules"
 AGENT_CLASS_BY_DOMAIN = {"dc_motor": DCMotorAnomalyDetector, "vsc_dpc": VSCDPCAnomalyDetector}
@@ -114,16 +114,21 @@ def run_monitoring_pass(domain: str, scenario_kwargs: dict, server_agent: Server
             server_agent.record_alert(domain, dataclasses.replace(event, timestamp=now), source_id="gateway")
 
     classifier = record_classifier_confidence_if_available(domain, df, server_agent)
+    resid = residual_assessment(domain, df) if domain == "dc_motor" else {"available": False, "reason": "no forecast-residual detector for this domain"}
     tail = df.iloc[int(len(df) * 0.8):]
     rpm = float(tail["rpm"].mean()) if domain == "dc_motor" and "rpm" in df and df["rpm"].notna().any() else None
     agents = {
         "Simulation-based detector": {"availability": "AVAILABLE", "emitted": not sim_alert.resolved, "detail": f"score {score:.2f}, closest hypothesis {diagnosis}"},
         "Rule-based gateway": {"availability": "AVAILABLE" if gateway is not None else "NOT_CONFIGURED", "emitted": bool(rule_events), "detail": (f"{len(rule_events)} event(s)" if gateway is not None else "no monitoring/rules YAML for this domain")},
+        # E14: shown with the others, never raises an alert by itself (raising one is a separate decision).
+        "Forecast residual": {"availability": "AVAILABLE" if resid["available"] else "NOT_CONFIGURED", "emitted": False,
+                              "detail": (f"SIMULATED · score {resid['score']:.2f} vs threshold {resid['threshold']:.2f}; {resid['share_above']:.0%} of windows above ({resid['model_id']}); does not raise alerts by itself"
+                                         if resid["available"] else resid["reason"])},
         "Classifier confidence drift": {"availability": "AVAILABLE" if classifier is not None else "NOT_CONFIGURED", "emitted": False, "detail": (f"confidence {classifier['confidence']:.1%} ({classifier['model_id']})" if classifier else "no promoted PC-tier classifier for this domain")},
     }
     return {
         "domain": domain, "timestamp": now, "score": float(score), "diagnosis": diagnosis, "explanation": explanation,
         "rule_events": rule_events, "hypotheses": list(agent.HYPOTHESES), "classifier": classifier,
         "confidence": classifier["confidence"] if classifier else None, "rpm": rpm, "agents": agents,
-        "n_rows": int(len(df)), "scenario": dict(scenario_kwargs),
+        "n_rows": int(len(df)), "scenario": dict(scenario_kwargs), "residual": {k: v for k, v in resid.items() if k not in ("window", "forecast")},
     }
