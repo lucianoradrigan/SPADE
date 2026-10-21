@@ -136,7 +136,7 @@ Pruebas: esquemas (ida y vuelta, versión); store (concurrencia básica); worker
 Criterio de cierre: se cumple el criterio de la spec §13 Fase 0. Un job de prueba (por ejemplo, una corrida corta de run_scenario) sobrevive al cambio de página y a la recarga, se cancela de forma honesta y deja logs y comando reproducible. Evidencia en docs/audit/expansion/e0_foundations.md.
 
 E1. Entornos Gymnasium nativos
-- [ ] E1. gymnasium.Env para las plantas de SPADE + página Environments (funcionalidad #2)
+- [x] E1. gymnasium.Env para las plantas de SPADE + página Environments (funcionalidad #2)
 
 Origen: Fund. 7_Reinforcement_Learning/RL_buck_control.ipynb (BuckAvgEnv). Se toma solo el diseño: observación normalizada, reset con condiciones aleatorias por semilla y recompensa por términos. Ese BuckAvgEnv ni siquiera hereda de gymnasium.Env; no se copia.
 

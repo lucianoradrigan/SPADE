@@ -111,7 +111,9 @@ def test_profiles_versioned_and_stale_when_the_file_changes(tmp_path):
     latest = s.get_profile("buck")
     assert latest.version == 2 and latest.status == "stale" and not latest.capabilities.can_simulate_batch
     assert s.get_profile("buck", 1) == p
-    assert all(not p.capabilities.can_step_interactively for p in NATIVE_PROFILES.values())
+    stepping = {k for k, p in NATIVE_PROFILES.items() if p.capabilities.can_step_interactively}
+    assert stepping == {"native:dc_perm_ex_v1", "native:vsc_dpc_v1"}  # E1 wrappers; the PMSM has none
+    assert not any(p.capabilities.can_train_rl for p in NATIVE_PROFILES.values())
 
 
 class TestCompare:
