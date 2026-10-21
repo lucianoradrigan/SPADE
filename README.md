@@ -3,8 +3,8 @@
 **S**imulation **P**latform for **A**nalysis, **D**iagnosis & **E**lectric drives.
 
 A unified simulation, differentiable predictive control (DPC), and ML fault-diagnosis workbench
-for electric drives and power electronics converters, with a live Streamlit dashboard -- now also
-covering transfer learning on already-promoted models and a live multi-agent monitoring view.
+for electric drives and power electronics converters, with an interactive Streamlit dashboard -- now also
+covering transfer learning on already-promoted models and a simulation-based multi-agent monitoring view.
 Nothing on the dashboard is pre-generated or looked up from a table -- every chart is the direct
 output of a real simulation, run fresh each time you click Generate.
 
@@ -109,7 +109,7 @@ disconnected from the PC tier, and a PC-tier `ServerAgent` aggregates alerts acr
 tracks classifier confidence over time to flag drift.
 
 Try it in the dashboard: pick the "IA" macro-phase, generate a sample run or upload a file, and
-see the trained classifier/regressor evaluate it live -- the landing page also has a clickable
+see the trained classifier/regressor evaluate it on demand -- the landing page also has a clickable
 system diagram walking through how these pieces connect end to end.
 
 ## Transfer Learning workbench
@@ -132,7 +132,7 @@ Fine-tuning a model that is already promoted, without retraining it from scratch
   `tf.GradientTape` loop -- Keras `fit()` has no per-layer learning rate), and `ADAPTER` (freeze
   everything but the last N trainable layers; a deliberately simplified, architecture-agnostic
   reading of parameter-efficient fine-tuning, *not* LoRA). An `on_epoch_end` hook feeds the
-  dashboard's live loss chart and fires identically on both paths.
+  dashboard's per-epoch loss chart and fires identically on both paths.
   The pipeline always fine-tunes a **clone** of the base model and verifies the base weights'
   SHA-256 fingerprint afterwards.
 - **`validator.py`** is task-specific: classification (accuracy, macro-F1, per-class recall,
@@ -161,7 +161,7 @@ The tab deliberately does *not* offer a "pick a new architecture" control: fine-
 weights, not architecture -- choosing a different one is training from scratch, which
 `experiments/train_model.py` already covers.
 
-## Simulation-based agents & Live Monitoring
+## Simulation-based agents & Monitoring
 
 A second, complementary detection path that needs no trained classifier at all
 (`src/driveflow/agents/`): compare a real telemetry window against *simulations* of hypothetical
@@ -338,7 +338,7 @@ configs/          the 4 shipped DPC checkpoints (see below), promoted classifier
   and |v_ref| = 25-100 V (`experiments/finetune_dpc_r_range.py`). It tracks within ~3 V over the dashboard's load range
   (v3: up to 18 V), at the cost of the nominal point (2.5 V vs. v3's 1.18 V at 8 ohm) -- see
   docs/SIMULATION_STABILITY_REPORT.md S-05.
-- **What every DPC `Scenario` and the live dashboard run (since 2026-10-20):**
+- **What every DPC `Scenario` and the dashboard run (since 2026-10-20):**
   `ScheduledDpcController`, which uses v3 near 8 ohm (7.25-8.75 ohm, |v_ref| <= 62.5 V) and at
   small references (<= 10 V, 5-12 ohm) and v4 everywhere else: 1.18 V at 8 ohm, <= 3.1 V from 4 ohm
   to 1 kohm (docs/SIMULATION_STABILITY_REPORT.md §4.4).
