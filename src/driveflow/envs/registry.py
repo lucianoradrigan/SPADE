@@ -63,12 +63,16 @@ ENVIRONMENTS = {
                 ("Continuous-action RL (DDPG, SAC, PPO)", "DQN after discretizing the duty cycle", "PI cascade (reference policy)"),
                 ("|i_L| > 2 × i_max (30 A)", "non-finite state", "horizon reached → truncated", "info['out_of_domain'] outside the fitted range (warning, not a termination)"),
                 "control.classical.buck_pi.BuckVoltageController", {"vout_ref_v": 24.0, "load_resistance_ohm": 6.0, "duration_s": 0.02}),
+        # Round 2026-10-21, decision D10: the existing PMSM simulation (solver unchanged, S-01/S-13).
+        EnvSpec("SPADE/Pmsm-v0", "driveflow.envs.native:PmsmEnv", "native:pmsm_v1", "PMSM — dq current tracking (MTPA reference)", 0, "SIMULATED",
+                ("Continuous-action RL (DDPG, SAC, PPO)", "FOC DqCurrentController (reference policy)"),
+                ("|i_s| > 1.25 × I_LIM (500 A)", "non-finite state", "horizon reached → truncated"),
+                "control.classical.pmsm_foc.DqCurrentController", {"current_ref_a": 200.0, "strategy": "mtpa", "duration_s": 0.03}),
     )
 }
 
 #: Environments other tasks will add; shown as "Not registered", never instantiated.
 PLANNED = {
-    "SPADE/Pmsm-v0": ("PMSM — dq current tracking", "none assigned"),
     "PLECS plant environments": ("Circuit from PLECS via FMU co-simulation", "E3/E4"),
 }
 

@@ -112,7 +112,7 @@ def test_profiles_versioned_and_stale_when_the_file_changes(tmp_path):
     assert latest.version == 2 and latest.status == "stale" and not latest.capabilities.can_simulate_batch
     assert s.get_profile("buck", 1) == p
     stepping = {k for k, p in NATIVE_PROFILES.items() if p.capabilities.can_step_interactively}
-    assert stepping == {"native:dc_perm_ex_v1", "native:vsc_dpc_v1", "native:buck_v1"}  # E1/E6 wrappers; the PMSM has none
+    assert stepping == {"native:dc_perm_ex_v1", "native:vsc_dpc_v1", "native:buck_v1", "native:pmsm_v1"}  # E1/E6 wrappers + SPADE/Pmsm-v0 (D10)
     assert not any(p.capabilities.can_train_rl for p in NATIVE_PROFILES.values())
 
 

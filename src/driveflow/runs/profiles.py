@@ -38,7 +38,7 @@ NATIVE_PROFILES = {
         PlantProfile(profile_id="native:vsc_dpc_v1", kind="native", engine="driveflow.sim", display_name="VSC with L-C filter",
                      signals=("vc_real", "vc_imag", "i_f_real", "i_f_imag"), capabilities=_stepping("SPADE/Vsc-v0"), status="published"),
         PlantProfile(profile_id="native:pmsm_v1", kind="native", engine="driveflow.sim", display_name="PMSM (FOC demo)",
-                     signals=("i_d", "i_q", "u_d", "u_q", "omega_rad_s"), capabilities=_BATCH_ONLY, status="published"),
+                     signals=("i_d", "i_q", "u_d", "u_q", "omega_rad_s"), capabilities=_stepping("SPADE/Pmsm-v0"), status="published"),
         PlantProfile(profile_id="native:buck_v1", kind="native", engine="driveflow.sim", display_name="Buck converter (averaged, synchronous)",
                      signals=("buck_v_out", "buck_i_l", "buck_duty"), capabilities=_stepping("SPADE/Buck-v0"), status="published"),
     )

@@ -22,7 +22,7 @@ from driveflow.envs.reward import RewardTerm, evaluate, parse_terms
 
 pytestmark = pytest.mark.simulation
 
-ENV_IDS = ["SPADE/DcMotor-v0", "SPADE/Vsc-v0", "SPADE/Buck-v0"]
+ENV_IDS = ["SPADE/DcMotor-v0", "SPADE/Vsc-v0", "SPADE/Buck-v0", "SPADE/Pmsm-v0"]
 
 
 @pytest.mark.parametrize("env_id", ENV_IDS)
@@ -224,3 +224,38 @@ def test_buck_env_random_conditions_and_current_termination():
     while not (terminated or truncated):
         *_, terminated, truncated, info = env.step([1.0])
     assert terminated and info["termination"] == "limit_violation:inductor_current"
+
+
+@pytest.mark.parametrize("controller,strategy,i_s,seed", [("FOC_MTPA", "mtpa", 250.0, 3), ("FOC_naive", "naive", -120.0, 0), ("FOC_MTPA", "mtpa", 390.0, 7)])
+def test_pmsm_env_reproduces_run_scenario_bit_for_bit(controller, strategy, i_s, seed):
+    """Round 2026-10-21, D10: the FOC current controller acting through SPADE/Pmsm-v0 gives exactly
+    the i_d/i_q of run_scenario (same plant, same Euler substeps, same seed)."""
+    from driveflow.control.classical.pmsm_foc import DqCurrentController
+
+    ref = run_scenario(Scenario(scenario_id="pmsm_eq", plant_config_id="pmsm_v1", controller_type=controller, pmsm_current_ref_a=i_s, duration_s=0.03, seed=seed))
+    env = gym.make("SPADE/Pmsm-v0", strategy=strategy).unwrapped
+    _, info = env.reset(seed=seed, options={"current_ref_a": i_s})
+    assert (env.i_d_ref, env.i_q_ref) == (ref[0]["i_d_ref"], ref[0]["i_q_ref"])
+    foc = DqCurrentController(env.plant)
+    foc.reset()
+    for k in range(env.n_steps):
+        a, _ = foc.control(env.plant_state, env.plant, env.i_d_ref, env.i_q_ref)
+        _, _, term, trunc, info = env.step(a)
+        assert (info["i_d_a"], info["i_q_a"], info["omega_rad_s"]) == (ref[k]["i_d"], ref[k]["i_q"], ref[k]["omega_rad_s"])
+        assert info["u_d_v"] == ref[k]["u_d"] and info["u_q_v"] == ref[k]["u_q"]
+    assert trunc and not term and env.n_steps == len(ref)
+
+
+def test_pmsm_env_validation_and_limits():
+    from driveflow.envs.native import PmsmEnv
+
+    with pytest.raises(ValueError, match="strategy"):
+        PmsmEnv(strategy="fw")
+    with pytest.raises(ValueError, match="I_s|i_s"):
+        PmsmEnv(current_ref_a=500.0)
+    env = PmsmEnv(duration_s=0.002)
+    _, info = env.reset(seed=1, options={"current_ref_a": 100.0})
+    _, _, _, _, info = env.step(np.array([5.0, -5.0]))
+    assert info["action_clipped"] and info["action_applied"].tolist() == [1.0, -1.0]
+    with pytest.raises(ValueError):
+        env.step(np.array([np.nan, 0.0]))

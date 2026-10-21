@@ -406,3 +406,115 @@ class BuckEnv(_NativeEnv):
             violation = "limit_violation:inductor_current"
         info = {**phys, "action_applied": applied.copy(), "action_clipped": bool(np.any(applied != a))}
         return self._finish_step(self._obs(), signals, violation, info)
+
+
+class PmsmEnv(_NativeEnv):
+    """Permanent-magnet synchronous motor (plant ``pmsm_v1``), dq current tracking -- round
+    2026-10-21, decision D10. The plant is ``control.classical.pmsm_foc.build_pmsm_system()``, the
+    one datagen.runner simulates, unchanged: forward Euler with EULER_NSTEPS substeps (S-01, S-13).
+
+    Action: the normalized dq converter voltage [u_d, u_q] in [-1, 1]^2 (u / (V_supply/2)), the same
+    signal the FOC DqCurrentController sends. Observation (float32): [i_d, i_q, i_d_ref, i_q_ref] /
+    I_LIM (400 A) and omega / 418.9 rad/s (the plant's limit). The current reference comes from a
+    stator-current magnitude i_s and a strategy, exactly as the runner computes it:
+    ``mtpa`` (FOC_MTPA) or ``naive`` (FOC_naive, i_d = 0)."""
+
+    metadata = {
+        "render_modes": [],
+        "plant_profile_id": "native:pmsm_v1",
+        "observation_names": ("i_d", "i_q", "i_d_ref", "i_q_ref", "omega"),
+        "observation_units": ("A", "A", "A", "A", "rad/s"),
+        "action_names": ("u_d_normalized", "u_q_normalized"),
+        "action_units": ("1", "1"),
+    }
+
+    def __init__(self, current_ref_a: float | None = 200.0, current_ref_range: tuple = (-390.0, 390.0), strategy: str = "mtpa",
+                 duration_s: float = 0.03, reward_terms=None, render_mode: str | None = None):
+        from driveflow.control.classical.pmsm_foc import I_LIM, TAU as PMSM_TAU, build_pmsm_system
+
+        if render_mode is not None:
+            raise ValueError("PmsmEnv has no render modes; plot info signals instead.")
+        if strategy not in ("mtpa", "naive"):
+            raise ValueError(f"strategy must be 'mtpa' or 'naive', got {strategy!r}")
+        if not (math.isfinite(duration_s) and duration_s > 0):
+            raise ValueError(f"duration_s must be > 0, got {duration_s!r}")
+        lo, hi = current_ref_range
+        if not (math.isfinite(lo) and math.isfinite(hi) and -I_LIM <= lo <= hi <= I_LIM):
+            raise ValueError(f"current_ref_range must lie in [-{I_LIM:g}, {I_LIM:g}] A, got {current_ref_range!r}")
+        if current_ref_a is not None and not (math.isfinite(current_ref_a) and abs(current_ref_a) <= I_LIM):
+            raise ValueError(f"current_ref_a must satisfy |i_s| <= {I_LIM:g} A, got {current_ref_a!r}")
+        self.current_fixed = None if current_ref_a is None else float(current_ref_a)
+        self.current_ref_range = (float(lo), float(hi))
+        self.strategy = strategy
+        self.i_lim = I_LIM
+        self.tau = PMSM_TAU
+        self.duration_s = float(duration_s)
+        self.n_steps = int(round(duration_s / PMSM_TAU))
+        self._setup_reward(reward_terms)
+        probe = build_pmsm_system()
+        self.omega_scale = float(probe.limits[probe.OMEGA_IDX])
+        self.metadata = {**self.metadata, "tau_s": PMSM_TAU, "observation_scales": (I_LIM, I_LIM, I_LIM, I_LIM, self.omega_scale),
+                         "limits": {"current_a": I_LIM, "omega_rad_s": self.omega_scale, "supply_v": float(probe.supply.u_nominal)}, "strategy": strategy}
+        self.action_space = spaces.Box(-1.0, 1.0, shape=(2,), dtype=np.float64)
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(5,), dtype=np.float32)
+        self.plant = self.plant_state = None
+        self.i_d_ref = self.i_q_ref = None
+        self._k = 0
+        self._prev_action = np.zeros(2)
+
+    def references(self, i_s: float) -> tuple[float, float]:
+        from driveflow.control.classical.pmsm_foc import mtpa_id_iq
+
+        if self.strategy == "mtpa":
+            i_d, i_q_abs = mtpa_id_iq(abs(i_s))
+            return float(i_d), float(np.sign(i_s) * i_q_abs)
+        return 0.0, float(i_s)
+
+    def _physical(self) -> dict:
+        p = self.plant_state * self.plant.limits
+        return {"i_d_a": float(p[self.plant.CURRENTS_IDX[3]]), "i_q_a": float(p[self.plant.CURRENTS_IDX[4]]), "omega_rad_s": float(p[self.plant.OMEGA_IDX]),
+                "i_d_ref_a": self.i_d_ref, "i_q_ref_a": self.i_q_ref}
+
+    def _obs(self, phys: dict) -> np.ndarray:
+        L = self.i_lim
+        return np.array([phys["i_d_a"] / L, phys["i_q_a"] / L, self.i_d_ref / L, self.i_q_ref / L, phys["omega_rad_s"] / self.omega_scale], dtype=np.float32)
+
+    def reset(self, *, seed: int | None = None, options: dict | None = None):
+        from driveflow.control.classical.pmsm_foc import build_pmsm_system
+
+        super().reset(seed=seed)
+        options = options or {}
+        plant_seed = _plant_seed(self, seed)
+        if options.get("current_ref_a") is not None:
+            i_s = float(options["current_ref_a"])
+        else:
+            i_s = self.current_fixed if self.current_fixed is not None else float(self.np_random.uniform(*self.current_ref_range))
+        self.i_s = i_s
+        self.i_d_ref, self.i_q_ref = self.references(i_s)
+        self.plant = build_pmsm_system()
+        self.plant.seed(np.random.SeedSequence(plant_seed))
+        self.plant_state = self.plant.reset()
+        self._k = 0
+        self._prev_action = np.zeros(2)
+        phys = self._physical()
+        return self._obs(phys), {**phys, "plant_seed": plant_seed, "current_ref_a": i_s, "step": 0, "t_s": 0.0}
+
+    def step(self, action):
+        if self.plant_state is None:
+            raise RuntimeError("Call reset() before step().")
+        a = self._as_action(action, (2,))
+        applied = np.clip(a, -1.0, 1.0)
+        self.plant_state = self.plant.simulate(applied)
+        phys = self._physical()
+        e = math.hypot(self.i_d_ref - phys["i_d_a"], self.i_q_ref - phys["i_q_a"])
+        signals = {"tracking_error": e / self.i_lim, "current_fraction": math.hypot(phys["i_d_a"], phys["i_q_a"]) / self.i_lim,
+                   "action_delta": float(np.hypot(*(applied - self._prev_action))) / 2.0}
+        self._prev_action = applied
+        violation = None
+        if not all(math.isfinite(phys[k]) for k in ("i_d_a", "i_q_a", "omega_rad_s")):
+            violation = "non_finite_state"
+        elif math.hypot(phys["i_d_a"], phys["i_q_a"]) > 1.25 * self.i_lim:
+            violation = "limit_violation:stator_current"
+        info = {**phys, "u_d_v": float(applied[0] * self.plant.supply.u_nominal / 2), "u_q_v": float(applied[1] * self.plant.supply.u_nominal / 2),
+                "action_applied": applied.copy(), "action_clipped": bool(np.any(applied != a))}
+        return self._finish_step(self._obs(phys), signals, violation, info)
