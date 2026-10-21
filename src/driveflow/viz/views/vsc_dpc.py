@@ -25,6 +25,7 @@ from driveflow.viz.components.metric_cards import kpi_row
 from driveflow.viz.components.page_header import badge_html, page_header, provenance_table, source_badge_html
 from driveflow.viz.components.signal_chart import time_series_figure
 from driveflow.viz.dpc_upload_validation import DPC_AUTOFILL_COLUMNS, DPC_REQUIRED_COLUMNS, validate_dpc_upload
+from driveflow.viz.views import vsc_parameter_identification
 from driveflow.viz.theme.plotly import PLOTLY_CONFIG, series_color, style_figure
 from driveflow.viz.theme.tokens import DARK
 
@@ -321,9 +322,11 @@ def render() -> None:
         st.rerun()
 
     with view:
-        tab_t, tab_plane, tab_eval = st.tabs(["Tracking (time)", "Complex voltage plane", "Evaluate your dataset"])
+        tab_t, tab_plane, tab_eval, tab_pid = st.tabs(["Tracking (time)", "Complex voltage plane", "Evaluate your dataset", "Parameter Identification"])
         with tab_eval:
             _render_dpc_upload_eval()
+        with tab_pid:
+            vsc_parameter_identification.render_tab()
         result = st.session_state.get("dpc_result")
         if result is None:
             for t in (tab_t, tab_plane):

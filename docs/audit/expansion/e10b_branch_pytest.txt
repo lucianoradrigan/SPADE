@@ -1,0 +1,4 @@
+    warnings.warn(_INTERPRETER_DELETION_WARNING)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+905 passed, 256 warnings in 641.34s (0:10:41)

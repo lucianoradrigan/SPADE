@@ -335,7 +335,7 @@ Hacer (spec §8.2): tres salidas distinguibles: Known condition, Uncertain — l
 
 Criterio de cierre: pruebas AppTest de los tres estados + Input invalid + "detector ausente".
 
-- [ ] E10b. Pestaña Parameter Identification (PINN) en VSC / DPC (funcionalidad #8)
+- [x] E10b. Pestaña Parameter Identification (PINN) en VSC / DPC (funcionalidad #8)
 
 Origen: Fund. 5_PIML/PINN/pinn_ode.ipynb (PyTorch, se reimplementa en Keras). Depende de V0 (discretize_zoh y los parámetros L, R_f, C) y alimenta a A4.
 
