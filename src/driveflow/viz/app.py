@@ -33,6 +33,7 @@ PAGES = {
     ],
     "Design & Control": [
         ("pages/tuning_studio.py", "Tuning Studio", ":material/tune:"),
+        ("pages/rl_lab.py", "RL Lab", ":material/smart_toy:"),
     ],
     "Intelligence": [
         ("pages/ai_diagnostics.py", "AI Diagnostics", ":material/psychology:"),

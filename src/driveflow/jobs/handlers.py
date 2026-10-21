@@ -20,6 +20,10 @@ Kinds:
   driveflow.optim) on optim.objectives over the TUNING grid, then simulates the baseline and the
   candidate(s) on the separate EVALUATION grid. One condition per objective evaluation. The result
   is a candidate: nothing is changed (``Use as default`` goes through ApprovalGate).
+- ``rl_training`` (task E8): trains a DQN or DDPG agent (driveflow.control.rl) on a registered
+  SPADE environment with the reward terms of the spec, saves a checkpoint and an evaluation-episode
+  playback at every evaluation, then benchmarks the final policy against the plant's classical
+  controllers on the same condition grid. One condition per training episode.
 - ``selftest.steps``: no physics; sleeps ``step_s`` per step. Used by the tests to exercise the
   worker (cancel, kill, recover) deterministically, and by "Check worker" in the GUI.
 """
@@ -339,6 +343,110 @@ def controller_tuning(ctx: JobContext) -> HandlerResult:
     return HandlerResult(conditions=conditions, metrics=metrics)
 
 
+# --------------------------------------------------------------------------- rl_training
+RL_ENVS = {"SPADE/Buck-v0": "buck", "SPADE/BuckSurrogate-v0": "buck", "SPADE/Vsc-v0": "vsc"}
+
+
+def _validate_rl(spec: ExperimentSpec) -> None:
+    from driveflow.envs import reward as rw
+
+    p = spec.params
+    if p.get("env_id") not in RL_ENVS:
+        raise SpadeError(ErrorCode.INVALID_SPEC, f"rl_training supports {sorted(RL_ENVS)}, got {p.get('env_id')!r}")
+    if spec.algorithm not in ("dqn", "ddpg"):
+        raise SpadeError(ErrorCode.INVALID_SPEC, f"rl_training needs algorithm 'dqn' or 'ddpg', got {spec.algorithm!r}")
+    if spec.algorithm == "dqn":
+        n = p.get("discrete_levels")
+        if not (isinstance(n, int) and 2 <= n <= 41):
+            raise SpadeError(ErrorCode.INVALID_SPEC, "DQN on a continuous action space needs discrete_levels (2..41 per action dimension)")
+        if RL_ENVS[p["env_id"]] == "vsc" and n > 11:
+            raise SpadeError(ErrorCode.INVALID_SPEC, "the VSC action is 2-D: at most 11 levels per axis (121 actions)")
+    if spec.seed is None:
+        raise SpadeError(ErrorCode.INVALID_SPEC, "rl_training needs a seed")
+    eps = p.get("episodes")
+    if not (isinstance(eps, int) and 1 <= eps <= 2000):
+        raise SpadeError(ErrorCode.INVALID_SPEC, "episodes must be an int in [1, 2000]")
+    try:
+        rw.parse_terms(p.get("reward_terms"))
+    except (TypeError, ValueError) as exc:
+        raise SpadeError(ErrorCode.INVALID_SPEC, f"reward_terms: {exc}") from None
+
+
+def rl_training(ctx: JobContext) -> HandlerResult:
+    import json
+
+    import gymnasium as gym
+
+    import driveflow.envs  # noqa: F401 -- registers SPADE/*
+    from driveflow.control.rl import benchmark as bm
+    from driveflow.control.rl.common import ActionDiscretizer, run_episode
+    from driveflow.control.rl.ddpg import DDPGAgent, DDPGConfig
+    from driveflow.control.rl.dqn import DQNAgent, DQNConfig
+    from driveflow.control.rl.policy_controller import PolicyController
+
+    spec, p = ctx.spec, ctx.spec.params
+    env_kwargs = {**(p.get("env_kwargs") or {}), "reward_terms": p.get("reward_terms")}
+    env = gym.make(p["env_id"], **env_kwargs)
+    u = env.unwrapped
+    obs_dim = int(np.prod(env.observation_space.shape))
+    eval_every = int(p.get("eval_every", 10))
+    seed = int(spec.seed)
+    if spec.algorithm == "dqn":
+        disc = ActionDiscretizer.grid(env.action_space.low, env.action_space.high, int(p["discrete_levels"]))
+        agent = DQNAgent(obs_dim, disc, DQNConfig(episodes=p["episodes"], eval_every=eval_every), seed=seed)
+    else:
+        agent = DDPGAgent(obs_dim, env.action_space.low, env.action_space.high, DDPGConfig(episodes=p["episodes"], eval_every=eval_every), seed=seed)
+    conditions = []
+
+    class _Stop(Exception):
+        pass
+
+    def callback(ep, h):
+        conditions.append({"index": ep - 1, "condition": {"episode": ep}, "status": "ok",
+                           "metrics": {"reward": h.episode_reward[-1], "length": h.episode_length[-1], "termination": h.episode_violation[-1], "loss": h.loss[-1]}})
+        ctx.progress(ep, p["episodes"], f"episode {ep}/{p['episodes']}")
+        if ctx.cancel_requested():
+            raise _Stop
+
+    def checkpoint(ep, ag):
+        ctx.write_artifact(f"checkpoints/policy_ep{ep:04d}.json", json.dumps(ag.policy_dict()).encode())
+        trace = run_episode(env, ag.act, seed=1001, record=True)
+        stride = max(1, len(trace["trace"]) // 400)
+        ctx.write_artifact(f"playback/eval_ep{ep:04d}.json", json.dumps({"episode": ep, "seed": 1001, "reward": trace["reward"], "termination": trace["termination"],
+                                                                          "stride": stride, "trace": trace["trace"][::stride]}).encode())
+
+    try:
+        h = agent.train(env, callback=callback, checkpoint=checkpoint)
+    except _Stop:
+        conditions.append({"index": len(conditions), "condition": {"episode": len(conditions) + 1}, "status": "skipped", "error": "Cancelled before the remaining episodes."})
+        return HandlerResult(conditions=conditions, metrics={"algorithm": spec.algorithm, "env_id": p["env_id"], "episodes_done": len(conditions) - 1})
+    policy = agent.policy_dict()
+    ctx.write_artifact("policy.json", json.dumps(policy).encode())
+    ctx.write_artifact("history.json", h.to_json().encode())
+    # benchmark on the plant's grid, same env (limits, timestep, reward terms) for every controller
+    pc = PolicyController(policy)
+    kind = RL_ENVS[p["env_id"]]
+    controllers = {f"RL ({spec.algorithm.upper()})": (lambda e: pc.control)}
+    if kind == "buck":
+        controllers["PI (BuckVoltageController)"] = bm.buck_pi
+        grid = bm.BUCK_GRID
+    else:
+        controllers["DPC v3"] = lambda e: bm.vsc_dpc(e, "v3")
+        controllers["DPC v4"] = lambda e: bm.vsc_dpc(e, "v4")
+        grid = bm.VSC_GRID
+    results = bm.run_grid(env, controllers, grid)
+    bench = {"env_id": p["env_id"], "grid": [dict(g) for g in grid], "results": results, "summary": bm.summarize(results), "reward_terms": p.get("reward_terms"),
+             "status": "policy candidate -- not a default"}
+    ctx.write_artifact("benchmark.json", json.dumps(bench, default=float).encode())
+    s = bench["summary"]
+    rl_name = f"RL ({spec.algorithm.upper()})"
+    metrics = {"algorithm": spec.algorithm, "env_id": p["env_id"], "episodes": p["episodes"], "final_eval_reward": h.eval_reward[-1] if h.eval_reward else None,
+               "rl_mean_reward_grid": s[rl_name]["mean_reward"], "rl_median_tracking_rmse": s[rl_name]["median_tracking_rmse"], "rl_terminated": s[rl_name]["n_terminated"],
+               "baselines": {k: v for k, v in s.items() if k != rl_name}}
+    env.close()
+    return HandlerResult(conditions=conditions, metrics=metrics)
+
+
 # --------------------------------------------------------------------------- selftest.steps
 def _validate_selftest(spec: ExperimentSpec) -> None:
     steps, step_s = spec.params.get("steps", 3), spec.params.get("step_s", 0.1)
@@ -369,6 +477,7 @@ HANDLERS = {
     "scenario_sweep": HandlerInfo(scenario_sweep, _validate_scenario_sweep, "Scenario sweep (datagen.runner)"),
     "plecs_sweep": HandlerInfo(plecs_sweep, _validate_plecs_sweep, "PLECS RPC sweep (dataset)", engine="plecs_rpc"),
     "controller_tuning": HandlerInfo(controller_tuning, _validate_tuning, "Controller tuning (PSO / BO / NSGA-II)"),
+    "rl_training": HandlerInfo(rl_training, _validate_rl, "RL training + benchmark (DQN / DDPG)"),
     "selftest.steps": HandlerInfo(selftest_steps, _validate_selftest, "Worker self-test (no physics)", engine="selftest"),
 }
 

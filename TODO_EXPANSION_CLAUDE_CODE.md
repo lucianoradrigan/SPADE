@@ -290,7 +290,7 @@ Primer caso de uso: el escalón pequeño de S-04 en el PI del motor DC. Coordina
 Criterio de cierre: se cumple la spec §13 Fase 3 en la parte de optimización. Reporte en docs/audit/expansion/e7_tuning_s04.md, incluido el caso en que no se mejora la sintonía actual.
 
 E8. RL Lab
-- [ ] E8. DQN y DDPG en Keras + editor de recompensa + benchmark (funcionalidad #4)
+- [x] E8. DQN y DDPG en Keras + editor de recompensa + benchmark (funcionalidad #4)
 
 Origen: Fund. 7_Reinforcement_Learning/RL_buck_control.ipynb (DQN: replay, target network, acciones discretas Δduty) y DDPG_buck_control.ipynb (DDPG: ruido Ornstein-Uhlenbeck, soft updates, penalización de la suavidad del duty). Están en PyTorch, así que se reimplementan en Keras.
 
