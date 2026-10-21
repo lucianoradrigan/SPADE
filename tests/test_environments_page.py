@@ -35,17 +35,17 @@ def test_table_rows_from_real_contracts():
 
 def test_snippets_only_for_registered_ids():
     assert all(ea.snippet(e) for e in ea.env_ids())
-    assert ea.snippet("SPADE/Buck-v0") is None
+    assert ea.snippet("SPADE/Pmsm-v0") is None
 
 
 def test_page_renders_both_environments_and_planned_rows():
     at = _page()
     df = at.dataframe[0].value
     assert set(registry.ENVIRONMENTS) <= set(df["Environment ID"])
-    assert "SPADE/Buck-v0" in set(df["Environment ID"])
+    assert "SPADE/Pmsm-v0" in set(df["Environment ID"])
     codes = [c.value for c in at.code]
-    assert len(codes) == 2 and all('gym.make("SPADE/' in c for c in codes)
-    assert not any("Buck" in c for c in codes)
+    assert len(codes) == len(registry.ENVIRONMENTS) and all('gym.make("SPADE/' in c for c in codes)
+    assert not any("Pmsm" in c for c in codes)
 
 
 def test_contract_check_button_runs_check_env():

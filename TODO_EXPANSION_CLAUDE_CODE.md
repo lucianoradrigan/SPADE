@@ -251,7 +251,7 @@ Caso de validación: el buck nativo de E6 frente al buck de PLECS. Si hay un VSC
 Criterio de cierre: se cumplen la spec §3.14.3 y §20 "dataset/surrogate/comparación". Reporte en docs/audit/plecs/e5_surrogate_and_comparison.md.
 
 E6. Planta Buck nativa
-- [ ] E6. sim/buck_system.py + página Simulation / DC-DC Converters (pestaña Buck) (funcionalidad #5)
+- [x] E6. sim/buck_system.py + página Simulation / DC-DC Converters (pestaña Buck) (funcionalidad #5)
 
 Origen: Fund. BuckAvgEnv (modelo promediado: L, C, R, Vin, duty) y 9_Case_Studies_PE/Buck_Design/. Se reimplementa; no se copia.
 

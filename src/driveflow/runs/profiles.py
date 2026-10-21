@@ -3,7 +3,7 @@
 The native plants are described here so that every Run and Job can point at a profile id. Their
 declared capabilities are the ones a test shows: batch simulation (datagen.runner.run_scenario and
 the simulation tests) for all three, and since task E1 interactive stepping and episode reset for
-the DC motor and the VSC (envs/native.py, checked by tests/envs/test_native_envs.py: check_env and
+the DC motor, the VSC and (E6) the buck (envs/native.py, checked by tests/envs/test_native_envs.py: check_env and
 bit-for-bit equivalence with run_scenario). The Environments page re-runs those checks live with
 envs.registry.verify. RL training stays False until a trainer exists (task E8); the PMSM has no
 Gymnasium wrapper.
@@ -39,6 +39,8 @@ NATIVE_PROFILES = {
                      signals=("vc_real", "vc_imag", "i_f_real", "i_f_imag"), capabilities=_stepping("SPADE/Vsc-v0"), status="published"),
         PlantProfile(profile_id="native:pmsm_v1", kind="native", engine="driveflow.sim", display_name="PMSM (FOC demo)",
                      signals=("i_d", "i_q", "u_d", "u_q", "omega_rad_s"), capabilities=_BATCH_ONLY, status="published"),
+        PlantProfile(profile_id="native:buck_v1", kind="native", engine="driveflow.sim", display_name="Buck converter (averaged, synchronous)",
+                     signals=("buck_v_out", "buck_i_l", "buck_duty"), capabilities=_stepping("SPADE/Buck-v0"), status="published"),
     )
 }
 

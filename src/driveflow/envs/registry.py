@@ -53,12 +53,15 @@ ENVIRONMENTS = {
                 ("Continuous-action RL (DDPG, SAC, PPO)", "DPC network (reference policy)"),
                 ("|v_c| > voltage limit (2000 V)", "non-finite state", "horizon reached → truncated"),
                 "control.dpc.controller.ScheduledDpcController", {"reference_magnitude_v": 50.0, "load_resistance_ohm": 8.0064, "duration_s": 0.1}),
+        EnvSpec("SPADE/Buck-v0", "driveflow.envs.native:BuckEnv", "native:buck_v1", "Buck converter (averaged) — voltage regulation", 0, "SIMULATED",
+                ("Continuous-action RL (DDPG, SAC, PPO)", "DQN after discretizing the duty cycle", "PI cascade (reference policy)"),
+                ("|i_L| > 2 × i_max (30 A)", "non-finite state", "horizon reached → truncated"),
+                "control.classical.buck_pi.BuckVoltageController", {"vout_ref_v": 24.0, "load_resistance_ohm": 6.0, "duration_s": 0.02}),
     )
 }
 
 #: Environments other tasks will add; shown as "Not registered", never instantiated.
 PLANNED = {
-    "SPADE/Buck-v0": ("Buck converter (average model)", "E6"),
     "SPADE/Pmsm-v0": ("PMSM — dq current tracking", "none assigned"),
     "PLECS plant environments": ("Circuit from PLECS via FMU co-simulation", "E3/E4"),
 }

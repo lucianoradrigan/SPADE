@@ -16,12 +16,13 @@ from driveflow.control.dpc.controller import DEFAULT_SCHEDULE_REGION, ScheduledD
 from driveflow.datagen.runner import _DPC_NOMINAL_WEIGHTS_PATH, _DPC_WEIGHTS_PATH, run_scenario
 from driveflow.datagen.scenario import Scenario
 from driveflow.envs import registry
-from driveflow.envs.native import DcMotorEnv, VscEnv
+from driveflow.envs.native import BuckEnv, DcMotorEnv, VscEnv
+from driveflow.control.classical.buck_pi import BuckVoltageController
 from driveflow.envs.reward import RewardTerm, evaluate, parse_terms
 
 pytestmark = pytest.mark.simulation
 
-ENV_IDS = ["SPADE/DcMotor-v0", "SPADE/Vsc-v0"]
+ENV_IDS = ["SPADE/DcMotor-v0", "SPADE/Vsc-v0", "SPADE/Buck-v0"]
 
 
 @pytest.mark.parametrize("env_id", ENV_IDS)
@@ -188,3 +189,38 @@ def test_describe_matches_instance():
     assert d["observation"]["shape"] == (5,) and d["action"]["low"] == [0.0] and d["action"]["high"] == [1.0]
     assert d["horizon_steps"] == 5000 and d["limits"]["current_a"] == 210.0
     assert [t["kind"] for t in d["reward_terms"]] == ["tracking", "overcurrent", "action_rate"]
+
+
+@pytest.mark.parametrize("step", [None, (3.0, 0.01)])
+def test_buck_env_reproduces_run_scenario_bit_for_bit(step):
+    duration, vref, r = 0.02, 18.0, 8.0
+    kw = {} if step is None else {"buck_load_step_ohm": step[0], "buck_load_step_time_s": step[1]}
+    records = run_scenario(Scenario(scenario_id="eq", plant_config_id="buck_v1", buck_vout_ref_v=vref, load_resistance_ohm=r, duration_s=duration, **kw))
+    env = BuckEnv(vout_ref_v=vref, load_resistance_ohm=r, duration_s=duration,
+                  load_step_ohm=None if step is None else step[0], load_step_time_s=None if step is None else step[1])
+    env.reset(seed=0)
+    controller = BuckVoltageController(env.plant)
+    rows, done = [], False
+    while not done:
+        _, _, terminated, truncated, info = env.step([controller.control(env.plant_state, vref)])
+        rows.append(info)
+        done = terminated or truncated
+    assert truncated and not terminated and len(rows) == len(records) == 1000
+    for rec, info in zip(records, rows):
+        assert info["v_out_v"] == rec["buck_v_out"] and info["i_l_a"] == rec["buck_i_l"]
+        assert info["action_applied"][0] == rec["buck_duty"] and info["load_resistance_ohm"] == rec["buck_load_ohm"]
+
+
+def test_buck_env_random_conditions_and_current_termination():
+    env = BuckEnv(vout_ref_v=None, load_resistance_ohm=None, duration_s=0.005)
+    _, a = env.reset(seed=4)
+    _, b = env.reset(seed=4)
+    assert (a["v_ref_v"], a["load_resistance_ohm"]) == (b["v_ref_v"], b["load_resistance_ohm"])
+    assert 5.0 <= a["v_ref_v"] <= 40.0 and 3.0 <= a["load_resistance_ohm"] <= 30.0
+    # full duty into a near short circuit: the inductor current passes 2 x i_max and the episode ends
+    env = BuckEnv(load_resistance_ohm=0.05, duration_s=0.05)
+    env.reset(seed=0)
+    terminated = truncated = False
+    while not (terminated or truncated):
+        *_, terminated, truncated, info = env.step([1.0])
+    assert terminated and info["termination"] == "limit_violation:inductor_current"

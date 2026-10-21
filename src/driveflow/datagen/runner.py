@@ -32,6 +32,11 @@ scenario.plant_config_id (see scenario.py's docstring for the valid pairings):
   i_d_ref, i_q_ref, u_d, u_q (physical volts, the controller's command), omega_rad_s; rpm and
   torque_nm are filled from the motor state; the DC-only and VSC-only columns are NaN. No fault
   model: label "normal".
+
+- "buck_v1" / "PI": the averaged synchronous buck of sim/buck_system.py under
+  control/classical/buck_pi.BuckVoltageController (expansion task E6), with an optional load step.
+  Its own buck_* columns (export_parquet.BUCK_COLUMNS); every other plant's columns are NaN. Its
+  period is the buck's own TAU (20 us), not this module's 100 us.
 """
 
 from pathlib import Path
@@ -403,10 +408,70 @@ def _run_pmsm_scenario(scenario: Scenario) -> list:
     return records
 
 
+BUCK_DEFAULT_VOUT_REF_V = 24.0
+
+
+def build_buck(scenario: Scenario):
+    """(BuckSystem, v_ref, load_step) for a buck_v1 Scenario; load_step is (k, R) or None.
+    Shared with envs/native.BuckEnv so both build the identical plant."""
+    from driveflow.sim.buck_system import TAU as BUCK_TAU, BuckParams, BuckSystem
+
+    fields = dict(scenario.buck_parameter_overrides or {})
+    if scenario.buck_vin_v is not None:
+        fields["v_in_v"] = scenario.buck_vin_v
+    if scenario.load_resistance_ohm is not None:
+        fields["load_resistance_ohm"] = scenario.load_resistance_ohm
+    system = BuckSystem(BuckParams(**fields), tau=BUCK_TAU)
+    v_ref = scenario.buck_vout_ref_v if scenario.buck_vout_ref_v is not None else BUCK_DEFAULT_VOUT_REF_V
+    step = None
+    if scenario.buck_load_step_ohm is not None:
+        t_step = scenario.buck_load_step_time_s if scenario.buck_load_step_time_s is not None else scenario.duration_s / 2
+        step = (int(round(t_step / BUCK_TAU)), float(scenario.buck_load_step_ohm))
+    return system, float(v_ref), step
+
+
+def _run_buck_scenario(scenario: Scenario) -> list:
+    """Averaged synchronous buck (sim/buck_system.py) under BuckVoltageController (expansion task
+    E6). Buck-only columns: buck_v_out, buck_i_l, buck_v_ref, buck_i_ref, buck_duty (applied),
+    buck_v_in, buck_load_ohm (R during that step); every other plant's columns are NaN."""
+    from driveflow.control.classical.buck_pi import BuckVoltageController
+
+    system, v_ref, step = build_buck(scenario)
+    controller = BuckVoltageController(system)
+    state = system.reset()
+    controller.reset()
+    n_steps = int(round(scenario.duration_s / system.tau))
+    records = []
+    for k in range(n_steps):
+        if step is not None and k == step[0]:
+            system.set_load(step[1])
+        duty = controller.control(state, v_ref)
+        state = system.simulate(duty)
+        records.append(
+            {
+                "timestamp_s": (k + 1) * system.tau,
+                "current_r": np.nan, "current_s": np.nan, "current_t": np.nan,
+                "acc_x": np.nan, "acc_y": np.nan, "acc_z": np.nan, "vibration_source": None, "audio": np.nan,
+                "rpm": np.nan, "torque_nm": np.nan, "voltage_v": np.nan,
+                "label": "normal",
+                "electrical_severity_nm": 0.0, "mechanical_severity": 0.0,
+                "dataset_id": scenario.scenario_id, "source_file": scenario.scenario_id, "fs_hz": 1.0 / system.tau,
+                "controller_type": scenario.controller_type, "plant_config_id": scenario.plant_config_id,
+                "bpfo_hz": np.nan, "bpfi_hz": np.nan, "bsf_hz": np.nan, "ftf_hz": np.nan,
+                "seed": scenario.seed,
+                "v_ref_real": np.nan, "v_ref_imag": np.nan, "vc_real": np.nan, "vc_imag": np.nan, "i_f_real": np.nan, "i_f_imag": np.nan,
+                "buck_v_out": state.v_out, "buck_i_l": state.i_l, "buck_v_ref": v_ref, "buck_i_ref": controller.last_i_ref,
+                "buck_duty": min(1.0, max(0.0, float(duty))), "buck_v_in": system.params.v_in_v, "buck_load_ohm": system.load_resistance_ohm,
+            }
+        )
+    return records
+
+
 _SCENARIO_RUNNERS = {
     "dc_perm_ex_v1": _run_dc_motor_scenario,
     "vsc_dpc_v1": _run_vsc_scenario,
     "pmsm_v1": _run_pmsm_scenario,
+    "buck_v1": _run_buck_scenario,
 }
 
 

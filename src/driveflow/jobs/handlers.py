@@ -82,6 +82,8 @@ def _condition_metrics(df) -> dict:
         out["rms_voltage_error_v_second_half"] = float((err ** 2).mean() ** 0.5)
     elif plant == "dc_perm_ex_v1":
         out["mean_rpm_second_half"] = float(half["rpm"].mean())
+    elif plant == "buck_v1":
+        out["rms_voltage_error_v_second_half"] = float(((half["buck_v_out"] - half["buck_v_ref"]) ** 2).mean() ** 0.5)
     return {k: (None if isinstance(v, float) and not math.isfinite(v) else v) for k, v in out.items()}
 
 

@@ -23,7 +23,8 @@ from driveflow.viz.components.run_comparison import run_comparison
 from driveflow.viz.components.source_badge import source_badge_html, source_badge_view
 
 _PLANTS = {"DC motor (PI speed sweep)": ("dc_perm_ex_v1", "Speed references ω_ref [rad/s]", "100, 150, 200"),
-           "VSC / DPC (voltage magnitude sweep)": ("vsc_dpc_v1", "Voltage references |v_ref| [V]", "30, 50")}
+           "VSC / DPC (voltage magnitude sweep)": ("vsc_dpc_v1", "Voltage references |v_ref| [V]", "30, 50"),
+           "Buck (output voltage sweep)": ("buck_v1", "Output references v_ref [V] (below V_in = 48 V)", "12, 24, 36")}
 
 
 def _parse_values(text: str) -> list[float]:

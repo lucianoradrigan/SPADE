@@ -73,11 +73,13 @@ def build_sweep_spec(plant: str, duration_s: float, values: list[float], seed: i
         conditions = [{"plant_config_id": plant, "controller_type": "PI", "omega_ref_rad_s": float(v), "duration_s": float(duration_s), "seed": int(seed)} for v in values]
     elif plant == "vsc_dpc_v1":
         conditions = [{"plant_config_id": plant, "controller_type": "DPC", "reference_magnitude_v": float(v), "duration_s": float(duration_s), "seed": int(seed)} for v in values]
+    elif plant == "buck_v1":
+        conditions = [{"plant_config_id": plant, "controller_type": "PI", "buck_vout_ref_v": float(v), "duration_s": float(duration_s), "seed": int(seed)} for v in values]
     else:
         raise SpadeError(ErrorCode.UNSUPPORTED, f"no sweep form for plant {plant!r}")
     profile = native_profile_for(plant)
     return ExperimentSpec.create("scenario_sweep", plant_profile_id=profile.profile_id if profile else None, conditions=conditions, seed=int(seed),
-                                 params={"swept": "omega_ref_rad_s" if plant == "dc_perm_ex_v1" else "reference_magnitude_v"})
+                                 params={"swept": {"dc_perm_ex_v1": "omega_ref_rad_s", "vsc_dpc_v1": "reference_magnitude_v", "buck_v1": "buck_vout_ref_v"}[plant]})
 
 
 def submit(spec: ExperimentSpec):

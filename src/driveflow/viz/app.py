@@ -28,6 +28,7 @@ PAGES = {
         ("pages/dc_motor.py", "DC Motor", ":material/electric_bolt:"),
         ("pages/pmsm.py", "PMSM / FOC", ":material/radio_button_checked:"),
         ("pages/vsc_dpc.py", "VSC / DPC", ":material/power:"),
+        ("pages/dcdc_converters.py", "DC-DC Converters", ":material/bolt:"),
     ],
     "Intelligence": [
         ("pages/ai_diagnostics.py", "AI Diagnostics", ":material/psychology:"),

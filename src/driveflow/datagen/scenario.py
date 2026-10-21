@@ -133,6 +133,14 @@ class Scenario:
             degradation (sim/vsc_faults.py): effective C as a fraction of the nominal 15 uF, and a
             series ESR in ohm. None (default) keeps the nominal identified plant bit for bit.
             SYNTHETIC-ONLY: no real reference data exists for this fault (A4).
+        buck_vout_ref_v / buck_vin_v / buck_load_step_ohm / buck_load_step_time_s /
+            buck_parameter_overrides: buck_v1 only (expansion task E6; sim/buck_system.py, averaged
+            synchronous buck under control/classical/buck_pi.BuckVoltageController).
+            buck_vout_ref_v is the output-voltage reference (default 24 V, must be below V_in);
+            buck_vin_v overrides V_in (default 48 V); load_resistance_ohm, shared with the VSC,
+            is the initial load (default 6 ohm); buck_load_step_ohm switches the load to that value
+            at buck_load_step_time_s (default: half of duration_s); buck_parameter_overrides sets
+            any of l_h, c_f, r_l_ohm, i_max_a. No fault model: every record is labelled "normal".
     """
 
     scenario_id: str
@@ -158,8 +166,15 @@ class Scenario:
     vsc_voltage_limit_v: float = None
     vsc_capacitor_scale: float = None
     vsc_esr_ohm: float = None
+    buck_vout_ref_v: float = None
+    buck_vin_v: float = None
+    buck_load_step_ohm: float = None
+    buck_load_step_time_s: float = None
+    buck_parameter_overrides: dict = None
 
-    _VALID_PAIRS = {("PI", "dc_perm_ex_v1"), ("MPC", "dc_perm_ex_v1"), ("DPC", "vsc_dpc_v1"), ("FOC_MTPA", "pmsm_v1"), ("FOC_naive", "pmsm_v1")}
+    _VALID_PAIRS = {("PI", "dc_perm_ex_v1"), ("MPC", "dc_perm_ex_v1"), ("DPC", "vsc_dpc_v1"), ("FOC_MTPA", "pmsm_v1"), ("FOC_naive", "pmsm_v1"),
+                    ("PI", "buck_v1")}
+    _BUCK_PARAMETERS = ("l_h", "c_f", "r_l_ohm", "i_max_a")
     #: |i_s| limit of the PMSM (control/classical/pmsm_foc.py I_LIM).
     _PMSM_CURRENT_LIMIT_A = 400.0
 
@@ -212,6 +227,19 @@ class Scenario:
         finite("vsc_voltage_limit_v", self.vsc_voltage_limit_v, 0.0, strict=True)
         finite("vsc_capacitor_scale", self.vsc_capacitor_scale, 0.0, strict=True)
         finite("vsc_esr_ohm", self.vsc_esr_ohm, 0.0)
+        finite("buck_vout_ref_v", self.buck_vout_ref_v, 0.0)
+        finite("buck_vin_v", self.buck_vin_v, 0.0, strict=True)
+        finite("buck_load_step_ohm", self.buck_load_step_ohm, 0.0, strict=True)
+        finite("buck_load_step_time_s", self.buck_load_step_time_s, 0.0)
+        for key, value in (self.buck_parameter_overrides or {}).items():
+            if key not in self._BUCK_PARAMETERS:
+                raise ValueError(f"Scenario.buck_parameter_overrides: unknown parameter {key!r}; expected one of {self._BUCK_PARAMETERS}")
+            finite(f"buck_parameter_overrides[{key!r}]", value, 0.0, strict=key != "r_l_ohm")
+        if self.plant_config_id == "buck_v1":
+            vin = self.buck_vin_v if self.buck_vin_v is not None else 48.0
+            vref = self.buck_vout_ref_v if self.buck_vout_ref_v is not None else 24.0
+            if vref >= vin:
+                raise ValueError(f"Scenario.buck_vout_ref_v must be below V_in ({vin:g} V) for a buck converter, got {vref!r}")
         if self.plant_config_id == "pmsm_v1":
             if self.pmsm_current_ref_a is None:
                 raise ValueError("Scenario.pmsm_current_ref_a is required for plant_config_id='pmsm_v1'")

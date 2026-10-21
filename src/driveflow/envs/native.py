@@ -30,6 +30,7 @@ PyTorch-side and not a gymnasium.Env).
 
 from __future__ import annotations
 
+import dataclasses
 import math
 
 import gymnasium as gym
@@ -292,3 +293,116 @@ class VscEnv(_NativeEnv):
         info = {**self._physical(), "v_ref_real": vr, "v_ref_imag": vi, "action_applied": applied.copy(), "action_clipped": bool(np.any(applied != a))}
         # the observation carries the reference of the NEXT step (k + 1)
         return self._finish_step(self._obs(self._k + 1), signals, violation, info)
+
+
+class BuckEnv(_NativeEnv):
+    """Averaged synchronous buck converter (plant ``buck_v1``, sim/buck_system.py; expansion task
+    E6), output-voltage regulation with an optional load step. Built by
+    ``datagen.runner.build_buck`` like run_scenario. Action: duty cycle in [0, 1]. Observation
+    (float32): [i_L / i_max, v_out / V_in, v_ref / V_in, (v_ref − v_out) / V_in]. Step: the buck's
+    own TAU (20 us, one switching period at 50 kHz)."""
+
+    metadata = {
+        "render_modes": [],
+        "plant_profile_id": "native:buck_v1",
+        "observation_names": ("i_l", "v_out", "v_ref", "v_error"),
+        "observation_units": ("A", "V", "V", "V"),
+        "action_names": ("duty_cycle",),
+        "action_units": ("1",),
+    }
+
+    def __init__(self, vout_ref_v: float | None = 24.0, vout_ref_range: tuple = (5.0, 40.0), load_resistance_ohm: float | None = 6.0,
+                 load_range_ohm: tuple = (3.0, 30.0), load_step_ohm: float | None = None, load_step_time_s: float | None = None,
+                 duration_s: float = 0.02, vin_v: float = 48.0, parameter_overrides: dict | None = None, reward_terms=None,
+                 render_mode: str | None = None):
+        from driveflow.sim.buck_system import TAU as BUCK_TAU, BuckParams
+
+        if render_mode is not None:
+            raise ValueError("BuckEnv has no render modes; plot info signals instead.")
+        if not (math.isfinite(duration_s) and duration_s > 0):
+            raise ValueError(f"duration_s must be > 0, got {duration_s!r}")
+        for name, (lo, hi) in (("vout_ref_range", vout_ref_range), ("load_range_ohm", load_range_ohm)):
+            if not (math.isfinite(lo) and math.isfinite(hi) and 0 < lo <= hi):
+                raise ValueError(f"{name} must be finite with 0 < low <= high, got {(lo, hi)!r}")
+        if vout_ref_range[1] >= vin_v:
+            raise ValueError(f"vout_ref_range must stay below V_in = {vin_v:g} V")
+        self.vout_ref_fixed = None if vout_ref_v is None else float(vout_ref_v)
+        self.vout_ref_range = tuple(map(float, vout_ref_range))
+        self.load_fixed = None if load_resistance_ohm is None else float(load_resistance_ohm)
+        self.load_range_ohm = tuple(map(float, load_range_ohm))
+        self.load_step_ohm, self.load_step_time_s = load_step_ohm, load_step_time_s
+        self.vin_v = float(vin_v)
+        self.parameter_overrides = dict(parameter_overrides or {})
+        self.duration_s = float(duration_s)
+        self.tau = BUCK_TAU
+        self.n_steps = int(round(duration_s / BUCK_TAU))
+        self._setup_reward(reward_terms)
+        params = BuckParams(v_in_v=self.vin_v, **self.parameter_overrides)  # validates the overrides now
+        self.i_max = params.i_max_a
+        self.metadata = {**self.metadata, "tau_s": BUCK_TAU, "observation_scales": (self.i_max, self.vin_v, self.vin_v, self.vin_v),
+                         "limits": {"current_a": self.i_max, "terminate_current_a": 2 * self.i_max, "vin_v": self.vin_v},
+                         "parameters": dataclasses.asdict(params)}
+        self.action_space = spaces.Box(0.0, 1.0, shape=(1,), dtype=np.float64)
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(4,), dtype=np.float32)
+        self.plant = self.plant_state = self.vout_ref_v = self._step = None
+        self._k = 0
+        self._prev_action = np.zeros(1)
+
+    def scenario(self, vout_ref_v: float, load_ohm: float, seed: int, load_step_ohm=None, load_step_time_s=None) -> Scenario:
+        return Scenario(scenario_id="gym-episode", plant_config_id="buck_v1", controller_type="PI", duration_s=self.duration_s, seed=seed,
+                        buck_vout_ref_v=vout_ref_v, buck_vin_v=self.vin_v, load_resistance_ohm=load_ohm,
+                        buck_load_step_ohm=load_step_ohm, buck_load_step_time_s=load_step_time_s,
+                        buck_parameter_overrides=self.parameter_overrides or None)
+
+    def _physical(self) -> dict:
+        s = self.plant_state
+        return {"i_l_a": s.i_l, "v_out_v": s.v_out, "v_ref_v": self.vout_ref_v, "load_resistance_ohm": self.plant.load_resistance_ohm}
+
+    def _obs(self) -> np.ndarray:
+        s, sc = self.plant_state, self.metadata["observation_scales"]
+        return np.array([s.i_l / sc[0], s.v_out / sc[1], self.vout_ref_v / sc[2], (self.vout_ref_v - s.v_out) / sc[3]], dtype=np.float32)
+
+    def reset(self, *, seed: int | None = None, options: dict | None = None):
+        from driveflow.datagen.runner import build_buck
+
+        super().reset(seed=seed)
+        options = options or {}
+        plant_seed = _plant_seed(self, seed)
+        if options.get("vout_ref_v") is not None:
+            vref = float(options["vout_ref_v"])
+        else:
+            vref = self.vout_ref_fixed if self.vout_ref_fixed is not None else float(self.np_random.uniform(*self.vout_ref_range))
+        if options.get("load_resistance_ohm") is not None:
+            load = float(options["load_resistance_ohm"])
+        elif self.load_fixed is not None:
+            load = self.load_fixed
+        else:
+            lo, hi = self.load_range_ohm
+            load = float(math.exp(self.np_random.uniform(math.log(lo), math.log(hi))))
+        step_ohm = options.get("load_step_ohm", self.load_step_ohm)
+        step_t = options.get("load_step_time_s", self.load_step_time_s)
+        self.plant, self.vout_ref_v, self._step = build_buck(self.scenario(vref, load, plant_seed, step_ohm, step_t))
+        self.plant_state = self.plant.reset()
+        self._k = 0
+        self._prev_action = np.zeros(1)
+        return self._obs(), {**self._physical(), "plant_seed": plant_seed, "load_step": self._step, "step": 0, "t_s": 0.0}
+
+    def step(self, action):
+        if self.plant_state is None:
+            raise RuntimeError("Call reset() before step().")
+        a = self._as_action(action, (1,))
+        applied = np.clip(a, 0.0, 1.0)
+        if self._step is not None and self._k == self._step[0]:
+            self.plant.set_load(self._step[1])
+        self.plant_state = self.plant.simulate(float(applied[0]))
+        phys = self._physical()
+        signals = {"tracking_error": (self.vout_ref_v - phys["v_out_v"]) / self.vin_v, "current_fraction": phys["i_l_a"] / self.i_max,
+                   "action_delta": float(applied[0] - self._prev_action[0])}
+        self._prev_action = applied
+        violation = None
+        if not (math.isfinite(phys["i_l_a"]) and math.isfinite(phys["v_out_v"])):
+            violation = "non_finite_state"
+        elif abs(phys["i_l_a"]) > 2 * self.i_max:
+            violation = "limit_violation:inductor_current"
+        info = {**phys, "action_applied": applied.copy(), "action_clipped": bool(np.any(applied != a))}
+        return self._finish_step(self._obs(), signals, violation, info)

@@ -57,6 +57,8 @@ PMSM_COLUMNS = ["i_d", "i_q", "i_d_ref", "i_q_ref", "u_d", "u_q", "omega_rad_s"]
 #: "vsc_dpc_v1" records only (since 2026-10-20, S-09): the converter voltage command actually
 #: applied, and whether the optional per-axis limit (Scenario.vsc_voltage_limit_v) clipped it.
 VSC_COLUMNS = ["v_o_real", "v_o_imag", "v_o_saturated"]
+#: "buck_v1" records only (expansion task E6, datagen/runner.py _run_buck_scenario).
+BUCK_COLUMNS = ["buck_v_out", "buck_i_l", "buck_v_ref", "buck_i_ref", "buck_duty", "buck_v_in", "buck_load_ohm"]
 
 
 def records_to_dataframe(records: list) -> pd.DataFrame:
@@ -64,7 +66,7 @@ def records_to_dataframe(records: list) -> pd.DataFrame:
     missing = set(SCHEMA_COLUMNS) - set(df.columns)
     if missing:
         raise ValueError(f"records are missing schema columns: {sorted(missing)}")
-    return df[SCHEMA_COLUMNS + [c for c in PMSM_COLUMNS + VSC_COLUMNS if c in df.columns]]
+    return df[SCHEMA_COLUMNS + [c for c in PMSM_COLUMNS + VSC_COLUMNS + BUCK_COLUMNS if c in df.columns]]
 
 
 def export_parquet(scenario_records, out_path) -> pd.DataFrame:
