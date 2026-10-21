@@ -268,6 +268,18 @@ In §20, the PLECS Gym criteria that depend on E3/E4 are not run.
 
 `docs/screenshots/expansion/` holds 25 screen-state pairs, light and dark. Its README says, per screen, which of the 5 states could not be reached and why.
 
+### 8.5b E7 follow-up (2026-10-21): effort term, current constraint, noise, and comparison with C2
+
+Evidence: [`audit/expansion/e7_tuning_effort.md`](audit/expansion/e7_tuning_effort.md).
+
+| Controller | Result on the evaluation grid with 0.6 rad/s speed-sensor noise |
+|---|---|
+| High bandwidth (≥ 142 rad/s): the first E7 candidate, and the PSO and BO picks on J_effort | Limit cycle: 52 % overshoot and 53 V RMS change of the action |
+| C2, b = 0.5 | Overshoot 14.8 % → 2.4 % with the same effort and lower current peaks |
+
+- PSO and BO still went to high bandwidth because the tuning grid has no noise.
+- **No default changed.**
+
 ### 8.6 Pending
 
 - Measure the contrast of the colour tokens.

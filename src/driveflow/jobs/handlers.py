@@ -276,6 +276,8 @@ def _validate_tuning(spec: ExperimentSpec) -> None:
     budget = (spec.budget or {}).get("evaluations")
     if not (isinstance(budget, int) and 4 <= budget <= 2000):
         raise SpadeError(ErrorCode.INVALID_SPEC, "budget.evaluations must be an int in [4, 2000]")
+    if spec.params.get("objective", "J") not in ob.OBJECTIVES:
+        raise SpadeError(ErrorCode.INVALID_SPEC, f"objective must be one of {sorted(ob.OBJECTIVES)}")
 
 
 def controller_tuning(ctx: JobContext) -> HandlerResult:
@@ -290,6 +292,9 @@ def controller_tuning(ctx: JobContext) -> HandlerResult:
     bounds = [[float(lo), float(hi)] for lo, hi in spec.params["bounds"]]
     n_eval = int(spec.budget["evaluations"])
     seed = int(spec.seed)
+    objective = spec.params.get("objective", "J")
+    scalar_f, vector_f, eval_grid, objective_text = ob.OBJECTIVES[objective]
+    score = (lambda summary: summary["J"]) if objective == "J" else ob.j_effort
     conditions = []
 
     def callback(i, x, fx):
@@ -304,15 +309,15 @@ def controller_tuning(ctx: JobContext) -> HandlerResult:
     try:
         if method == "pso":
             n_part = max(4, min(16, n_eval // 4))
-            res = pso(ob.scalar_objective, bounds, n_particles=n_part, iterations=max(1, n_eval // n_part), seed=seed, callback=callback)
+            res = pso(scalar_f, bounds, n_particles=n_part, iterations=max(1, n_eval // n_part), seed=seed, callback=callback)
             candidates = [{"label": "best", "params": ob.as_kwargs(res.x_best)}]
         elif method == "bayes":
             n_init = max(4, n_eval // 4)
-            res = bayes_opt(ob.scalar_objective, bounds, n_init=n_init, iterations=n_eval - n_init, seed=seed, callback=callback)
+            res = bayes_opt(scalar_f, bounds, n_init=n_init, iterations=n_eval - n_init, seed=seed, callback=callback)
             candidates = [{"label": "best", "params": ob.as_kwargs(res.x_best)}]
         else:
             pop = max(4, min(24, (n_eval // 4) // 2 * 2))
-            res = nsga2(ob.vector_objective, bounds, population=pop, generations=max(1, n_eval // pop), seed=seed, callback=callback)
+            res = nsga2(vector_f, bounds, population=pop, generations=max(1, n_eval // pop), seed=seed, callback=callback)
             front = sorted(res.front_idx.tolist(), key=lambda k: float(res.F[k][0]))
             candidates = [{"label": f"pareto_{j}", "params": ob.as_kwargs(res.X[k]), "objectives": [float(v) for v in res.F[k]]} for j, k in enumerate(front)]
     except _Cancelled:
@@ -320,20 +325,24 @@ def controller_tuning(ctx: JobContext) -> HandlerResult:
         return HandlerResult(conditions=conditions, metrics={"method": method, "n_evaluations": len(conditions) - 1})
 
     ctx.log(f"{method}: {len(conditions)} evaluations; evaluating baseline and {len(candidates)} candidate(s) on the evaluation grid")
-    base_sum, base_rows = ob.evaluate(ob.BASELINE, ob.EVALUATION_GRID)
+    base_sum, base_rows = ob.evaluate(ob.BASELINE, eval_grid)
     base_tune, _ = ob.evaluate(ob.BASELINE, ob.TUNING_GRID)
+    if objective != "J":  # the report's "J" is the chosen objective's value
+        base_sum, base_tune = dict(base_sum, J=score(base_sum), J_v1=base_sum["J"]), dict(base_tune, J=score(base_tune), J_v1=base_tune["J"])
     evaluated = []
     for c in candidates[:12]:
-        es, er = ob.evaluate(c["params"], ob.EVALUATION_GRID)
+        es, er = ob.evaluate(c["params"], eval_grid)
         ts, _ = ob.evaluate(c["params"], ob.TUNING_GRID)
+        if objective != "J":
+            es, ts = dict(es, J=score(es), J_v1=es["J"]), dict(ts, J=score(ts), J_v1=ts["J"])
         evaluated.append({**c, "tuning": ts, "evaluation": es, "evaluation_rows": er})
     history = {"method": method, "seed": seed, "bounds": bounds, "params": list(ob.PARAMS),
                "X": [list(map(float, c["condition"].values())) for c in conditions if c["status"] != "skipped"],
                "objective": [c["metrics"]["objective"] for c in conditions if c["status"] != "skipped"]}
     ctx.write_artifact("tuning_history.json", json.dumps(history).encode())
     report = {"baseline": {"params": ob.BASELINE, "tuning": base_tune, "evaluation": base_sum, "evaluation_rows": base_rows}, "candidates": evaluated,
-              "tuning_grid": [c.name for c in ob.TUNING_GRID], "evaluation_grid": [c.name for c in ob.EVALUATION_GRID],
-              "evaluation_reused_tuning_conditions": ob.grids_overlap(), "objective": "J = mean overshoot % + 0.1 x mean settling ms + 2 x mean load dip rad/s",
+              "tuning_grid": [c.name for c in ob.TUNING_GRID], "evaluation_grid": [c.name for c in eval_grid],
+              "evaluation_reused_tuning_conditions": ob.grids_overlap(ob.TUNING_GRID, eval_grid), "objective": objective_text, "objective_name": objective,
               "status": "candidate -- no default changed"}
     ctx.write_artifact("tuning_report.json", json.dumps(report, default=float).encode())
     best = min(evaluated, key=lambda c: c["tuning"]["J"]) if evaluated else None
