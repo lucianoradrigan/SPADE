@@ -16,6 +16,13 @@ Score of one window (decided before any faulted window was looked at):
 ``fit_threshold`` sets the threshold to the ``quantile`` (default 0.99) of the score on healthy
 validation windows. It REFUSES any window that is not labelled "normal": the threshold must never
 see a fault. The parameters live in a run's ``metrics.json["residual_detector"]``.
+
+Steady-state gate (design change of 2026-10-21, declared in docs/audit/ai/dc_motor_residual_gate.md):
+the first threshold included start-up windows and was inflated (AI-N18). ``steady_state_gate_s``
+derives, from nameplate parameters only, how long after a speed-reference change the transient
+lasts: the current-limited acceleration to the largest speed step plus 5 mechanical time constants
+tau_m = J * r_a / psi_e^2. A detector with ``gate_s`` scores only windows that start at least
+``gate_s`` after the last reference change (for a run, after its start).
 """
 
 from __future__ import annotations
@@ -31,6 +38,29 @@ DEFAULT_QUANTILE = 0.99
 
 class ResidualDetectorError(ValueError):
     pass
+
+
+def steady_state_gate_s(j_total: float, r_a: float, psi_e: float, i_usable_a: float, load_a_nm: float, load_b_nm_s: float,
+                        delta_omega_rad_s: float, n_tau: float = 5.0) -> dict:
+    """Seconds after a speed-reference change before a window may be scored, from physics only.
+
+    Acceleration with the torque at the usable current limit against the load a + b*omega:
+    J domega/dt = psi_e*i - a - b*omega, so omega(t) = w_inf * (1 - exp(-t*b/J)) with
+    w_inf = (psi_e*i - a)/b; t_slew is the time to reach ``delta_omega_rad_s`` (from rest, the worst
+    case). Then ``n_tau`` electromechanical time constants tau_m = J*r_a/psi_e^2 for the linear
+    settling. Raises ResidualDetectorError if the step cannot be reached at that current."""
+    torque = psi_e * i_usable_a - load_a_nm
+    if load_b_nm_s > 0:
+        w_inf = torque / load_b_nm_s
+        if delta_omega_rad_s >= w_inf:
+            raise ResidualDetectorError(f"a {delta_omega_rad_s} rad/s step is not reachable at {i_usable_a} A (final speed {w_inf:.1f} rad/s)")
+        t_slew = -(j_total / load_b_nm_s) * np.log(1.0 - delta_omega_rad_s / w_inf)
+    else:
+        t_slew = j_total * delta_omega_rad_s / torque
+    tau_m = j_total * r_a / psi_e ** 2
+    return {"gate_s": float(t_slew + n_tau * tau_m), "t_slew_s": float(t_slew), "tau_m_s": float(tau_m), "n_tau": float(n_tau),
+            "delta_omega_rad_s": float(delta_omega_rad_s), "i_usable_a": float(i_usable_a),
+            "rule": "score only windows starting >= gate_s after the last speed-reference change (run start included)"}
 
 
 def raw_windows(df: pd.DataFrame, channels: list, window: int, horizon: int, cap_per_group: int = 60, group_col: str = "source_file",

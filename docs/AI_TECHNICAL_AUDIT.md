@@ -236,7 +236,8 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N14 | Medium | Defect (generalization) | **Open** (§8.1): below the training speed range (50 rad/s) accuracy on answered windows is 0.58; at 150 % noise 0.68 |
 | AI-N17 | High | Risk (extends AI-N12/AI-N13) | **Open** (§9.3): the promoted 5-class classifier carries no OOD detector; the GUI says "OOD detection unavailable". Not integrated by decision D6 (2026-10-21); re-evaluated with E14 |
 | AI-N20 | High | Negative result (edge) | **Open** (§10): the distilled RPi5/ESP32 residual detectors fail criterion 1 for rpm and flag 0–6 % of faulted windows at their thresholds; not usable |
-| AI-N18 | Medium | Design (threshold) | **Open, decision pending** (§10): the residual threshold includes start-up windows, so the PC detector flags ≈ 50 % of faulted windows at AUROC 1.000; 8.3 % false alarms on reference steps |
+| AI-N18 | Medium | Design (threshold) | **Cause addressed, not adopted** (§10, §10.1): the run01 threshold includes start-up windows (≈ 50 % detection at AUROC 1.000). The steady-state gate of run02 gives 100 % detection but fails criterion 3 (AI-N21) |
+| AI-N21 | High | Negative result (threshold) | **Open** (§10.1): with the steady-state gate (run02), healthy windows at 100 % noise give 58.3 % / 71.2 % false alarms (criterion 3 ≤ 1 %); not promoted |
 | AI-N19 | Medium | Evaluation limit | **Documented** (§10): simulated healthy current/rpm are constant in steady state, so the residual AUROC (1.000) and the persistence baseline are optimistic |
 | AI-N15 | Medium | Defect (estimator bias) | **Open** (§9.1): the VSC PINN estimates C systematically low, −1.3 % to −9.1 % mean error at 0–5 % noise |
 | AI-N16 | Medium | Defect (uncertainty) | **Open** (§9.2): the PINN's 5–95 % bootstrap interval covers the truth in 52–78 % of noisy runs for C; the GUI says "Coverage not validated" |
@@ -628,3 +629,31 @@ The simulation-based agent and the PC residual detectors both reach run-level AU
 - `tests/ai/test_residual.py`
 - `tests/test_residual_gui.py`
 - `tests/test_findings_e14.py`
+
+### 10.1 Steady-state gate (2026-10-21, design change declared after the test results) and AI-N21
+
+**Evidence.**
+- [`dc_motor_residual_gate.md`](audit/ai/dc_motor_residual_gate.md) / `.json`.
+- Commands: `python experiments/refit_residual_gate.py --run <run01>`, then `python experiments/report_residual_anomaly.py --runs <pc run02> <pc_novv run02> --stem dc_motor_residual_gate --preface …`.
+
+**Declared: this change was made after the E14 test results showed AI-N18.**
+
+**What changed.**
+- **Gate:** fixed from nameplate physics before refitting (`ai/residual.steady_state_gate_s`): current-limited acceleration from rest to 250 rad/s (330 ms) + 5 τ_m (τ_m = J·r_a/ψ_e² = 16.2 ms), so **411 ms**.
+- **Threshold:** the 99th percentile was recomputed only on healthy validation windows that pass the gate.
+- **Thresholds:** 273 → 4.84 with voltage_v, and 96 → 4.35 without.
+- **Unchanged:** weights. New runs `dc_motor_residual_{pc,pc_novv}/2026-10-21_run02`; run01 is untouched.
+- **Evaluation:** re-evaluated once.
+- **GUI:** the adapter honours `residual_detector["gate"]`. It only matters if a gated run is ever promoted.
+
+**Result.**
+- **Criteria 1 and 2:** pass for both variants.
+- **Detection at ×1:** 100 % (the cause of AI-N18 is gone).
+- **Criterion 3:** **fails** for both, at 100 % noise.
+
+**AI-N21 (open, negative result).**
+- **Finding:** with the tighter threshold, healthy windows of the `noise_100pct` condition cross it 58.3 % (with voltage_v) and 71.2 % (without) of the time. Every other held-out condition gives 0 %.
+- **Promotion:** the rule's promotion condition is not met, so nothing was promoted, and no variant was selected (both fail criterion 3).
+- **No retuning:** the gate, the quantile and the noise handling were not retuned after the evaluation, because that would be tuning on the test conditions.
+- **Possible next step, not done:** a noise-aware threshold, for example a scale per noise level estimated from the healthy context itself. It must be designed on validation data and evaluated once on new held-out conditions.
+- **Test:** `tests/test_findings_e14.py::test_ai_n21_gated_detector_meets_the_false_alarm_criterion` (strict xfail).

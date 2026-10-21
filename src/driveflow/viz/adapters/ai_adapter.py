@@ -183,13 +183,20 @@ def residual_assessment(domain: str, df: pd.DataFrame, tier: str = "pc") -> dict
     if missing:
         return {"available": False, "reason": f"{RESIDUAL_NOT_AVAILABLE}: missing channel(s) {', '.join(missing)}."}
     data = df.assign(source_file="run")  # one run: windows placed exactly as at training time
-    seg, _, _, t0 = residual.raw_windows(data, channels, window, horizon, cap_per_group=10_000)
+    gate = det.get("gate")
+    start_s = None
+    if gate and "timestamp_s" in data.columns:
+        # Steady-state gate: the start of the data counts as a speed-reference change, so windows
+        # starting earlier than gate_s after it are not scored (they were not in the threshold).
+        start_s = float(data["timestamp_s"].min()) + float(gate["gate_s"])
+    seg, _, _, t0 = residual.raw_windows(data, channels, window, horizon, cap_per_group=10_000, start_s=start_s)
     if not len(seg):
-        return {"available": False, "reason": f"{RESIDUAL_NOT_AVAILABLE}: need at least {window + horizon} rows."}
+        need = f"{window + horizon} rows" + (f" starting {gate['gate_s'] * 1e3:.0f} ms after the start of the data (steady-state gate)" if start_s is not None else "")
+        return {"available": False, "reason": f"{RESIDUAL_NOT_AVAILABLE}: need at least {need}."}
     scores = residual.score(model, seg, metrics)
     last = seg[-1:]
     pred = residual.forecast(model, last, channels, window, metrics.get("level_scaling"))[0]
     return {"available": True, "model_id": f"{run_dir.parent.name}/{run_dir.name}", "score": float(scores[-1]), "threshold": float(det["threshold"]),
             "quantile": det["quantile"], "share_above": float(np.mean(scores > det["threshold"])), "n_windows": int(len(scores)),
             "target_channels": list(det["target_channels"]), "channels": channels, "window": last[0], "forecast": pred, "input_window": window, "horizon": horizon,
-            "t_start": float(t0[-1])}
+            "t_start": float(t0[-1]), "gate_s": float(gate["gate_s"]) if start_s is not None else None}

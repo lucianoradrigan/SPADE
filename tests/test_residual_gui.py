@@ -22,12 +22,14 @@ class _MeanForecaster:
         return self(x)
 
 
-def _install(monkeypatch, tmp_path, threshold):
+def _install(monkeypatch, tmp_path, threshold, gate_s=None):
     run_dir = tmp_path / "dc_motor_residual_pc" / "run01"
     run_dir.mkdir(parents=True)
     metrics = {"channels": ["current_r", "rpm", "voltage_v"], "input_window": 256, "horizon": 16,
                "residual_detector": {"target_channels": ["current_r", "rpm"], "channel_scale": [1.0, 1.0], "quantile": 0.99, "threshold": threshold,
                                      "fitted_on": {"windows": "validation", "labels": ["normal"], "n": 100}}}
+    if gate_s is not None:
+        metrics["residual_detector"]["gate"] = {"gate_s": gate_s}
     original = da_ai.promoted_model
 
     def fake(domain, tier, block):
@@ -94,3 +96,20 @@ def test_monitoring_lists_the_residual_detector_without_alerting(monkeypatch, tm
     assert agent["availability"] == expected and agent["emitted"] is False
     if expected == "AVAILABLE":
         assert res["residual"]["share_above"] > 0 and "does not raise alerts by itself" in agent["detail"]
+
+
+def test_steady_state_gate_skips_the_first_gate_s_of_the_data(monkeypatch, tmp_path):
+    """A detector with a steady-state gate scores only windows starting gate_s after the data start."""
+    import pandas as pd
+
+    t = np.arange(1, 6001) * 1e-4
+    df = pd.DataFrame({"timestamp_s": t, "current_r": 5.0 + 0 * t, "rpm": 1400.0 + 0 * t, "voltage_v": 30.0 + 0 * t})
+    _install(monkeypatch, tmp_path, threshold=1.0)
+    ungated = da_ai.residual_assessment("dc_motor", df)
+    _install(monkeypatch, tmp_path / "g", threshold=1.0, gate_s=0.3)
+    gated = da_ai.residual_assessment("dc_motor", df)
+    assert ungated["gate_s"] is None and gated["gate_s"] == 0.3
+    assert 0 < gated["n_windows"] < ungated["n_windows"]
+    _install(monkeypatch, tmp_path / "h", threshold=1.0, gate_s=10.0)
+    short = da_ai.residual_assessment("dc_motor", df)
+    assert not short["available"] and "steady-state gate" in short["reason"]

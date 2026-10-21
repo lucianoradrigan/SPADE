@@ -110,3 +110,20 @@ def test_healthy_only_three_way_training_fits_the_detector_on_validation(tmp_pat
     det = m["residual_detector"]
     assert det["fitted_on"] == {"windows": "validation", "labels": ["normal"], "n": det["fitted_on"]["n"]} and det["threshold"] > 0
     assert set(m["persistence_test_rmse_per_channel"]) == {"current_r", "rpm"} and m["horizon"] == 8
+
+
+def test_steady_state_gate_matches_the_integrated_acceleration():
+    """steady_state_gate_s: closed-form current-limited slew vs. Euler integration of
+    J dw/dt = psi*i - a - b*w, plus 5 tau_m."""
+    j, r_a, psi, i, a, b = 0.0275, 0.016, 0.165, 168.0, 0.01, 0.05
+    g = residual.steady_state_gate_s(j, r_a, psi, i, a, b, 250.0)
+    w, t, dt = 0.0, 0.0, 1e-6
+    while w < 250.0:
+        w += dt * (psi * i - a - b * w) / j
+        t += dt
+    assert g["t_slew_s"] == pytest.approx(t, rel=1e-3)
+    assert g["tau_m_s"] == pytest.approx(j * r_a / psi ** 2)
+    assert g["gate_s"] == pytest.approx(t + 5 * j * r_a / psi ** 2, rel=1e-3)
+    assert residual.steady_state_gate_s(j, r_a, psi, i, a, 0.0, 250.0)["t_slew_s"] == pytest.approx(j * 250.0 / (psi * i - a))
+    with pytest.raises(residual.ResidualDetectorError):
+        residual.steady_state_gate_s(j, r_a, psi, 1.0, a, b, 250.0)

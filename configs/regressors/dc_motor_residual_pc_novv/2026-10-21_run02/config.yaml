@@ -1,0 +1,18 @@
+# dc_motor forecast-residual anomaly detector, PC tier (expansion task E14; DECISIONES_EXPANSION_2026-10-21 §5).
+# Trained on HEALTHY grid runs only (label_filter); the residual threshold is fitted on the healthy
+# validation runs (split: three_way) by ai/residual.py and stored in metrics.json["residual_detector"].
+# From pc_full.yaml: input_window 256 and the LSTM [128, 64]. horizon 16 samples (1.6 ms at 10 kHz):
+# below half the period of the highest fault frequency evaluated, the inner-race fundamental at
+# 250 rad/s (196.1 Hz -> 25.5 samples), rounded down to a power of two. Chosen before any faulted window.
+# Variant: inputs current_r, rpm (without voltage_v: the PI moves voltage_v to compensate the ripple, which could hide it).
+domain: dc_motor
+tier: pc
+input_window: 256
+horizon: 16
+recurrent_type: lstm
+layers: [128, 64]
+use_attention: false
+channels: [current_r, rpm]
+target_channels: [current_r, rpm]
+label_filter: normal
+split: three_way

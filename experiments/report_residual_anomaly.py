@@ -19,7 +19,10 @@ Data:
   identical current/rpm. Window counts are not independent samples.
 - the 1.3x-order fault comes from the custom-order OOD cache (report_ood_detector.py --orders);
 - reference steps are simulated here (PI loop of datagen.runner, reference changed mid-run).
-Steady state = windows starting after SETTLE_S; start-up = windows ending before it.
+Steady state = windows starting after SETTLE_S; start-up = windows ending before it. A detector
+that carries a steady-state gate (residual_detector["gate"], design change of 2026-10-21) uses its
+gate_s instead of SETTLE_S, and around a reference step it scores only windows that start at least
+gate_s after the step.
 
     python experiments/report_residual_anomaly.py --runs <pc run dir> <pc_novv run dir> [--edge-runs <rpi5 dir> <esp32 dir>] [--agent]
 """
@@ -53,11 +56,16 @@ STEPS = ((150.0, 175.0), (150.0, 125.0), (100.0, 200.0))
 STEP_T_S, STEP_DURATION_S = 0.75, 1.5
 
 
+def _settle_s(metrics) -> float:
+    gate = metrics["residual_detector"].get("gate")
+    return float(gate["gate_s"]) if gate else SETTLE_S
+
+
 def _segments(df, metrics, steady=True):
     window, horizon = int(metrics["input_window"]), int(metrics["horizon"])
     if steady:
-        return residual.raw_windows(df, list(metrics["channels"]), window, horizon, start_s=SETTLE_S)
-    return residual.raw_windows(df, list(metrics["channels"]), window, horizon, end_s=SETTLE_S)
+        return residual.raw_windows(df, list(metrics["channels"]), window, horizon, start_s=_settle_s(metrics))
+    return residual.raw_windows(df, list(metrics["channels"]), window, horizon, end_s=_settle_s(metrics))
 
 
 def _persistence_ratio(model, seg, metrics) -> dict:
@@ -110,7 +118,7 @@ def evaluate_variant(run_dir: Path, cache: pd.DataFrame, custom: pd.DataFrame, s
     det = metrics["residual_detector"]
     thr = det["threshold"]
     res = {"run": str(run_dir.relative_to(ROOT)), "channels": metrics["channels"], "threshold": thr, "quantile": det["quantile"],
-           "n_val_windows": det["fitted_on"]["n"], "train_time_test_rmse_per_channel": metrics.get("test_rmse_per_channel"),
+           "n_val_windows": det["fitted_on"]["n"], "gate": det.get("gate"), "train_time_test_rmse_per_channel": metrics.get("test_rmse_per_channel"),
            "train_time_persistence_rmse_per_channel": metrics.get("persistence_test_rmse_per_channel")}
 
     def scored(df, steady=True):
@@ -172,13 +180,23 @@ def evaluate_variant(run_dir: Path, cache: pd.DataFrame, custom: pd.DataFrame, s
 
     # criterion 5: start-up and reference steps (healthy)
     start = np.concatenate([scored(cache[(cache.condition == c) & (cache.label == "normal")], steady=False)[2] for c in HELD_OUT + ("nominal_steady_state",)])
-    seg_all, groups, labels, t0s = residual.raw_windows(steps, list(metrics["channels"]), int(metrics["input_window"]), int(metrics["horizon"]), start_s=SETTLE_S)
+    settle = _settle_s(metrics)
+    seg_all, groups, labels, t0s = residual.raw_windows(steps, list(metrics["channels"]), int(metrics["input_window"]), int(metrics["horizon"]), start_s=settle, cap_per_group=10_000)
     step_scores = residual.score(model, seg_all, metrics) if len(seg_all) else np.array([])
     win_s = (int(metrics["input_window"]) + int(metrics["horizon"])) * 1e-4
-    near = (t0s + win_s >= STEP_T_S) & (t0s < STEP_T_S + 0.3)  # overlaps the step, or starts within 0.3 s after it
+    gated = metrics["residual_detector"].get("gate") is not None
+    if gated:  # the gate also applies after the step: windows starting in [step - window, step + gate_s) are not scored
+        not_scored = (t0s + win_s > STEP_T_S) & (t0s < STEP_T_S + settle)
+        near = ~not_scored & (t0s >= STEP_T_S + settle) & (t0s < STEP_T_S + settle + 0.3)
+    else:
+        not_scored = np.zeros(len(t0s), bool)
+        near = (t0s + win_s >= STEP_T_S) & (t0s < STEP_T_S + 0.3)  # overlaps the step, or starts within 0.3 s after it
     res["criterion_5"] = {"startup_false_alarm_rate": float(np.mean(start > thr)) if len(start) else None, "startup_n": int(len(start)),
                           "reference_step_false_alarm_rate": float(np.mean(step_scores[near] > thr)) if near.any() else None, "reference_step_n": int(near.sum()),
-                          "steps": [f"{a:g} -> {b:g} rad/s at {STEP_T_S} s" for a, b in STEPS], "window_rule": "windows overlapping the step or starting within 0.3 s after it"}
+                          "steps": [f"{a:g} -> {b:g} rad/s at {STEP_T_S} s" for a, b in STEPS],
+                          "window_rule": ("windows starting within 0.3 s after the gate ends (step + gate_s); windows inside the gate are not scored" if gated
+                                          else "windows overlapping the step or starting within 0.3 s after it"),
+                          "gated_out_around_step_n": int(not_scored.sum()), "settle_s": settle}
     return res
 
 
@@ -193,7 +211,7 @@ def edge_parity(run_dir: Path, cache: pd.DataFrame) -> dict:
         return {"run": str(run_dir.relative_to(ROOT)), "exported": False}
     ch, window = list(metrics["channels"]), int(metrics["input_window"])
     sub = cache[(cache.condition.isin(HELD_OUT)) & (cache.label.isin(("normal",) + KNOWN_FAULTS))]
-    seg, _, labels, _ = residual.raw_windows(sub, ch, window, int(metrics["horizon"]), cap_per_group=8, start_s=SETTLE_S)
+    seg, _, labels, _ = residual.raw_windows(sub, ch, window, int(metrics["horizon"]), cap_per_group=8, start_s=_settle_s(metrics))
     norm = [normalize_window_like_training(x[:window], ch) for x in seg]
     ctx = np.stack([n[0] for n in norm])
     mus, sigmas = np.stack([n[1] for n in norm]), np.stack([n[2] for n in norm])
@@ -233,7 +251,7 @@ def agent_comparison(cache: pd.DataFrame, variants: dict) -> dict:
             a_score, closest = agent.detect_anomaly(tele, operating_point={"omega_ref_rad_s": speeds[cond]})
             row = {"condition": cond, "label": lab, "agent_score": a_score, "agent_closest": closest, "agent_s": round(time.perf_counter() - t0, 2)}
             for name, (model, metrics) in variants.items():
-                seg, _, _, _ = residual.raw_windows(run, list(metrics["channels"]), int(metrics["input_window"]), int(metrics["horizon"]), start_s=SETTLE_S)
+                seg, _, _, _ = residual.raw_windows(run, list(metrics["channels"]), int(metrics["input_window"]), int(metrics["horizon"]), start_s=_settle_s(metrics))
                 s = residual.score(model, seg, metrics)
                 row[f"{name}_mean_score"] = float(np.mean(s))
                 row[f"{name}_flagged_share"] = float(np.mean(s > metrics["residual_detector"]["threshold"]))
@@ -256,7 +274,7 @@ def _fmt(x, spec=".3f"):
 
 def render_md(rep: dict) -> str:
     L = ["# dc_motor forecast-residual anomaly detector (E14)", "",
-         f"Generated by `{rep['meta']['command']}` on {rep['meta']['date']} ({rep['meta']['machine']}). Raw values: [`dc_motor_residual_anomaly.json`](dc_motor_residual_anomaly.json).", "",
+         f"Generated by `{rep['meta']['command']}` on {rep['meta']['date']} ({rep['meta']['machine']}). Raw values: [`{rep['meta']['stem']}.json`]({rep['meta']['stem']}.json).", "",
          "Simulated windows only. Every number below is measured on simulated windows of conditions excluded from training. "
          "The seed only changes the vibration channels, so the four seeds of a noise-free condition give identical current/rpm windows (AUDIT_ANSWERS Q15).", "",
          "## Design (fixed before looking at faulted windows)", "",
@@ -266,7 +284,8 @@ def render_md(rep: dict) -> str:
          "- Score: mean over current_r and rpm of RMSE(physical residual over the horizon) / median healthy-validation RMSE. Threshold: 99th percentile of healthy validation scores.", ""]
     for name, v in rep["variants"].items():
         c1, c2, c3, c4, c5 = (v[f"criterion_{i}"] for i in range(1, 6))
-        L += [f"## Variant `{name}` — inputs {', '.join(v['channels'])}", "", f"Run `{v['run']}`; threshold {v['threshold']:.3f} (q{v['quantile']:.2f} of {v['n_val_windows']} healthy validation windows).", "",
+        L += [f"## Variant `{name}` — inputs {', '.join(v['channels'])}", "", f"Run `{v['run']}`; threshold {v['threshold']:.3f} (q{v['quantile']:.2f} of {v['n_val_windows']} healthy validation windows"
+              + (f" starting ≥ {v['gate']['gate_s'] * 1e3:.0f} ms after the run start: steady-state gate)." if v.get("gate") else ")."), "",
               "| # | Criterion | Target | Result | Status |", "|---|---|---|---|---|",
               "| 1 | Forecast RMSE / persistence RMSE per channel: steady-state held-out · whole held-out runs · train-time test (normalized) | ≤ 0.8 per channel | "
               + " · ".join(", ".join(f"{k} {_fmt(x['ratio'])}" for k, x in r.items()) for r in c1["readings"].values()) + f" | {'PASS*' if c1['pass'] else 'FAIL'} |",
@@ -328,6 +347,8 @@ def main(argv=None) -> None:
     ap.add_argument("--agent", action="store_true", help="also run the simulation-based agent on the same runs (several minutes)")
     ap.add_argument("--selection", default=None, help="text recorded as the GUI-variant decision")
     ap.add_argument("--out", type=Path, default=OUT)
+    ap.add_argument("--stem", default="dc_motor_residual_anomaly", help="output file name without extension")
+    ap.add_argument("--preface", type=Path, default=None, help="markdown inserted after the title (e.g. the design-change declaration)")
     args = ap.parse_args(argv)
 
     cache = pd.read_parquet(args.cache)
@@ -335,7 +356,7 @@ def main(argv=None) -> None:
     steps = _step_runs()
     rep = {"meta": {"command": "python experiments/report_residual_anomaly.py " + " ".join(sys.argv[1:] if argv is None else argv), "date": time.strftime("%Y-%m-%d"),
                     "machine": f"{platform.system()} {platform.machine()}, Python {platform.python_version()}", "cache": str(args.cache.relative_to(ROOT)) if args.cache.is_relative_to(ROOT) else str(args.cache),
-                    "held_out_conditions": list(HELD_OUT), "settle_s": SETTLE_S},
+                    "held_out_conditions": list(HELD_OUT), "settle_s": SETTLE_S, "stem": args.stem},
            "variants": {}}
     for name, run in zip(args.names, args.runs):
         rep["variants"][name] = evaluate_variant(run.resolve(), cache, custom, steps)
@@ -352,9 +373,13 @@ def main(argv=None) -> None:
     if args.edge_runs:
         rep["edge"] = [edge_parity(r.resolve(), cache) for r in args.edge_runs]
     args.out.mkdir(parents=True, exist_ok=True)
-    (args.out / "dc_motor_residual_anomaly.json").write_text(json.dumps(rep, indent=1, default=float))
-    (args.out / "dc_motor_residual_anomaly.md").write_text(render_md(rep))
-    print(render_md(rep))
+    md = render_md(rep)
+    if args.preface:
+        head, _, rest = md.partition("\n\n")
+        md = head + "\n\n" + args.preface.read_text().strip() + "\n\n" + rest
+    (args.out / f"{args.stem}.json").write_text(json.dumps(rep, indent=1, default=float))
+    (args.out / f"{args.stem}.md").write_text(md)
+    print(md)
 
 
 if __name__ == "__main__":

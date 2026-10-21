@@ -181,10 +181,14 @@ One row per task of [`TODO_CLAUDE_CODE.md`](../TODO_CLAUDE_CODE.md).
      - AI Diagnostics "Forecast residual" panel.
      - Model Registry.
      - With nothing promoted, the GUI shows "Residual detector not available".
-   - **Decisions:**
-     - (a) promote `dc_motor_residual_pc/2026-10-21_run01`;
-     - (b) refit the threshold on steady-state validation windows (a regime filter);
-     - (c) which variant: the variant without voltage_v detects more at its threshold (67 % / 69 %) but was not eligible under the selection rule (criteria 1 and 3 only).
+   - **Decisions taken by the user (2026-10-21):** threshold first, then variant, then promotion.
+   - **Done (declared design change, made after seeing test results):** steady-state gate of 411 ms from nameplate physics; threshold refitted on gated healthy validation windows; runs `*_run02`; re-evaluated once. Evidence: [`dc_motor_residual_gate.md`](audit/ai/dc_motor_residual_gate.md).
+   - **Result:**
+     - detection at ×1 is now 100 %;
+     - criterion 3 **fails** for both variants: 58.3 % / 71.2 % false alarms at 100 % noise (AI-N21);
+     - no variant qualifies, so **nothing promoted**;
+     - the threshold was not retuned on the test.
+   - **Open:** a noise-aware threshold, designed on validation data and evaluated on new held-out conditions, if you want to pursue it.
 
 ### 7.3 Open, not blocked on a decision
 
