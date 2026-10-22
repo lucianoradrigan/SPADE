@@ -12,6 +12,13 @@ For a PLECS circuit to feed a surrogate, the duty is expected to be exposed eith
 named ``D`` (a sweep variable, e.g. a duty sequence parameter) or as an input of the atomic subsystem
 (FMU route, tasks E3/E4), and declared here like any other ModelVar or input.
 
+Surrogate source (task A1, round PLECS/OM): two optional blocks make a buck circuit's sweeps usable
+to fit a surrogate Gym plant:
+- ``excitation``: the action profile the circuit applies during each run, parametrised by ModelVars
+  (integrations/plecs/excitation.py), and the outport that records the action actually applied;
+- ``surrogate``: which outputs are the plant states and which ModelVars are the operating
+  conditions (template ``buck``: states i_l, v_out; conditions v_in_v, load_resistance_ohm).
+
 A manifest that does not match the circuit is caught at run time, not here: the RPC client rejects a
 result whose number of signals differs from ``outputs``.
 """
@@ -54,6 +61,8 @@ class InterfaceManifest:
     model_vars: tuple
     outputs: tuple
     declared_by: str = "user (hand-written; not read from the circuit)"
+    excitation: dict | None = None
+    surrogate: dict | None = None
 
     @property
     def output_names(self) -> list[str]:
@@ -66,7 +75,12 @@ class InterfaceManifest:
         raise KeyError(name)
 
     def to_dict(self) -> dict:
-        return {"model_vars": [dataclasses.asdict(v) for v in self.model_vars], "outputs": [dataclasses.asdict(o) for o in self.outputs], "declared_by": self.declared_by}
+        d = {"model_vars": [dataclasses.asdict(v) for v in self.model_vars], "outputs": [dataclasses.asdict(o) for o in self.outputs], "declared_by": self.declared_by}
+        if self.excitation is not None:
+            d["excitation"] = self.excitation
+        if self.surrogate is not None:
+            d["surrogate"] = self.surrogate
+        return d
 
     def to_json(self) -> str:
         return json.dumps(self.to_dict(), indent=2, sort_keys=True)
@@ -133,7 +147,38 @@ def from_dict(data: dict) -> InterfaceManifest:
     clash = names & out_names
     if clash:
         raise ManifestError(f"names used both as ModelVar and output: {sorted(clash)}")
-    return InterfaceManifest(tuple(model_vars), tuple(outputs), str(data.get("declared_by") or InterfaceManifest.declared_by))
+    excitation = surrogate = None
+    if data.get("excitation") is not None:
+        from driveflow.integrations.plecs import excitation as ex
+
+        try:
+            excitation = ex.check_spec(data["excitation"], names, out_names)
+        except ex.ExcitationError as exc:
+            raise ManifestError(str(exc)) from None
+    if data.get("surrogate") is not None:
+        surrogate = _check_surrogate(data["surrogate"], names, out_names, excitation)
+    return InterfaceManifest(tuple(model_vars), tuple(outputs), str(data.get("declared_by") or InterfaceManifest.declared_by), excitation, surrogate)
+
+
+#: surrogate template -> (state roles, condition roles)
+SURROGATE_TEMPLATES = {"buck": (("i_l", "v_out"), ("v_in_v", "load_resistance_ohm"))}
+
+
+def _check_surrogate(spec, var_names: set, out_names: set, excitation) -> dict:
+    if not isinstance(spec, dict):
+        raise ManifestError("surrogate must be an object with 'template', 'states' and 'conditions'")
+    tpl = spec.get("template")
+    if tpl not in SURROGATE_TEMPLATES:
+        raise ManifestError(f"surrogate.template must be one of {sorted(SURROGATE_TEMPLATES)}, got {tpl!r}")
+    if excitation is None:
+        raise ManifestError("a surrogate source needs an 'excitation' block: constant ModelVars only give step responses")
+    states, conds = dict(spec.get("states") or {}), dict(spec.get("conditions") or {})
+    s_roles, c_roles = SURROGATE_TEMPLATES[tpl]
+    if sorted(states) != sorted(s_roles) or any(v not in out_names for v in states.values()):
+        raise ManifestError(f"surrogate.states must map {list(s_roles)} to declared outputs, got {states}")
+    if sorted(conds) != sorted(c_roles) or any(v not in var_names for v in conds.values()):
+        raise ManifestError(f"surrogate.conditions must map {list(c_roles)} to declared ModelVars, got {conds}")
+    return {"template": tpl, "states": {r: states[r] for r in s_roles}, "conditions": {r: conds[r] for r in c_roles}}
 
 
 def from_json(text: str) -> InterfaceManifest:
@@ -178,4 +223,23 @@ EXAMPLE_DAB = {
         {"name": "i_Lr", "unit": "A", "description": "outport 2: leakage-inductor current (to be added in PLECS)"},
     ],
 }
-TEMPLATES = {"Buck (spec Sec. 3.6)": EXAMPLE_BUCK, "DAB (Fund. DAB_sample1, needs outports)": EXAMPLE_DAB}
+#: Buck with an excited duty for a SURROGATE source (task A1): the circuit runs open loop, its duty
+#: follows the PRBS profile of integrations/plecs/excitation.py, and outport 3 records the duty applied.
+EXAMPLE_BUCK_SURROGATE = {
+    "model_vars": [
+        {"name": "Vin", "unit": "V", "default": 48.0, "minimum": 12.0, "maximum": 100.0, "description": "input voltage"},
+        {"name": "Rload", "unit": "Ohm", "default": 6.0, "minimum": 1.0, "maximum": 50.0, "description": "load resistance"},
+        {"name": "prbs_seed", "unit": "-", "default": 1.0, "minimum": 1.0, "maximum": 127.0, "description": "PRBS7 seed of the duty excitation"},
+        {"name": "D_min", "unit": "-", "default": 0.1, "minimum": 0.0, "maximum": 1.0, "description": "duty level for a 0 bit"},
+        {"name": "D_max", "unit": "-", "default": 0.8, "minimum": 0.0, "maximum": 1.0, "description": "duty level for a 1 bit"},
+        {"name": "T_hold", "unit": "s", "default": 0.002, "minimum": 1e-4, "maximum": 0.1, "description": "hold time of each PRBS bit"},
+    ],
+    "outputs": [
+        {"name": "v_out", "unit": "V", "description": "outport 1"},
+        {"name": "i_L", "unit": "A", "description": "outport 2"},
+        {"name": "duty", "unit": "-", "description": "outport 3: the duty actually applied"},
+    ],
+    "excitation": {"kind": "prbs", "action_output": "duty", "params": {"prbs_seed": "prbs_seed", "D_min": "D_min", "D_max": "D_max", "T_hold": "T_hold"}},
+    "surrogate": {"template": "buck", "states": {"i_l": "i_L", "v_out": "v_out"}, "conditions": {"v_in_v": "Vin", "load_resistance_ohm": "Rload"}},
+}
+TEMPLATES = {"Buck (spec Sec. 3.6)": EXAMPLE_BUCK, "Buck, excited duty (surrogate source)": EXAMPLE_BUCK_SURROGATE, "DAB (Fund. DAB_sample1, needs outports)": EXAMPLE_DAB}

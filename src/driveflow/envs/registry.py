@@ -77,8 +77,30 @@ PLANNED = {
 }
 
 
+def register_dynamic(env_id: str, profile_id: str, surrogate_dir: str) -> EnvSpec:
+    """A surrogate fitted to a PLECS sweep (task A1): SPADE/<Profile>Surrogate-v0 on that surrogate,
+    with SPADE/BuckSurrogate-v0's contract. Added to ENVIRONMENTS so the Environments page, RL Lab
+    and describe() treat it like any other environment."""
+    spec = EnvSpec(env_id, "driveflow.envs.surrogate_env:BuckSurrogateEnv", f"surrogate:plecs:{profile_id}",
+                   f"Buck surrogate fitted to PLECS profile {profile_id} — voltage regulation", 0, "SIMULATED · SURROGATE",
+                   ENVIRONMENTS["SPADE/BuckSurrogate-v0"].compatible_algorithms, ENVIRONMENTS["SPADE/BuckSurrogate-v0"].terminations,
+                   "control.classical.buck_pi.BuckVoltageController",
+                   {**ENVIRONMENTS["SPADE/BuckSurrogate-v0"].defaults, "surrogate_path": surrogate_dir})
+    ENVIRONMENTS[env_id] = spec
+    if env_id in gym.registry:
+        del gym.registry[env_id]
+    gym.register(id=env_id, entry_point=spec.entry_point, kwargs=dict(spec.defaults), disable_env_checker=False)
+    return spec
+
+
 def register_all() -> list[str]:
-    """Registers every ID in ENVIRONMENTS that is not registered yet; returns the IDs."""
+    """Registers every ID in ENVIRONMENTS that is not registered yet, plus the published PLECS
+    surrogates (envs.surrogate_plecs.published); returns the IDs."""
+    from driveflow.envs import surrogate_plecs
+
+    for env_id, rec in surrogate_plecs.published().items():
+        if env_id not in ENVIRONMENTS or ENVIRONMENTS[env_id].defaults.get("surrogate_path") != rec["surrogate_dir"]:
+            register_dynamic(env_id, rec["profile_id"], rec["surrogate_dir"])
     for spec in ENVIRONMENTS.values():
         if spec.env_id not in gym.registry:
             gym.register(id=spec.env_id, entry_point=spec.entry_point, kwargs=dict(spec.defaults), disable_env_checker=False)

@@ -42,6 +42,30 @@ def _my_plants() -> None:
         st.warning(f"**{r['Name']}** ({r['ID']}): This profile changed since its last verification. Revalidation is required.", icon=":material/sync_problem:")
     st.caption("Capabilities come from what the backend has shown: 'Batch sweep: Shown' cites the sweep run that completed. "
                "RPC profiles never offer interactive stepping (spec Sec. 3.15). Open a profile from Create Plant → Generate simulation datasets.")
+    _sweep_history(rows)
+
+
+def _sweep_history(rows) -> None:
+    """Every sweep of the chosen plant with its real outcome: failed and partial sweeps are shown,
+    with counts and the cause of each failed condition, never averaged away (task A1)."""
+    st.markdown("##### Sweeps of a plant")
+    pid = st.selectbox("Plant", list(rows["ID"]), key="plecs_sweeps_plant")
+    sweeps = pa.sweeps_of(pid)
+    if not sweeps:
+        st.info("No sweep has run for this plant yet.", icon=":material/info:")
+        return
+    st.dataframe(pd.DataFrame([{"Run": s["run_id"], "Outcome": s["status"], "Completed": f"{s['n_ok']} / {s['n_total']}", "Failed": s["n_failed"],
+                                "Skipped": s["n_skipped"], "Finished (UTC)": s["completed_utc"]} for s in sweeps]), hide_index=True, width="stretch")
+    for s in sweeps:
+        if s["status"] in ("Completed",):
+            continue
+        tone = st.error if s["status"] == "Failed" else st.warning
+        tone(f"**{s['status']}: {s['run_id']}** — {s['n_ok']} of {s['n_total']} conditions completed, {s['n_failed']} failed, {s['n_skipped']} skipped. "
+             "Failed conditions are not interpolated and not included in any average.", icon=":material/error:" if s["status"] == "Failed" else ":material/warning:")
+        st.dataframe(pd.DataFrame(s["failures"]), hide_index=True, width="stretch")
+        if s["job_id"] and st.button("Open log in Experiment Runs", key=f"plecs_log_{s['run_id']}", icon=":material/receipt_long:"):
+            st.session_state["runs_selected_job"] = s["job_id"]
+            st.switch_page("pages/experiment_runs.py")
 
 
 # ----------------------------------------------------------------------------- Create Plant

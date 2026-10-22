@@ -175,3 +175,32 @@ def diagnostics_json(report: dict) -> str:
     keep = {k: report.get(k) for k in ("url", "reachable", "plecs_version", "methods", "checked", "not_checked", "error_code", "message", "latency_ms")}
     return json.dumps(keep, indent=2)
 
+
+
+STATUS_LABELS = {"completed": "Completed", "partially_completed": "Partially completed", "failed": "Failed", "cancelled": "Cancelled"}
+
+
+def sweeps_of(profile_id: str, limit: int = 20) -> list[dict]:
+    """Sweep runs of a profile, newest first, with their counts and per-condition failures (task A1:
+    a failed or partial sweep must be visible, never averaged away)."""
+    from driveflow.viz.components.failure_panel import failure_rows
+
+    store, out = RunStore(), []
+    for r in store.list_runs(500):
+        if r.kind != "plecs_sweep":
+            continue
+        try:
+            spec = store.get_experiment(r.experiment_id) if r.experiment_id else None
+        except SpadeError:
+            spec = None
+        if spec is None or spec.plant_profile_id != profile_id:
+            continue
+        n = len(r.conditions)
+        out.append({"run_id": r.run_id, "job_id": r.job_id, "status": STATUS_LABELS.get(r.status, r.status.replace("_", " ").title()),
+                    "n_total": n, "n_ok": sum(c["status"] == "ok" for c in r.conditions), "n_failed": sum(c["status"] == "failed" for c in r.conditions),
+                    "n_skipped": sum(c["status"] == "skipped" for c in r.conditions), "completed_utc": r.completed_utc,
+                    "failures": [{("Outcome" if k == "Status" else k): v for k, v in row.items()} for row in failure_rows(r.conditions)],
+                    "failure_reason": r.failure_reason})
+        if len(out) >= limit:
+            break
+    return out

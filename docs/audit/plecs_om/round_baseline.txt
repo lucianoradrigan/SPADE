@@ -1,0 +1,17 @@
+# Round PLECS/OM baseline (2026-10-22)
+$ git fetch origin && git status -sb
+## dev...origin/dev
+HEAD=2988153 origin/dev=2988153 origin/main=2988153
+$ .venv/bin/python -m pytest -q
+1159 passed, 6 xfailed, 473 warnings in 964.46s (0:16:04)
+CLAUDE.md: not present (neither SPADE-dev nor SPADE). docs/design/SPADE_GUI_Complete_Specification.md: present.
+
+# Block V of TODO_CLAUDE_CODE.md (validation against reference implementations)
+Sources checked: TODO_CLAUDE_CODE.md checkboxes, docs/audit/upstream/, tests/data/*.npz, docs/VALIDATION_SUMMARY.md §6.
+V0  done (2026-10-20)  ADF/BDF = exact ZOH of the L-C filter. sim/vsc_params.py, tests/simulation/test_vsc_params.py.
+V1  done (2026-10-20)  Parameters from CCS_MPC.slx / DPCvalidation.slx without MATLAB. docs/audit/upstream/dpc4pe_parameters.{md,json}; findings S-09..S-12.
+V2  done (2026-10-20)  Upstream CCS-MPC ported (adapted, not rebuilt) and compared with DPC v3/v4. control/mpc/vsc_ccs_mpc.py, docs/audit/stability/dpc_vs_mpc.md.
+V3  done, negative (2026-10-20)  train.py vs Main.txt: faithful port; no comparable MATLAB network recoverable. docs/audit/upstream/matlab_network_comparison.json, dpc4pe_parameters.md §V3.
+V4  done (2026-10-20)  Reference trajectories of gym-electric-motor 3.0.3: tests/data/ref_data_v4.npz (DC motor Euler and solve_ivp, 2000 steps, states + actions), bit-identical in 4 cases; finding S-13. Usable by B3: the DC-motor FMU can also be compared against these trajectories.
+V5  done (2026-10-20)  GEM 3.0.3 classical controllers vs SPADE: tests/data/ref_data_v5.npz (DC small step and start-up: t, omega, i, ref; PMSM MTPC table), docs/audit/upstream/gem_controller_comparison.md.
+V6  done (2026-10-20)  No upstream drift after GEM 3.0.3. docs/audit/upstream/gem_upstream_drift.md.

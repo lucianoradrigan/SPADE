@@ -109,3 +109,40 @@ def test_invalid_manifest_is_reported_and_nothing_is_imported(tmp_path):
     at.button(key="plecs_import").click().run()
     assert any("at least one output" in e.value for e in at.error)
     assert RunStore().list_profiles() == []
+
+
+def test_partial_sweep_is_visible_with_counts_and_causes(tmp_path):
+    """Task A1: a sweep where 2 of 9 conditions fail shows as Partially completed in My Plants and in
+    Experiment Runs, with the counts, the cause of each failure and a link to the log."""
+    from driveflow.integrations.plecs import batch
+    from driveflow.integrations.plecs import manifest as mf
+    from driveflow.jobs.service import JobService
+    from driveflow.runs.schemas import ExperimentSpec
+
+    circuit = tmp_path / "buck_demo.plecs"
+    circuit.write_text("Plecs { Name \"buck_demo\" }\n")
+    man = mf.from_dict(mf.EXAMPLE_BUCK)
+    fail = {(6.0, 2.0): "Solver did not converge at t = 1.2 ms", (18.0, 10.0): "Solver did not converge at t = 4.0 ms"}
+    with FakePlecs(fail_if=lambda mv: fail.get((mv["Vref"], mv["Rload"]))) as fake:
+        RunStore().save_profile(batch.create_profile("buck_demo", circuit, man, rpc_url=fake.url))
+        conds = batch.design_conditions(man, {"Vref": (6, 18, 3), "Rload": (2, 10, 3)}, "grid")
+        s = JobService()
+        job = s.submit(ExperimentSpec.create("plecs_sweep", plant_profile_id="buck_demo", conditions=conds, seed=0, algorithm="grid",
+                                             params={"time_span_s": 0.01, "time_limit_s": 5.0}))
+        Worker(workspace_root()).serve(once=True, poll_s=0.05)
+    at = _open()
+    text = _text(at)
+    assert "Partially completed" in text and "7 of 9 conditions completed, 2 failed" in text
+    tables = [d.value for d in at.dataframe]
+    sweeps = next(t for t in tables if "Completed" in t.columns and "Run" in t.columns)
+    assert list(sweeps["Completed"]) == ["7 / 9"] and list(sweeps["Outcome"]) == ["Partially completed"]
+    failures = next(t for t in tables if "Cause" in t.columns)
+    assert len(failures) == 2 and set(failures["Cause"]) == {"Solver error / no convergence"}
+    run_id = sweeps["Run"].iloc[0]
+    at.button(key=f"plecs_log_{run_id}").click().run()
+    assert not at.exception
+    # Experiment Runs: the same job, its failures with causes, never averaged
+    assert at.session_state["runs_selected_job"] == job.job_id
+    texts = " ".join(str(e.value) for kind in ("markdown", "caption", "info", "warning", "error", "success", "code") for e in at.get(kind))
+    assert "condition 3/9 failed" in texts or "failed" in texts
+    assert any("Cause" in getattr(d.value, "columns", []) and (d.value["Cause"] == "Solver error / no convergence").sum() == 2 for d in at.dataframe)

@@ -1,0 +1,511 @@
+{
+ "command": "python experiments/report_a1_surrogate_from_plecs.py",
+ "machine": "Linux x86_64, Python 3.12.13",
+ "runtime_s": 4.9,
+ "source": "fake PLECS server, excited-buck TEST DOUBLE (SPADE's averaged buck) -- not PLECS",
+ "sweep": {
+  "run_id": "run-20261022T132533-adacb8a7",
+  "status": "completed",
+  "n_conditions": 18,
+  "n_ok": 18,
+  "origin": "SIMULATED \u00b7 PLECS",
+  "span_s": 0.02,
+  "sample_s": 2e-05
+ },
+ "surrogate_fit": {
+  "run_id": "run-20261022T132534-f8d16052",
+  "status": "completed",
+  "origin": "SIMULATED \u00b7 SURROGATE",
+  "env_id": "SPADE/BuckExcitedSurrogate-v0",
+  "check_env_passed": true,
+  "default_family": "zoh",
+  "zoh_identified": {
+   "l_h": 0.00022,
+   "c_f": 0.00022,
+   "r_l_ohm": 0.04999999999999994
+  },
+  "validation": {
+   "mlp": {
+    "rollout_rel_rmse_i_l": 0.20918887442464895,
+    "rollout_rel_rmse_v_out": 0.13304533255808595
+   },
+   "zoh": {
+    "rollout_rel_rmse_i_l": 0.0,
+    "rollout_rel_rmse_v_out": 0.0
+   }
+  },
+  "test": {
+   "mlp": {
+    "rollout_rel_rmse_i_l": 0.35430865281543866,
+    "rollout_rel_rmse_v_out": 0.31164757550283023
+   },
+   "zoh": {
+    "rollout_rel_rmse_i_l": 0.0,
+    "rollout_rel_rmse_v_out": 0.0
+   }
+  },
+  "provenance": {
+   "plecs_profile": "buck_excited",
+   "profile_version": 1,
+   "circuit_name": "buck_excited.plecs",
+   "circuit_sha256": "f9dc1fab3bb97b90b69da53f8058cc3f1222dbaf89445f0b414127df3cc311a9",
+   "sweep_run_id": "run-20261022T132533-adacb8a7",
+   "dataset_dir": "/tmp/spade_a1_ayvohi2n/plecs/buck_excited/run-20261022T132533-adacb8a7",
+   "excitation": {
+    "kind": "prbs",
+    "action_output": "duty",
+    "params": {
+     "prbs_seed": "prbs_seed",
+     "D_min": "D_min",
+     "D_max": "D_max",
+     "T_hold": "T_hold"
+    }
+   }
+  },
+  "split": {
+   "36V_7.5ohm": "validation",
+   "36V_12ohm": "validation",
+   "24V_12ohm": "test",
+   "48V_3ohm": "test",
+   "36V_3ohm": "train",
+   "48V_12ohm": "train",
+   "48V_7.5ohm": "train",
+   "24V_3ohm": "train",
+   "24V_7.5ohm": "train"
+  }
+ },
+ "rows": [
+  {
+   "condition_index": 0,
+   "v_in_v": 24.0,
+   "load_resistance_ohm": 3.0,
+   "prbs_seed": 5.0,
+   "split": "train",
+   "family": "zoh",
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 0,
+   "v_in_v": 24.0,
+   "load_resistance_ohm": 3.0,
+   "prbs_seed": 5.0,
+   "split": "train",
+   "family": "mlp",
+   "rollout_rel_rmse_i_l": 0.27906249631195407,
+   "rollout_rel_rmse_v_out": 0.18813220195891428,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 1,
+   "v_in_v": 24.0,
+   "load_resistance_ohm": 3.0,
+   "prbs_seed": 77.0,
+   "split": "train",
+   "family": "zoh",
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 1,
+   "v_in_v": 24.0,
+   "load_resistance_ohm": 3.0,
+   "prbs_seed": 77.0,
+   "split": "train",
+   "family": "mlp",
+   "rollout_rel_rmse_i_l": 0.26411501423019795,
+   "rollout_rel_rmse_v_out": 0.17327620364105964,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 2,
+   "v_in_v": 24.0,
+   "load_resistance_ohm": 7.5,
+   "prbs_seed": 5.0,
+   "split": "train",
+   "family": "zoh",
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 2,
+   "v_in_v": 24.0,
+   "load_resistance_ohm": 7.5,
+   "prbs_seed": 5.0,
+   "split": "train",
+   "family": "mlp",
+   "rollout_rel_rmse_i_l": 0.44003726782306074,
+   "rollout_rel_rmse_v_out": 0.35642553672269045,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 3,
+   "v_in_v": 24.0,
+   "load_resistance_ohm": 7.5,
+   "prbs_seed": 77.0,
+   "split": "train",
+   "family": "zoh",
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 3,
+   "v_in_v": 24.0,
+   "load_resistance_ohm": 7.5,
+   "prbs_seed": 77.0,
+   "split": "train",
+   "family": "mlp",
+   "rollout_rel_rmse_i_l": 0.4705628948630172,
+   "rollout_rel_rmse_v_out": 0.33341837689027093,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 4,
+   "v_in_v": 24.0,
+   "load_resistance_ohm": 12.0,
+   "prbs_seed": 5.0,
+   "split": "test",
+   "family": "zoh",
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 4,
+   "v_in_v": 24.0,
+   "load_resistance_ohm": 12.0,
+   "prbs_seed": 5.0,
+   "split": "test",
+   "family": "mlp",
+   "rollout_rel_rmse_i_l": 0.4046699244833858,
+   "rollout_rel_rmse_v_out": 0.38748203953617316,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 5,
+   "v_in_v": 24.0,
+   "load_resistance_ohm": 12.0,
+   "prbs_seed": 77.0,
+   "split": "test",
+   "family": "zoh",
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 5,
+   "v_in_v": 24.0,
+   "load_resistance_ohm": 12.0,
+   "prbs_seed": 77.0,
+   "split": "test",
+   "family": "mlp",
+   "rollout_rel_rmse_i_l": 0.5388269601451288,
+   "rollout_rel_rmse_v_out": 0.4187502819638475,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 6,
+   "v_in_v": 36.0,
+   "load_resistance_ohm": 3.0,
+   "prbs_seed": 5.0,
+   "split": "train",
+   "family": "zoh",
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 6,
+   "v_in_v": 36.0,
+   "load_resistance_ohm": 3.0,
+   "prbs_seed": 5.0,
+   "split": "train",
+   "family": "mlp",
+   "rollout_rel_rmse_i_l": 0.1460404578180509,
+   "rollout_rel_rmse_v_out": 0.11509155229037922,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 7,
+   "v_in_v": 36.0,
+   "load_resistance_ohm": 3.0,
+   "prbs_seed": 77.0,
+   "split": "train",
+   "family": "zoh",
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 7,
+   "v_in_v": 36.0,
+   "load_resistance_ohm": 3.0,
+   "prbs_seed": 77.0,
+   "split": "train",
+   "family": "mlp",
+   "rollout_rel_rmse_i_l": 0.1460612689567351,
+   "rollout_rel_rmse_v_out": 0.10356241548245598,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 8,
+   "v_in_v": 36.0,
+   "load_resistance_ohm": 7.5,
+   "prbs_seed": 5.0,
+   "split": "validation",
+   "family": "zoh",
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 8,
+   "v_in_v": 36.0,
+   "load_resistance_ohm": 7.5,
+   "prbs_seed": 5.0,
+   "split": "validation",
+   "family": "mlp",
+   "rollout_rel_rmse_i_l": 0.2521104823938405,
+   "rollout_rel_rmse_v_out": 0.15898422292632608,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 9,
+   "v_in_v": 36.0,
+   "load_resistance_ohm": 7.5,
+   "prbs_seed": 77.0,
+   "split": "validation",
+   "family": "zoh",
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 9,
+   "v_in_v": 36.0,
+   "load_resistance_ohm": 7.5,
+   "prbs_seed": 77.0,
+   "split": "validation",
+   "family": "mlp",
+   "rollout_rel_rmse_i_l": 0.21186028304803847,
+   "rollout_rel_rmse_v_out": 0.1204231024949526,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 10,
+   "v_in_v": 36.0,
+   "load_resistance_ohm": 12.0,
+   "prbs_seed": 5.0,
+   "split": "validation",
+   "family": "zoh",
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 10,
+   "v_in_v": 36.0,
+   "load_resistance_ohm": 12.0,
+   "prbs_seed": 5.0,
+   "split": "validation",
+   "family": "mlp",
+   "rollout_rel_rmse_i_l": 0.161945730466363,
+   "rollout_rel_rmse_v_out": 0.12852696391785315,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 11,
+   "v_in_v": 36.0,
+   "load_resistance_ohm": 12.0,
+   "prbs_seed": 77.0,
+   "split": "validation",
+   "family": "zoh",
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 11,
+   "v_in_v": 36.0,
+   "load_resistance_ohm": 12.0,
+   "prbs_seed": 77.0,
+   "split": "validation",
+   "family": "mlp",
+   "rollout_rel_rmse_i_l": 0.2065174658012594,
+   "rollout_rel_rmse_v_out": 0.13756370119831876,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 12,
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 3.0,
+   "prbs_seed": 5.0,
+   "split": "test",
+   "family": "zoh",
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 12,
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 3.0,
+   "prbs_seed": 5.0,
+   "split": "test",
+   "family": "mlp",
+   "rollout_rel_rmse_i_l": 0.30394738114749154,
+   "rollout_rel_rmse_v_out": 0.23581311146948727,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 13,
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 3.0,
+   "prbs_seed": 77.0,
+   "split": "test",
+   "family": "zoh",
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 13,
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 3.0,
+   "prbs_seed": 77.0,
+   "split": "test",
+   "family": "mlp",
+   "rollout_rel_rmse_i_l": 0.26291571613825815,
+   "rollout_rel_rmse_v_out": 0.190128380331706,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 14,
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 7.5,
+   "prbs_seed": 5.0,
+   "split": "train",
+   "family": "zoh",
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 14,
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 7.5,
+   "prbs_seed": 5.0,
+   "split": "train",
+   "family": "mlp",
+   "rollout_rel_rmse_i_l": 0.1727538320643465,
+   "rollout_rel_rmse_v_out": 0.12272026353048082,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 15,
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 7.5,
+   "prbs_seed": 77.0,
+   "split": "train",
+   "family": "zoh",
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 15,
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 7.5,
+   "prbs_seed": 77.0,
+   "split": "train",
+   "family": "mlp",
+   "rollout_rel_rmse_i_l": 0.21309158407030693,
+   "rollout_rel_rmse_v_out": 0.1372233555213216,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 16,
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 12.0,
+   "prbs_seed": 5.0,
+   "split": "train",
+   "family": "zoh",
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 16,
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 12.0,
+   "prbs_seed": 5.0,
+   "split": "train",
+   "family": "mlp",
+   "rollout_rel_rmse_i_l": 0.5576761690056558,
+   "rollout_rel_rmse_v_out": 0.3558484557097468,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 17,
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 12.0,
+   "prbs_seed": 77.0,
+   "split": "train",
+   "family": "zoh",
+   "rollout_rel_rmse_i_l": 0.0,
+   "rollout_rel_rmse_v_out": 0.0,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  },
+  {
+   "condition_index": 17,
+   "v_in_v": 48.0,
+   "load_resistance_ohm": 12.0,
+   "prbs_seed": 77.0,
+   "split": "train",
+   "family": "mlp",
+   "rollout_rel_rmse_i_l": 0.2622729756211038,
+   "rollout_rel_rmse_v_out": 0.15549546410620566,
+   "rollout_finite": true,
+   "action_consistency_max_abs": 0.0
+  }
+ ]
+}

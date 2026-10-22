@@ -24,8 +24,19 @@ def failure_view(conditions, loading: bool = False, error: str | None = None) ->
                          "Divergence, solver errors and invalid conditions are listed below; nothing was imputed.")
 
 
+#: error-code prefix (driveflow.integrations.plecs.rpc_client.RpcErrorCode) -> readable cause
+_CAUSES = (("[timeout]", "Timeout"), ("[simulation_failed]", "Solver error / no convergence"), ("[connection_lost]", "Connection lost"),
+           ("[unreachable]", "Connection lost"), ("[busy]", "Engine busy"), ("[bad_result]", "Result does not match the manifest"),
+           ("[model_not_found]", "Model not loaded"), ("Cancelled", "Cancelled"), ("stale", "Circuit changed (stale profile)"))
+
+
+def failure_cause(error: str | None) -> str:
+    e = error or ""
+    return next((cause for key, cause in _CAUSES if key in e), "Other" if e else "—")
+
+
 def failure_rows(conditions) -> list[dict]:
-    return [{"#": c.get("index"), "Status": c["status"].upper(), "Condition": str(c.get("condition")), "Error": c.get("error") or ""}
+    return [{"#": c.get("index"), "Status": c["status"].upper(), "Cause": failure_cause(c.get("error")), "Condition": str(c.get("condition")), "Error": c.get("error") or ""}
             for c in conditions if c["status"] != "ok"]
 
 

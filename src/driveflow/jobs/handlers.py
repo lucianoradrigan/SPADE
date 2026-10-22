@@ -24,6 +24,9 @@ Kinds:
   SPADE environment with the reward terms of the spec, saves a checkpoint and an evaluation-episode
   playback at every evaluation, then benchmarks the final policy against the plant's classical
   controllers on the same condition grid. One condition per training episode.
+- ``surrogate_fit`` (task A1, route a): fits the E5 surrogate families to a completed PLECS sweep
+  dataset whose manifest declares an action excitation, publishes SPADE/<Profile>Surrogate-v0 and
+  runs its contract check (envs.registry.verify). Origin SIMULATED · SURROGATE.
 - ``classifier_training`` (AI Diagnostics → Train a model): simulates the request's condition grid
   (driveflow.ai.custom_training, one condition per run, ``params.workers`` processes) and trains a
   classifier on it. The model is written to configs/classifiers/custom/<name>/<date>_runNN/ as a
@@ -460,6 +463,51 @@ def rl_training(ctx: JobContext) -> HandlerResult:
     return HandlerResult(conditions=conditions, metrics=metrics)
 
 
+# --------------------------------------------------------------------------- surrogate_fit
+def _validate_surrogate_fit(spec: ExperimentSpec) -> None:
+    from driveflow.integrations.plecs import batch
+
+    p = spec.params
+    if not p.get("profile_id") or not p.get("sweep_run_id"):
+        raise SpadeError(ErrorCode.INVALID_SPEC, "surrogate_fit needs profile_id and sweep_run_id (a completed plecs_sweep run)")
+    d = batch.data_root() / p["profile_id"] / p["sweep_run_id"]
+    if not (d / "manifest.json").exists():
+        raise SpadeError(ErrorCode.INVALID_SPEC, f"no sweep dataset at {d}")
+    if spec.seed is None:
+        raise SpadeError(ErrorCode.INVALID_SPEC, "surrogate_fit needs a seed")
+
+
+def surrogate_fit(ctx: JobContext) -> HandlerResult:
+    import json
+
+    from driveflow.envs import registry, surrogate_plecs
+    from driveflow.integrations.plecs import batch
+
+    p = ctx.spec.params
+    d = batch.data_root() / p["profile_id"] / p["sweep_run_id"]
+    ctx.progress(0, 3, "fitting the surrogate families")
+    try:
+        out, sur = surrogate_plecs.fit(d, seed=int(ctx.spec.seed), epochs=int(p.get("epochs", 30)))
+    except (surrogate_plecs.SurrogateSourceError, FileNotFoundError, KeyError) as exc:
+        ctx.log(f"cannot fit: {exc}")
+        return HandlerResult(conditions=[{"index": 0, "condition": {"step": "fit"}, "status": "failed", "error": str(exc)}], metrics={}, origin=surrogate_plecs.ORIGIN)
+    conditions = [{"index": i, "condition": {k: r[k] for k in ("condition_index", "v_in_v", "load_resistance_ohm", "prbs_seed", "split", "family")}, "status": "ok" if r["rollout_finite"] else "failed",
+                   "metrics": {"rollout_rel_rmse_i_l": r["rollout_rel_rmse_i_l"], "rollout_rel_rmse_v_out": r["rollout_rel_rmse_v_out"]},
+                   **({} if r["rollout_finite"] else {"error": "surrogate rollout diverged (non-finite)"})} for i, r in enumerate(sur["rows"])]
+    ctx.write_artifact("surrogate.json", (out / "surrogate.json").read_bytes())
+    ctx.progress(1, 3, "publishing the environment")
+    env_id = surrogate_plecs.publish(p["profile_id"], out)
+    ctx.progress(2, 3, "contract check")
+    cap = registry.verify(env_id)
+    ctx.write_artifact("environment_check.json", json.dumps(cap.to_dict() if hasattr(cap, "to_dict") else cap.__dict__, default=str, indent=2).encode())
+    ctx.log(f"{env_id}: interactive={cap.can_step_interactively}; {'; '.join(cap.diagnostic_messages[:2])}")
+    ctx.progress(3, 3, "finished")
+    metrics = {"env_id": env_id, "surrogate_dir": str(out), "default_family": sur["default_family"], "check_env_passed": bool(cap.can_step_interactively),
+               "validation": {f: sur["families"][f]["validation"] for f in sur["families"]}, "test": {f: sur["families"][f]["test"] for f in sur["families"]},
+               "provenance": sur["provenance"]}
+    return HandlerResult(conditions=conditions, metrics=metrics, origin=surrogate_plecs.ORIGIN)
+
+
 # --------------------------------------------------------------------------- classifier_training
 def _validate_classifier_training(spec: ExperimentSpec) -> None:
     from driveflow.ai import custom_training as ct
@@ -546,6 +594,7 @@ HANDLERS = {
     "plecs_sweep": HandlerInfo(plecs_sweep, _validate_plecs_sweep, "PLECS RPC sweep (dataset)", engine="plecs_rpc"),
     "controller_tuning": HandlerInfo(controller_tuning, _validate_tuning, "Controller tuning (PSO / BO / NSGA-II)"),
     "rl_training": HandlerInfo(rl_training, _validate_rl, "RL training + benchmark (DQN / DDPG)"),
+    "surrogate_fit": HandlerInfo(surrogate_fit, _validate_surrogate_fit, "Surrogate fit from a PLECS sweep (route a)"),
     "classifier_training": HandlerInfo(classifier_training, _validate_classifier_training, "Classifier training (custom simulated grid)"),
     "selftest.steps": HandlerInfo(selftest_steps, _validate_selftest, "Worker self-test (no physics)", engine="selftest"),
 }

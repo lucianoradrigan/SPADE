@@ -245,7 +245,10 @@ class BuckSurrogateEnv(BuckEnv):
         if self.family not in FAMILIES:
             raise ValueError(f"family must be one of {FAMILIES}, got {self.family!r}")
         self.metadata = {**self.metadata, "surrogate_family": self.family, "surrogate_run": self.surrogate_dir.name,
-                         "validity_domain": self.surrogate["domain"], "fit_error": self.surrogate["families"][self.family]["validation"]}
+                         "validity_domain": self.surrogate["domain"], "fit_error": self.surrogate["families"][self.family]["validation"],
+                         "surrogate_source": self.surrogate.get("source", "native:buck_v1"), "surrogate_provenance": self.surrogate.get("provenance")}
+        if self.surrogate.get("provenance"):
+            self.metadata["plant_profile_id"] = f"surrogate:{self.surrogate['source']}"
 
     def reset(self, *, seed: int | None = None, options: dict | None = None):
         _obs, info = super().reset(seed=seed, options=options)

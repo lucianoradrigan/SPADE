@@ -41,7 +41,9 @@ def surrogate_text(c: dict) -> str:
     if not s:
         return "—"
     e = s["fit_error"]
-    return (f"{s['family']}: open-loop v_out {e['rollout_rel_rmse_v_out']:.1%} rel. RMSE, closed-loop v_out {e['closed_loop_rmse_v_out_v']:.3f} V RMSE (median over validation conditions); "
+    cl = e.get("closed_loop_rmse_v_out_v")
+    closed = f", closed-loop v_out {cl:.3f} V RMSE" if cl is not None else ", closed loop not compared (no closed-loop reference for this source)"
+    return (f"{s['family']}: open-loop v_out {e['rollout_rel_rmse_v_out']:.1%} rel. RMSE{closed} (median over validation conditions); "
             f"valid for V_in {s['validity_domain']['v_in_v']} V, R {s['validity_domain']['load_resistance_ohm']} Ω")
 
 
