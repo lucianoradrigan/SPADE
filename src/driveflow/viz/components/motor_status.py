@@ -29,6 +29,7 @@ import streamlit as st
 from driveflow.monitoring.motor_status import MotorViewModel
 from driveflow.viz.components.page_header import source_badge_html, status_badge_html
 from driveflow.viz.theme.tokens import DARK, STATUS_META
+from driveflow.viz.theme.tokens import tone as tone_color
 
 ASSET = Path(__file__).resolve().parents[1] / "assets" / "motor_base.webp"
 #: End-bell centre in the base image, as fractions of its width/height (measured on the asset).
@@ -76,7 +77,7 @@ def rotation_period_s(rpm: float | None) -> float | None:
 
 def motor_status_html(view: MotorViewModel, compact: bool = False) -> str:
     label, glyph, tone_key = STATUS_META[view.status]
-    tone = DARK[tone_key]
+    tone = tone_color(tone_key)
     period = rotation_period_s(view.rpm) if view.animate else None
     play = "running" if period else "paused"
     rpm_txt = "—" if view.rpm is None else f"{view.rpm:,.0f} rpm"

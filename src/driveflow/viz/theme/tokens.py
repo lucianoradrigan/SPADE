@@ -107,6 +107,8 @@ SOURCE_META = {
     "SIMULATED · SURROGATE": ("SIMULATED · SURROGATE", "training"),
     "EXTERNAL FILE": ("EXTERNAL FILE", "warning"),
     "MEASURED · EXTERNAL DATASET": ("MEASURED · EXTERNAL DATASET", "primary"),
+    # Round PLECS/OM, decision D5: data and environments produced by OpenModelica FMUs.
+    "SIMULATED · OPENMODELICA": ("SIMULATED · OPENMODELICA", "primary"),
 }
 
 
@@ -114,3 +116,20 @@ def palette(theme_type: str | None = None) -> dict:
     """Token set for the active theme. `theme_type` is st.context.theme.type when available; it
     is None outside a browser session (tests), where the default dark set is returned."""
     return LIGHT if theme_type == "light" else DARK
+
+
+def active_palette() -> dict:
+    """The palette of the theme the browser session is using (st.context.theme.type), DARK when it is
+    unknown (tests, first render). Status and provenance tones must come from here, not from DARK:
+    the dark tones on a light surface fall below 3:1 (docs/audit/expansion/x2_contrast.md)."""
+    try:
+        import streamlit as st
+
+        return palette(getattr(st.context.theme, "type", None))
+    except Exception:
+        return DARK
+
+
+def tone(name: str) -> str:
+    """Colour of a semantic tone in the active theme; a literal colour passes through."""
+    return active_palette().get(name, name)

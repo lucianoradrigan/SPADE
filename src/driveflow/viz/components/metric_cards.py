@@ -5,6 +5,7 @@ from html import escape
 import streamlit as st
 
 from driveflow.viz.theme.tokens import DARK, STATUS_META
+from driveflow.viz.theme.tokens import tone as tone_color
 
 
 def kpi_row(items: list) -> None:
@@ -12,7 +13,7 @@ def kpi_row(items: list) -> None:
     caller decides precision and "—" for unavailable data (never a fabricated number)."""
     cols = st.columns(len(items), gap="small")
     for col, item in zip(cols, items):
-        tone = DARK.get(item.get("tone", "primary"), item.get("tone", DARK["primary"]))
+        tone = tone_color(item.get("tone", "primary"))
         unit = f'<span class="spade-kpi-unit">{escape(item["unit"])}</span>' if item.get("unit") else ""
         sub = f'<div class="spade-kpi-sub">{escape(item["sub"])}</div>' if item.get("sub") else ""
         with col:
@@ -28,8 +29,8 @@ def check_list(items: list) -> None:
     for name, status, detail in items:
         label, glyph, tone = STATUS_META.get(str(status).lower(), (str(status).upper(), "?", "unknown"))
         rows.append(
-            f'<div class="spade-check" style="--tone:{DARK[tone]}"><span class="spade-check-glyph" aria-hidden="true">{escape(glyph)}</span>'
+            f'<div class="spade-check" style="--tone:{tone_color(tone)}"><span class="spade-check-glyph" aria-hidden="true">{escape(glyph)}</span>'
             f'<div><div class="spade-check-name">{escape(name)}</div><div class="spade-check-detail">{escape(detail or "")}</div></div>'
-            f'<span class="spade-badge" style="--tone:{DARK[tone]}">{escape(label)}</span></div>'
+            f'<span class="spade-badge" style="--tone:{tone_color(tone)}">{escape(label)}</span></div>'
         )
     st.html(f'<div class="spade-root spade-checks">{"".join(rows)}</div>')

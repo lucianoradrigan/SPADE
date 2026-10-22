@@ -12,7 +12,7 @@ Rules:
 
 import streamlit as st
 
-from driveflow.viz.theme.tokens import DARK
+from driveflow.viz.theme.tokens import DARK, active_palette
 
 _CSS = """
 <style>
@@ -69,4 +69,4 @@ _CSS = """
 
 def inject_base_css() -> None:
     """Called once per script run by the app shell (driveflow.viz.app)."""
-    st.html(_CSS % DARK)
+    st.html(_CSS % active_palette())

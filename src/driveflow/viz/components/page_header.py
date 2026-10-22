@@ -8,10 +8,11 @@ from html import escape
 import streamlit as st
 
 from driveflow.viz.theme.tokens import DARK, SOURCE_META, STATUS_META
+from driveflow.viz.theme.tokens import tone as tone_color
 
 
 def badge_html(label: str, tone: str = "unknown", glyph: str | None = None, title: str | None = None) -> str:
-    color = DARK.get(tone, tone)
+    color = tone_color(tone)
     g = f'<span class="spade-glyph" aria-hidden="true">{escape(glyph)}</span>' if glyph else ""
     t = f' title="{escape(title)}"' if title else ""
     return f'<span class="spade-badge" style="--tone:{color}"{t}>{g}{escape(label)}</span>'
