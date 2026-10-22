@@ -1,0 +1,33 @@
+{
+  "command": "python experiments/report_a2_researcher_kit.py",
+  "machine": "Linux x86_64, Python 3.12.13",
+  "source": "fake PLECS server (test double) -- PLECS real: no ejecutado: requiere la m\u00e1quina del investigador",
+  "rows": [
+    {
+      "circuit": "Buck",
+      "template": "buck_example.yaml",
+      "status": "completed",
+      "sweep_ok": "18/18",
+      "surrogate": "SPADE/KitMyBuckSurrogate-v0",
+      "check_env": true,
+      "compare_rows": 16,
+      "members": 25,
+      "ingest_exit_code": 0,
+      "plecs_version_reported": "not reported by the RPC interface",
+      "zip_bytes": 469838
+    },
+    {
+      "circuit": "DAB",
+      "template": "dab_example.yaml",
+      "status": "completed",
+      "sweep_ok": "9/9",
+      "surrogate": "the template does not ask for a surrogate (dataset only)",
+      "check_env": null,
+      "compare_rows": 0,
+      "members": 15,
+      "ingest_exit_code": 0,
+      "plecs_version_reported": "not reported by the RPC interface",
+      "zip_bytes": 384927
+    }
+  ]
+}

@@ -52,7 +52,7 @@ with native navigation; the five original macro-phases map onto its sections:
 | Simulation · **PMSM / FOC** | A | FOC/MTPA control-law demo -- explicitly *no diagnosis* |
 | Simulation · **VSC / DPC** | B | Trained DPC network tracking, complex plane, dataset-upload evaluator |
 | Simulation · **DC-DC Converters** | -- | Averaged synchronous buck under a PI cascade; DAB modulation selector (its simulation needs PLECS) |
-| Simulation · **PLECS Plant Studio** | -- | Datasets from PLECS Standalone RPC sweeps (needs a local PLECS licence); comparison with SPADE's native buck |
+| Simulation · **PLECS Plant Studio** | -- | Datasets from PLECS Standalone RPC sweeps (needs a local PLECS licence), surrogate plants fitted to them, comparison with SPADE's native buck. Researchers with PLECS: [PLECS researcher kit](docs/guides/PLECS_RESEARCHER_KIT.md) |
 | Design & Control · **Tuning Studio** | -- | PSO / Bayesian / NSGA-II tuning of the DC-motor PI speed loop on a tuning grid, compared with the baseline on a separate evaluation grid. Results are candidates |
 | Design & Control · **RL Lab** | -- | DQN / DDPG on SPADE's environments, benchmarked against the classical controllers on the same grid. Policies are candidates |
 | Intelligence · **AI Diagnostics** | IA | **Evaluate a model**: the promoted classifier, or any other classifier on this machine, on a sample run (same options as the simulation pages) or an uploaded file. **Train a model**: a classifier over several fault classes and a custom simulated grid -- see below |

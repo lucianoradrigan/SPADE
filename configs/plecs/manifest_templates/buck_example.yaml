@@ -1,0 +1,39 @@
+# EXAMPLE CONFIGURATION — NOT EXECUTED
+# Template for the PLECS researcher kit (docs/guides/PLECS_RESEARCHER_KIT.md). Edit it to match YOUR
+# circuit: SPADE does not read the blocks of a .plecs file, so every name, unit and range below is a
+# declaration that the kit checks against what PLECS returns.
+#
+# Circuit expected: an averaged or switched synchronous buck run OPEN LOOP, whose duty follows the
+# PRBS7 excitation of driveflow/integrations/plecs/excitation.py (C-Script in the guide), with three
+# top-level outports in this order: v_out, i_L, duty (the duty actually applied).
+
+manifest:
+  model_vars:
+    - {name: Vin, unit: V, default: 48.0, minimum: 12.0, maximum: 100.0, description: input voltage}
+    - {name: Rload, unit: Ohm, default: 6.0, minimum: 1.0, maximum: 50.0, description: load resistance}
+    - {name: prbs_seed, unit: "-", default: 5.0, minimum: 1.0, maximum: 127.0, description: PRBS7 seed of the duty excitation}
+    - {name: D_min, unit: "-", default: 0.1, minimum: 0.0, maximum: 1.0, description: duty for a 0 bit}
+    - {name: D_max, unit: "-", default: 0.8, minimum: 0.0, maximum: 1.0, description: duty for a 1 bit}
+    - {name: T_hold, unit: s, default: 0.001, minimum: 0.0001, maximum: 0.1, description: hold time of each PRBS bit}
+  outputs:
+    - {name: v_out, unit: V, description: outport 1}
+    - {name: i_L, unit: A, description: outport 2}
+    - {name: duty, unit: "-", description: "outport 3: the duty actually applied"}
+  excitation:
+    kind: prbs
+    action_output: duty
+    params: {prbs_seed: prbs_seed, D_min: D_min, D_max: D_max, T_hold: T_hold}
+  surrogate:
+    template: buck
+    states: {i_l: i_L, v_out: v_out}
+    conditions: {v_in_v: Vin, load_resistance_ohm: Rload}
+
+# The kit's declared sweep: 3 x 3 operating points x 2 excitation seeds = 18 runs.
+kit:
+  sweep: {Vin: [24.0, 48.0, 3], Rload: [3.0, 12.0, 3], prbs_seed: [5.0, 77.0, 2]}
+  fixed: {D_min: 0.1, D_max: 0.8, T_hold: 0.001}
+  derived: {}
+  time_span_s: 0.02
+  sample_s: 0.00002     # one sample per surrogate control step (20 us); do not change
+  time_limit_s: 120.0
+  fit_surrogate: true

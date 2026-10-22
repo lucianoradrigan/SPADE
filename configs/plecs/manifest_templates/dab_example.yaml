@@ -1,0 +1,28 @@
+# EXAMPLE CONFIGURATION — NOT EXECUTED
+# Optional second circuit of the PLECS researcher kit: the dual active bridge of Xinze Li's
+# Fundamentals_of_AI_for_PE (8_PE_Simulation_Automation/PlecsAutomation/DAB_sample1.plecs).
+# That file is CC BY-NC 4.0 and is NOT distributed with SPADE: use your own downloaded copy.
+# It has no top-level outports: add two (v_out, i_Lr, in this order) before running the kit.
+# The notebook's ModelVars are Vin, Vref, P, D1, D2 and Ro = Vref^2 / P (derived below).
+# Its dataset completes task E9 (DAB modulation model); training that model is a separate round.
+
+manifest:
+  model_vars:
+    - {name: Vin, unit: V, default: 200.0, minimum: 100.0, maximum: 300.0, description: input voltage}
+    - {name: Vref, unit: V, default: 200.0, minimum: 100.0, maximum: 300.0, description: output voltage reference}
+    - {name: P, unit: W, default: 600.0, minimum: 100.0, maximum: 1200.0, description: power reference}
+    - {name: D1, unit: "-", default: 1.0, minimum: 0.0, maximum: 1.0, description: inner phase-shift ratio, primary bridge (TPS)}
+    - {name: D2, unit: "-", default: 1.0, minimum: 0.0, maximum: 1.0, description: inner phase-shift ratio, secondary bridge (TPS)}
+    - {name: Ro, unit: Ohm, default: 66.67, minimum: 5.0, maximum: 1000.0, description: "load resistance = Vref^2 / P"}
+  outputs:
+    - {name: v_out, unit: V, description: "outport 1 (add it in PLECS)"}
+    - {name: i_Lr, unit: A, description: "outport 2: leakage-inductor current (add it in PLECS)"}
+
+kit:
+  sweep: {D1: [0.4, 1.0, 3], D2: [0.4, 1.0, 3]}
+  fixed: {Vin: 200.0, Vref: 200.0, P: 600.0}
+  derived: {Ro: "Vref**2 / P"}
+  time_span_s: 0.02
+  sample_s: 0.00001
+  time_limit_s: 300.0
+  fit_surrogate: false   # no Gym surrogate template for the DAB: the kit returns the dataset only
