@@ -1,0 +1,2 @@
+$ PYTHONPATH=src .venv/bin/python -m pytest -q
+1177 passed, 6 xfailed, 481 warnings in 990.67s (0:16:30)

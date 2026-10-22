@@ -1,0 +1,715 @@
+{
+ "command": "python experiments/report_x1_eval_independence.py",
+ "rows": [
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "extrapolated_speed_250_rad_s",
+   "class": "ball",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "extrapolated_speed_250_rad_s",
+   "class": "cage",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "extrapolated_speed_250_rad_s",
+   "class": "inner_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "extrapolated_speed_250_rad_s",
+   "class": "normal",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "extrapolated_speed_250_rad_s",
+   "class": "outer_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "noise_100pct",
+   "class": "ball",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 4,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "noise_100pct",
+   "class": "cage",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 4,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "noise_100pct",
+   "class": "inner_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 4,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "noise_100pct",
+   "class": "normal",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 4,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "noise_100pct",
+   "class": "outer_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 4,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "noise_20pct",
+   "class": "ball",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 4,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "noise_20pct",
+   "class": "cage",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 4,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "noise_20pct",
+   "class": "inner_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 4,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "noise_20pct",
+   "class": "normal",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 4,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "noise_20pct",
+   "class": "outer_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 4,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "nominal_steady_state",
+   "class": "ball",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "nominal_steady_state",
+   "class": "cage",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "nominal_steady_state",
+   "class": "inner_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "nominal_steady_state",
+   "class": "normal",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "nominal_steady_state",
+   "class": "outer_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "ood_unseen_fault_type",
+   "class": "ball",
+   "seeds": 4,
+   "windows_in_report_all_classes": null,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "ood_unseen_fault_type",
+   "class": "cage",
+   "seeds": 4,
+   "windows_in_report_all_classes": null,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "plant_drift_psi-10pct_J+50pct",
+   "class": "ball",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "plant_drift_psi-10pct_J+50pct",
+   "class": "cage",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "plant_drift_psi-10pct_J+50pct",
+   "class": "inner_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "plant_drift_psi-10pct_J+50pct",
+   "class": "normal",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "plant_drift_psi-10pct_J+50pct",
+   "class": "outer_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "severity_x0.5",
+   "class": "ball",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "severity_x0.5",
+   "class": "cage",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "severity_x0.5",
+   "class": "inner_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "severity_x0.5",
+   "class": "normal",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "severity_x0.5",
+   "class": "outer_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "severity_x2",
+   "class": "ball",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "severity_x2",
+   "class": "cage",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "severity_x2",
+   "class": "inner_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "severity_x2",
+   "class": "normal",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "severity_x2",
+   "class": "outer_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "speed_100_rad_s",
+   "class": "ball",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "speed_100_rad_s",
+   "class": "cage",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "speed_100_rad_s",
+   "class": "inner_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "speed_100_rad_s",
+   "class": "normal",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "speed_100_rad_s",
+   "class": "outer_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "speed_200_rad_s",
+   "class": "ball",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "speed_200_rad_s",
+   "class": "cage",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "speed_200_rad_s",
+   "class": "inner_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "speed_200_rad_s",
+   "class": "normal",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "speed_200_rad_s",
+   "class": "outer_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "unseen_severity_x0.6",
+   "class": "ball",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "unseen_severity_x0.6",
+   "class": "cage",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "unseen_severity_x0.6",
+   "class": "inner_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "unseen_severity_x0.6",
+   "class": "normal",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "unseen_severity_x0.6",
+   "class": "outer_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "unseen_speed_115_rad_s",
+   "class": "ball",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "unseen_speed_115_rad_s",
+   "class": "cage",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "unseen_speed_115_rad_s",
+   "class": "inner_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "unseen_speed_115_rad_s",
+   "class": "normal",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "unseen_speed_115_rad_s",
+   "class": "outer_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "unseen_speed_190_rad_s",
+   "class": "ball",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "unseen_speed_190_rad_s",
+   "class": "cage",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "unseen_speed_190_rad_s",
+   "class": "inner_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "unseen_speed_190_rad_s",
+   "class": "normal",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "classifier_evaluation_5class_w2048 (eval_cache_5class.parquet)",
+   "condition": "unseen_speed_190_rad_s",
+   "class": "outer_race",
+   "seeds": 4,
+   "windows_in_report_all_classes": 80,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "AI-N14 benign shifts (ood_eval_cache_custom.parquet)",
+   "condition": "benign_noise_150pct",
+   "class": "inner_race",
+   "seeds": 2,
+   "windows_in_report_all_classes": null,
+   "distinct_current_r": 2,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "AI-N14 benign shifts (ood_eval_cache_custom.parquet)",
+   "condition": "benign_noise_150pct",
+   "class": "normal",
+   "seeds": 2,
+   "windows_in_report_all_classes": null,
+   "distinct_current_r": 2,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "AI-N14 benign shifts (ood_eval_cache_custom.parquet)",
+   "condition": "benign_noise_150pct",
+   "class": "outer_race",
+   "seeds": 2,
+   "windows_in_report_all_classes": null,
+   "distinct_current_r": 2,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "AI-N14 benign shifts (ood_eval_cache_custom.parquet)",
+   "condition": "benign_speed_300_rad_s",
+   "class": "inner_race",
+   "seeds": 2,
+   "windows_in_report_all_classes": null,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "AI-N14 benign shifts (ood_eval_cache_custom.parquet)",
+   "condition": "benign_speed_300_rad_s",
+   "class": "normal",
+   "seeds": 2,
+   "windows_in_report_all_classes": null,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "AI-N14 benign shifts (ood_eval_cache_custom.parquet)",
+   "condition": "benign_speed_300_rad_s",
+   "class": "outer_race",
+   "seeds": 2,
+   "windows_in_report_all_classes": null,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "AI-N14 benign shifts (ood_eval_cache_custom.parquet)",
+   "condition": "benign_speed_50_rad_s",
+   "class": "inner_race",
+   "seeds": 2,
+   "windows_in_report_all_classes": null,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "AI-N14 benign shifts (ood_eval_cache_custom.parquet)",
+   "condition": "benign_speed_50_rad_s",
+   "class": "normal",
+   "seeds": 2,
+   "windows_in_report_all_classes": null,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  },
+  {
+   "cache": "AI-N14 benign shifts (ood_eval_cache_custom.parquet)",
+   "condition": "benign_speed_50_rad_s",
+   "class": "outer_race",
+   "seeds": 2,
+   "windows_in_report_all_classes": null,
+   "distinct_current_r": 1,
+   "distinct_rpm": 1,
+   "distinct_torque_nm": 1
+  }
+ ]
+}

@@ -1,5 +1,7 @@
 ### `configs/classifiers/pc_server_5class_w2048/2026-10-20_run01`
 
+> **Caveat X1 (added 2026-10-22, nothing re-measured).** Every condition below has 4 seeds per class. The scenario seed changes only the vibration channels and the sensor-noise realisation; the simulated current, rpm and torque are identical across the seeds of a condition and class. Each condition therefore rests on ONE current/rpm/torque trajectory per class, and its 1.000 is not 80 independent samples. Counts: [`x1_eval_independence.md`](x1_eval_independence.md).
+
 Recorded at training time: test accuracy 0.903, macro-F1 0.903 (n_test = 600 windows).
 
 Preprocessing: rpm level kept ({'rpm': [1432.4, 477.5]}). Calibration: temperature T = 0.754, abstain below 0.525 (fitted on validation). Metrics below use calibrated probabilities.

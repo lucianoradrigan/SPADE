@@ -1,5 +1,7 @@
 # OOD detector for the dc_motor PC classifier (A2)
 
+> **Caveat X1 (added 2026-10-22).** The benign-shift conditions (50 rad/s, 300 rad/s, 150 % noise) have 2 seeds per class; the seed does not change the simulated current, rpm or torque. Counts: [`../x1_eval_independence.md`](../x1_eval_independence.md).
+
 Unknown-fault set: custom_orders (unknown_1p3x, unknown_6p5x).
 
 Mahalanobis features: dense1 (head input).
