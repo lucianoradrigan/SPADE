@@ -1,0 +1,8 @@
+# Round 2026-10-22 baseline
+$ git fetch origin && git status -sb
+## dev...origin/dev
+HEAD=bca4396 origin/dev=bca4396 origin/main=bca4396
+CLAUDE.md: not present in SPADE-dev (nor in SPADE); nothing to read.
+$ .venv/bin/python -m pytest -q
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1131 passed, 5 xfailed, 449 warnings in 996.07s (0:16:36)

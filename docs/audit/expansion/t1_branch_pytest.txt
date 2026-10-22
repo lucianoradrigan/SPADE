@@ -1,3 +1,2 @@
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-1007 passed, 2 xfailed, 256 warnings in 674.16s (0:11:14)
+$ PYTHONPATH=src .venv/bin/python -m pytest -q
+1133 passed, 5 xfailed, 457 warnings in 1018.72s (0:16:58)

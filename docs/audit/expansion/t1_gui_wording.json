@@ -1,0 +1,32 @@
+{
+  "task": "T1",
+  "command": "pytest tests/test_gui_wording.py",
+  "changed": [
+    {
+      "file": "src/driveflow/viz/components/motor_status.py",
+      "before": "no valid positive speed from a live source",
+      "after": "no valid positive speed from a simulation run or monitoring pass"
+    },
+    {
+      "file": "src/driveflow/viz/views/system_diagram.py",
+      "before": "doesn't mean it's live.",
+      "after": "doesn't mean it is the one in use."
+    }
+  ],
+  "exceptions": [
+    [
+      "components/state_panel.py",
+      "aria-live"
+    ],
+    [
+      "views/documentation.py",
+      "CONNECTED / LIVE"
+    ]
+  ],
+  "production_ready_visible": 0,
+  "hardware_verified_visible": [
+    "views/model_registry.py KPI (count 0, requires deployment evidence)",
+    "views/documentation.py statement"
+  ],
+  "pre_fix_detected": 2
+}

@@ -10,7 +10,7 @@ Design decisions (guide Sec. 1.2 / 4.2):
   slightly different geometry and a status colour baked in; swapping them would make the motor
   "jump" and would bake meaning into pixels. State is an overlay: a status ring on the end bell, a
   soft halo, a text badge and a glyph.
-- The rotation cue spins only when rpm > 0 from a live (non-offline) source, at a deliberately
+- The rotation cue spins only when rpm > 0 from an available (non-offline) source, at a deliberately
   SLOWED rate that still scales with speed; the real rpm is printed as text next to it.
 - Warning/critical halo pulses slowly (< 0.5 Hz, no flashing); healthy is steady; unknown/offline
   are desaturated and still. `prefers-reduced-motion: reduce` disables all motion.
@@ -95,7 +95,7 @@ def motor_status_html(view: MotorViewModel, compact: bool = False) -> str:
         real_turns_per_s = view.rpm / 60.0
         note = f"Illustrative render, not a measurement. Rotation cue slowed ~{real_turns_per_s * period:.0f}× relative to the real shaft speed."
     else:
-        note = "Illustrative render, not a measurement. Rotation cue stopped (no valid positive speed from a live source)."
+        note = "Illustrative render, not a measurement. Rotation cue stopped (no valid positive speed from a simulation run or monitoring pass)."
     return (
         f'{_CSS}<div class="spade-root spade-motor{" is-compact" if compact else ""}" data-status="{view.status}" style="--tone:{tone}">'
         f'<div class="spade-motor-stage" role="img" aria-label="{escape(aria)}">'

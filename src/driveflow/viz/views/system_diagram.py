@@ -113,7 +113,7 @@ _DIAGRAM_COMPONENT_DETAILS = {
         "`ai/registry.py` -- one manifest (`configs/registry.yaml`) mapping `(domain, tier, block)` to the "
         "promoted run folder (weights + the exact config that produced them + metrics). Promotion "
         "(`experiments/promote_run.py`) is a deliberate, separate step from training -- a training run "
-        "existing doesn't mean it's live."
+        "existing doesn't mean it is the one in use."
     ),
     "Raspberry Pi 5": (
         "**Not trained from scratch.** Distilled from the promoted PC-tier model (the \"teacher\"): "
