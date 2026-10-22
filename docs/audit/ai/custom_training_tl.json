@@ -1,0 +1,201 @@
+{
+  "command": "python experiments/report_custom_training_tl.py",
+  "workers": 4,
+  "origin": "SIMULATED",
+  "A_custom_training": {
+    "request": {
+      "classes": [
+        "normal",
+        "outer_race",
+        "inner_race",
+        "unbalance"
+      ],
+      "controllers": [
+        "PI",
+        "MPC"
+      ],
+      "setpoints_rad_s": [
+        100,
+        150,
+        200
+      ],
+      "severity_scales": [
+        0.5,
+        1.0,
+        2.0
+      ],
+      "noise_max_pct": 50,
+      "duration_s": 1.5,
+      "skip_start_s": 0.5,
+      "window": 1024,
+      "preset": "pc_server",
+      "epochs": 15
+    },
+    "n_runs": 72,
+    "runs_per_class": {
+      "normal": 18,
+      "outer_race": 18,
+      "inner_race": 18,
+      "unbalance": 18
+    },
+    "n_failed_runs": 0,
+    "simulation_wall_s": 397.8,
+    "simulated_s": 108.0,
+    "wall_s_per_simulated_s_with_workers": 3.683,
+    "estimate_single_process_s": 324.0,
+    "training_wall_s": 14.8,
+    "classes": [
+      "inner_race",
+      "normal",
+      "outer_race",
+      "unbalance"
+    ],
+    "n_train": 360,
+    "n_val": 144,
+    "n_test": 144,
+    "test_macro_f1": 0.4171811334732683,
+    "test_accuracy": 0.4583333333333333,
+    "test_per_class_recall": {
+      "inner_race": 0.0,
+      "normal": 1.0,
+      "outer_race": 0.3055555555555556,
+      "unbalance": 0.5277777777777778
+    },
+    "test_confusion_matrix": [
+      [
+        0,
+        0,
+        27,
+        9
+      ],
+      [
+        0,
+        36,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        11,
+        25
+      ],
+      [
+        0,
+        0,
+        17,
+        19
+      ]
+    ],
+    "ood_fitted": true
+  },
+  "B_full_vs_feature": {
+    "base": "configs/classifiers/pc_server_5class_w2048/2026-10-20_run01",
+    "condition": "MPC, 120-220 rad/s, 0-60 % noise (all runs noisy), 1.5 s runs, first 0.5 s dropped",
+    "n_acquisitions": 36,
+    "n_windows": {
+      "train": 72,
+      "val": 36,
+      "test": 36
+    },
+    "classes_present": [
+      "inner_race",
+      "normal",
+      "outer_race"
+    ],
+    "epochs": 10,
+    "results": [
+      {
+        "strategy": "full_finetune",
+        "mode": "full",
+        "candidate_macro_f1": 1.0,
+        "base_macro_f1_same_test": 1.0,
+        "candidate_accuracy": 1.0,
+        "checks": {
+          "predictions_finite": "PASS",
+          "mode_collapse": "PASS",
+          "beats_majority_baseline": "PASS",
+          "macro_f1_vs_base": "PASS",
+          "convergence": "PASS"
+        },
+        "base_unchanged": true,
+        "wall_s": 6.2
+      },
+      {
+        "strategy": "feature_extractor",
+        "mode": "feature",
+        "candidate_macro_f1": 1.0,
+        "base_macro_f1_same_test": 1.0,
+        "candidate_accuracy": 1.0,
+        "checks": {
+          "predictions_finite": "PASS",
+          "mode_collapse": "PASS",
+          "beats_majority_baseline": "PASS",
+          "macro_f1_vs_base": "PASS",
+          "convergence": "PASS"
+        },
+        "base_unchanged": true,
+        "wall_s": 5.3
+      },
+      {
+        "strategy": "new_head",
+        "mode": "feature",
+        "candidate_macro_f1": 0.5555555555555555,
+        "base_macro_f1_same_test": 1.0,
+        "candidate_accuracy": 0.6666666666666666,
+        "checks": {
+          "predictions_finite": "PASS",
+          "mode_collapse": "PASS",
+          "beats_majority_baseline": "PASS",
+          "macro_f1_vs_base": "FAIL",
+          "convergence": "PASS"
+        },
+        "base_unchanged": true,
+        "wall_s": 2.5
+      }
+    ]
+  },
+  "C_new_class": {
+    "base": "configs/classifiers/pc_server/2026-10-18_run01",
+    "base_classes": [
+      "inner_race",
+      "normal",
+      "outer_race"
+    ],
+    "target_classes": [
+      "inner_race",
+      "normal",
+      "outer_race",
+      "unbalance"
+    ],
+    "new_vocabulary": true,
+    "full_finetune_refused_with": "the dataset has classes the base model does not know; only feature transfer with a new output head can learn them",
+    "n_windows": {
+      "train": 456,
+      "val": 228,
+      "test": 228
+    },
+    "candidate_macro_f1": 1.0,
+    "candidate_recall_per_class": {
+      "inner_race": 1.0,
+      "normal": 1.0,
+      "outer_race": 1.0,
+      "unbalance": 1.0
+    },
+    "floor_used_for_this_report": 0.8,
+    "checks": {
+      "predictions_finite": "PASS",
+      "mode_collapse": "PASS",
+      "beats_majority_baseline": "PASS",
+      "macro_f1_vs_base": "NOT_APPLICABLE",
+      "min_macro_f1": "PASS",
+      "convergence": "PASS"
+    },
+    "gate_without_reviewer": {
+      "status": "BLOCKED",
+      "blocking": [
+        "human_approval"
+      ]
+    }
+  }
+}

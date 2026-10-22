@@ -16,11 +16,7 @@ from pathlib import Path
 
 import yaml
 
-from driveflow.ai.registry import REPO_ROOT, RegistryError, load_promoted_model, resolve
-from driveflow.models.classifiers.builder import build_classifier
-from driveflow.models.classifiers.schemas import load_classifier_config
-from driveflow.models.regressors.builder import build_forecaster
-from driveflow.models.regressors.schemas import load_forecaster_config
+from driveflow.ai.registry import REPO_ROOT, RegistryError, load_promoted_model, load_run_model, resolve
 
 
 class ModelLoader:
@@ -50,10 +46,13 @@ class ModelLoader:
             run_dir = REPO_ROOT / run_dir
         return self._load_from_run_dir(run_dir)
 
-    def get_metadata(self) -> dict:
-        """Metadatos (config + metrics) del modelo actualmente promovido, sin construir ni
-        cargar los pesos -- para mostrar en UI antes de decidir si vale la pena cargarlo entero."""
-        run_dir = resolve(self.domain, self.tier, self.block, registry_path=self.registry_path)
+    def get_metadata(self, run_dir: str | Path | None = None) -> dict:
+        """Metadatos (config + metrics) del modelo actualmente promovido -- o del run en run_dir --
+        sin construir ni cargar los pesos, para mostrar en UI antes de decidir si vale la pena
+        cargarlo entero."""
+        run_dir = resolve(self.domain, self.tier, self.block, registry_path=self.registry_path) if run_dir is None else Path(run_dir)
+        if not run_dir.is_absolute():
+            run_dir = REPO_ROOT / run_dir
         with (run_dir / "metrics.json").open() as f:
             metrics = json.load(f)
         with (run_dir / "config.yaml").open() as f:
@@ -63,16 +62,8 @@ class ModelLoader:
     def _load_from_run_dir(self, run_dir: Path) -> dict:
         if not run_dir.exists():
             raise RegistryError(f"{run_dir}: no such run directory")
-        with (run_dir / "metrics.json").open() as f:
-            metrics = json.load(f)
-        n_channels = len(metrics["channels"])
-        if self.block == "classifier":
-            config = load_classifier_config(run_dir / "config.yaml")
-            model = build_classifier(config, n_channels=n_channels)
-        elif self.block == "regressor":
-            config = load_forecaster_config(run_dir / "config.yaml")
-            model = build_forecaster(config, n_channels=n_channels)
-        else:
+        if self.block not in ("classifier", "regressor"):
             raise ValueError(f"block must be 'classifier' or 'regressor', got {self.block!r}")
-        model.load_weights(run_dir / "model.weights.h5")
+        # registry.load_run_model also handles model.keras runs (imported third-party models).
+        model, config, metrics = load_run_model(run_dir, self.block)
         return {"model": model, "config": config, "metrics": metrics, "run_dir": run_dir}

@@ -40,8 +40,11 @@ class CheckStatus(str, Enum):
 #: classification: the fine-tuned model may lose at most this much macro-F1 vs. the base model
 #: evaluated on the same independent test set. regression: its RMSE may exceed the base model's
 #: RMSE on the same test set by at most this relative fraction.
+#: min_macro_f1: absolute floor, required only when the class vocabulary changed (new output head)
+#: -- no value is proposed: the reviewer must enter one, otherwise the check is INCOMPLETE
+#: and the base model therefore cannot be scored on the same test set.
 DEFAULT_THRESHOLDS = {
-    "classification": {"max_macro_f1_drop": 0.02, "min_class_recall": None},
+    "classification": {"max_macro_f1_drop": 0.02, "min_class_recall": None, "min_macro_f1": None},
     "regression": {"max_rmse_increase": 0.05},
 }
 
@@ -151,14 +154,19 @@ class ModelValidator:
         self.validation_results: dict = {}
 
     # ------------------------------------------------------------------ task-specific API
-    def evaluate(self, finetuned_model, test_data: dict, task: str, baseline_model=None, history: dict | None = None, thresholds: dict | None = None) -> ValidationReport:
+    def evaluate(self, finetuned_model, test_data: dict, task: str, baseline_model=None, history: dict | None = None, thresholds: dict | None = None,
+                 base_comparable: bool = True) -> ValidationReport:
         """Evaluates finetuned_model (and baseline_model, if given) on the SAME test_data and
         returns a ValidationReport. `thresholds` defaults to self.thresholds; missing keys make
-        the corresponding check INCOMPLETE, never PASS."""
+        the corresponding check INCOMPLETE, never PASS.
+
+        base_comparable=False (classification with a new class vocabulary): the base model cannot
+        be scored on these classes, so macro_f1_vs_base is NOT_APPLICABLE and the absolute
+        min_macro_f1 floor becomes a required check instead (INCOMPLETE without a threshold)."""
         thresholds = self.thresholds if thresholds is None else thresholds
         X, y = np.asarray(test_data["X"]), np.asarray(test_data["y"])
         if task == "classification":
-            report = self._evaluate_classifier(finetuned_model, X, y, baseline_model, thresholds)
+            report = self._evaluate_classifier(finetuned_model, X, y, baseline_model if base_comparable else None, thresholds, base_comparable)
         elif task == "regression":
             report = self._evaluate_regressor(finetuned_model, X, y, baseline_model, thresholds)
         else:
@@ -166,7 +174,7 @@ class ModelValidator:
         report.checks.append(self.convergence_check(history))
         return report
 
-    def _evaluate_classifier(self, model, X, y, baseline_model, thr) -> ValidationReport:
+    def _evaluate_classifier(self, model, X, y, baseline_model, thr, base_comparable: bool = True) -> ValidationReport:
         probs = _predict(model, X)
         m = classification_metrics(y, probs)
         base = classification_metrics(y, _predict(baseline_model, X), n_classes=probs.shape[-1]) if baseline_model is not None else {}
@@ -190,7 +198,15 @@ class ModelValidator:
             ok = m["macro_f1"] > maj["macro_f1"]
             checks.append(CheckResult("beats_majority_baseline", CheckStatus.PASS if ok else CheckStatus.FAIL, f"macro-F1 {m['macro_f1']:.3f} vs majority-class predictor {maj['macro_f1']:.3f}", m["macro_f1"], maj["macro_f1"]))
         drop = thr.get("max_macro_f1_drop")
-        if baseline_model is None or base.get("macro_f1") is None:
+        if not base_comparable:
+            checks.append(CheckResult("macro_f1_vs_base", CheckStatus.NOT_APPLICABLE, "class vocabulary changed (new output head): the base model cannot be scored on these classes", required=False))
+            floor = thr.get("min_macro_f1")
+            if floor is None:
+                checks.append(CheckResult("min_macro_f1", CheckStatus.INCOMPLETE, "no min_macro_f1 threshold configured (required when the base model is not comparable)"))
+            else:
+                ok = m["macro_f1"] is not None and m["macro_f1"] >= floor
+                checks.append(CheckResult("min_macro_f1", CheckStatus.PASS if ok else CheckStatus.FAIL, f"macro-F1 {m['macro_f1'] if m['macro_f1'] is not None else float('nan'):.3f} vs floor {floor:g}", m["macro_f1"], floor))
+        elif baseline_model is None or base.get("macro_f1") is None:
             checks.append(CheckResult("macro_f1_vs_base", CheckStatus.INCOMPLETE, "base model not evaluated on the same test set"))
         elif drop is None:
             checks.append(CheckResult("macro_f1_vs_base", CheckStatus.INCOMPLETE, "no max_macro_f1_drop threshold configured"))

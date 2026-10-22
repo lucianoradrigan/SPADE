@@ -101,8 +101,13 @@ class PromotionGate:
         if not test_evaluation:
             items.append(GateItem("independent_test_evaluated", "PENDING", "independent test set not evaluated yet"))
         else:
-            ok = test_evaluation.get("n_evaluations") == 1 and not test_evaluation.get("used_for_selection", True) and test_evaluation.get("same_test_for_base")
-            items.append(GateItem("independent_test_evaluated", "PASS" if ok else "FAIL", "evaluated once after training, same test set for base and fine-tuned, not used for model selection" if ok else f"test-set protocol violated: {test_evaluation}"))
+            # A new class vocabulary (feature transfer with a new head) has no base score to compare;
+            # that must be recorded explicitly (base_comparable False), never left implicit.
+            not_comparable = test_evaluation.get("base_comparable") is False
+            ok = test_evaluation.get("n_evaluations") == 1 and not test_evaluation.get("used_for_selection", True) and (test_evaluation.get("same_test_for_base") or not_comparable)
+            detail = ("evaluated once after training, not used for model selection; base not comparable (new class vocabulary)" if not_comparable
+                      else "evaluated once after training, same test set for base and fine-tuned, not used for model selection")
+            items.append(GateItem("independent_test_evaluated", "PASS" if ok else "FAIL", detail if ok else f"test-set protocol violated: {test_evaluation}"))
 
         if not validation_report:
             items.append(GateItem("validation_checks", "PENDING", "no validation report"))

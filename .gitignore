@@ -47,3 +47,8 @@ scripts/edge_benchmark/esp32/main/test_vectors.h
 
 # Durable runs and jobs (SQLite + per-run artifacts) -- expansion task E0; local state, never committed.
 /workspace/
+
+# Models trained (AI Diagnostics -> Train a model) or imported (Transfer Learning -> Import) from
+# the GUI: a user's local work, like their datasets under data/custom/.
+/configs/classifiers/custom/
+/configs/classifiers/external/

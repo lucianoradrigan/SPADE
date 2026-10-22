@@ -47,6 +47,11 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_REGISTRY_PATH = REPO_ROOT / "configs" / "registry.yaml"
 
 ALLOWED_BLOCKS = frozenset({"classifier", "regressor"})
+#: config.yaml "model_format" of a run whose architecture is NOT rebuildable from a SPADE builder
+#: config (a third-party model, or one with a replaced head): the run then carries model.keras, the
+#: full Keras v3 model, loaded with safe_mode=True (no arbitrary Python from Lambda layers).
+KERAS_FORMAT = "keras"
+FULL_MODEL_FILE = "model.keras"
 
 
 class RegistryError(ValueError):
@@ -70,7 +75,10 @@ class RegistryEntry:
 def _detect_block(raw_config: dict) -> str:
     """Same 'blocks' vs 'recurrent_type' heuristic as experiments/train_model.py's
     _load_any_config -- kept independent (not imported from there) since library code
-    (src/driveflow) should not depend on a script (experiments/)."""
+    (src/driveflow) should not depend on a script (experiments/). A run saved as a full Keras
+    model (model_format: keras, e.g. fine-tuned from an uploaded third-party model) names its block."""
+    if raw_config.get("model_format") == KERAS_FORMAT and raw_config.get("block") in ALLOWED_BLOCKS:
+        return raw_config["block"]
     if "blocks" in raw_config:
         return "classifier"
     if "recurrent_type" in raw_config:
@@ -147,8 +155,8 @@ def promote(run_dir, registry_path: Path = DEFAULT_REGISTRY_PATH, promoted_by: s
     config_path = run_dir / "config.yaml"
     if not config_path.exists():
         raise RegistryError(f"{run_dir}: missing config.yaml -- not a valid train_model.py run directory")
-    if not (run_dir / "model.weights.h5").exists():
-        raise RegistryError(f"{run_dir}: missing model.weights.h5 -- not a valid train_model.py run directory")
+    if not ((run_dir / "model.weights.h5").exists() or (run_dir / FULL_MODEL_FILE).exists()):
+        raise RegistryError(f"{run_dir}: missing model.weights.h5 (or {FULL_MODEL_FILE}) -- not a valid train_model.py run directory")
     if not (run_dir / "metrics.json").exists():
         raise RegistryError(f"{run_dir}: missing metrics.json -- not a valid train_model.py run directory")
 
@@ -244,6 +252,19 @@ def load_promoted_model(domain: str, tier: str, block: str, registry_path: Path 
     return load_run_model(resolve(domain, tier, block, registry_path), block)
 
 
+@dataclass(frozen=True)
+class KerasRunConfig:
+    """The fields callers read from a builder config, for a model.keras run."""
+
+    domain: str
+    tier: str
+    input_window: int
+    block: str
+    num_classes: int | None = None
+    horizon: int | None = None
+    source: str | None = None
+
+
 def load_run_model(run_dir, block: str) -> tuple:
     """Same as load_promoted_model, for any run directory (promoted or a candidate).
     Returns (model, config, metrics: dict)."""
@@ -251,6 +272,15 @@ def load_run_model(run_dir, block: str) -> tuple:
     with (run_dir / "metrics.json").open() as f:
         metrics = json.load(f)
     n_channels = len(metrics["channels"])
+
+    raw = yaml.safe_load((run_dir / "config.yaml").read_text()) or {}
+    if raw.get("model_format") == KERAS_FORMAT:
+        import keras
+
+        model = keras.models.load_model(run_dir / FULL_MODEL_FILE, compile=False, safe_mode=True)
+        config = KerasRunConfig(domain=raw["domain"], tier=raw.get("tier", "pc"), input_window=int(raw["input_window"]), block=raw.get("block", block),
+                                num_classes=raw.get("num_classes"), horizon=raw.get("horizon"), source=raw.get("source"))
+        return model, config, metrics
 
     if block == "classifier":
         config = load_classifier_config(run_dir / "config.yaml")

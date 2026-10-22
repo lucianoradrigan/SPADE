@@ -64,7 +64,9 @@ def list_runs(registry_path: Path = DEFAULT_REGISTRY_PATH) -> list:
     for root in CONFIG_ROOTS:
         if not root.exists():
             continue
-        for metrics_path in sorted(root.glob("*/*/metrics.json")):
+        # <config>/<date>_runNN/ plus the GUI's custom/<name>/<date>_runNN/ and external/<name>/ runs.
+        paths = set(root.glob("*/*/metrics.json")) | set(root.glob("custom/*/*/metrics.json")) | set(root.glob("external/*/*/metrics.json"))
+        for metrics_path in sorted(paths):
             run_dir = metrics_path.parent
             try:
                 metrics = json.loads(metrics_path.read_text())
@@ -94,7 +96,9 @@ def list_runs(registry_path: Path = DEFAULT_REGISTRY_PATH) -> list:
                 "block": block,
                 "status": status,
                 "validation": (gate or {}).get("status", "BLOCKED" if tl else "Not gated"),
-                "origin": "transfer learning" if tl else ("distilled from " + metrics["distilled_from"] if metrics.get("distilled_from") else "trained from scratch"),
+                "origin": "transfer learning" if tl else ("imported third-party model" if metrics.get("origin") == "EXTERNAL"
+                                                          else "trained in AI Diagnostics" if metrics.get("trained_from") == "ai_diagnostics.custom_training"
+                                                          else "distilled from " + metrics["distilled_from"] if metrics.get("distilled_from") else "trained from scratch"),
                 "exported": dep["stages"]["exported"] == "done",
                 "quantization": ((dep.get("artifact") or {}).get("quantization")) if dep["stages"]["exported"] == "done" else None,
                 "hardware_verified": dep["stages"]["hardware_verified"] == "done",

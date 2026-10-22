@@ -3,6 +3,10 @@
 Consumes data -- a short simulated sample run or an uploaded file -- and shows what the promoted
 PC-tier classifier / forecaster of the chosen domain outputs for it. It is not a control surface.
 
+Two tabs: "Evaluate a model" (the promoted classifier, or any other classifier run on this machine,
+on a sample run whose options match the simulation pages, or on an uploaded file) and "Train a
+model" (views/ai_training.py: several fault classes over a custom simulated grid, as a worker job).
+
 What changed vs. the legacy tab: outputs are labelled as AI suggestions with the model's identity
 and training-time test metrics; uploads go through the explicit INFERENCE validator and are capped
 in size; the data source (simulated vs. uploaded file + content hash) is always shown.
@@ -30,7 +34,11 @@ from driveflow.viz.adapters.ai_adapter import normalize_window, promoted_model, 
 from driveflow.viz.adapters.session import record_run
 from driveflow.viz.components.inputs import slider_with_custom
 from driveflow.viz.components.page_header import badge_html, page_header, provenance_table, source_badge_html
-from driveflow.viz.components.presets import BUILTIN_FAULT_TYPES
+from driveflow.ai.custom_training import list_classifier_runs
+from driveflow.sim.vsc_params import UPSTREAM_CONVERTER_LIMIT_V
+from driveflow.viz.adapters import simulation_adapter as sim
+from driveflow.viz.components.presets import BUILTIN_FAULT_TYPES, load_custom_faults
+from driveflow.viz.views.ai_training import render_train_tab
 from driveflow.viz.dpc_upload_validation import validate_inference_upload
 from driveflow.viz.theme.plotly import PLOTLY_CONFIG, series_color, style_figure
 
@@ -46,6 +54,7 @@ _PALETTE = ["#38BDF8", "#F59E0B", "#A78BFA", "#F472B6", "#22C55E", "#94A3B8"]
 def generate_sample_dataframe(domain: str, **kwargs) -> pd.DataFrame:
     if domain == "dc_motor":
         return pd.DataFrame.from_records(run_scenario(Scenario(scenario_id="ai_tab_sample_dc", **kwargs)))
+    kwargs.pop("controller_type", None)
     return pd.DataFrame.from_records(run_scenario(Scenario(scenario_id="ai_tab_sample_vsc", controller_type="DPC", plant_config_id="vsc_dpc_v1", **kwargs)))
 
 
@@ -58,22 +67,79 @@ def channel_upload_template_df(domain: str, n_rows: int = 5) -> pd.DataFrame:
 
 
 def _sample_controls(domain: str) -> dict:
-    duration = slider_with_custom(st, "Duration (s)", 0.05, 1.0, 0.3, key="ia_duration")
-    seed = st.number_input("Seed", value=0, step=1, key="ia_seed")
-    kwargs = {"duration_s": duration, "seed": int(seed)}
+    """Scenario kwargs for the sample run, with the same options as the DC Motor / VSC pages."""
     if domain == "dc_motor":
-        label = st.selectbox("Fault condition", BUILTIN_FAULT_TYPES, key="ia_fault_type")
-        fault = None if label == "healthy" else label
-        kwargs["fault_type"] = fault
-        kwargs["omega_ref_rad_s"] = slider_with_custom(st, "Speed setpoint ω_ref (rad/s)", 10.0, 350.0, DC_DEFAULT_OMEGA_REF, key="ia_omega_ref")
+        custom_faults = load_custom_faults()
+        controller = st.selectbox("Controller", ["PI", "MPC"], key="ia_controller")
+        label = st.selectbox("Fault condition", BUILTIN_FAULT_TYPES + sorted(custom_faults), key="ia_fault_type",
+                             help="Entries after 'cage' are your saved custom fault types (DC Motor → Parameters).")
+        fault, override, extras = sim.resolve_fault(label, custom_faults)
+        mode = st.radio("Control mode", ["Speed (ω_ref)", "Torque (τ_ref)"], horizontal=True, key="ia_control_mode")
+        kwargs = {"controller_type": controller, "fault_type": fault}
+        if mode.startswith("Speed"):
+            kwargs["omega_ref_rad_s"] = slider_with_custom(st, "Speed setpoint ω_ref (rad/s)", 10.0, 350.0, DC_DEFAULT_OMEGA_REF, key="ia_omega_ref")
+        else:
+            kwargs["torque_ref_nm"] = slider_with_custom(st, "Torque setpoint τ_ref (N·m)", 0.0, 38.0, 16.0, key="ia_torque_ref")
         if fault is not None:
             kwargs["electrical_severity"] = slider_with_custom(st, "Electrical severity (N·m)", 0.0, 20.0, 8.0, key="ia_elec_severity")
-            kwargs["mechanical_severity"] = slider_with_custom(st, "Mechanical severity", 0.0, 0.2, float(CALIBRATED_MECHANICAL_SEVERITY.get(fault, 0.0)), format="%.3f", key="ia_mech_severity")
-    else:
-        kwargs["load_resistance_ohm"] = slider_with_custom(st, "Load resistance R (Ω)", MIN_STABLE_LOAD_RESISTANCE_OHM, 20.0, float(_VSC_R_OHM), format="%.4f", key="ia_load_r", help=f"Floored at the plant's open-loop stability limit ({MIN_STABLE_LOAD_RESISTANCE_OHM:.2f} Ω).")
-        kwargs["reference_magnitude_v"] = slider_with_custom(st, "Reference magnitude |v_ref| (V)", 10.0, 150.0, float(REFERENCE_MAGNITUDE_V), key="ia_ref_mag")
-        kwargs["reference_omega_rad_s"] = slider_with_custom(st, "Reference frequency ω (rad/s)", 50.0, 700.0, float(GRID_OMEGA_RAD_S), format="%.2f", key="ia_ref_omega")
+            kwargs["mechanical_severity"] = slider_with_custom(st, "Mechanical severity", 0.0, 0.2, float(CALIBRATED_MECHANICAL_SEVERITY.get(fault, 0.02)), format="%.3f", key="ia_mech_severity")
+            if override is not None:
+                kwargs["fault_order_override"] = override
+            if extras:
+                kwargs["extra_faults"] = extras
+        kwargs["duration_s"] = slider_with_custom(st, "Duration (s)", 0.05, 2.0, 0.6, key="ia_duration")
+        kwargs["seed"] = int(st.number_input("Seed", value=0, step=1, key="ia_seed"))
+        with st.expander("Noise and plant parameters"):
+            kwargs["electrical_noise_pct"] = slider_with_custom(st, "Electrical noise (%)", 0.0, 100.0, 0.0, key="ia_elec_noise")
+            kwargs["mechanical_noise_pct"] = slider_with_custom(st, "Vibration noise (%)", 0.0, 100.0, 0.0, key="ia_mech_noise")
+            d = sim.dc_defaults()["params"]
+            motor = {"r_a": st.number_input("r_a (Ω)", 0.001, 10.0, float(d["r_a"]), format="%.4f", key="ia_r_a"),
+                     "l_a": st.number_input("l_a (H)", 1e-6, 1.0, float(d["l_a"]), format="%.6f", key="ia_l_a"),
+                     "psi_e": st.number_input("ψ_e (Wb)", 0.01, 5.0, float(d["psi_e"]), format="%.4f", key="ia_psi_e"),
+                     "j_rotor": st.number_input("J rotor (kg·m²)", 1e-4, 1.0, float(d.get("j_rotor", 0.025)), format="%.4f", key="ia_j_rotor")}
+            motor = {k: v for k, v in motor.items() if abs(v - float(d.get(k, v))) > 1e-12}
+            if motor:
+                kwargs["motor_parameter_overrides"] = motor
+            if controller == "PI":
+                b = st.slider("PI setpoint weight b", 0.0, 1.0, 1.0, 0.05, key="ia_pi_b")
+                if b != 1.0:
+                    kwargs["pi_setpoint_weight"] = b
+        return kwargs
+    kwargs = {"duration_s": slider_with_custom(st, "Duration (s)", 0.05, 1.0, 0.3, key="ia_duration"), "seed": int(st.number_input("Seed", value=0, step=1, key="ia_seed"))}
+    kwargs["load_resistance_ohm"] = slider_with_custom(st, "Load resistance R (Ω)", MIN_STABLE_LOAD_RESISTANCE_OHM, 20.0, float(_VSC_R_OHM), format="%.4f", key="ia_load_r", help=f"Floored at the plant's open-loop stability limit ({MIN_STABLE_LOAD_RESISTANCE_OHM:.2f} Ω).")
+    kwargs["reference_magnitude_v"] = slider_with_custom(st, "Reference magnitude |v_ref| (V)", 10.0, 150.0, float(REFERENCE_MAGNITUDE_V), key="ia_ref_mag")
+    kwargs["reference_omega_rad_s"] = slider_with_custom(st, "Reference frequency ω (rad/s)", 50.0, 700.0, float(GRID_OMEGA_RAD_S), format="%.2f", key="ia_ref_omega")
+    with st.expander("Converter limit and capacitor degradation"):
+        if st.toggle(f"Limit converter voltage to ±{UPSTREAM_CONVERTER_LIMIT_V:.0f} V per axis", value=False, key="ia_vsc_limit"):
+            kwargs["vsc_voltage_limit_v"] = float(UPSTREAM_CONVERTER_LIMIT_V)
+        cap = st.slider("Effective capacitance (fraction of nominal)", 0.05, 1.0, 1.0, key="ia_vsc_cap")
+        esr = st.slider("Series ESR (Ω)", 0.0, 2.0, 0.0, key="ia_vsc_esr")
+        if cap != 1.0:
+            kwargs["vsc_capacitor_scale"] = cap
+        if esr != 0.0:
+            kwargs["vsc_esr_ohm"] = esr
+        st.caption("Capacitor degradation is synthetic-only (sim/vsc_faults.py).")
     return kwargs
+
+
+def _model_choice(domain: str):
+    """None = the promoted classifier; otherwise a run directory on this machine."""
+    runs = list_classifier_runs(domain)
+    try:
+        promoted = resolve(domain, TIER, "classifier").resolve()
+    except RegistryError:
+        promoted = None
+    options = [None] + [str(r["run_dir"]) for r in runs if r["run_dir"].resolve() != promoted]
+    labels = {None: "Promoted model (registry)"}
+    labels.update({str(r["run_dir"]): f"{r['label']} · {r['origin']} · {len(r['classes'] or [])} classes" + (f" · F1 {r['macro_f1']:.2f}" if r.get("macro_f1") is not None else "")
+                   for r in runs})
+    requested = st.session_state.pop("ia_model_request", None)
+    if requested in options:
+        st.session_state["ia_model"] = requested
+    if st.session_state.get("ia_model") not in options:
+        st.session_state.pop("ia_model", None)
+    return st.selectbox("Classifier", options, format_func=lambda o: labels.get(o, o), key="ia_model",
+                        help="The promoted model, or any other classifier run on this machine: custom-trained (Train a model tab), transfer-learning candidates, earlier runs.")
 
 
 def _upload_help(domain: str) -> None:
@@ -184,18 +250,22 @@ def _agent_section(domain: str, df: pd.DataFrame, data_key: str, operating_point
                f"features {', '.join(r['features'])} · operating point {r['operating_point'] or 'n/a'}. Not a confirmed diagnosis.")
 
 
-def _classifier_panel(domain: str, df: pd.DataFrame, data_key: str = "", operating_point: dict | None = None, provenance: dict | None = None) -> None:
+def _classifier_panel(domain: str, df: pd.DataFrame, data_key: str = "", operating_point: dict | None = None, provenance: dict | None = None, run_dir=None) -> None:
     st.markdown("##### Classifier")
     try:
-        out = da_ai.assess_last_window(domain, df, TIER)
-    except RegistryError:
+        out = da_ai.assess_last_window(domain, df, TIER, run_dir=run_dir)
+    except RegistryError as exc:
+        if run_dir is not None:
+            st.error(f"Could not load the selected classifier: {exc}", icon=":material/error:")
+            return
         out = None
     if out is None:
         st.info(f"No classifier is registered yet for {DOMAIN_LABELS[domain]}.")
         return
     a, _, info = out
     metrics, run_dir = info["metrics"], info["run_dir"]
-    st.html('<div class="spade-root spade-badges">' + badge_html("AI SUGGESTION — REQUIRES VERIFICATION", "warning", "▲") + badge_html(info["model_id"], "training") + "</div>")
+    st.html('<div class="spade-root spade-badges">' + badge_html("AI SUGGESTION — REQUIRES VERIFICATION", "warning", "▲") + badge_html(info["model_id"], "training")
+            + ("" if info.get("promoted") else badge_html("CANDIDATE — NOT PROMOTED", "warning", "▲")) + "</div>")
     _state_box(a)
     if a.state != condition.INPUT_INVALID:
         shown = a.suggested_class or {condition.STATE_UNKNOWN: "Unknown condition", condition.STATE_UNCERTAIN: "No class suggested"}.get(a.state)
@@ -282,14 +352,23 @@ def _residual_panel(domain: str, df: pd.DataFrame) -> None:
 def render() -> None:
     page_header(
         "Intelligence / AI diagnostics",
-        "Promoted models on your data",
-        "Run the promoted PC-tier classifier / forecaster of a domain on a simulated sample or an uploaded file. Outputs are model suggestions, not certified diagnoses.",
+        "Evaluate and train diagnosis models",
+        "Run the promoted PC-tier classifier / forecaster of a domain (or another classifier run) on a simulated sample or an uploaded file, or train a new classifier on a custom simulated grid. Outputs are model suggestions, not certified diagnoses.",
         [badge_html("PC TIER", "training", "◆")],
     )
+    domain = st.selectbox("Domain", list(DOMAIN_LABELS), format_func=DOMAIN_LABELS.get, key="ia_domain")
+    eval_tab, train_tab = st.tabs(["Evaluate a model", "Train a model"])
+    with train_tab:
+        render_train_tab(domain)
+    with eval_tab:
+        _evaluate(domain)
+
+
+def _evaluate(domain: str) -> None:
     ctrl, view = st.columns([1, 3], gap="medium")
     df, source_rows, data_key, operating_point = None, None, "", None
     with ctrl:
-        domain = st.selectbox("Domain", list(DOMAIN_LABELS), format_func=DOMAIN_LABELS.get, key="ia_domain")
+        model_run = _model_choice(domain)
         source = st.radio("Data source", ["Generate a sample run", "Upload a file"], key="ia_source")
         if source == "Generate a sample run":
             with st.container(border=True):
@@ -339,7 +418,7 @@ def render() -> None:
         st.caption(f"{len(df)} row(s) available for evaluation.")
         c1, c2 = st.columns(2, gap="medium")
         with c1:
-            _classifier_panel(domain, df, data_key, operating_point, source_rows)
+            _classifier_panel(domain, df, data_key, operating_point, source_rows, run_dir=model_run)
         with c2:
             if domain == "dc_motor":
                 _residual_panel(domain, df)

@@ -46,15 +46,22 @@ with native navigation; the five original macro-phases map onto its sections:
 | Section / page | Former phase | What it does |
 |---|---|---|
 | Workspace · **Overview** | landing | Real workspace checks, engineering workflow, this session's runs, motor status (UNKNOWN until monitored), clickable system diagram |
+| Workspace · **Experiment Runs** | -- | Durable job queue and run history. Long jobs (sweeps, tuning, RL, classifier training) run in a separate worker process; every run keeps its configuration hash, seed, versions, logs and a reproducible command |
+| Workspace · **Environments** | -- | Gymnasium environments over SPADE's plants (`SPADE/DcMotor-v0`, `SPADE/Vsc-v0`, `SPADE/Buck-v0`, `SPADE/BuckSurrogate-v0`, `SPADE/Pmsm-v0`): observation, action, reward, limits |
 | Simulation · **DC Motor** | A | PI or MPC, bearing-fault injection (MCSA + synthetic vibration), KPIs, time signals, spectrum (FFT) with simulator-computed BPFO/BPFI markers, AI suggestion, operating envelope, provenance + export; Advanced Flow mode |
 | Simulation · **PMSM / FOC** | A | FOC/MTPA control-law demo -- explicitly *no diagnosis* |
 | Simulation · **VSC / DPC** | B | Trained DPC network tracking, complex plane, dataset-upload evaluator |
-| Intelligence · **AI Diagnostics** | IA | Promoted classifier/forecaster on a sample run or upload, labelled as AI suggestions with model version |
-| Intelligence · **Transfer Learning** | TL | 4-step gated wizard (Data → Setup → Validate → Promote) -- see below |
+| Simulation · **DC-DC Converters** | -- | Averaged synchronous buck under a PI cascade; DAB modulation selector (its simulation needs PLECS) |
+| Simulation · **PLECS Plant Studio** | -- | Datasets from PLECS Standalone RPC sweeps (needs a local PLECS licence); comparison with SPADE's native buck |
+| Design & Control · **Tuning Studio** | -- | PSO / Bayesian / NSGA-II tuning of the DC-motor PI speed loop on a tuning grid, compared with the baseline on a separate evaluation grid. Results are candidates |
+| Design & Control · **RL Lab** | -- | DQN / DDPG on SPADE's environments, benchmarked against the classical controllers on the same grid. Policies are candidates |
+| Intelligence · **AI Diagnostics** | IA | **Evaluate a model**: the promoted classifier, or any other classifier on this machine, on a sample run (same options as the simulation pages) or an uploaded file. **Train a model**: a classifier over several fault classes and a custom simulated grid -- see below |
+| Intelligence · **Transfer Learning** | TL | 4-step gated wizard (Data → Setup → Validate → Promote) starting from the promoted model, any other model on this machine or an imported Keras model; full or feature transfer -- see below |
 | Intelligence · **Model Registry** | IA | Every run on disk: status from evidence, lineage, gate, artifacts with SHA-256, edge-export lifecycle, rollback |
 | Operations · **Monitoring** | LM | SIMULATED monitoring: agent consensus, status from *all* active alerts, motor status, acknowledge |
 | Operations · **Alert History** | LM | Filterable, exportable alert log |
 | Help · **Documentation** | -- | Status semantics, data formats, known limitations |
+| Help · **Algorithm Guide** | -- | Three questions → an algorithm family, its assumptions and limits, and the SPADE page that implements it |
 
 A full, phase-by-phase snapshot of what the platform does today is kept in
 [`docs/plataforma_estado_actual.md`](docs/plataforma_estado_actual.md).
@@ -92,6 +99,26 @@ python experiments/train_model.py --config configs/classifiers/pc_server_5class_
 Held-out evaluation and its limits (simulated data only; weaker start-up transient):
 [docs/AI_TECHNICAL_AUDIT.md](docs/AI_TECHNICAL_AUDIT.md) §8.4–8.5. The previous 3-class model (`pc_server/2026-10-18_run01`, §7) stays in the registry history for `rollback()`.
 
+**Training your own classifier from the GUI** (AI Diagnostics → *Train a model*,
+`src/driveflow/ai/custom_training.py`). The promoted models were trained by scripts on fixed grids;
+this tab lets you define your own grid with the same options as the simulation pages and train on it:
+
+| Step | Options |
+|---|---|
+| 1 · Classes | Any number of fault modes: healthy, outer race, inner race, ball, cage and your saved custom fault types (characteristic orders defined on the DC Motor page). For `vsc_dpc`: normal vs. capacitor degradation (capacitance and ESR ranges). |
+| 2 · Operating conditions | PI and/or MPC; speed or torque control; a range of setpoints; fault-severity scales; electrical severity; PI setpoint weight. For `vsc_dpc`: load resistances, reference magnitudes and frequencies, converter voltage limit. |
+| 3 · Robustness | Maximum sensor noise and the share of noise-free runs; per-run drift of ψ_e, rotor inertia and r_a; base motor parameters. |
+| 4 · Runs | Duration, discarded start-up, runs per cell, grid seed. |
+| 5 · Model | Architecture preset (PC / Raspberry Pi 5 / ESP32 families), window length, **input channels** (e.g. current only for an MCSA model), epochs, batch size, windows per class, validation/test shares, training seed, rpm level, OOD detector. |
+
+The page shows the number of runs per class and a rough time estimate before you start. The job
+runs in the worker (Experiment Runs → *Start local worker*), so you can keep using SPADE meanwhile.
+Every class gets the same operating cells; train, validation and test are split **by run**. The
+result -- test macro-F1, per-class recall, confusion matrix, OOD detector -- is a **candidate** saved
+under `configs/classifiers/custom/<name>/<date>_runNN/` (gitignored, like its dataset in
+`data/custom/`). You can select it in *Evaluate a model* or use it as the starting point for transfer
+learning. It is never promoted from this page.
+
 **Model registry** (`src/driveflow/ai/registry.py`): a single manifest
 (`configs/registry.yaml`) resolving `(domain, tier, block)` to whichever trained run is promoted
 to production (`experiments/promote_run.py`) -- a deliberate, separate step from training.
@@ -108,9 +135,9 @@ ML), a Raspberry Pi 5 `GatewayAgent` evaluates rules with hysteresis/debounce an
 disconnected from the PC tier, and a PC-tier `ServerAgent` aggregates alerts across domains and
 tracks classifier confidence over time to flag drift.
 
-Try it in the dashboard: pick the "IA" macro-phase, generate a sample run or upload a file, and
-see the trained classifier/regressor evaluate it on demand -- the landing page also has a clickable
-system diagram walking through how these pieces connect end to end.
+Try it in the dashboard: open **AI Diagnostics**, generate a sample run or upload a file, and see the
+trained classifier/regressor evaluate it on demand. The Overview page also has a clickable system
+diagram showing how these pieces connect end to end.
 
 ## Transfer Learning workbench
 
@@ -148,6 +175,40 @@ Fine-tuning a model that is already promoted, without retraining it from scratch
   transfer-learning run and refuses it unless approved; promotions are atomic, appended to
   `configs/registry_history.yaml`, and reversible with `rollback()`.
 
+**Base model.** The wizard can start from:
+1. the promoted model of the domain;
+2. any other model on this machine: a classifier trained in AI Diagnostics, an earlier
+   transfer-learning candidate, or a historical run;
+3. an **imported third-party model** (`src/driveflow/ai/transfer/external.py`). The page lists the
+   supported formats:
+
+| Format | Supported? |
+|---|---|
+| SPADE run directory (`config.yaml` + `model.weights.h5` + `metrics.json`) | Yes |
+| Keras v3 `.keras`, full model | Yes. Loaded in safe mode; `Lambda` layers and non-Keras custom layers are refused. |
+| Keras HDF5 `.h5`, full model (`model.save()`) | Yes, with the same checks |
+| Weights-only `.weights.h5` | No: there is no architecture to rebuild |
+| TensorFlow SavedModel, TFLite | No: Keras 3 cannot fine-tune them (inference only) |
+| ONNX, PyTorch | No: they would need converter dependencies that SPADE does not install. Convert to `.keras` first. |
+
+An imported classifier must have one input `(window, channels)` and a softmax `Dense` output. You
+declare which SPADE channels its inputs are and which classes its outputs are. It is saved as a run
+under `configs/classifiers/external/` (gitignored). SPADE feeds it its own per-window z-scored
+windows, because the model's original preprocessing is unknown.
+
+**Transfer mode** (step 2):
+- **Full transfer learning** fine-tunes every layer: one learning rate (`FULL_FINETUNE`), or a
+  larger rate on the output layer (`DISCRIMINATIVE_LR`).
+- **Feature transfer learning** reuses the base model's learned features: freeze the first N
+  layers (`FEATURE_EXTRACTOR`), train only the last N (`ADAPTER`), or train a **new output layer**
+  on the frozen features (`NEW_HEAD`).
+- Only `NEW_HEAD` can learn **classes the base model does not have**. For example, a 3-class model
+  can be extended with `cage` or a custom fault.
+
+When the class set changes, the base model cannot be scored on the same test set. The base-vs-candidate
+check is then NOT_APPLICABLE, and an absolute macro-F1 floor, entered by the reviewer, becomes
+required. Without that floor the gate stays blocked.
+
 In the dashboard the page is a 4-step wizard: **Data** (simulate + optionally upload, prepare
 dataset → hash, split manifest, integrity checks), **Setup** (strategy, epochs, proposed
 thresholds flagged as requiring confirmation, train), **Validate** (loss curves, base vs.
@@ -158,8 +219,8 @@ Raspberry Pi 5/ESP32 reuses the existing `--distill` flag on `experiments/train_
 not a separate mechanism.
 
 The tab deliberately does *not* offer a "pick a new architecture" control: fine-tuning changes
-weights, not architecture -- choosing a different one is training from scratch, which
-`experiments/train_model.py` already covers.
+weights (and, with `NEW_HEAD`, only the output layer). Choosing a different architecture means
+training from scratch, which AI Diagnostics → *Train a model* and `experiments/train_model.py` cover.
 
 ## Simulation-based agents & Monitoring
 
@@ -211,13 +272,176 @@ and is evaluated on every sample of the simulated run (telemetry time, not the t
 clicks) with a 10 ms on-delay and a 10 ms off-delay, so one "Run monitoring" pass with R < R*
 fires it (AI-N02/AI-N08).
 
-## Quick start
+## Installation, step by step
 
-Requires Python 3.11 or 3.12, and [`uv`](https://docs.astral.sh/uv/) (or plain `pip`). No GPU or
-CUDA is needed. Step-by-step guides with troubleshooting, per operating system:
-[Ubuntu](docs/INSTALL_UBUNTU.md) · [Windows (PowerShell)](docs/INSTALL_WINDOWS.md) ·
-[macOS (Apple Silicon / Intel)](docs/INSTALL_MACOS.md) -- Intel Macs need
-`-c constraints/macos-intel.txt`.
+You need **Python 3.11 or 3.12** (64-bit) and Git. No GPU or CUDA is needed: everything runs on the
+CPU. Pick your operating system below and run the commands **in order**, one block at a time. Each
+step says what you should see. If a step fails, look for the message in that system's
+troubleshooting table, which is in the full guide linked at the end of each section.
+
+<details open><summary><b>Linux (Ubuntu 22.04 / 24.04 / 26.04)</b></summary>
+
+1. **Install the system tools** (Terminal):
+   ```bash
+   sudo apt update
+   sudo apt install -y git curl build-essential
+   ```
+2. **Install `uv`.** It downloads a supported Python by itself, so the system Python version does
+   not matter:
+   ```bash
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   source "$HOME/.local/bin/env"
+   uv --version                       # prints a version, e.g. uv 0.9.x
+   ```
+3. **Get the code:**
+   ```bash
+   git clone https://github.com/lucianoradrigan/SPADE.git
+   cd SPADE
+   ```
+4. **Create the environment and install SPADE** (a few minutes; TensorFlow is ~600 MB):
+   ```bash
+   uv venv --python 3.11 .venv
+   source .venv/bin/activate          # the prompt now starts with (.venv)
+   uv pip install -e ".[dev,viz]"
+   ```
+5. **Check the installation:**
+   ```bash
+   python scripts/smoke_test.py       # every line [PASS]; the last one "6. no exceptions: PASS"
+   ```
+6. **Open SPADE:**
+   ```bash
+   streamlit run src/driveflow/viz/app.py
+   ```
+   The browser opens at http://localhost:8501. Stop it with `Ctrl+C`.
+7. **Next time:** `cd SPADE`, `source .venv/bin/activate`, then step 6.
+
+Without `uv` (Ubuntu 24.04, system Python 3.12): `sudo apt install -y python3.12-venv`, then
+`python3.12 -m venv .venv`, `source .venv/bin/activate`, `pip install -e ".[dev,viz]"`.
+Full guide and troubleshooting: [docs/INSTALL_UBUNTU.md](docs/INSTALL_UBUNTU.md).
+</details>
+
+<details open><summary><b>Windows 10 / 11 (PowerShell)</b></summary>
+
+Use **PowerShell**, not WSL. Open it from the Start menu ("Windows PowerShell").
+
+1. **Install Python 3.12 and Git:**
+   ```powershell
+   winget install --id Python.Python.3.12 -e
+   winget install --id Git.Git -e
+   ```
+   **Close and reopen PowerShell**, then check:
+   ```powershell
+   py -3.12 --version                 # Python 3.12.x
+   git --version
+   ```
+   If you install Python from python.org instead, take the **64-bit** installer and tick
+   **"Add python.exe to PATH"**.
+2. **Allow long paths (once).** TensorFlow has very deep file paths. Open PowerShell **as
+   Administrator** (right click → *Run as administrator*), run the command below, then **reboot**:
+   ```powershell
+   New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
+   ```
+3. **Get the code into a short path** (a normal PowerShell again):
+   ```powershell
+   mkdir C:\dev -Force
+   cd C:\dev
+   git clone https://github.com/lucianoradrigan/SPADE.git
+   cd SPADE
+   ```
+4. **Create the environment and install SPADE** (a few minutes):
+   ```powershell
+   py -3.12 -m venv .venv
+   .\.venv\Scripts\Activate.ps1          # the prompt now starts with (.venv)
+   python -m pip install --upgrade pip
+   pip install -e ".[dev,viz]"
+   ```
+   If activation fails with *"running scripts is disabled on this system"*, run
+   `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned` once, then activate again.
+5. **Check the installation:**
+   ```powershell
+   python scripts\smoke_test.py        # every line [PASS]; the last one "6. no exceptions: PASS"
+   ```
+6. **Open SPADE:**
+   ```powershell
+   streamlit run src\driveflow\viz\app.py
+   ```
+   The browser opens at http://localhost:8501. If Windows Defender Firewall asks about `python.exe`,
+   allowing **private networks** is enough. Stop it with `Ctrl+C`.
+7. **Next time:** `cd C:\dev\SPADE`, `.\.venv\Scripts\Activate.ps1`, then step 6.
+
+Common errors: `DLL load failed while importing _pywrap_tensorflow_internal` →
+`winget install Microsoft.VCRedist.2015+.x64`; `Could not find a version that satisfies the
+requirement tensorflow` → you have 32-bit Python or Python 3.13+, so install 64-bit 3.12;
+`WinError 206` → step 2 was skipped or the clone path is too long.
+Full guide and troubleshooting: [docs/INSTALL_WINDOWS.md](docs/INSTALL_WINDOWS.md).
+**Status: the Windows steps were checked by dependency resolution and CI configuration, not run on a
+Windows machine.**
+</details>
+
+<details open><summary><b>macOS (Apple Silicon M1–M4, and Intel)</b></summary>
+
+1. **Find out which Mac you have** (Terminal):
+   ```bash
+   uname -m                           # arm64 = Apple Silicon, x86_64 = Intel
+   ```
+   On Apple Silicon, `x86_64` means the Terminal runs under Rosetta. Use a native Terminal.
+2. **Install the tools:**
+   ```bash
+   xcode-select --install             # Git and compilers; skip if already installed
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"   # only if Homebrew is missing
+   brew install python@3.12 git
+   python3.12 --version               # Python 3.12.x
+   ```
+3. **Get the code:**
+   ```bash
+   git clone https://github.com/lucianoradrigan/SPADE.git
+   cd SPADE
+   ```
+4. **Create the environment and install SPADE.**
+
+   **Apple Silicon:**
+   ```bash
+   python3.12 -m venv .venv
+   source .venv/bin/activate
+   python -m pip install --upgrade pip
+   pip install -e ".[dev,viz]"
+   ```
+   **Intel Mac.** Use Python 3.12 **and** the constraints file. Without it the install breaks,
+   because the last TensorFlow for Intel Macs is 2.16:
+   ```bash
+   python3.12 -m venv .venv
+   source .venv/bin/activate
+   python -m pip install --upgrade pip
+   pip install -e ".[dev,viz]" -c constraints/macos-intel.txt
+   ```
+5. **Check the installation:**
+   ```bash
+   python scripts/smoke_test.py       # every line [PASS]; the last one "6. no exceptions: PASS"
+   ```
+6. **Open SPADE:**
+   ```bash
+   streamlit run src/driveflow/viz/app.py
+   ```
+   The browser opens at http://localhost:8501. If macOS asks whether Python may accept incoming
+   connections, you can **Deny** for local use. Stop it with `Ctrl+C`.
+7. **Next time:** `cd SPADE`, `source .venv/bin/activate`, then step 6.
+
+Do not install `tensorflow-metal`: SPADE does not need it. Common errors: `pyarrow requires NumPy 2.0
+or newer` on an Intel Mac → reinstall with `-c constraints/macos-intel.txt`; `illegal hardware
+instruction` → the environment was created under Rosetta, so recreate `.venv` with
+`/opt/homebrew/bin/python3.12`. Full guide and troubleshooting: [docs/INSTALL_MACOS.md](docs/INSTALL_MACOS.md).
+**Status: the macOS steps were checked by dependency resolution (both architectures) and an Intel
+package set emulated on Linux, not run on a Mac.**
+</details>
+
+### Using SPADE after installing
+
+- `streamlit run src/driveflow/viz/dashboard.py` is the legacy command for the same app and still works.
+- **Long jobs** (sweeps, tuning, RL, classifier training) need the background worker. Start it from
+  **Experiment Runs → Start local worker**, or in a second terminal run
+  `python -m driveflow.jobs.worker serve` with the environment active.
+- Light and dark themes are both native (app menu ⋮ → Settings → Theme). The app follows the OS
+  preference.
 
 ### Assisted setup with an AI coding assistant
 
@@ -241,24 +465,10 @@ or retrain models.
 
 A person can follow the same file by hand.
 
-### Manual setup
-
-```bash
-uv venv --python 3.11 .venv
-source .venv/bin/activate
-uv pip install -e ".[dev,viz]"
-```
-
-Run the dashboard (either command opens the same multipage app):
-
-```bash
-streamlit run src/driveflow/viz/app.py
-streamlit run src/driveflow/viz/dashboard.py   # legacy command, still supported
-```
+### Tests and reports
 
 The exact environment the test suite was verified in is pinned in `requirements-lock.txt`
-(`uv pip install -r requirements-lock.txt && uv pip install -e . --no-deps`). Light and dark
-themes are both native (app menu ⋮ → Settings → Theme); the app follows the OS preference.
+(`uv pip install -r requirements-lock.txt && uv pip install -e . --no-deps`; Linux only).
 
 Check the installation (imports, app start, modules, a short simulation of every plant, one
 model inference -- same command on every OS):
@@ -296,11 +506,19 @@ src/driveflow/
     classical/    PI controller, PMSM FOC/MTPA
     mpc/          linear MPC (QP per step) for the DC motor -- interchangeable with PI, same plant
     dpc/          DPC network, model-based training loss, receding-horizon controller
+    rl/           DQN / DDPG agents (Keras), policy controller, benchmark against classical controllers
   datagen/        Scenario dataclass + runner -- turns a config into a simulated dataset/trace
-  models/         config-driven classifier/regressor builders + schemas, common windowing/splits
-  ai/             model registry (configs/registry.yaml) + TFLite export (edge deployment)
-    transfer/     transfer-learning stack: registry-backed loader, data merger, 3 fine-tune
-                  strategies, promotion validator
+  models/         config-driven classifier/regressor builders + schemas, common windowing/splits,
+                  training.py (the training code behind experiments/train_model.py and the GUI)
+  ai/             model registry (configs/registry.yaml), TFLite export, calibration/OOD,
+                  custom_training.py (AI Diagnostics -> Train a model)
+    transfer/     transfer-learning stack: registry-backed loader, data merger, 5 fine-tune
+                  strategies (full / feature transfer), third-party model import, promotion validator
+  envs/           Gymnasium environments over the native plants and the buck surrogate
+  jobs/           durable job queue (SQLite) + worker process: sweeps, tuning, RL, classifier training
+  runs/           run store, experiment specs, plant profiles, run comparison
+  optim/          PSO, Bayesian optimisation (GP), NSGA-II and the tuning objectives
+  integrations/   PLECS Standalone RPC client and batch sweeps
   agents/         simulation-based anomaly agents: shared detect_anomaly + per-domain hypotheses,
                   DTW/Euclidean/Mahalanobis metrics, TTL simulation cache, feature-importance
                   explainer
@@ -322,7 +540,8 @@ tests/            pytest suite; simulation/, control/, ai/, compat/ hold the cat
 constraints/      macos-intel.txt -- dependency pins for Intel Macs
 configs/          the 4 shipped DPC checkpoints (see below), promoted classifier/regressor runs
                   (weights + config + metrics, some with a .tflite export), the model registry
-                  manifest, and vibration module calibration
+                  manifest, and vibration module calibration; classifiers/custom/ and
+                  classifiers/external/ hold models trained or imported from the GUI (gitignored)
 ```
 
 ## The DPC checkpoints
@@ -355,8 +574,9 @@ note (also covers the KAt-DataCenter/Paderborn bearing dataset the vibration mod
 its metrics) -- the ones actually registered in `configs/registry.yaml` are what the dashboard's
 IA tab and edge-deployment downloads use, no local training run required either. Currently
 registered: a `dc_motor` classifier (PC/Raspberry Pi 5/ESP32 tiers) and a `vsc_dpc` regressor (same
-3 tiers) -- the `vsc_dpc` classifier is deliberately not built yet (blocked on a separability
-verdict, see the design doc), and `dc_motor` has no regressor yet. Retraining or adding a new
+3 tiers). No `vsc_dpc` classifier is shipped or promoted: capacitor degradation is synthetic-only,
+but you can train one from AI Diagnostics → *Train a model*. The `dc_motor` forecaster (E14) is
+trained but not promoted (docs/VALIDATION_SUMMARY.md §7.2). Retraining or adding a new
 `(domain, tier, block)` combination needs a real dataset first (`experiments/generate_diagnosis_grid_dataset.py`,
 `generate_diagnosis_dataset.py`
 / `generate_vsc_dpc_dataset.py`, not committed -- see `.gitignore`), then

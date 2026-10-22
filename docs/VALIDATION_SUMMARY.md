@@ -286,3 +286,17 @@ Evidence: [`audit/expansion/e7_tuning_effort.md`](audit/expansion/e7_tuning_effo
 - Run the worker heartbeat path on Windows. There, a dead worker is detected by heartbeat age only, and this has never run on Windows.
 - Make My Plants show a failed sweep.
 - Decisions listed in §7.2 and in `t9_closure.md` §6.
+
+## 9. Custom classifier training and transfer-learning modes (2026-10-21)
+
+Evidence: [`audit/ai/custom_training_tl.md`](audit/ai/custom_training_tl.md) (`python experiments/report_custom_training_tl.py`). Simulated data only. Nothing was promoted, and no default changed.
+
+| What | Result |
+|---|---|
+| A. AI Diagnostics → Train a model. 4 classes (normal, outer race, inner race, user-defined unbalance); PI + MPC; 3 speeds; 3 severities; noise and drift; 72 runs; window 1024 | **Test macro-F1 0.417.** inner_race recall 0, all confused with outer_race and unbalance; normal 1.0. The pipeline works end to end, but this small grid is **not** a usable model. |
+| B. Full vs. feature transfer from the promoted 5-class model on MPC + 0-60 % noise | The base already scores macro-F1 1.000 on this condition, so there was nothing to gain. FULL_FINETUNE and FEATURE_EXTRACTOR kept 1.000. NEW_HEAD fell to 0.556 with 72 training windows, and the gate reports it (macro_f1_vs_base FAIL). |
+| C. New class (unbalance) on the 3-class `pc_server/2026-10-18_run01` | Full fine-tuning is refused. NEW_HEAD reaches macro-F1 1.000 on 228 test windows. The gate stays BLOCKED until a reviewer approves. |
+| Simulation time | 398 s for 108 simulated seconds with 4 processes, 3.7 s per simulated second. One process measured about 3. Extra processes gave no speed-up, so the GUI now estimates without dividing by processes and defaults to 1. |
+
+**Waiting for your decision:** the `min_macro_f1` floor, required when the class set changes. No value is proposed in the GUI; 0.8 was used only in this report.
+

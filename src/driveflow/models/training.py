@@ -1,0 +1,412 @@
+"""Library side of experiments/train_model.py (moved here so the GUI and the job worker can train
+without importing a script; experiments/train_model.py keeps the CLI and re-exports these names).
+
+Single parametrized training entry point (docs/design_ai_layer_transversal.md Sec. 6.4, Sec. 8
+step 5): `python experiments/train_model.py --config <path> --dataset <parquet path>` builds
+whichever model architecture the config describes (a classifier or a forecaster, detected from the
+config's own fields -- see _load_any_config), trains it, evaluates against a grouped-by-run test
+split, and saves the three artifacts Sec. 6.4 requires together -- the exact config file, the
+weights, and the resulting metrics -- under one timestamped run directory
+(<config_dir>/<config_stem>/<date>_run<NN>/), so any checkpoint stays traceable to the exact
+hyperparameters that produced it.
+
+Does NOT replace Fase C's or Fase D.1's own specific entregables (INSTRUCTIONS.md Sec. 5/6): Fase
+C's classifier is trained on the Fase A dataset with its own acceptance criteria (F1/MAE vs.
+paper_federative), and D.1's dpc_tracking_forecaster explicitly adapts
+regressors/envelope_forecaster.py, not the config-driven build_forecaster this script also drives
+(see regressors/builder.py's module docstring for why the two forecaster families coexist). This
+script is the shared plumbing Sec. 6.4 describes for the config-driven builder family
+(models/*/schemas.py + builder.py, Sec. 8 step 4); running it against a real Fase A/B dataset for
+Fase C/D.1 is a separate, larger decision than adding the script itself -- no such dataset exists
+in this repo checkout yet (see docs/design_ai_layer_transversal.md's status note for the step this
+script was added at).
+
+Usage:
+    python experiments/train_model.py --config configs/classifiers/pc_server.yaml --dataset path/to/dataset.parquet
+    python experiments/train_model.py --config configs/regressors/pc_full.yaml --dataset path/to/dataset.parquet
+
+    # Distillation (Sec. 4.1/4.2 "distillado del modelo de PC", Sec. 8 step 8) -- auto-resolves
+    # the promoted PC-tier run for the SAME (domain, block) from the registry as teacher; requires
+    # one to already be promoted (experiments/promote_run.py). --distill-alpha weighs the true/
+    # direct target against the teacher's own prediction (1.0 = no distillation, 0.0 = pure
+    # mimicry of the teacher) -- see _blend_classifier_targets/_blend_regressor_targets.
+    python experiments/train_model.py --config configs/classifiers/rpi5_resnet1d_se.yaml --dataset path/to/dataset.parquet --distill
+"""
+
+import datetime as dt
+import json
+import shutil
+from pathlib import Path
+
+import keras
+import numpy as np
+import pandas as pd
+import yaml
+from sklearn.metrics import f1_score
+from sklearn.preprocessing import LabelEncoder
+
+from driveflow.ai.calibration import fit_calibration
+from driveflow.ai.provenance import file_sha256, run_metadata, set_global_seed
+from driveflow.ai.registry import DEFAULT_REGISTRY_PATH, RegistryError, load_promoted_model, load_run_model
+from driveflow.models.classifiers.builder import build_classifier
+from driveflow.models.classifiers.schemas import ClassifierConfig, load_classifier_config
+from driveflow.models.common import (
+    RPM_LEVEL_SCALING,
+    VSC_DPC_CANDIDATE_CHANNELS,
+    InsufficientGroupsError,
+    build_classification_windows,
+    build_direct_forecast_windows,
+    discover_channels,
+    grouped_split,
+    grouped_train_val_test_split,
+    load_diagnosis_dataset,
+)
+from driveflow.models.regressors.builder import build_forecaster
+from driveflow.models.regressors.schemas import ForecasterConfig, load_forecaster_config
+
+#: domain -> plant_config_id, matching driveflow.datagen.scenario.Scenario._VALID_PAIRS. Only the
+#: two domains that exist today -- extend when a third domain is added.
+_PLANT_CONFIG_ID_BY_DOMAIN = {"dc_motor": "dc_perm_ex_v1", "vsc_dpc": "vsc_dpc_v1"}
+
+#: This script's own "kind" naming ("classifier"/"forecaster", from _load_any_config) vs.
+#: driveflow.ai.registry's "block" naming ("classifier"/"regressor") -- a small, pre-existing
+#: inconsistency bridged here rather than renamed throughout (renaming "forecaster" to "regressor"
+#: everywhere in this file would be a much larger, unrelated diff for a step 8 feature).
+_KIND_TO_REGISTRY_BLOCK = {"classifier": "classifier", "forecaster": "regressor"}
+
+
+def _load_any_config(config_path: Path):
+    """Detects whether config_path is a classifier config ('blocks', Sec. 6.2) or a forecaster
+    config ('recurrent_type', Sec. 6.3) and loads+validates it with the matching schema."""
+    with config_path.open() as f:
+        raw = yaml.safe_load(f)
+    if not isinstance(raw, dict):
+        raise ValueError(f"{config_path}: expected a mapping, got {raw!r}")
+    if raw.get("task") == "dab_performance":
+        from driveflow.models.dab.schemas import load_dab_config
+
+        return "dab_performance", load_dab_config(config_path)
+    if "blocks" in raw:
+        return "classifier", load_classifier_config(config_path)
+    if "recurrent_type" in raw:
+        return "forecaster", load_forecaster_config(config_path)
+    raise ValueError(f"{config_path}: cannot tell if this is a classifier config ('blocks' key) or a forecaster config ('recurrent_type' key)")
+
+
+def _load_domain_dataframe(dataset_path: Path, domain: str) -> pd.DataFrame:
+    if domain == "dc_motor":
+        # The mandatory Fase C safeguard (INSTRUCTIONS.md Sec. 5 punto 3) -- excludes vsc_dpc_v1
+        # rows, which have NaN in every dc_motor diagnosis column.
+        return load_diagnosis_dataset(dataset_path)
+    if domain == "vsc_dpc":
+        df = pd.read_parquet(dataset_path)
+        return df[df["plant_config_id"] == _PLANT_CONFIG_ID_BY_DOMAIN["vsc_dpc"]].reset_index(drop=True)
+    if domain == "dab":
+        # A PLECS sweep table (CSV or Parquet) with the config's input/output columns -- its own
+        # domain, never mixed with the motor/VSC telemetry schema.
+        return pd.read_csv(dataset_path) if str(dataset_path).endswith(".csv") else pd.read_parquet(dataset_path)
+    raise ValueError(f"unknown domain {domain!r} -- expected one of {sorted(_PLANT_CONFIG_ID_BY_DOMAIN)}")
+
+
+def _channels_for_domain(df: pd.DataFrame, domain: str, window_samples: int) -> list:
+    if domain == "dc_motor":
+        return discover_channels(df, window_samples)
+    if domain == "vsc_dpc":
+        return [c for c in VSC_DPC_CANDIDATE_CHANNELS if c in df.columns and df[c].notna().mean() > 0.5]
+    raise ValueError(f"unknown domain {domain!r} -- expected one of {sorted(_PLANT_CONFIG_ID_BY_DOMAIN)}")
+
+
+def _blend_classifier_targets(y_int: np.ndarray, n_classes: int, teacher_probs: np.ndarray, alpha: float) -> np.ndarray:
+    """Sec. 4.1/4.2 'distillado del modelo de PC': a one-hot-vs-teacher-softmax blend, trained
+    with plain categorical_crossentropy -- the standard soft-target distillation trick, avoiding a
+    custom Keras loss/training loop for what is otherwise an ordinary classification fit()."""
+    y_onehot = np.eye(n_classes, dtype=np.float32)[y_int]
+    return alpha * y_onehot + (1 - alpha) * teacher_probs
+
+
+def _blend_regressor_targets(y_true: np.ndarray, teacher_pred: np.ndarray, alpha: float) -> np.ndarray:
+    """Same blending idea as _blend_classifier_targets, for a continuous target: no notion of a
+    "soft label" for regression, so this is just weighting the true value against the teacher's
+    own prediction, trained with plain mse."""
+    return alpha * y_true + (1 - alpha) * teacher_pred
+
+
+def _train_classifier(
+    config: ClassifierConfig, df: pd.DataFrame, epochs: int, batch_size: int, seed: int, teacher=None, distill_alpha: float = 0.5,
+    level_scaling: dict | None = None, cap_per_class: int = 500, channels: list | None = None, val_frac: float = 0.2, test_frac: float = 0.1,
+    fit_ood_detector: bool = False, on_epoch_end=None,
+) -> tuple:
+    """channels: None = discovered from the data (the historical behaviour); a list = exactly those
+    channels, in that order (custom training from the GUI). A requested channel that is missing or
+    all-NaN is an error, not silently dropped. fit_ood_detector: also fit ai/ood.fit_ood (statistics
+    on train, threshold on val) and store it as metrics["ood"]. on_epoch_end(epoch, logs): progress
+    hook for the plain (non-distilled) fit."""
+    if channels is None:
+        channels = _channels_for_domain(df, config.domain, config.input_window)
+    else:
+        missing = [c for c in channels if c not in df.columns or df[c].isna().all()]
+        if missing:
+            raise ValueError(f"requested channel(s) {missing} are missing or empty in the dataset")
+    if not channels:
+        raise ValueError(f"no live channels found for domain {config.domain!r} at input_window={config.input_window}")
+    classes = sorted(df["label"].unique())
+
+    level_scaling = {c: v for c, v in (level_scaling or {}).items() if c in channels}
+    X, y_str, groups = build_classification_windows(df, classes, channels, config.input_window, cap_per_class=cap_per_class, level_scaling=level_scaling)
+    if X is None:
+        raise ValueError("no classification windows could be built -- dataset too short for input_window")
+
+    # AUDIT Q15: the legacy prepare_classification_splits drew the test fold from StratifiedGroupKFold
+    # over very few runs, so the shipped dc_motor run's test set (2 runs) held no inner_race window
+    # at all and its 0.895 accuracy never measured that class. Groups are now allocated per class
+    # (every class in train, val AND test), and a class that cannot reach the test set is an error.
+    le = LabelEncoder().fit(classes)
+    y = le.transform(y_str)
+    split = grouped_train_val_test_split(groups, val_frac=val_frac, test_frac=test_frac, seed=seed, y=y)
+    missing = sorted(set(le.classes_) - {str(le.classes_[k]) for k in np.unique(y[split.test_idx])})
+    if missing:
+        raise InsufficientGroupsError(f"classes {missing} have no run in the test set (each class needs >= 3 runs) -- refusing to report a test score that never measured them")
+    X_train, X_val, X_test = X[split.train_idx], X[split.val_idx], X[split.test_idx]
+    y_train, y_val, y_test = y[split.train_idx], y[split.val_idx], y[split.test_idx]
+
+    model = build_classifier(config, n_channels=len(channels))
+    if teacher is None:
+        model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+        callbacks = [keras.callbacks.LambdaCallback(on_epoch_end=on_epoch_end)] if on_epoch_end else None
+        model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=epochs, batch_size=batch_size, verbose=0, callbacks=callbacks)
+    else:
+        # Teacher must see the exact same windows the student trains on -- callers are
+        # responsible for the teacher/student configs sharing input_window (see the shipped
+        # rpi5/esp32 presets' own comments on this).
+        teacher_probs = teacher.predict(X_train, verbose=0)
+        y_train_blend = _blend_classifier_targets(y_train, len(le.classes_), teacher_probs, distill_alpha)
+        model.compile(optimizer="adam", loss="categorical_crossentropy")
+        # No validation_data here: y_val stays as plain int labels (never blended -- val isn't
+        # consumed by any callback in this simple fixed-epoch fit), which would mismatch
+        # categorical_crossentropy's expected shape.
+        model.fit(X_train, y_train_blend, epochs=epochs, batch_size=batch_size, verbose=0)
+
+    y_pred = np.argmax(model.predict(X_test, verbose=0), axis=1)
+    # AI-N12: temperature + abstention threshold fitted on the validation split only.
+    calibration = fit_calibration(model.predict(X_val, verbose=0), y_val) if len(X_val) else None
+    metrics = {
+        "kind": "classifier",
+        "domain": config.domain,
+        "tier": config.tier,
+        "channels": channels,
+        "classes": [str(c) for c in le.classes_],
+        "n_train": int(len(X_train)),
+        "n_val": int(len(X_val)),
+        "n_test": int(len(X_test)),
+        "test_accuracy": float(np.mean(y_pred == y_test)) if len(y_test) else None,
+        "test_macro_f1": float(f1_score(y_test, y_pred, average="macro")) if len(y_test) else None,
+        "test_per_class_recall": {str(c): float(np.mean(y_pred[y_test == k] == k)) for k, c in enumerate(le.classes_)},
+        "test_confusion_matrix": [[int(np.sum((y_test == t) & (y_pred == q))) for q in range(len(le.classes_))] for t in range(len(le.classes_))],
+        "split": split.to_dict(),
+    }
+    if fit_ood_detector and len(X_val):
+        from driveflow.ai.ood import fit_ood
+
+        metrics["ood"] = fit_ood(model, X_train, y_train, X_val)
+    if level_scaling:
+        metrics["level_scaling"] = level_scaling
+    if calibration is not None:
+        metrics["calibration"] = calibration
+    return model, metrics
+
+
+def _train_forecaster(
+    config: ForecasterConfig, df: pd.DataFrame, epochs: int, batch_size: int, seed: int, teacher=None, distill_alpha: float = 0.5
+) -> tuple:
+    if config.label_filter is not None:
+        df = df[df["label"] == config.label_filter].reset_index(drop=True)
+        if df.empty:
+            raise ValueError(f"no rows with label {config.label_filter!r}")
+    channels = list(config.channels) or _channels_for_domain(df, config.domain, config.input_window)
+    if not channels:
+        raise ValueError(f"no channels found for domain {config.domain!r}")
+
+    X, Y, groups = build_direct_forecast_windows(df, channels, config.input_window, config.horizon)
+    if X is None:
+        raise ValueError("no forecast windows could be built -- dataset too short for input_window+horizon")
+
+    idx_val = np.array([], dtype=int)
+    if config.split == "three_way":
+        # E14: groups (runs) go to train / validation / test; validation fits the residual threshold.
+        manifest = grouped_train_val_test_split(groups, val_frac=0.2, test_frac=0.1, seed=seed)
+        idx_train, idx_val, idx_test = manifest.train_idx, manifest.val_idx, manifest.test_idx
+    else:
+        # No discrete label to stratify by -- grouped_split's stratified attempt fails on a
+        # single-valued y_pool and falls back to a plain grouped split (see splits.py).
+        dummy_labels = np.zeros(len(X), dtype=int)
+        idx_train, idx_test = grouped_split(np.arange(len(X)), dummy_labels, groups, test_frac=0.2, seed=seed)
+
+    model = build_forecaster(config, n_channels=len(channels))
+    model.compile(optimizer="adam", loss="mse")
+    if teacher is None:
+        Y_train_target = Y[idx_train]
+    else:
+        # Same input_window/horizon requirement as the classifier path above.
+        teacher_pred = teacher.predict(X[idx_train], verbose=0)
+        Y_train_target = _blend_regressor_targets(Y[idx_train], teacher_pred, distill_alpha)
+    model.fit(X[idx_train], Y_train_target, epochs=epochs, batch_size=batch_size, verbose=0)
+
+    Y_pred = model.predict(X[idx_test], verbose=0) if len(idx_test) else np.empty((0, config.horizon, len(channels)))
+    mse = float(np.mean((Y_pred - Y[idx_test]) ** 2)) if len(idx_test) else None
+    # AI-N11: the naive baseline every forecaster must beat -- repeat the last context sample over
+    # the horizon (same normalized space as test_rmse).
+    persistence = np.repeat(X[idx_test][:, -1:, :], config.horizon, axis=1) if len(idx_test) else None
+    persistence_mse = float(np.mean((persistence - Y[idx_test]) ** 2)) if len(idx_test) else None
+    metrics = {
+        "kind": "forecaster",
+        "domain": config.domain,
+        "tier": config.tier,
+        "channels": channels,
+        "n_train": int(len(idx_train)),
+        "n_test": int(len(idx_test)),
+        "test_mse": mse,
+        "test_rmse": float(np.sqrt(mse)) if mse is not None else None,
+        "persistence_test_rmse": float(np.sqrt(persistence_mse)) if persistence_mse is not None else None,
+        "test_groups": sorted(str(g) for g in np.unique(groups[idx_test])),
+    }
+    if config.split == "three_way":
+        metrics.update({
+            "input_window": config.input_window, "horizon": config.horizon, "label_filter": config.label_filter,
+            "n_val": int(len(idx_val)), "val_groups": sorted(str(g) for g in np.unique(groups[idx_val])),
+            "train_groups": sorted(str(g) for g in np.unique(groups[idx_train])),
+            "test_rmse_per_channel": {c: float(np.sqrt(np.mean((Y_pred[..., j] - Y[idx_test][..., j]) ** 2))) for j, c in enumerate(channels)} if len(idx_test) else None,
+            "persistence_test_rmse_per_channel": {c: float(np.sqrt(np.mean((persistence[..., j] - Y[idx_test][..., j]) ** 2))) for j, c in enumerate(channels)} if len(idx_test) else None,
+        })
+    if config.target_channels:
+        from driveflow.ai import residual
+
+        val_df = df[df["source_file"].isin(metrics["val_groups"])]
+        seg, _, labels, _ = residual.raw_windows(val_df, channels, config.input_window, config.horizon)
+        pred = residual.forecast(model, seg, channels, config.input_window)
+        rmse = residual.channel_rmse(seg, pred, channels, list(config.target_channels), config.input_window)
+        metrics["residual_detector"] = residual.fit_threshold(rmse, labels, list(config.target_channels))
+    return model, metrics
+
+
+def _train_dab(config, df: pd.DataFrame, epochs: int, batch_size: int, seed: int) -> tuple:
+    """DAB performance model (task E9 prep): standardized inputs -> standardized outputs, split by
+    operating point (config.group_by) so the same point never sits in two splits."""
+    from driveflow.models.dab.builder import build_dab_model
+
+    missing = [c for c in (*config.inputs, *config.outputs) if c not in df.columns]
+    if missing:
+        raise ValueError(f"dataset lacks columns {missing}")
+    if config.valid_column:
+        if config.valid_column not in df.columns:
+            raise ValueError(f"dataset lacks the validity column {config.valid_column!r}")
+        df = df[df[config.valid_column] == 1]
+    df = df.dropna(subset=list(config.inputs) + list(config.outputs)).reset_index(drop=True)
+    groups = df[list(config.group_by)].astype(str).agg("|".join, axis=1).to_numpy()
+    split = grouped_train_val_test_split(groups, val_frac=0.2, test_frac=0.2, seed=seed)
+    X, Y = df[list(config.inputs)].to_numpy(np.float32), df[list(config.outputs)].to_numpy(np.float32)
+    x_mu, x_sd = X[split.train_idx].mean(0), X[split.train_idx].std(0) + 1e-9
+    y_mu, y_sd = Y[split.train_idx].mean(0), Y[split.train_idx].std(0) + 1e-9
+    model = build_dab_model(config)
+    model.compile(optimizer="adam", loss="mse")
+    model.fit((X[split.train_idx] - x_mu) / x_sd, (Y[split.train_idx] - y_mu) / y_sd, epochs=epochs, batch_size=batch_size, verbose=0,
+              validation_data=((X[split.val_idx] - x_mu) / x_sd, (Y[split.val_idx] - y_mu) / y_sd))
+    pred = model.predict((X[split.test_idx] - x_mu) / x_sd, verbose=0) * y_sd + y_mu
+    rmse = np.sqrt(np.mean((pred - Y[split.test_idx]) ** 2, axis=0))
+    metrics = {"kind": "dab_performance", "domain": "dab", "tier": config.tier, "inputs": list(config.inputs), "outputs": list(config.outputs),
+               "x_mean": x_mu.tolist(), "x_std": x_sd.tolist(), "y_mean": y_mu.tolist(), "y_std": y_sd.tolist(),
+               "n_train": int(len(split.train_idx)), "n_val": int(len(split.val_idx)), "n_test": int(len(split.test_idx)),
+               "test_rmse_per_output": {o: float(r) for o, r in zip(config.outputs, rmse)},
+               "test_groups": sorted(set(groups[split.test_idx].tolist())), "split": "grouped by operating point " + "+".join(config.group_by)}
+    return model, metrics
+
+
+def _next_run_dir(config_path: Path) -> Path:
+    """<config_dir>/<config_stem>/<date>_run<NN>/, matching Sec. 6.4's own example layout."""
+    run_root = config_path.parent / config_path.stem
+    date_str = dt.date.today().isoformat()
+    n = 1
+    while True:
+        candidate = run_root / f"{date_str}_run{n:02d}"
+        if not candidate.exists():
+            return candidate
+        n += 1
+
+
+def _save_artifacts(run_dir: Path, config_path: Path, model, metrics: dict) -> None:
+    """Saves the three artifacts Sec. 6.4 requires together -- the exact config that produced
+    this run (copied verbatim, not re-serialized -- keeps comments/formatting), the weights, and
+    the resulting metrics."""
+    run_dir.mkdir(parents=True, exist_ok=False)
+    shutil.copyfile(config_path, run_dir / "config.yaml")
+    model.save_weights(run_dir / "model.weights.h5")
+    with (run_dir / "metrics.json").open("w") as f:
+        json.dump(metrics, f, indent=2)
+
+
+def train_from_config(
+    config_path, dataset_path, epochs: int = 20, batch_size: int = 32, seed: int = 42,
+    distill: bool = False, distill_alpha: float = 0.5, registry_path: Path = DEFAULT_REGISTRY_PATH,
+    level_scaling: dict | None = None, cap_per_class: int = 500, teacher_run: Path | None = None,
+) -> Path:
+    """Loads config_path (classifier or forecaster, auto-detected), trains it against
+    dataset_path (a Parquet file exported via driveflow.datagen.export_parquet), and saves the
+    run's artifacts. Returns the run directory.
+
+    distill=True (Sec. 8 step 8) auto-resolves the promoted PC-tier run for this config's own
+    (domain, block) from driveflow.ai.registry (registry_path -- override for tests, see
+    tests/test_train_model.py) as teacher -- raises RegistryError if nothing is promoted there
+    yet. Ignored (with no error) if config.tier == "pc" itself -- a PC-tier config IS the teacher
+    for other tiers, distilling it from itself would be a no-op at best.
+
+    level_scaling (classifiers only, AI-N07): {channel: [center, scale]} keeps those channels'
+    absolute level instead of z-scoring each window; recorded in metrics.json so inference applies
+    the same rule. A distilled student inherits its teacher's level_scaling (both must see the same
+    windows). cap_per_class: max windows per class (the historical default 500 drops most runs of
+    a large grid dataset). teacher_run: with distill, use this run directory as the teacher
+    instead of the promoted PC-tier run (e.g. a candidate PC model with a different class set that
+    is not promoted yet, A2).
+    """
+    config_path = Path(config_path)
+    # AUDIT AI-11: the seed used to reach only the data split; weight init / dropout / shuffling
+    # drew from unseeded global RNGs, so the same command did not reproduce the same model.
+    seed_info = set_global_seed(seed)
+    kind, config = _load_any_config(config_path)
+    df = _load_domain_dataframe(Path(dataset_path), config.domain)
+
+    teacher = None
+    if distill and config.tier != "pc":
+        block = _KIND_TO_REGISTRY_BLOCK[kind]
+        if teacher_run is not None:
+            teacher, _, teacher_metrics = load_run_model(teacher_run, block)
+        else:
+            teacher, _, teacher_metrics = load_promoted_model(config.domain, "pc", block, registry_path=registry_path)
+        if kind == "classifier":
+            level_scaling = teacher_metrics.get("level_scaling")
+            if len(teacher_metrics["classes"]) != config.num_classes:
+                raise ValueError(
+                    f"teacher has {len(teacher_metrics['classes'])} classes ({teacher_metrics['classes']}) but {config_path.name} declares "
+                    f"num_classes={config.num_classes}; pass --teacher-run with a matching PC run (since 2026-10-20 the promoted PC "
+                    "classifier has 5 classes; e.g. configs/classifiers/pc_server/2026-10-18_run01 for the 3-class ESP32 model)")
+
+    if kind == "classifier":
+        model, metrics = _train_classifier(
+            config, df, epochs, batch_size, seed, teacher=teacher, distill_alpha=distill_alpha, level_scaling=level_scaling, cap_per_class=cap_per_class
+        )
+    elif kind == "dab_performance":
+        if distill:
+            raise ValueError("distillation is not supported for the DAB performance model")
+        model, metrics = _train_dab(config, df, epochs, batch_size, seed)
+    else:
+        model, metrics = _train_forecaster(config, df, epochs, batch_size, seed, teacher=teacher, distill_alpha=distill_alpha)
+
+    if teacher is not None:
+        metrics["distilled_from"] = str(Path(teacher_run).as_posix()) if teacher_run is not None else f"{config.domain}/pc/{_KIND_TO_REGISTRY_BLOCK[kind]}"
+        metrics["distill_alpha"] = distill_alpha
+
+    run_dir = _next_run_dir(config_path)
+    _save_artifacts(run_dir, config_path, model, metrics)
+    # Provenance sidecar (metrics.json's schema is unchanged): commit, library versions, seed and
+    # the dataset's content hash -- what "seed + commit + env + data" reproducibility needs.
+    with (run_dir / "run_metadata.json").open("w") as f:
+        json.dump({**run_metadata(), "seed": seed_info, "epochs": epochs, "batch_size": batch_size, "dataset_path": str(dataset_path), "dataset_sha256": file_sha256(dataset_path), "distill": bool(teacher is not None), "cap_per_class": cap_per_class}, f, indent=2)
+    return run_dir

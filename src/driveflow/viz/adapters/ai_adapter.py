@@ -17,7 +17,7 @@ import streamlit as st
 from driveflow.ai import condition
 from driveflow.ai.calibration import UNCERTAIN, UNKNOWN, decide
 from driveflow.ai.ood import window_score
-from driveflow.ai.registry import RegistryError, load_promoted_model, resolve
+from driveflow.ai.registry import RegistryError, load_promoted_model, load_run_model, resolve
 from driveflow.models.common import normalize_window_like_training
 
 
@@ -39,6 +39,28 @@ def promoted_model(domain: str, tier: str, block: str):
     run_dir = resolve(domain, tier, block)
     model, config, metrics = cached_promoted_model(domain, tier, block, str(run_dir))
     return model, config, metrics, run_dir
+
+
+@st.cache_resource(show_spinner=False)
+def cached_run_model(run_dir: str, block: str, mtime: float):
+    """Any run directory (custom-trained, a transfer-learning candidate, a historical run); mtime
+    of its metrics.json is part of the key so a rewritten run is reloaded."""
+    del mtime
+    return load_run_model(run_dir, block)
+
+
+def model_at(domain: str, tier: str, block: str, run_dir=None):
+    """(model, config, metrics, run_dir): the promoted run when run_dir is None, else that run.
+    A run of another domain or block is refused rather than evaluated on the wrong signals."""
+    if run_dir is None:
+        return promoted_model(domain, tier, block)
+    rd = Path(run_dir)
+    if not (rd / "metrics.json").exists():
+        raise RegistryError(f"{rd}: no metrics.json")
+    model, config, metrics = cached_run_model(str(rd), block, (rd / "metrics.json").stat().st_mtime)
+    if metrics.get("domain") != domain:
+        raise RegistryError(f"{rd} is a {metrics.get('domain')} model, not {domain}")
+    return model, config, metrics, rd
 
 
 def normalize_window(window: np.ndarray, metrics: dict | None = None) -> tuple:
@@ -84,15 +106,15 @@ def run_metrics(run_dir) -> dict:
         return json.load(f)
 
 
-def assess_last_window(domain: str, df: pd.DataFrame, tier: str = "pc"):
-    """Condition assessment (ai/condition.py, task E10a) of the promoted classifier on the last
-    input_window rows of df: (assessment, window, model_info), or None if no classifier is promoted.
-    An invalid input is assessed as such and never reaches the model."""
+def assess_last_window(domain: str, df: pd.DataFrame, tier: str = "pc", run_dir=None):
+    """Condition assessment (ai/condition.py, task E10a) of the promoted classifier (or of the run at
+    run_dir) on the last input_window rows of df: (assessment, window, model_info), or None if no
+    classifier is promoted. An invalid input is assessed as such and never reaches the model."""
     try:
-        model, config, metrics, run_dir = promoted_model(domain, tier, "classifier")
+        model, config, metrics, run_dir = model_at(domain, tier, "classifier", run_dir)
     except RegistryError:
         return None
-    info = {"model_id": f"{run_dir.parent.name}/{run_dir.name}", "run_dir": run_dir, "tier": config.tier, "channels": list(metrics["channels"]),
+    info = {"model_id": f"{run_dir.parent.name}/{run_dir.name}", "run_dir": run_dir, "tier": config.tier, "promoted": _is_promoted(domain, tier, run_dir), "channels": list(metrics["channels"]),
             "input_window": config.input_window, "metrics": metrics}
     problems = condition.window_problems(df, info["channels"], config.input_window)
     if problems:
@@ -103,6 +125,13 @@ def assess_last_window(domain: str, df: pd.DataFrame, tier: str = "pc"):
     available, _ = condition.ood_availability(metrics)
     ood_score = window_score(model, window_n, metrics["ood"]) if available else None
     return condition.assess(raw, list(metrics["classes"]), metrics, ood_score), window, info
+
+
+def _is_promoted(domain: str, tier: str, run_dir: Path) -> bool:
+    try:
+        return resolve(domain, tier, "classifier").resolve() == Path(run_dir).resolve()
+    except RegistryError:
+        return False
 
 
 def ood_validation_report(run_dir: Path, metrics: dict, report_dir: Path = OOD_REPORT_DIR) -> dict | None:

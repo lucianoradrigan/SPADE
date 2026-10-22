@@ -34,9 +34,49 @@ from driveflow.ai.provenance import set_global_seed, weights_fingerprint
 
 
 class FineTuneStrategy(Enum):
+    """Full transfer learning: FULL_FINETUNE (every layer, one learning rate) and DISCRIMINATIVE_LR
+    (every layer, a larger rate on the output layer). Feature transfer learning (the base model's
+    learned features are reused, most of it frozen): FEATURE_EXTRACTOR (freeze the first N
+    weighted layers), ADAPTER (train only the last N) and NEW_HEAD (a new output layer for a new
+    class vocabulary on top of the frozen feature extractor, optionally unfreezing its last N
+    weighted layers)."""
+
     FEATURE_EXTRACTOR = "feature_extractor"
     DISCRIMINATIVE_LR = "discriminative_lr"
     ADAPTER = "adapter"
+    FULL_FINETUNE = "full_finetune"
+    NEW_HEAD = "new_head"
+
+
+FULL_TRANSFER = (FineTuneStrategy.FULL_FINETUNE, FineTuneStrategy.DISCRIMINATIVE_LR)
+FEATURE_TRANSFER = (FineTuneStrategy.FEATURE_EXTRACTOR, FineTuneStrategy.ADAPTER, FineTuneStrategy.NEW_HEAD)
+
+
+def output_layer(model: keras.Model):
+    """The model's output layer, which must be a Dense layer (the classification head)."""
+    last = model.layers[-1]
+    if not isinstance(last, keras.layers.Dense):
+        raise ValueError(f"the model's last layer is {type(last).__name__}, not Dense: a new head can only replace a Dense output layer")
+    return last
+
+
+def with_new_head(model: keras.Model, n_classes: int, unfreeze_last: int = 0) -> keras.Model:
+    """Feature transfer with a new class vocabulary: the model up to its output layer becomes a
+    frozen feature extractor and a fresh softmax Dense(n_classes) named "head" is trained on top.
+    The layers keep their names, so for a SPADE builder model the result has exactly the
+    architecture build_classifier() gives with num_classes=n_classes. unfreeze_last: also train
+    the last N weighted layers of the extractor."""
+    old = output_layer(model)
+    features = old.input
+    head = keras.layers.Dense(n_classes, activation="softmax", name=old.name)
+    new = keras.Model(inputs=model.inputs, outputs=head(features), name=model.name)
+    weighted = [layer for layer in new.layers if layer.weights and layer is not head]
+    for layer in weighted:
+        layer.trainable = False
+    for layer in weighted[len(weighted) - unfreeze_last:] if unfreeze_last > 0 else []:
+        layer.trainable = True
+    head.trainable = True
+    return new
 
 
 def _is_classifier_target(y: np.ndarray) -> bool:
@@ -133,6 +173,10 @@ class TransferLearningPipeline:
         X_val = np.asarray(val_data["X"]) if val_data.get("X") is not None else None
         y_val = np.asarray(val_data["y"]) if val_data.get("y") is not None else None
         is_clf = _is_classifier_target(y_train)
+
+        if self.strategy is FineTuneStrategy.FULL_FINETUNE:
+            for layer in self.model.layers:
+                layer.trainable = True
 
         if self.strategy is FineTuneStrategy.ADAPTER:
             weighted_layers = [layer for layer in self.model.layers if layer.weights]

@@ -24,6 +24,10 @@ Kinds:
   SPADE environment with the reward terms of the spec, saves a checkpoint and an evaluation-episode
   playback at every evaluation, then benchmarks the final policy against the plant's classical
   controllers on the same condition grid. One condition per training episode.
+- ``classifier_training`` (AI Diagnostics → Train a model): simulates the request's condition grid
+  (driveflow.ai.custom_training, one condition per run, ``params.workers`` processes) and trains a
+  classifier on it. The model is written to configs/classifiers/custom/<name>/<date>_runNN/ as a
+  candidate; nothing is promoted. One extra condition records the training step itself.
 - ``selftest.steps``: no physics; sleeps ``step_s`` per step. Used by the tests to exercise the
   worker (cancel, kill, recover) deterministically, and by "Check worker" in the GUI.
 """
@@ -456,6 +460,61 @@ def rl_training(ctx: JobContext) -> HandlerResult:
     return HandlerResult(conditions=conditions, metrics=metrics)
 
 
+# --------------------------------------------------------------------------- classifier_training
+def _validate_classifier_training(spec: ExperimentSpec) -> None:
+    from driveflow.ai import custom_training as ct
+
+    try:
+        req = ct.validate_request(spec.params.get("request") or {})
+    except ct.RequestError as exc:
+        raise SpadeError(ErrorCode.INVALID_SPEC, str(exc)) from None
+    if len(spec.conditions) != len(ct.build_conditions(req, validated=True)):
+        raise SpadeError(ErrorCode.INVALID_SPEC, "conditions do not match the request's grid (build them with custom_training.build_conditions)")
+    w = spec.params.get("workers", 1)
+    if not (isinstance(w, int) and 1 <= w <= 32):
+        raise SpadeError(ErrorCode.INVALID_SPEC, "workers must be an int in [1, 32]")
+
+
+def classifier_training(ctx: JobContext) -> HandlerResult:
+    import json
+
+    from driveflow.ai import custom_training as ct
+    from driveflow.ai.registry import REPO_ROOT
+
+    req = ct.validate_request(ctx.spec.params["request"])
+    conds = [dict(c) for c in ctx.spec.conditions]
+    n, epochs = len(conds), req["model"]["epochs"]
+    total = n + epochs
+    df, outcomes = ct.simulate(conds, progress=lambda i, _n, msg: ctx.progress(i, total, msg), cancelled=ctx.cancel_requested,
+                               workers=int(ctx.spec.params.get("workers", 1)))
+    n_ok = sum(o["status"] == "ok" for o in outcomes)
+    ctx.log(f"{n_ok}/{n} simulations ok")
+    train_cond = {"index": n, "condition": {"step": "training", "preset": req["model"]["preset"], "epochs": epochs}}
+    if ctx.cancel_requested() or any(o["status"] == "skipped" for o in outcomes):
+        return HandlerResult(conditions=outcomes + [{**train_cond, "status": "skipped", "error": "Cancelled before training."}], metrics={"n_runs": n, "n_ok": n_ok})
+    if df is None:
+        return HandlerResult(conditions=outcomes + [{**train_cond, "status": "skipped", "error": "No simulation succeeded."}], metrics={"n_runs": n, "n_ok": 0})
+
+    def on_epoch_end(epoch, logs):
+        ctx.progress(n + epoch + 1, total, f"training epoch {epoch + 1}/{epochs}")
+        ctx.log(f"epoch {epoch + 1}/{epochs}: loss {logs.get('loss', float('nan')):.4f}, val_loss {logs.get('val_loss', float('nan')):.4f}")
+
+    ctx.progress(n, total, "training")
+    try:
+        run_dir = ct.train(req, df, on_epoch_end=on_epoch_end)
+    except Exception as exc:
+        ctx.log(f"training failed: {type(exc).__name__}: {exc}")
+        return HandlerResult(conditions=outcomes + [{**train_cond, "status": "failed", "error": f"{type(exc).__name__}: {exc}"}], metrics={"n_runs": n, "n_ok": n_ok})
+    m = json.loads((run_dir / "metrics.json").read_text())
+    ctx.write_artifact("metrics.json", (run_dir / "metrics.json").read_bytes())
+    ctx.write_artifact("training_request.json", (run_dir / "training_request.json").read_bytes())
+    rel = run_dir.relative_to(REPO_ROOT).as_posix() if run_dir.is_relative_to(REPO_ROOT) else str(run_dir)
+    summary = {"run_dir": rel, "classes": m["classes"], "channels": m["channels"], "test_macro_f1": m.get("test_macro_f1"), "test_accuracy": m.get("test_accuracy"),
+               "n_train": m.get("n_train"), "n_val": m.get("n_val"), "n_test": m.get("n_test"), "ood": "ood" in m, "status": m.get("status")}
+    ctx.log(f"saved {rel}: test macro-F1 {m.get('test_macro_f1')}")
+    return HandlerResult(conditions=outcomes + [{**train_cond, "status": "ok", "metrics": summary}], metrics={"n_runs": n, "n_ok": n_ok, **summary})
+
+
 # --------------------------------------------------------------------------- selftest.steps
 def _validate_selftest(spec: ExperimentSpec) -> None:
     steps, step_s = spec.params.get("steps", 3), spec.params.get("step_s", 0.1)
@@ -487,6 +546,7 @@ HANDLERS = {
     "plecs_sweep": HandlerInfo(plecs_sweep, _validate_plecs_sweep, "PLECS RPC sweep (dataset)", engine="plecs_rpc"),
     "controller_tuning": HandlerInfo(controller_tuning, _validate_tuning, "Controller tuning (PSO / BO / NSGA-II)"),
     "rl_training": HandlerInfo(rl_training, _validate_rl, "RL training + benchmark (DQN / DDPG)"),
+    "classifier_training": HandlerInfo(classifier_training, _validate_classifier_training, "Classifier training (custom simulated grid)"),
     "selftest.steps": HandlerInfo(selftest_steps, _validate_selftest, "Worker self-test (no physics)", engine="selftest"),
 }
 
