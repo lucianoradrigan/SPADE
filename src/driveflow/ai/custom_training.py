@@ -35,6 +35,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
+from driveflow.ai.audit_findings import ensure_synthetic_class_finding
 from driveflow.ai.registry import REPO_ROOT
 from driveflow.datagen.scenario import CALIBRATED_MECHANICAL_SEVERITY
 from driveflow.sim.vsc_system import MIN_STABLE_LOAD_RESISTANCE_OHM
@@ -442,6 +443,7 @@ def train(req: dict, df: pd.DataFrame, root: Path | None = None, dataset_root: P
     })
     model.save_weights(run_dir / "model.weights.h5")
     (run_dir / "metrics.json").write_text(json.dumps(metrics, indent=2, default=float))
+    ensure_synthetic_class_finding(run_dir, metrics["classes"])
     (run_dir / "training_request.json").write_text(json.dumps(req, indent=2, default=float))
     (run_dir / "run_metadata.json").write_text(json.dumps({**run_metadata(), "seed": seed_info, "epochs": m["epochs"], "batch_size": m["batch_size"],
                                                            "dataset_path": str(dataset_path), "dataset_sha256": file_sha256(dataset_path),

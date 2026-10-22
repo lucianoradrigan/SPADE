@@ -34,6 +34,7 @@ from pathlib import Path
 
 import yaml
 
+from driveflow.ai.audit_findings import ensure_synthetic_class_finding
 from driveflow.ai.registry import FULL_MODEL_FILE, KERAS_FORMAT, REPO_ROOT
 
 MAX_MODEL_MB = 200
@@ -173,6 +174,7 @@ def import_model(file_bytes: bytes, filename: str, domain: str, channels: list, 
                 "kind": "classifier", "domain": domain, "tier": "pc", "channels": list(channels), "classes": classes, "origin": "EXTERNAL",
                 "status": "imported (not evaluated in SPADE, not promoted)", "source_file": filename, "source_sha256": sha, "source_format": info["format"],
                 "preprocessing": "SPADE per-window z-score per channel (the model's original preprocessing is unknown)"}, indent=2))
+            ensure_synthetic_class_finding(run_dir, classes)
         except Exception:
             shutil.rmtree(run_dir, ignore_errors=True)
             raise

@@ -29,6 +29,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
+from driveflow.ai.audit_findings import ensure_synthetic_class_finding
 from driveflow.ai.promotion import GateDecision, PromotionGate
 from driveflow.ai.promotion import save_candidate as _persist_candidate
 from driveflow.ai.provenance import file_sha256, run_metadata, set_global_seed
@@ -285,6 +286,7 @@ def save_candidate(result: TLResult, base: dict, decision: GateDecision, run_dir
         metrics.update({"test_rmse": m.get("rmse"), "test_mae": m.get("mae")})
     metrics.update({"n_test": result.test_evaluation["n_test_windows"], "fine_tuned_from": str(base["run_dir"]), "validation_passed": bool(result.report["passed"])})
     (run_dir / "metrics.json").write_text(json.dumps(metrics, indent=2, default=str))
+    ensure_synthetic_class_finding(run_dir, metrics.get("classes"))
     lineage = {**result.lineage, "model_card": model_card or {}}
     _persist_candidate(
         run_dir, lineage, decision,

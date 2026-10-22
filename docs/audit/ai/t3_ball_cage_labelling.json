@@ -1,0 +1,26 @@
+{
+  "task": "T3",
+  "label": "ball/cage: synthetic-only, uncalibrated amplitude",
+  "command": "pytest tests/test_ball_cage_labelling.py",
+  "runs_checked": [
+    "pc_server_5class/2026-10-20_run01",
+    "pc_server_5class_w2048/2026-10-20_run01",
+    "rpi5_resnet1d_se_5class/2026-10-20_run01",
+    "rpi5_resnet1d_se_5class_w2048/2026-10-20_run01",
+    "esp32_dscnn_5class/2026-10-20_run01",
+    "esp32_dscnn_5class_w2048/2026-10-20_run01"
+  ],
+  "runs_missing_before": 0,
+  "code_paths_fixed": [
+    "ai/custom_training.train",
+    "ai/transfer/workflow.save_candidate",
+    "ai/transfer/external.import_model"
+  ],
+  "gui_fixed": [
+    "ai_diagnostics classifier panel (top class)",
+    "dc_motor KPI",
+    "monitoring motor card",
+    "model_registry table column"
+  ],
+  "retrained_or_repromoted": false
+}

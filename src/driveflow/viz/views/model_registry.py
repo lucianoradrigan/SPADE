@@ -14,6 +14,7 @@ from driveflow.viz.adapters.registry_adapter import list_runs
 from driveflow.viz.components.artifact_table import artifact_table
 from driveflow.viz.components.metric_cards import check_list, kpi_row
 from driveflow.viz.components.page_header import badge_html, page_header, provenance_table
+from driveflow.ai.audit_findings import SYNTHETIC_LABEL, is_synthetic_class
 
 _STATUS_TONE = {"Promoted": "healthy", "Promoted (override)": "warning", "Candidate": "warning", "Superseded": "unknown", "Trained (not promoted)": "unknown", "Unreadable": "critical"}
 
@@ -38,7 +39,8 @@ def render() -> None:
     f_tier = c2.multiselect("Platform / tier", sorted({r["tier"] for r in ok_rows}), key="reg_f_tier")
     f_status = c3.multiselect("Status", sorted({r["status"] for r in rows}), key="reg_f_status")
     shown = [r for r in rows if (not f_domain or r["domain"] in f_domain) and (not f_tier or r["tier"] in f_tier) and (not f_status or r["status"] in f_status)]
-    table = pd.DataFrame([{"run": r.get("run", str(r["run_dir"])), "domain": r["domain"], "tier": r["tier"], "block": r["block"], "status": r["status"], "validation gate": r.get("validation"), "origin": r.get("origin"), "export": r.get("quantization") or "—", "test metric": r.get("headline", r.get("error")), "audit": f"⚠ {len(r['audit_findings'])} finding(s)" if r.get("audit_findings") else "—"} for r in shown])
+    table = pd.DataFrame([{"run": r.get("run", str(r["run_dir"])), "domain": r["domain"], "tier": r["tier"], "block": r["block"], "status": r["status"], "validation gate": r.get("validation"), "origin": r.get("origin"), "export": r.get("quantization") or "—", "test metric": r.get("headline", r.get("error")), "audit": f"⚠ {len(r['audit_findings'])} finding(s)" if r.get("audit_findings") else "—",
+                           "class limitation": SYNTHETIC_LABEL if any(is_synthetic_class(c) for c in ((r.get("metrics") or {}).get("classes") or [])) else "—"} for r in shown])
     left, right = st.columns([1.5, 1], gap="medium")
     with left:
         st.markdown(f"##### Models ({len(shown)})")

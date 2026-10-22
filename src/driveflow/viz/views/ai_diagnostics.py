@@ -20,7 +20,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from driveflow.ai.audit_findings import load_audit_findings
+from driveflow.ai.audit_findings import SYNTHETIC_LABEL, is_synthetic_class, load_audit_findings
 from driveflow.ai.registry import RegistryError, resolve
 from driveflow.control.dpc.reference import GRID_OMEGA_RAD_S, REFERENCE_MAGNITUDE_V
 from driveflow.datagen import Scenario, run_scenario
@@ -270,8 +270,12 @@ def _classifier_panel(domain: str, df: pd.DataFrame, data_key: str = "", operati
     if a.state != condition.INPUT_INVALID:
         shown = a.suggested_class or {condition.STATE_UNKNOWN: "Unknown condition", condition.STATE_UNCERTAIN: "No class suggested"}.get(a.state)
         st.metric("Classifier output", shown, f"top class {a.top_class}: {a.confidence * 100:.1f}% ({'temperature-calibrated' if a.calibrated else 'uncalibrated softmax'})", delta_color="off")
-        if a.suggested_class in set(metrics.get("synthetic_only_classes") or []):
-            st.warning(f"**{a.suggested_class}: synthetic-only, uncalibrated amplitude.** This class was trained on simulated faults whose amplitude is a placeholder, not calibrated against measured bearings (TODO_CLAUDE_CODE.md A2). Treat it as a hypothesis to check, not a diagnosis.", icon=":material/science:")
+        synthetic = set(metrics.get("synthetic_only_classes") or []) | {c for c in a.classes if is_synthetic_class(c)}
+        flagged = a.suggested_class if a.suggested_class in synthetic else (a.top_class if a.top_class in synthetic else None)
+        if flagged:
+            st.warning(f"**{SYNTHETIC_LABEL}** ({'suggested class' if flagged == a.suggested_class else 'top class, not suggested'}: {flagged}). "
+                       "This class was trained on simulated faults whose amplitude is a placeholder, not calibrated against measured bearings (A2). Treat it as a hypothesis to check, not a diagnosis.",
+                       icon=":material/science:")
         k = a.classes.index(a.top_class)
         highlight = a.state == condition.KNOWN
         fig = go.Figure(go.Bar(x=list(a.classes), y=list(a.probs), marker_color=[series_color("candidate") if (i == k and highlight) else series_color("base") for i in range(len(a.classes))]))

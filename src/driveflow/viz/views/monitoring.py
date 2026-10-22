@@ -125,7 +125,7 @@ def render() -> None:
             if domain == "dc_motor":
                 c = (result or {}).get("classifier") or {}
                 evaluated = sa.last_report(domain)[0] is not None
-                view_model = derive_motor_view(sa if evaluated else None, domain, motor_id="dc_motor/sim", source_mode="simulated" if evaluated else "unavailable", rpm=(result or {}).get("rpm"), timestamp_utc=_ts(sa.last_report(domain)[0]) if evaluated else None, prediction=c.get("predicted"), confidence=c.get("confidence"), model_id=c.get("model_id"))
+                view_model = derive_motor_view(sa if evaluated else None, domain, motor_id="dc_motor/sim", source_mode="simulated" if evaluated else "unavailable", rpm=(result or {}).get("rpm"), timestamp_utc=_ts(sa.last_report(domain)[0]) if evaluated else None, prediction=(f"{c.get('predicted')} (ball/cage: synthetic-only, uncalibrated amplitude)" if c.get("synthetic_only") else c.get("predicted")), confidence=c.get("confidence"), model_id=c.get("model_id"))
                 render_motor_status(view_model)
                 with st.expander("Motor details"):
                     st.markdown(f"- **Asset:** simulated DcPermanentlyExcitedMotor (`dc_perm_ex_v1`)\n- **Signals behind the status:** simulation-based detector on current_r / rpm / torque_nm / acc_* (synthetic); no temperature sensor exists\n- **Status:** {view_model.status.upper()} — {view_model.status_reason}\n- **Alarms:** {', '.join(view_model.active_alerts) or 'none'}")
