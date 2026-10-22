@@ -1,0 +1,39 @@
+{
+  "task": "T4",
+  "command": "pytest -rx -q; grep -rn xfail tests",
+  "xfails": [
+    {
+      "test": "tests/test_findings_e10.py::test_ai_n15_pinn_capacitance_unbiased_with_noise",
+      "strict": true,
+      "finding": "AI-N15",
+      "status": "open"
+    },
+    {
+      "test": "tests/test_findings_e10.py::test_ai_n16_pinn_interval_has_nominal_coverage",
+      "strict": true,
+      "finding": "AI-N16",
+      "status": "open"
+    },
+    {
+      "test": "tests/test_findings_e14.py::test_ai_n18_gui_detector_flags_most_faulted_windows",
+      "strict": true,
+      "finding": "AI-N18",
+      "status": "cause addressed in run02, not adopted"
+    },
+    {
+      "test": "tests/test_findings_e14.py::test_ai_n20_edge_detectors_usable",
+      "strict": true,
+      "finding": "AI-N20",
+      "status": "open"
+    },
+    {
+      "test": "tests/test_findings_e14.py::test_ai_n21_gated_detector_meets_the_false_alarm_criterion",
+      "strict": true,
+      "finding": "AI-N21",
+      "status": "open"
+    }
+  ],
+  "non_compliant": 0,
+  "converted_to_normal": 0,
+  "guard_test": "tests/test_xfail_inventory.py"
+}
