@@ -298,5 +298,5 @@ Evidence: [`audit/ai/custom_training_tl.md`](audit/ai/custom_training_tl.md) (`p
 | C. New class (unbalance) on the 3-class `pc_server/2026-10-18_run01` | Full fine-tuning is refused. NEW_HEAD reaches macro-F1 1.000 on 228 test windows. The gate stays BLOCKED until a reviewer approves. |
 | Simulation time | 398 s for 108 simulated seconds with 4 processes, 3.7 s per simulated second. One process measured about 3. Extra processes gave no speed-up, so the GUI now estimates without dividing by processes and defaults to 1. |
 
-**Waiting for your decision:** the `min_macro_f1` floor, required when the class set changes. No value is proposed in the GUI; 0.8 was used only in this report.
+**Decided (D1, 2026-10-22):** floors macro-F1 ≥ 0.88 and recall ≥ 0.70 for every class, applied to every classification candidate (raise-only). The 0.8 floor in this report predates D1. Re-evaluation of these candidates: [`audit/ai/tl_gate_floors.md`](audit/ai/tl_gate_floors.md).
 

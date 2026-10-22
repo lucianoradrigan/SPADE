@@ -40,13 +40,67 @@ class CheckStatus(str, Enum):
 #: classification: the fine-tuned model may lose at most this much macro-F1 vs. the base model
 #: evaluated on the same independent test set. regression: its RMSE may exceed the base model's
 #: RMSE on the same test set by at most this relative fraction.
-#: min_macro_f1: absolute floor, required only when the class vocabulary changed (new output head)
-#: -- no value is proposed: the reviewer must enter one, otherwise the check is INCOMPLETE
-#: and the base model therefore cannot be scored on the same test set.
+#:
+#: Classification floors (decision D1, 2026-10-22, approved by the user as gate defaults):
+#: min_macro_f1 = 0.88 and min_per_class_recall = 0.70 on the candidate's independent test set,
+#: applied to EVERY classification candidate (comparable base or a new class vocabulary). A
+#: reviewer may raise a floor, never lower it (FloorError). The floors used, with their origin, are
+#: written into the validation report and the gate report.
+D1_ORIGIN = "default D1 2026-10-22"
+REVIEWER_ORIGIN = "reviewer"
+CLASSIFICATION_FLOORS = {"min_macro_f1": 0.88, "min_per_class_recall": 0.70}
 DEFAULT_THRESHOLDS = {
-    "classification": {"max_macro_f1_drop": 0.02, "min_class_recall": None, "min_macro_f1": None},
+    "classification": {"max_macro_f1_drop": 0.02, **CLASSIFICATION_FLOORS},
     "regression": {"max_rmse_increase": 0.05},
 }
+
+
+class FloorError(ValueError):
+    """A reviewer tried to set an acceptance floor below the D1 default."""
+
+
+def resolve_floors(thresholds: dict | None) -> dict:
+    """{name: {"value", "origin"}} for the classification floors. Missing -> the D1 default; higher ->
+    the reviewer's value; lower -> FloorError. "min_class_recall" is accepted as the historical
+    name of min_per_class_recall."""
+    thresholds = dict(thresholds or {})
+    if thresholds.get("min_per_class_recall") is None and thresholds.get("min_class_recall") is not None:
+        thresholds["min_per_class_recall"] = thresholds["min_class_recall"]
+    out = {}
+    for name, floor in CLASSIFICATION_FLOORS.items():
+        v = thresholds.get(name)
+        if v is None:
+            out[name] = {"value": floor, "origin": D1_ORIGIN}
+            continue
+        v = float(v)
+        if v < floor - 1e-12:
+            raise FloorError(f"{name} = {v:g} is below the D1 floor {floor:g} (decision of 2026-10-22). A reviewer can raise a floor, not lower it: "
+                             f"enter {floor:g} or more.")
+        out[name] = {"value": v, "origin": REVIEWER_ORIGIN if v > floor + 1e-12 else D1_ORIGIN}
+    return out
+
+
+def floor_checks(macro_f1: float | None, recall_per_class: dict, floors: dict) -> list:
+    """The two D1 checks, from the candidate's macro-F1 and its recall per class present in the
+    test set ({class: recall}; NaN = class absent from the test set, skipped)."""
+    f1_floor, rec_floor = floors["min_macro_f1"]["value"], floors["min_per_class_recall"]["value"]
+    checks = []
+    if macro_f1 is None:
+        checks.append(CheckResult("min_macro_f1", CheckStatus.FAIL, f"macro-F1 undefined (floor {f1_floor:g}, {floors['min_macro_f1']['origin']})", None, f1_floor))
+    else:
+        ok = macro_f1 >= f1_floor
+        checks.append(CheckResult("min_macro_f1", CheckStatus.PASS if ok else CheckStatus.FAIL,
+                                  f"macro-F1 {macro_f1:.3f} vs floor {f1_floor:g} ({floors['min_macro_f1']['origin']})", macro_f1, f1_floor))
+    present = {c: r for c, r in recall_per_class.items() if r is not None and not np.isnan(r)}
+    if not present:
+        checks.append(CheckResult("min_per_class_recall", CheckStatus.INCOMPLETE, "no class with test windows"))
+    else:
+        worst = min(present, key=present.get)
+        below = sorted(c for c, r in present.items() if r < rec_floor)
+        checks.append(CheckResult("min_per_class_recall", CheckStatus.FAIL if below else CheckStatus.PASS,
+                                  f"worst class {worst} recall {present[worst]:.3f} vs floor {rec_floor:g} ({floors['min_per_class_recall']['origin']})"
+                                  + (f"; below: {', '.join(below)}" if below else ""), present[worst], rec_floor))
+    return checks
 
 
 @dataclass
@@ -70,6 +124,7 @@ class ValidationReport:
     metrics: dict
     baseline_metrics: dict
     checks: list = field(default_factory=list)
+    floors: dict | None = None
 
     @property
     def passed(self) -> bool:
@@ -77,7 +132,10 @@ class ValidationReport:
         return all(c.status in (CheckStatus.PASS, CheckStatus.NOT_APPLICABLE) for c in self.checks if c.required)
 
     def to_dict(self) -> dict:
-        return {"task": self.task, "passed": self.passed, "metrics": self.metrics, "baseline_metrics": self.baseline_metrics, "checks": [c.to_dict() for c in self.checks]}
+        d = {"task": self.task, "passed": self.passed, "metrics": self.metrics, "baseline_metrics": self.baseline_metrics, "checks": [c.to_dict() for c in self.checks]}
+        if self.floors is not None:
+            d["floors"] = self.floors
+        return d
 
 
 def _predict(model, X):
@@ -155,7 +213,7 @@ class ModelValidator:
 
     # ------------------------------------------------------------------ task-specific API
     def evaluate(self, finetuned_model, test_data: dict, task: str, baseline_model=None, history: dict | None = None, thresholds: dict | None = None,
-                 base_comparable: bool = True) -> ValidationReport:
+                 base_comparable: bool = True, class_names: list | None = None) -> ValidationReport:
         """Evaluates finetuned_model (and baseline_model, if given) on the SAME test_data and
         returns a ValidationReport. `thresholds` defaults to self.thresholds; missing keys make
         the corresponding check INCOMPLETE, never PASS.
@@ -166,7 +224,7 @@ class ModelValidator:
         thresholds = self.thresholds if thresholds is None else thresholds
         X, y = np.asarray(test_data["X"]), np.asarray(test_data["y"])
         if task == "classification":
-            report = self._evaluate_classifier(finetuned_model, X, y, baseline_model if base_comparable else None, thresholds, base_comparable)
+            report = self._evaluate_classifier(finetuned_model, X, y, baseline_model if base_comparable else None, thresholds, base_comparable, class_names)
         elif task == "regression":
             report = self._evaluate_regressor(finetuned_model, X, y, baseline_model, thresholds)
         else:
@@ -174,7 +232,8 @@ class ModelValidator:
         report.checks.append(self.convergence_check(history))
         return report
 
-    def _evaluate_classifier(self, model, X, y, baseline_model, thr, base_comparable: bool = True) -> ValidationReport:
+    def _evaluate_classifier(self, model, X, y, baseline_model, thr, base_comparable: bool = True, class_names: list | None = None) -> ValidationReport:
+        floors = resolve_floors(thr)  # FloorError before any work if a reviewer lowered a floor
         probs = _predict(model, X)
         m = classification_metrics(y, probs)
         base = classification_metrics(y, _predict(baseline_model, X), n_classes=probs.shape[-1]) if baseline_model is not None else {}
@@ -200,12 +259,6 @@ class ModelValidator:
         drop = thr.get("max_macro_f1_drop")
         if not base_comparable:
             checks.append(CheckResult("macro_f1_vs_base", CheckStatus.NOT_APPLICABLE, "class vocabulary changed (new output head): the base model cannot be scored on these classes", required=False))
-            floor = thr.get("min_macro_f1")
-            if floor is None:
-                checks.append(CheckResult("min_macro_f1", CheckStatus.INCOMPLETE, "no min_macro_f1 threshold configured (required when the base model is not comparable)"))
-            else:
-                ok = m["macro_f1"] is not None and m["macro_f1"] >= floor
-                checks.append(CheckResult("min_macro_f1", CheckStatus.PASS if ok else CheckStatus.FAIL, f"macro-F1 {m['macro_f1'] if m['macro_f1'] is not None else float('nan'):.3f} vs floor {floor:g}", m["macro_f1"], floor))
         elif baseline_model is None or base.get("macro_f1") is None:
             checks.append(CheckResult("macro_f1_vs_base", CheckStatus.INCOMPLETE, "base model not evaluated on the same test set"))
         elif drop is None:
@@ -215,15 +268,12 @@ class ModelValidator:
         else:
             ok = m["macro_f1"] >= base["macro_f1"] - drop
             checks.append(CheckResult("macro_f1_vs_base", CheckStatus.PASS if ok else CheckStatus.FAIL, f"fine-tuned {m['macro_f1']:.3f} vs base {base['macro_f1']:.3f} (allowed drop {drop:g})", m["macro_f1"], base["macro_f1"] - drop))
-        min_recall = thr.get("min_class_recall")
-        if min_recall is not None:
-            recalls = [r for r in m["recall_per_class"] if not np.isnan(r)]
-            ok = bool(recalls) and min(recalls) >= min_recall
-            checks.append(CheckResult("min_class_recall", CheckStatus.PASS if ok else CheckStatus.FAIL, f"worst class recall {min(recalls) if recalls else float('nan'):.3f}", min(recalls) if recalls else None, min_recall))
+        names = list(class_names) if class_names and len(class_names) == len(m["recall_per_class"]) else [str(k) for k in range(len(m["recall_per_class"]))]
+        checks += floor_checks(m["macro_f1"], dict(zip(names, m["recall_per_class"])), floors)
         if thr.get("min_accuracy") is not None:
             ok = m["accuracy"] is not None and m["accuracy"] >= thr["min_accuracy"]
             checks.append(CheckResult("min_accuracy", CheckStatus.PASS if ok else CheckStatus.FAIL, f"accuracy {m['accuracy']:.3f}", m["accuracy"], thr["min_accuracy"]))
-        return ValidationReport("classification", m, base, checks)
+        return ValidationReport("classification", m, base, checks, floors=floors)
 
     def _evaluate_regressor(self, model, X, Y, baseline_model, thr) -> ValidationReport:
         pred = _predict(model, X)

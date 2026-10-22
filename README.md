@@ -207,9 +207,11 @@ windows, because the model's original preprocessing is unknown.
 - Only `NEW_HEAD` can learn **classes the base model does not have**. For example, a 3-class model
   can be extended with `cage` or a custom fault.
 
-When the class set changes, the base model cannot be scored on the same test set. The base-vs-candidate
-check is then NOT_APPLICABLE, and an absolute macro-F1 floor, entered by the reviewer, becomes
-required. Without that floor the gate stays blocked.
+**Acceptance floors** (decision D1, 2026-10-22): every classification candidate needs **macro-F1 ≥
+0.88** and **recall ≥ 0.70 for every class** on its independent test set. A reviewer may raise these
+floors but not lower them, and the gate report records each floor's value and origin. When the class
+set changes, the base model cannot be scored on the same test set, so the base-vs-candidate check is
+NOT_APPLICABLE and the floors decide. The gate still needs a named reviewer's approval.
 
 In the dashboard the page is a 4-step wizard: **Data** (simulate + optionally upload, prepare
 dataset → hash, split manifest, integrity checks), **Setup** (strategy, epochs, proposed

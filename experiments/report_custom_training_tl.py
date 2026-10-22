@@ -124,13 +124,13 @@ def main(argv=None) -> None:
     except ValueError as exc:
         refused = str(exc)
     res = wf.finetune(base3, ds_c, {"strategy": S.NEW_HEAD, "epochs": 15, "batch_size": 16, "unfreeze_last": 1, "learning_rate": 1e-3}, seed=0,
-                      thresholds={"max_macro_f1_drop": 0.02, "min_macro_f1": 0.8})
+                      thresholds={"max_macro_f1_drop": 0.02})
     dec = wf.gate_decision(ds_c, res, None)
     result["C_new_class"] = {"base": str(base3_dir.relative_to(REPO_ROOT)), "base_classes": base3["metrics"]["classes"], "target_classes": ds_c.classes,
                              "new_vocabulary": ds_c.new_vocabulary, "full_finetune_refused_with": refused,
                              "n_windows": {k: len(v["X"]) for k, v in ds_c.windows.items()}, "candidate_macro_f1": res.report["metrics"]["macro_f1"],
                              "candidate_recall_per_class": dict(zip(ds_c.classes, res.report["metrics"]["recall_per_class"])),
-                             "floor_used_for_this_report": 0.8, "checks": _ckeys(res.report),
+                             "floors": res.report.get("floors"), "checks": _ckeys(res.report),
                              "gate_without_reviewer": {"status": dec.status, "blocking": [i.name for i in dec.blocking]}}
     print("C", result["C_new_class"]["candidate_macro_f1"])
 
@@ -197,7 +197,7 @@ def _markdown(r: dict) -> str:
         f"- **Windows:** train {c['n_windows']['train']} / validation {c['n_windows']['val']} / test {c['n_windows']['test']}.",
         f"- **NEW_HEAD candidate:** macro-F1 {_f(c['candidate_macro_f1'])}; recall " + ", ".join(f"{k} {_f(v)}" for k, v in c["candidate_recall_per_class"].items()) + ".",
         "- **Checks:** " + ", ".join(f"{k} {v}" for k, v in c["checks"].items()) + ".",
-        f"- **min_macro_f1 floor:** {c['floor_used_for_this_report']} for this report only. The GUI proposes no value; the reviewer has to enter one.",
+        f"- **Floors (D1, 2026-10-22):** macro-F1 ≥ {c['floors']['min_macro_f1']['value']:g}, recall per class ≥ {c['floors']['min_per_class_recall']['value']:g}.",
         f"- **Gate without a reviewer:** {c['gate_without_reviewer']['status']}, blocking {', '.join(c['gate_without_reviewer']['blocking'])}.",
         "",
         "## Limits",

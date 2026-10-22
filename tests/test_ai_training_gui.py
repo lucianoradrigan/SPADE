@@ -113,7 +113,7 @@ class TestTransferLearningSources:
         at.button(key="tl_train_button").click().run()
         assert not at.exception and at.radio(key="tl_step").value == "3 · Validate"
         at.radio(key="tl_step").set_value("4 · Promote").run()
-        assert any("min_macro_f1: INCOMPLETE" in e.value for e in at.error)
+        assert any("acceptance_floors" in e.value or "min_macro_f1" in e.value or "min_per_class_recall" in e.value for e in at.error)
         assert at.button(key="tl_promote_button").disabled
         assert DEFAULT_REGISTRY_PATH.read_text() == registry_before
 

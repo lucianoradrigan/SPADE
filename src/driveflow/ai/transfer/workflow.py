@@ -190,7 +190,8 @@ def finetune(base: dict, dataset: TLDataset, strategy_cfg: dict, seed: int = 0, 
     # Single evaluation of the independent test set, base and candidate on identical windows.
     comparable = not dataset.new_vocabulary
     validator = ModelValidator(baseline_metrics=base["metrics"], thresholds=thresholds)
-    report = validator.evaluate(pipeline.model, dataset.windows["test"], task=task, baseline_model=pipeline.base_model, history=history, base_comparable=comparable)
+    report = validator.evaluate(pipeline.model, dataset.windows["test"], task=task, baseline_model=pipeline.base_model, history=history, base_comparable=comparable,
+                                class_names=dataset.classes)
     test_evaluation = {"n_evaluations": 1, "used_for_selection": False, "same_test_for_base": comparable, "n_test_windows": int(len(dataset.windows["test"]["X"]))}
     if not comparable:
         test_evaluation["base_comparable"] = False  # recorded explicitly; the gate reads it

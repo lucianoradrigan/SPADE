@@ -152,9 +152,13 @@ With a new class set, only `NEW_HEAD` is offered: full fine-tuning is refused.
 
 - The base and the candidate are evaluated **once**, on the same independent test windows.
 - The base model is never trained: a copy is, and its weights fingerprint is checked afterwards.
+- **Acceptance floors (decision D1, 2026-10-22).** Every classification candidate needs macro-F1
+  ≥ 0.88 and recall ≥ 0.70 for every class on the test set.
+  - The reviewer can raise these floors in step 2, not lower them.
+  - Step 3 shows the candidate against each floor.
+  - The gate report records the values and their origin.
 - **When the classes change,** the base cannot be scored on them. The base-vs-candidate check is
-  then NOT_APPLICABLE, and an absolute **minimum macro-F1** becomes required. The reviewer must
-  enter it; without it, the gate stays blocked.
+  then NOT_APPLICABLE and the floors decide.
 - *Save as candidate* writes the run next to its base (`<base>_tl/<date>_runNN/`) without
   touching the registry.
 - *Promote* is enabled only when the gate is APPROVED, which includes a named reviewer. The
@@ -200,5 +204,5 @@ run_dir = ct.train(req, df)
 - Imported models: SPADE cannot know their original preprocessing. Only Keras full models are
   accepted.
 - The time estimate is an order of magnitude from one laptop.
-- No acceptance threshold has been confirmed for models with a new class set. The page asks the
-  reviewer for it.
+- The acceptance floors (D1) are fixed project defaults. They are not a guarantee of behaviour on
+  real machines.

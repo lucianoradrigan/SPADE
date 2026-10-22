@@ -48,6 +48,7 @@ class GateDecision:
     items: list = field(default_factory=list)
     evaluated_utc: str = ""
     approved_by: str | None = None
+    floors: dict | None = None  # classification acceptance floors used (value + origin), D1
 
     @property
     def approved(self) -> bool:
@@ -58,7 +59,10 @@ class GateDecision:
         return [i for i in self.items if i.required and i.status not in ("PASS", "NOT_APPLICABLE")]
 
     def to_dict(self) -> dict:
-        return {"status": self.status, "evaluated_utc": self.evaluated_utc, "approved_by": self.approved_by, "items": [asdict(i) for i in self.items]}
+        d = {"status": self.status, "evaluated_utc": self.evaluated_utc, "approved_by": self.approved_by, "items": [asdict(i) for i in self.items]}
+        if self.floors is not None:
+            d["floors"] = self.floors
+        return d
 
 
 def _now() -> str:
@@ -116,6 +120,18 @@ class PromotionGate:
                 status = {"PASS": "PASS", "FAIL": "FAIL", "NOT_APPLICABLE": "NOT_APPLICABLE"}.get(c["status"], "INCOMPLETE")
                 items.append(GateItem(f"validation:{c['name']}", status, c["detail"], required=c.get("required", True)))
 
+        floors = None
+        if validation_report and validation_report.get("task") == "classification":
+            # D1 (2026-10-22): the floors must be present and never below the defaults -- re-checked
+            # here so an edited validation_report.json cannot lower them.
+            from driveflow.ai.transfer.validator import CLASSIFICATION_FLOORS
+
+            floors = validation_report.get("floors")
+            low = [k for k, v in CLASSIFICATION_FLOORS.items() if not floors or (floors.get(k) or {}).get("value") is None or floors[k]["value"] < v - 1e-12]
+            items.append(GateItem("acceptance_floors", "FAIL" if low else "PASS",
+                                  f"floors missing or below the D1 defaults: {low}" if low else
+                                  "; ".join(f"{k} {floors[k]['value']:g} ({floors[k]['origin']})" for k in CLASSIFICATION_FLOORS)))
+
         if base_unchanged is None:
             items.append(GateItem("base_model_unchanged", "PENDING", "base weights fingerprint not verified"))
         else:
@@ -139,6 +155,7 @@ class PromotionGate:
             items=items,
             evaluated_utc=_now(),
             approved_by=(human_approval or {}).get("approved_by") if not blocking else None,
+            floors=floors,
         )
 
 

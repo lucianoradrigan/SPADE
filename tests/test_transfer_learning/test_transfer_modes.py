@@ -75,11 +75,12 @@ class TestNewHead:
         ds = _prepare(spade_base, ["normal", "outer_race", "unbalance"], target_classes=["normal", "outer_race", "unbalance"])
         res = wf.finetune(spade_base, ds, {"strategy": S.NEW_HEAD, "epochs": 2, "unfreeze_last": 1, "learning_rate": 1e-2})
         checks = {c["name"]: c["status"] for c in res.report["checks"]}
-        assert checks["macro_f1_vs_base"] == "NOT_APPLICABLE" and checks["min_macro_f1"] == "INCOMPLETE"  # no floor given: blocks
+        assert checks["macro_f1_vs_base"] == "NOT_APPLICABLE" and checks["min_macro_f1"] in ("PASS", "FAIL")  # D1 floor applies by default
         assert res.test_evaluation["base_comparable"] is False and res.base_unchanged
         decision = wf.gate_decision(ds, res, {"approved": True, "approved_by": "reviewer"})
         items = {i.name: i.status for i in decision.items}
-        assert items["independent_test_evaluated"] == "PASS" and items["validation:min_macro_f1"] == "INCOMPLETE" and not decision.approved
+        assert items["independent_test_evaluated"] == "PASS" and items["acceptance_floors"] == "PASS"
+        assert decision.to_dict()["floors"]["min_macro_f1"]["value"] == 0.88
         run_dir = wf.save_candidate(res, spade_base, decision, run_dir=tmp_path / "cand")
         assert yaml.safe_load((run_dir / "config.yaml").read_text())["num_classes"] == 3
         model, config, metrics = registry.load_run_model(run_dir, "classifier")
@@ -87,10 +88,12 @@ class TestNewHead:
         assert np.allclose(model.predict(X, verbose=0), res.pipeline.model.predict(X, verbose=0), atol=1e-5)
         assert metrics["classes"] == ["normal", "outer_race", "unbalance"]
 
-    def test_a_floor_makes_the_check_decidable(self, spade_base):
+    def test_a_lower_floor_is_refused(self, spade_base):
+        from driveflow.ai.transfer.validator import FloorError
+
         ds = _prepare(spade_base, ["normal", "outer_race", "unbalance"], target_classes=["normal", "outer_race", "unbalance"])
-        res = wf.finetune(spade_base, ds, {"strategy": S.NEW_HEAD, "epochs": 1}, thresholds={"max_macro_f1_drop": 0.02, "min_macro_f1": 0.0})
-        assert {c["name"]: c["status"] for c in res.report["checks"]}["min_macro_f1"] == "PASS"
+        with pytest.raises(FloorError):
+            wf.finetune(spade_base, ds, {"strategy": S.NEW_HEAD, "epochs": 1}, thresholds={"max_macro_f1_drop": 0.02, "min_macro_f1": 0.0})
 
 
 class TestFullTransfer:
@@ -130,7 +133,7 @@ class TestExternal:
         assert json.loads((run_dir / "metrics.json").read_text())["origin"] == "EXTERNAL"
         base = ModelLoader(registry.DEFAULT_REGISTRY_PATH, "dc_motor", "classifier").load_by_generation(run_dir)
         ds = _prepare(base, ["normal", "outer_race", "inner_race"], target_classes=["normal", "outer_race", "inner_race"])
-        res = wf.finetune(base, ds, {"strategy": S.NEW_HEAD, "epochs": 1}, thresholds={"min_macro_f1": 0.0})
+        res = wf.finetune(base, ds, {"strategy": S.NEW_HEAD, "epochs": 1})
         assert res.lineage["base_weights_sha256"] and res.base_unchanged
         cand = wf.save_candidate(res, base, wf.gate_decision(ds, res, None), run_dir=tmp_path / "cand")
         model, config, metrics = registry.load_run_model(cand, "classifier")

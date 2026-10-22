@@ -1,0 +1,74 @@
+{
+  "command": "python experiments/report_tl_gate_floors.py",
+  "source": "docs/audit/ai/custom_training_tl.json",
+  "floors": {
+    "min_macro_f1": {
+      "value": 0.88,
+      "origin": "default D1 2026-10-22"
+    },
+    "min_per_class_recall": {
+      "value": 0.7,
+      "origin": "default D1 2026-10-22"
+    }
+  },
+  "candidates": [
+    {
+      "candidate": "A \u00b7 GUI-trained 4-class model (custom training, not a TL candidate)",
+      "macro_f1": 0.4171811334732683,
+      "recall_per_class": {
+        "inner_race": 0.0,
+        "normal": 1.0,
+        "outer_race": 0.3055555555555556,
+        "unbalance": 0.5277777777777778
+      },
+      "checks": {
+        "min_macro_f1": [
+          "FAIL",
+          "macro-F1 0.417 vs floor 0.88 (default D1 2026-10-22)"
+        ],
+        "min_per_class_recall": [
+          "FAIL",
+          "worst class inner_race recall 0.000 vs floor 0.7 (default D1 2026-10-22); below: inner_race, outer_race, unbalance"
+        ]
+      },
+      "floors_verdict": "BLOCKED"
+    },
+    {
+      "candidate": "B \u00b7 NEW_HEAD from the promoted 5-class model, shifted condition",
+      "macro_f1": 0.5555555555555555,
+      "recall_per_class": null,
+      "checks": {
+        "min_macro_f1": [
+          "FAIL",
+          "macro-F1 0.556 vs floor 0.88 (default D1 2026-10-22)"
+        ],
+        "min_per_class_recall": [
+          "NOT RECORDED",
+          "per-class recall not stored in custom_training_tl.json"
+        ]
+      },
+      "floors_verdict": "BLOCKED"
+    },
+    {
+      "candidate": "C \u00b7 NEW_HEAD adding 'unbalance' to pc_server/2026-10-18_run01",
+      "macro_f1": 1.0,
+      "recall_per_class": {
+        "inner_race": 1.0,
+        "normal": 1.0,
+        "outer_race": 1.0,
+        "unbalance": 1.0
+      },
+      "checks": {
+        "min_macro_f1": [
+          "PASS",
+          "macro-F1 1.000 vs floor 0.88 (default D1 2026-10-22)"
+        ],
+        "min_per_class_recall": [
+          "PASS",
+          "worst class inner_race recall 1.000 vs floor 0.7 (default D1 2026-10-22)"
+        ]
+      },
+      "floors_verdict": "PASS (still needs human approval)"
+    }
+  ]
+}

@@ -39,7 +39,7 @@ from driveflow.ai.transfer.data_merger import InsufficientDataError
 from driveflow.ai.transfer.dataset_validation import validate_training_dataset
 from driveflow.ai.transfer.loader import ModelLoader
 from driveflow.ai.transfer.pipeline import FULL_TRANSFER, FineTuneStrategy
-from driveflow.ai.transfer.validator import DEFAULT_THRESHOLDS
+from driveflow.ai.transfer.validator import CLASSIFICATION_FLOORS, DEFAULT_THRESHOLDS, FloorError
 from driveflow.datagen import Scenario, run_scenario
 from driveflow.models.common.dataset import filter_diagnosis_domain
 from driveflow.models.common.splits import InsufficientGroupsError
@@ -342,14 +342,14 @@ def _step_setup(domain: str, block: str, base: dict) -> None:
             cfg["batch_size"] = st.select_slider("Batch size", [4, 8, 16, 32], value=8, key="tl_batch_size")
         with st.container(border=True):
             st.markdown("**Acceptance thresholds**")
-            st.caption("Proposed defaults — REQUIRE RESEARCHER CONFIRMATION. They are compared against the base model on the same independent test set.")
             if task == "classification":
+                st.caption(f"**Floors (decision D1, 2026-10-22):** macro-F1 ≥ {CLASSIFICATION_FLOORS['min_macro_f1']:g} and recall ≥ {CLASSIFICATION_FLOORS['min_per_class_recall']:g} "
+                           "for every class on the independent test set, always applied. You can raise them, not lower them. The max drop vs. base is a proposed default "
+                           "and applies only when the base model can be scored on the same classes.")
                 thr = {"max_macro_f1_drop": st.number_input("Max macro-F1 drop vs. base", 0.0, 0.5, DEFAULT_THRESHOLDS["classification"]["max_macro_f1_drop"], 0.01, key="tl_thr_f1_drop")}
-                min_recall = st.number_input("Min per-class recall (0 = not required)", 0.0, 1.0, 0.0, 0.05, key="tl_thr_min_recall")
-                thr["min_class_recall"] = min_recall or None
-                if ds.new_vocabulary:
-                    thr["min_macro_f1"] = st.number_input("Min macro-F1 on the test set (required: the base model is not comparable)", 0.0, 1.0, value=None, step=0.05,
-                                                          key="tl_thr_min_f1", placeholder="enter a value", help="No value is proposed. Without one the check stays INCOMPLETE and promotion is blocked.")
+                thr["min_macro_f1"] = st.number_input("Min macro-F1 (floor, raise only)", CLASSIFICATION_FLOORS["min_macro_f1"], 1.0, CLASSIFICATION_FLOORS["min_macro_f1"], 0.01, key="tl_thr_min_f1")
+                thr["min_per_class_recall"] = st.number_input("Min recall of every class (floor, raise only)", CLASSIFICATION_FLOORS["min_per_class_recall"], 1.0,
+                                                               CLASSIFICATION_FLOORS["min_per_class_recall"], 0.05, key="tl_thr_min_recall")
             else:
                 thr = {"max_rmse_increase": st.number_input("Max relative RMSE increase vs. base", 0.0, 1.0, DEFAULT_THRESHOLDS["regression"]["max_rmse_increase"], 0.01, key="tl_thr_rmse_inc")}
         seed = int(st.session_state.get("tl_seed", 0))
@@ -370,7 +370,11 @@ def _step_setup(domain: str, block: str, base: dict) -> None:
 
             with st.spinner("Loading base model (fresh instance) and training a clone…"):
                 base_loaded = _load_base(domain, block, st.session_state.get("_tl_base_run_dir"))
-                result = wf.finetune(base_loaded, ds, cfg, seed=seed, thresholds=thr, on_epoch_end=on_epoch_end)
+                try:
+                    result = wf.finetune(base_loaded, ds, cfg, seed=seed, thresholds=thr, on_epoch_end=on_epoch_end)
+                except FloorError as exc:
+                    st.error(str(exc), icon=":material/block:")
+                    return
             st.session_state["tl_result"] = result
             st.session_state["tl_base_loaded"] = base_loaded
             st.session_state.pop("tl_candidate_dir", None)
@@ -407,7 +411,19 @@ def _step_validate(base: dict) -> None:
             st.plotly_chart(_loss_figure(result.history), width="stretch", config=PLOTLY_CONFIG, key="tl_loss_validate")
             st.caption("No early stopping or checkpoint selection: the final epoch is the candidate, so no decision is taken on validation or test data.")
         with st.container(border=True):
-            model_comparison(rep, result.test_evaluation, sorted(base["metrics"].get("classes") or []), key="tl_rmse_horizon")
+            model_comparison(rep, result.test_evaluation, list(result.lineage.get("classes") or sorted(base["metrics"].get("classes") or [])), key="tl_rmse_horizon")
+        if rep.get("floors"):
+            with st.container(border=True):
+                st.markdown("##### Candidate vs. acceptance floors")
+                fl = rep["floors"]
+                names = list(result.lineage.get("classes") or [])
+                rec = rep["metrics"].get("recall_per_class") or []
+                rows = [{"Metric": "macro-F1", "Candidate": rep["metrics"].get("macro_f1"), "Floor": fl["min_macro_f1"]["value"], "Origin": fl["min_macro_f1"]["origin"]}]
+                rows += [{"Metric": f"recall · {names[k] if k < len(names) else k}", "Candidate": r, "Floor": fl["min_per_class_recall"]["value"], "Origin": fl["min_per_class_recall"]["origin"]}
+                         for k, r in enumerate(rec) if r == r]  # NaN = class absent from the test set
+                df = pd.DataFrame(rows)
+                df["Meets floor"] = df["Candidate"] >= df["Floor"]
+                st.dataframe(df, hide_index=True, width="stretch", column_config={"Candidate": st.column_config.NumberColumn(format="%.3f"), "Floor": st.column_config.NumberColumn(format="%.2f")})
     with right:
         with st.container(border=True):
             st.markdown("##### Validation checks")
