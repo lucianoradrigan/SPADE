@@ -76,3 +76,11 @@ jobs:
         env:
           TF_CPP_MIN_LOG_LEVEL: "2"
         run: python -m pytest -m compat -v
+
+      # X3 (round PLECS/OM): the worker as a separate process on this OS -- start, heartbeat, a short
+      # job, cancellation, clean stop (`python -m driveflow.jobs.worker stop`; Windows has no SIGTERM).
+      # Also part of `-m compat` above; run on its own so a failure is visible per OS.
+      - name: Worker life cycle (heartbeat, completion, cancellation, clean stop)
+        env:
+          TF_CPP_MIN_LOG_LEVEL: "2"
+        run: python -m pytest tests/jobs/test_worker_lifecycle.py -v

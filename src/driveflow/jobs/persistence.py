@@ -44,9 +44,35 @@ def _row_to_job(row: sqlite3.Row) -> Job:
                run_id=row["run_id"], error=row["error"], error_code=row["error_code"])
 
 
+def _pid_alive_windows(pid: int) -> bool | None:
+    """OpenProcess + GetExitCodeProcess through ctypes (standard library, no new dependency).
+    None when the answer cannot be obtained."""
+    try:
+        import ctypes
+        from ctypes import wintypes
+
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        kernel32.OpenProcess.restype = wintypes.HANDLE
+        handle = kernel32.OpenProcess(0x1000, False, int(pid))  # PROCESS_QUERY_LIMITED_INFORMATION
+        if not handle:
+            err = ctypes.get_last_error()
+            return True if err == 5 else (False if err == 87 else None)  # 5 access denied: exists; 87 invalid parameter: no such pid
+        try:
+            code = wintypes.DWORD()
+            if not kernel32.GetExitCodeProcess(handle, ctypes.byref(code)):
+                return None
+            return code.value == 259  # STILL_ACTIVE
+        finally:
+            kernel32.CloseHandle(handle)
+    except Exception:
+        return None
+
+
 def pid_alive(pid: int) -> bool | None:
-    """True/False on POSIX; None where it cannot be checked cheaply (Windows) -- callers then fall
-    back to the heartbeat age."""
+    """True/False on POSIX (signal 0) and on Windows (OpenProcess/GetExitCodeProcess via ctypes);
+    None where it cannot be checked -- callers then fall back to the heartbeat age."""
+    if os.name == "nt":
+        return _pid_alive_windows(pid)
     if os.name != "posix":
         return None
     try:

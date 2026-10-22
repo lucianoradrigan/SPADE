@@ -1,0 +1,17 @@
+{
+  "task": "X3",
+  "changes": [
+    "pid_alive via ctypes OpenProcess/GetExitCodeProcess on Windows",
+    "python -m driveflow.jobs.worker stop (timestamp file)",
+    "tests/jobs/test_worker_lifecycle.py (compat)",
+    "CI smoke step Worker life cycle"
+  ],
+  "executed": {
+    "linux": {
+      "command": "pytest tests/jobs",
+      "result": "16 passed"
+    },
+    "windows": "no ejecutado: solo CI",
+    "macos": "no ejecutado: solo CI"
+  }
+}

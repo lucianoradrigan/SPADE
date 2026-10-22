@@ -122,8 +122,12 @@ class Worker:
         beat = threading.Thread(target=self._beat, daemon=True)
         beat.start()
         n = 0
+        started = time.time()
         try:
             while not self._stop.is_set():
+                if stop_requested_since(self.store.root, started):
+                    print(f"[{self.worker_id}] stop requested; exiting cleanly", flush=True)
+                    break
                 job = self.db.claim_next(self.worker_id, self.pid)
                 if job is None:
                     if once:
@@ -143,6 +147,26 @@ class Worker:
             self._stop.set()
             self.db.unregister_worker(self.worker_id)
         return n
+
+
+STOP_FILE = "worker.stop"
+
+
+def request_stop(root=None) -> Path:
+    """Asks every worker of this workspace that started before now to finish its current job and
+    exit cleanly (unregistering itself). Works the same on Windows, where there is no SIGTERM: the
+    request is a timestamp file the serve loop checks between jobs."""
+    path = RunStore(root).root / STOP_FILE
+    path.write_text(f"{time.time():.6f}\n")
+    return path
+
+
+def stop_requested_since(root, t0: float) -> bool:
+    path = Path(root) / STOP_FILE
+    try:
+        return float(path.read_text().strip()) >= t0
+    except (OSError, ValueError):
+        return False
 
 
 def run_spec(spec_path: str | os.PathLike, root=None) -> Run:
@@ -179,7 +203,11 @@ def main(argv=None) -> int:
     s.add_argument("--poll", type=float, default=1.0)
     r = sub.add_parser("run", help="re-run a saved spec.json in this process")
     r.add_argument("spec")
+    sub.add_parser("stop", help="ask the running workers of this workspace to exit cleanly after their current job")
     args = parser.parse_args(argv)
+    if args.cmd == "stop":
+        print(f"stop requested: {request_stop()}")
+        return 0
     if args.cmd == "run":
         run = run_spec(args.spec)
         print(f"{run.run_id}: {run.status}" + (f" — {run.failure_reason}" if run.failure_reason else ""))
