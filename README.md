@@ -119,6 +119,8 @@ under `configs/classifiers/custom/<name>/<date>_runNN/` (gitignored, like its da
 `data/custom/`). You can select it in *Evaluate a model* or use it as the starting point for transfer
 learning. It is never promoted from this page.
 
+Step-by-step guide for training, evaluating and adapting models in the GUI: [docs/GUIDE_AI_TRAINING_AND_TRANSFER.md](docs/GUIDE_AI_TRAINING_AND_TRANSFER.md).
+
 **Model registry** (`src/driveflow/ai/registry.py`): a single manifest
 (`configs/registry.yaml`) resolving `(domain, tier, block)` to whichever trained run is promoted
 to production (`experiments/promote_run.py`) -- a deliberate, separate step from training.
