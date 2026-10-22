@@ -238,6 +238,7 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N20 | High | Negative result (edge) | **Open** (§10): the distilled RPi5/ESP32 residual detectors fail criterion 1 for rpm and flag 0–6 % of faulted windows at their thresholds; not usable |
 | AI-N18 | Medium | Design (threshold) | **Cause addressed, not adopted** (§10, §10.1): the run01 threshold includes start-up windows (≈ 50 % detection at AUROC 1.000). The steady-state gate of run02 gives 100 % detection but fails criterion 3 (AI-N21) |
 | AI-N21 | High | Negative result (threshold) | **Open** (§10.1): with the steady-state gate (run02), healthy windows at 100 % noise give 58.3 % / 71.2 % false alarms (criterion 3 ≤ 1 %); not promoted |
+| AI-N22 | High | Negative result (last attempt, D2) | **Closed (negative)** (§10.2): the pre-registered noise-aware threshold passes criterion 2 (AUROC 1.000) but fails criterion 3 at 100 % noise (6.7 % false alarms, 23.1 % of healthy windows out of the calibrated noise range). E14 closed, no further attempts |
 | AI-N19 | Medium | Evaluation limit | **Documented** (§10): simulated healthy current/rpm are constant in steady state, so the residual AUROC (1.000) and the persistence baseline are optimistic |
 | AI-N15 | Medium | Defect (estimator bias) | **Open** (§9.1): the VSC PINN estimates C systematically low, −1.3 % to −9.1 % mean error at 0–5 % noise |
 | AI-N16 | Medium | Defect (uncertainty) | **Open** (§9.2): the PINN's 5–95 % bootstrap interval covers the truth in 52–78 % of noisy runs for C; the GUI says "Coverage not validated" |
@@ -661,3 +662,23 @@ The simulation-based agent and the PC residual detectors both reach run-level AU
 - **No retuning:** the gate, the quantile and the noise handling were not retuned after the evaluation, because that would be tuning on the test conditions.
 - **Possible next step, not done:** a noise-aware threshold, for example a scale per noise level estimated from the healthy context itself. It must be designed on validation data and evaluated once on new held-out conditions.
 - **Test:** `tests/test_findings_e14.py::test_ai_n21_gated_detector_meets_the_false_alarm_criterion` (strict xfail).
+
+### 10.2 AI-N22 — noise-aware residual threshold fails criterion 3; E14 closed as a negative result (round 2026-10-22, D2) · **High** · Negative result · **Closed (negative)**
+
+- **Last attempt (decision D2).** One attempt, pre-registered before any computation in [`e14_noise_aware_preregistration.md`](audit/ai/e14_noise_aware_preregistration.md) (commits 8615d31, 0c76c85).
+  - **Detector:** run02 `without_voltage_v` (the E14 tie rule), with the steady-state gate kept.
+  - **Noise estimator:** σ̂ of current_r, the MAD of the signal high-passed at 1 kHz. The cutoff is derived from the fault code: the 4th harmonic of BPFI at 250 rad/s is 784.5 Hz.
+  - **Threshold:** τ(σ̂) is the q99 per σ̂ bin on healthy validation windows, extended with 21 new healthy runs to cover 0–100 % noise.
+  - **Out of range:** above the calibrated σ̂ the answer is "out of calibrated noise range".
+- **Results** ([`e14_noise_aware_results.md`](audit/ai/e14_noise_aware_results.md), `python experiments/report_e14_noise_aware.py`, single run):
+  - **Ripple inflation of σ̂:** 0.0 % (limit 10 %), so the estimator is usable.
+  - **Criterion 2 passes:** pooled AUROC 1.000 for outer and for inner race.
+  - **Criterion 3 fails in `noise_100pct`:** 6.7 % false alarms on in-range healthy windows, and 23.1 % of healthy windows out of the calibrated range, above the pre-registered 10 % guard. The other four held-out conditions give 0 % on both.
+- **Observed, not tuned:** the test runs at 100 % noise reach a larger σ̂ (up to beyond 40.2 A) than any calibration window. The simulator sizes the noise as a percentage of each run's own current std, which includes the start-up transient, and the test runs are shorter (1.5 s against 2.5 s).
+- **Consequence (D2 cut rule):**
+  - E14 is closed as a negative result;
+  - the residual detector is not promoted and not integrated into AI Diagnostics or Monitoring;
+  - **no further attempts**;
+  - the edge distillates stay discarded (AI-N20).
+- **Test:** `tests/test_findings_e14.py::test_ai_n22_noise_aware_detector_meets_the_false_alarm_criterion` (strict xfail).
+

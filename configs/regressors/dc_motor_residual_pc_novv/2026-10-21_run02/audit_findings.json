@@ -27,6 +27,13 @@
       "date": "2026-10-21",
       "summary": "Two variants with and without voltage_v as an input were trained; both reach AUROC 1.000 on the held-out conditions, so the hypothesis that the PI's compensation through voltage_v hides the ripple was not observed here (detection at the fixed threshold differs: see the report).",
       "evidence": "docs/audit/ai/dc_motor_residual_anomaly.md"
+    },
+    {
+      "id": "AI-N22",
+      "severity": "high",
+      "date": "2026-10-22",
+      "summary": "E14 closed as a negative result (decision D2): the pre-registered noise-aware threshold (last attempt, evaluated on the without_voltage_v variant) passes criterion 2 (AUROC 1.000) but fails criterion 3 at 100 % noise: 6.7 % false alarms on in-range healthy windows and 23.1 % of healthy windows out of the calibrated noise range. Not promoted, not integrated, no further attempts.",
+      "evidence": "docs/audit/ai/e14_noise_aware_results.md; docs/AI_TECHNICAL_AUDIT.md Sec. 10.2"
     }
   ]
 }

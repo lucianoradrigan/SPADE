@@ -188,7 +188,10 @@ One row per task of [`TODO_CLAUDE_CODE.md`](../TODO_CLAUDE_CODE.md).
      - criterion 3 **fails** for both variants: 58.3 % / 71.2 % false alarms at 100 % noise (AI-N21);
      - no variant qualifies, so **nothing promoted**;
      - the threshold was not retuned on the test.
-   - **Open:** a noise-aware threshold, designed on validation data and evaluated on new held-out conditions, if you want to pursue it.
+   - **Closed as a negative result (2026-10-22, D2, AI-N22).** The last attempt was a pre-registered noise-aware threshold ([`e14_noise_aware_preregistration.md`](audit/ai/e14_noise_aware_preregistration.md), [`e14_noise_aware_results.md`](audit/ai/e14_noise_aware_results.md)).
+     - **Criterion 2:** passes (AUROC 1.000).
+     - **Criterion 3:** fails at 100 % noise: 6.7 % false alarms, and 23.1 % of healthy windows out of the calibrated noise range.
+     - **Outcome:** not promoted, not integrated, no further attempts.
 
 ### 7.3 Open, not blocked on a decision
 

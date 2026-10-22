@@ -1,4 +1,4 @@
-"""Findings of expansion task E14 (docs/AI_TECHNICAL_AUDIT.md §10): AI-N18, AI-N19, AI-N20, read from
+"""Findings of expansion task E14 (docs/AI_TECHNICAL_AUDIT.md §10): AI-N18 … AI-N22, read from
 the recorded report so a regenerated report updates them."""
 
 import json
@@ -59,3 +59,17 @@ def test_gate_report_is_the_declared_design_change():
 @pytest.mark.xfail(strict=True, reason="AI-N21 (open): with the steady-state threshold, 58-71 % false alarms on healthy windows at 100 % noise")
 def test_ai_n21_gated_detector_meets_the_false_alarm_criterion():
     assert all(v["criterion_3"]["pass"] for v in _gate()["variants"].values())
+
+
+NOISE_AWARE = REPORT.with_name("e14_noise_aware_results.json")
+
+
+def test_ai_n22_result_is_recorded_as_negative():
+    rep = json.loads(NOISE_AWARE.read_text())
+    assert rep["verdict"].startswith("NEGATIVE") and rep["inflation_check"]["pass"] and rep["evaluation"]["criterion_2_pass"]
+    assert not rep["evaluation"]["per_condition"]["noise_100pct"]["criterion_3_pass"]
+
+
+@pytest.mark.xfail(strict=True, reason="AI-N22 (closed negative): the pre-registered noise-aware threshold fails criterion 3 at 100 % noise")
+def test_ai_n22_noise_aware_detector_meets_the_false_alarm_criterion():
+    assert json.loads(NOISE_AWARE.read_text())["evaluation"]["criterion_3_pass"]

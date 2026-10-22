@@ -1,0 +1,174 @@
+{
+  "command": "python experiments/report_e14_noise_aware.py",
+  "preregistration": "docs/audit/ai/e14_noise_aware_preregistration.md (8615d31, 0c76c85)",
+  "run": "configs/regressors/dc_motor_residual_pc_novv/2026-10-21_run02",
+  "gate_s": 0.41072021974010786,
+  "estimator": {
+    "fc_hz": 1000.0,
+    "butterworth_order": 8,
+    "zero_phase": true,
+    "channel": "current_r"
+  },
+  "environment": "Linux x86_64, Python 3.12.13",
+  "calibration": {
+    "n_runs_recorded_val": 21,
+    "n_runs_new": 21,
+    "n_windows": 2520,
+    "noise_pct_range": [
+      0.0,
+      100.0
+    ],
+    "sigma_hat_range_a": [
+      0.0,
+      40.18257528101081
+    ],
+    "sigma_hat_rpm_median": 0.0
+  },
+  "inflation_check": {
+    "n_windows": 1920,
+    "ripple_amplitude_a": 96.96969696969697,
+    "median_relative_inflation": {
+      "outer_race": -3.522780178677465e-08,
+      "inner_race": 3.6403372649651544e-08
+    },
+    "limit": 0.1,
+    "pass": true
+  },
+  "threshold": {
+    "bin_edges_a": [
+      0.0,
+      5.162689452194788,
+      10.972432437451241,
+      15.333304039257667,
+      18.810489714894942,
+      24.445259077713384,
+      28.714602869768683,
+      40.18257528101081
+    ],
+    "tau_per_bin": [
+      1.3403624070962794,
+      2.292629354309829,
+      2.982209616143395,
+      3.4767942018555904,
+      4.290356255089966,
+      4.849646188385854,
+      5.602942968164368
+    ],
+    "n_per_bin": [
+      630,
+      315,
+      315,
+      315,
+      315,
+      315,
+      315
+    ],
+    "sigma_hat_max_calibrated_a": 40.18257528101081,
+    "run02_constant_threshold": 4.349380982825057
+  },
+  "evaluation": {
+    "per_condition": {
+      "unseen_speed_115_rad_s": {
+        "healthy_n": 156,
+        "healthy_out_of_range": 0.0,
+        "false_alarm_rate_in_range": 0.0,
+        "outer_race": {
+          "n": 156,
+          "out_of_range": 0.0,
+          "auroc": 1.0,
+          "detection_rate_in_range": 1.0
+        },
+        "inner_race": {
+          "n": 156,
+          "out_of_range": 0.0,
+          "auroc": 1.0,
+          "detection_rate_in_range": 1.0
+        },
+        "criterion_3_pass": true
+      },
+      "unseen_speed_190_rad_s": {
+        "healthy_n": 156,
+        "healthy_out_of_range": 0.0,
+        "false_alarm_rate_in_range": 0.0,
+        "outer_race": {
+          "n": 156,
+          "out_of_range": 0.0,
+          "auroc": 1.0,
+          "detection_rate_in_range": 1.0
+        },
+        "inner_race": {
+          "n": 156,
+          "out_of_range": 0.0,
+          "auroc": 1.0,
+          "detection_rate_in_range": 1.0
+        },
+        "criterion_3_pass": true
+      },
+      "extrapolated_speed_250_rad_s": {
+        "healthy_n": 156,
+        "healthy_out_of_range": 0.0,
+        "false_alarm_rate_in_range": 0.0,
+        "outer_race": {
+          "n": 156,
+          "out_of_range": 0.0,
+          "auroc": 1.0,
+          "detection_rate_in_range": 1.0
+        },
+        "inner_race": {
+          "n": 156,
+          "out_of_range": 0.0,
+          "auroc": 1.0,
+          "detection_rate_in_range": 1.0
+        },
+        "criterion_3_pass": true
+      },
+      "noise_100pct": {
+        "healthy_n": 156,
+        "healthy_out_of_range": 0.23076923076923078,
+        "false_alarm_rate_in_range": 0.06666666666666667,
+        "outer_race": {
+          "n": 156,
+          "out_of_range": 0.5064102564102564,
+          "auroc": 1.0,
+          "detection_rate_in_range": 1.0
+        },
+        "inner_race": {
+          "n": 156,
+          "out_of_range": 0.3525641025641026,
+          "auroc": 1.0,
+          "detection_rate_in_range": 1.0
+        },
+        "criterion_3_pass": false
+      },
+      "plant_drift_psi-10pct_J+50pct": {
+        "healthy_n": 156,
+        "healthy_out_of_range": 0.0,
+        "false_alarm_rate_in_range": 0.0,
+        "outer_race": {
+          "n": 156,
+          "out_of_range": 0.0,
+          "auroc": 1.0,
+          "detection_rate_in_range": 1.0
+        },
+        "inner_race": {
+          "n": 156,
+          "out_of_range": 0.0,
+          "auroc": 1.0,
+          "detection_rate_in_range": 1.0
+        },
+        "criterion_3_pass": true
+      }
+    },
+    "criterion_2_pooled_auroc": {
+      "outer_race": 1.0,
+      "inner_race": 1.0
+    },
+    "criterion_2_pass": true,
+    "criterion_3_pass": false,
+    "detection_rate_severity_x0.6_in_range": {
+      "outer_race": 1.0,
+      "inner_race": 1.0
+    }
+  },
+  "verdict": "NEGATIVE: criteria not met; E14 closes as a negative result, no further attempts (\u00a76)"
+}
