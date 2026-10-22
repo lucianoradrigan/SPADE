@@ -239,6 +239,7 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N18 | Medium | Design (threshold) | **Cause addressed, not adopted** (§10, §10.1): the run01 threshold includes start-up windows (≈ 50 % detection at AUROC 1.000). The steady-state gate of run02 gives 100 % detection but fails criterion 3 (AI-N21) |
 | AI-N21 | High | Negative result (threshold) | **Open** (§10.1): with the steady-state gate (run02), healthy windows at 100 % noise give 58.3 % / 71.2 % false alarms (criterion 3 ≤ 1 %); not promoted |
 | AI-N22 | High | Negative result (last attempt, D2) | **Closed (negative)** (§10.2): the pre-registered noise-aware threshold passes criterion 2 (AUROC 1.000) but fails criterion 3 at 100 % noise (6.7 % false alarms, 23.1 % of healthy windows out of the calibrated noise range). E14 closed, no further attempts |
+| AI-N23 | Medium | Negative result (feasibility) | **Closed (negative)** (§11.1): at most 2 IGBT run-to-failure devices on a comparable protocol (with different failure modes); no validated RUL model is feasible. E11 closed; option 3 (another NASA PCoE dataset) postponed |
 | AI-N19 | Medium | Evaluation limit | **Documented** (§10): simulated healthy current/rpm are constant in steady state, so the residual AUROC (1.000) and the persistence baseline are optimistic |
 | AI-N15 | Medium | Defect (estimator bias) | **Open** (§9.1): the VSC PINN estimates C systematically low, −1.3 % to −9.1 % mean error at 0–5 % noise |
 | AI-N16 | Medium | Defect (uncertainty) | **Open** (§9.2): the PINN's 5–95 % bootstrap interval covers the truth in 52–78 % of noisy runs for C; the GUI says "Coverage not validated" |
@@ -681,4 +682,24 @@ The simulation-based agent and the PC residual detectors both reach run-level AU
   - **no further attempts**;
   - the edge distillates stay discarded (AI-N20).
 - **Test:** `tests/test_findings_e14.py::test_ai_n22_noise_aware_detector_meets_the_false_alarm_criterion` (strict xfail).
+
+## 11. E11 (round 2026-10-22): IGBT remaining-useful-life — data audit E11a
+
+### 11.1 AI-N23 — the NASA IGBT aging archive does not support a validated RUL model · **Medium** · Negative result (feasibility) · **Closed (negative)**
+
+- **Evidence:** [`e11a_igbt_data_audit.md`](audit/ai/e11a_igbt_data_audit.md), from `python experiments/report_e11a_igbt_data_audit.py`. The aging log was converted once with `scripts/oneoff/convert_igbt_aging_log.py` in a throwaway `uv` environment; `xlrd` was not added to `pyproject.toml` (D3).
+- **Run to failure:** 4 devices, on 3 different protocols:
+  - the DC-gate device: latch-up and thermal runaway;
+  - A17: latch-up at 329–340 °C, recovered at room temperature;
+  - Device 3: latch-up on the stepped square-gate + SMU set-up;
+  - Device 5: loss of conduction on the same set-up.
+  - Devices 2 and 4 have no recorded failure.
+- **On one comparable protocol:** at most **2** (Devices 3 and 5), and their failure modes differ.
+- **Turn-off current tail** (NASA's latch-up precursor): computable from transients for A17, Device 3 and Device 5, not for the DC-gate device (low-speed data only).
+  - Pooling A17, Device 3 and Device 5 would mix a fixed 329–340 °C schedule with a manual 140→280 °C ramp, plus one non-latch-up failure.
+- **Finding:** "the NASA IGBT accelerated-aging archive supports at most 2 run-to-failure devices on comparable protocols; a validated RUL model is not feasible".
+- **Consequences:**
+  - **E11 is closed as a negative result.** E11b is not started; no Prognostics page and no model were built.
+  - **Postponed:** option 3, another NASA PCoE dataset (e.g. MOSFET thermal-overstress aging). Not rejected, not done.
+- **Test:** `tests/test_findings_e11.py`.
 

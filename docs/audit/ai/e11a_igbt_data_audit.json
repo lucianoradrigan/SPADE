@@ -1,0 +1,138 @@
+{
+  "command": "python experiments/report_e11a_igbt_data_audit.py --archive data/upstream/fund/igbt/extracted/IGBTAgingData_04022009 --log-csv data/upstream/fund/igbt/device_aging_log",
+  "log_conversion": "uv run --with xlrd --with pandas python scripts/oneoff/convert_igbt_aging_log.py (throwaway environment; xlrd not added to pyproject.toml)",
+  "log_sheets": [
+    "device_aging_log__Device_2.csv",
+    "device_aging_log__Device_3.csv",
+    "device_aging_log__Device_4.csv",
+    "device_aging_log__Device_5.csv"
+  ],
+  "devices": [
+    {
+      "device": "DC-gate (20080429T135531)",
+      "protocol": "DC gate 10 V; package held at 268-270 \u00b0C (stepped 220/240/270 \u00b0C), runaway cut-off 305 \u00b0C; low-speed data only",
+      "protocol_group": "DC gate",
+      "end_of_test": "failed: latch-up and thermal runaway",
+      "source": "DC folder Readme: 'Experiments stopped after latch-up and thermal runaway'; ~4 h",
+      "run_to_failure": true,
+      "failure_mode": "latch-up and thermal runaway",
+      "turn_off_tail_computable": false,
+      "files": [
+        "20080429T135531.mat"
+      ],
+      "transients": 0,
+      "transients_with_turn_off_edge": 0,
+      "recorded_hours": 4.19,
+      "low_speed_samples": 301680
+    },
+    {
+      "device": "A17 (square gate)",
+      "protocol": "square gate 10 V, 10 kHz, 40 % duty; package band 329-340 \u00b0C (Autotestcon 2008); low-speed + oscilloscope transients",
+      "protocol_group": "square gate, fixed 329-340 \u00b0C band",
+      "end_of_test": "failed: latch-up (recovered at room temperature)",
+      "source": "Sonnenfeld, Goebel, Celaya, Autotestcon 2008, Fig. 8 and text: 'latch up \u2026 The experiment was ended after the failure and the IGBT was found to be functional when returned to room temperature'; the folder Readme says this file is that paper's experiment",
+      "run_to_failure": true,
+      "failure_mode": "latch-up (recovered at room temperature)",
+      "turn_off_tail_computable": true,
+      "files": [
+        "april22nd-23rdIgbtIRCG40BC30kd-A17.mat"
+      ],
+      "transients": 418,
+      "transients_with_turn_off_edge": 418,
+      "recorded_hours": 2.86
+    },
+    {
+      "device": "Device 2",
+      "protocol": "square gate + SMU set-up; package set point stepped 100\u2192280 \u00b0C and supply 2.5\u21926 V by hand within 20-40 min sessions (log)",
+      "protocol_group": "square gate + SMU, stepped",
+      "end_of_test": "no failure recorded",
+      "source": "Device Aging log: sessions 2 and 2b end with no failure note, then a low-temperature check (Device2check)",
+      "run_to_failure": false,
+      "failure_mode": null,
+      "turn_off_tail_computable": true,
+      "files": [
+        "Device2  1.mat",
+        "Device2b  1.mat"
+      ],
+      "transients": 175,
+      "transients_with_turn_off_edge": 175,
+      "recorded_hours": 1.11
+    },
+    {
+      "device": "Device 3",
+      "protocol": "same as Device 2",
+      "protocol_group": "square gate + SMU, stepped",
+      "end_of_test": "failed: latch-up",
+      "source": "Device Aging log, session 3b, 04:02: 'end experiment\u2026device latchup'",
+      "run_to_failure": true,
+      "failure_mode": "latch-up",
+      "turn_off_tail_computable": true,
+      "files": [
+        "Device3  1.mat",
+        "Device3b  1.mat"
+      ],
+      "transients": 152,
+      "transients_with_turn_off_edge": 152,
+      "recorded_hours": 0.96
+    },
+    {
+      "device": "Device 4",
+      "protocol": "same as Device 2",
+      "protocol_group": "square gate + SMU, stepped",
+      "end_of_test": "no failure recorded",
+      "source": "Device Aging log: sessions 4 and 4b, no failure note",
+      "run_to_failure": false,
+      "failure_mode": null,
+      "turn_off_tail_computable": true,
+      "files": [
+        "Device4  1.mat",
+        "Device4b  1.mat"
+      ],
+      "transients": 255,
+      "transients_with_turn_off_edge": 255,
+      "recorded_hours": 1.61
+    },
+    {
+      "device": "Device 5",
+      "protocol": "same as Device 2",
+      "protocol_group": "square gate + SMU, stepped",
+      "end_of_test": "failed: no longer able to draw current",
+      "source": "Device Aging log, after 12:54: 'The device is no longer able to draw current.'",
+      "run_to_failure": true,
+      "failure_mode": "no longer able to draw current",
+      "turn_off_tail_computable": true,
+      "files": [
+        "Device5  1.mat"
+      ],
+      "transients": 106,
+      "transients_with_turn_off_edge": 106,
+      "recorded_hours": 0.66
+    }
+  ],
+  "run_to_failure_devices": [
+    "DC-gate (20080429T135531)",
+    "A17 (square gate)",
+    "Device 3",
+    "Device 5"
+  ],
+  "run_to_failure_by_protocol": {
+    "DC gate": [
+      "DC-gate (20080429T135531)"
+    ],
+    "square gate, fixed 329-340 \u00b0C band": [
+      "A17 (square gate)"
+    ],
+    "square gate + SMU, stepped": [
+      "Device 3",
+      "Device 5"
+    ]
+  },
+  "run_to_failure_with_computable_turn_off_tail": [
+    "A17 (square gate)",
+    "Device 3",
+    "Device 5"
+  ],
+  "max_run_to_failure_on_one_comparable_protocol": 2,
+  "conclusion": "NEGATIVE",
+  "finding": "the NASA IGBT accelerated-aging archive supports at most 2 run-to-failure devices on comparable protocols; a validated RUL model is not feasible"
+}
