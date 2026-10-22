@@ -20,6 +20,10 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest"]
 viz = ["streamlit", "plotly"]
+# FMU co-simulation plants (round PLECS/OM, decision D3): fmpy loads FMI 2.0 FMUs, e.g. the
+# OpenModelica plants of modelica/SPADE (built with scripts/fmu/build_fmus.sh, or downloaded with
+# `python -m driveflow.fmu fetch`). Not needed for anything else.
+fmu = ["fmpy"]
 
 [build-system]
 requires = ["hatchling"]
@@ -37,4 +41,5 @@ markers = [
     "ai: classifier evaluation, monitoring agents and alerts (tests/ai)",
     "compat: installation smoke checks that must pass on Linux, Windows and macOS (tests/compat)",
     "slow: > ~20 s each; excluded from the per-commit CI job, run by the scheduled/manual workflow",
+    "fmu: needs fmpy and a built FMU under data/fmu/; skipped (not failed) when either is missing",
 ]

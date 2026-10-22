@@ -1,0 +1,1 @@
+1179 passed, 6 xfailed, 481 warnings in 976.97s (0:16:16)  # PYTHONPATH=src ../SPADE-dev/.venv/bin/python -m pytest -q -p no:cacheprovider, branch feat/B0-openmodelica-setup on dev bff9d08

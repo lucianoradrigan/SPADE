@@ -1,0 +1,16 @@
+{
+  "docker": "29.1.3",
+  "openmodelica": {
+    "version": "1.27.1",
+    "image": "openmodelica/openmodelica:v1.27.1-minimal",
+    "digest": "sha256:ac9a0223e69b8055d444b42f58ccb9680342b56848c68b81385bf83d7c0ba824"
+  },
+  "msl": "4.1.0+maint.om",
+  "fmpy": "0.3.32",
+  "commands": [
+    "docker pull openmodelica/openmodelica:v1.27.1-minimal",
+    "scripts/fmu/om.sh <script.mos>",
+    "uv pip install -e .[dev,viz,fmu]"
+  ],
+  "runtime_license": "BSD New / AGPL v3 / OSMC-PL 1.8 at recipient choice (osmc-pl-1.8-runtime.txt); third-party components to be checked in built FMUs before B8"
+}

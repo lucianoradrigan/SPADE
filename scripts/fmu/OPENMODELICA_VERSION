@@ -1,0 +1,6 @@
+# Pinned OpenModelica toolchain for building SPADE's FMUs (round PLECS/OM, decision D4).
+# Read by scripts/fmu/om.sh and scripts/fmu/build_fmus.sh. Not a Python dependency.
+OM_IMAGE=openmodelica/openmodelica:v1.27.1-minimal
+OM_IMAGE_DIGEST=sha256:ac9a0223e69b8055d444b42f58ccb9680342b56848c68b81385bf83d7c0ba824
+OM_VERSION=1.27.1
+MSL_VERSION=4.1.0+maint.om
