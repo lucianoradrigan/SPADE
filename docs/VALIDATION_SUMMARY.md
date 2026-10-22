@@ -45,7 +45,7 @@ It added findings **S-09…S-13** and **AI-N13…AI-N14**. Results that change a
 | PMSM / FOC | ✅ **S-01 fixed**: default Euler with 3 substeps, stable up to ≈460 rad/s (1.47× nominal); bit-identical to GEM 3.0.3 (V4) | ✅ | ✅ Euler = RK45 within 0.5 % of i_s in the closed-loop demo; MTPA = GEM's table within 1 A (V5); now produces datasets (P1) | S-13 fixed (10 substeps: 5.3 % at 314 rad/s, stable to ≈ 841 rad/s) |
 | VSC + DPC | ✅ bounded; divergence below R\* is physics; ADF/BDF = exact ZOH of the upstream L-C filter (V0, V1) | ✅ | ✅ **S-05 fixed**: DPC v4 tracks within 3.1 V from 4 Ω to 1 kΩ. C1: the v3/v4 operating-point selection is the default since 2026-10-20: 1.18 V at 8 Ω. The ported upstream MPC reaches 0.14 V (V2) | **S-09**: no converter voltage limit (120/150 V points are idealized); S-10 input convention |
 | Fault injection / signals | ✅ S-06 fixed | ✅ | n/a | — |
-| Diagnosis classifiers | n/a | ✅ | ✅ **AI-N06/N07 fixed**: grid-trained model, 1.000 on held-out speeds (115, 190, 250 rad/s) and severity ×0.6; 0.969 at 100 % noise; calibrated, with abstention | AI-N12 / **AI-N13**: no OOD method catches ball faults (A1 negative); **AI-N14**: 0.58 at 50 rad/s, 0.68 at 150 % noise |
+| Diagnosis classifiers | n/a | ✅ | ✅ **AI-N06/N07 fixed** with the grid-trained `pc_server/2026-10-18_run01` (3 classes, promoted 2026-10-18 to 2026-10-20): 1.000 on held-out speeds (115, 190, 250 rad/s) and severity ×0.6; 0.969 at 100 % noise. **Promoted since 2026-10-20: `pc_server_5class_w2048/2026-10-20_run01`** (5 classes): 1.000 on the same held-out conditions and at 100 % noise, 0.963 at 100 rad/s, 0.60 during start-up ([`classifier_evaluation_5class_w2048.md`](audit/ai/classifier_evaluation_5class_w2048.md)); calibrated, with abstention | AI-N12 / **AI-N13**: no OOD method catches ball faults (A1 negative); **AI-N14**: 0.58 at 50 rad/s, 0.68 at 150 % noise |
 | Forecasters | n/a | ✅ | ✅ **AI-N11 fixed**: condition-split test, RMSE 0.073 vs persistence 1.056 | RPi5: the builtin-only TCN (A3) is promoted since 2026-10-20 |
 | Monitoring / alerts | — | ✅ | ✅ AI-N02/N03/N04/N08 fixed: telemetry-time evaluation, off-delay; anomaly agent AUC 1.0 and 0.057 s per call (AI-N09/N10) | thresholds measured on simulated runs only |
 | Installation | — | — | ✅ Ubuntu 26.04 executed (uv + Python 3.11, venv/pip + Python 3.12): smoke 6/6; CI smoke green on Ubuntu / Windows / macOS; Intel-Mac pin emulated: 687 passed, 0 failed (P2) | manual runs on Windows, macOS, Ubuntu 22.04/24.04 not done |
@@ -54,10 +54,10 @@ It added findings **S-09…S-13** and **AI-N13…AI-N14**. Results that change a
 
 | ID | Severity | Status |
 |---|---|---|
-| AI-N06 — the promoted classifier never detected inner_race | Critical | **Fixed and tested.** `pc_server/2026-10-18_run01` promoted, edge models re-distilled and re-exported. |
+| AI-N06 — the promoted classifier never detected inner_race | Critical | **Fixed and tested.** `pc_server/2026-10-18_run01` promoted, edge models re-distilled and re-exported. Superseded on 2026-10-20 by `pc_server_5class_w2048/2026-10-20_run01`. |
 | AI-N03 — VSC alarm missed the unstable bands R < 1 and 3.0–3.37 Ω | High | **Fixed and tested** |
 | AI-N04 — NaN telemetry silently resolved alerts | High | **Fixed and tested** |
-| AI-N07 — classifiers did not generalize to other speeds or severities | High | **Fixed and tested** on held-out simulated conditions (speed × severity × noise × plant-drift grid, rpm level kept). |
+| AI-N07 — classifiers did not generalize to other speeds or severities | High | **Fixed and tested** on held-out simulated conditions (speed × severity × noise × plant-drift grid, rpm level kept). Measured on `pc_server/2026-10-18_run01` (3 classes); the promoted `pc_server_5class_w2048/2026-10-20_run01` was evaluated on the same conditions (§6 A2 follow-up). |
 | AI-N12 — uncalibrated confidence, no abstention | High | **Mitigated**: temperature scaling and an abstention threshold, fitted on validation. Not solved for unseen fault types (ball). |
 | S-01 — Euler integration of the PMSM at high speed | High (latent) | **Fixed and tested** |
 | macOS Intel — an unpinned install breaks | High (installation) | **Mitigated**: `constraints/macos-intel.txt`. The pinned set was checked by emulation on Linux (third pass: 0 failures), not on a Mac. |
@@ -193,7 +193,7 @@ One row per task of [`TODO_CLAUDE_CODE.md`](../TODO_CLAUDE_CODE.md).
 ### 7.3 Open, not blocked on a decision
 
 1. **Real data.** No real measurements exist in this project, so every model number above comes from the simulator. A real hold-out set is the only way to validate any diagnosis claim: another machine or bearing, at least two speeds, inner and outer race faults.
-2. **AI-N14.** The classifier's accuracy is 0.58 at 50 rad/s, below the training grid, and 0.68 at 150 % noise. Extend the training grid down in speed and up in noise.
+2. **AI-N14.** Measured on `pc_server/2026-10-18_run01` (3 classes): accuracy on answered windows 0.58 at 50 rad/s, below the training grid, and 0.68 at 150 % noise. On the promoted `pc_server_5class_w2048/2026-10-20_run01` (round 2026-10-22, [`promoted_pc_server_5class_w2048/ood_detector_custom_orders.md`](audit/ai/promoted_pc_server_5class_w2048/ood_detector_custom_orders.md)): 0.818 at 50 rad/s, but on only 41 % of the windows (the rest abstained or flagged unknown); 1.000 at 150 % noise; 54 windows each. The OOD filter in these numbers is not active in the GUI (AI-N17). Extending the training grid down in speed is still open.
 3. **Installation.** Run the guides once by hand on Windows 11, an Apple-Silicon Mac, an Intel Mac and Ubuntu 22.04. CI covers the smoke test only.
 4. **Hardware.** No `.tflite` model has been run on a Raspberry Pi 5 or an ESP32. `scripts/edge_benchmark/` (P3) is ready for when one is available.
 

@@ -220,10 +220,10 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 
 | ID | Severity | Type | Status |
 |---|---|---|---|
-| AI-N06 | Critical | Defect | **Fixed + tested** (§7.1: grid-trained model promoted, edge models re-distilled) |
+| AI-N06 | Critical | Defect | **Fixed + tested** (§7.1: grid-trained `pc_server/2026-10-18_run01` promoted, edge models re-distilled; superseded on 2026-10-20 by the 5-class `pc_server_5class_w2048/2026-10-20_run01`, §8.5) |
 | AI-N03 | High | Defect | **Fixed + tested** |
 | AI-N04 | High | Defect | **Fixed + tested** |
-| AI-N07 | High | Defect | **Fixed + tested** on held-out simulated conditions (§7.1) |
+| AI-N07 | High | Defect | **Fixed + tested** on held-out simulated conditions (§7.1, measured on `pc_server/2026-10-18_run01`; the promoted `pc_server_5class_w2048/2026-10-20_run01` scores 1.000 on the same conditions, §8.5) |
 | AI-N12 | High | Risk | **Mitigated** (§7.2): temperature scaling + abstention; does not catch every unseen fault type |
 | AI-N01 | Medium | Defect | **Fixed + tested** |
 | AI-N02 | Medium | Defect | **Fixed + tested** (§7.3) |
@@ -233,7 +233,7 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N11 | Medium | Risk | **Fixed** (§7.5): condition-split data, persistence baseline recorded |
 | AI-N08 | Low | Risk | **Fixed + tested** (§7.3) |
 | AI-N13 | High | Negative result | **Open** (§8.1): a feature-space OOD detector does not catch ball/cage faults at a usable false-alarm rate |
-| AI-N14 | Medium | Defect (generalization) | **Open** (§8.1): below the training speed range (50 rad/s) accuracy on answered windows is 0.58; at 150 % noise 0.68 |
+| AI-N14 | Medium | Defect (generalization) | **Open** (§8.1): on `pc_server/2026-10-18_run01`, below the training speed range (50 rad/s) accuracy on answered windows is 0.58; at 150 % noise 0.68. On the promoted `pc_server_5class_w2048/2026-10-20_run01`: 0.818 at 50 rad/s on 41 % answered windows, 1.000 at 150 % noise (§8.1) |
 | AI-N17 | High | Risk (extends AI-N12/AI-N13) | **Open** (§9.3): the promoted 5-class classifier carries no OOD detector; the GUI says "OOD detection unavailable". Not integrated by decision D6 (2026-10-21); re-evaluated with E14 |
 | AI-N20 | High | Negative result (edge) | **Open** (§10): the distilled RPi5/ESP32 residual detectors fail criterion 1 for rpm and flag 0–6 % of faulted windows at their thresholds; not usable |
 | AI-N18 | Medium | Design (threshold) | **Cause addressed, not adopted** (§10, §10.1): the run01 threshold includes start-up windows (≈ 50 % detection at AUROC 1.000). The steady-state gate of run02 gives 100 % detection but fails criterion 3 (AI-N21) |
@@ -263,14 +263,14 @@ A first version of the grid had no noise-free run and at most 40 % noise. Its mo
 
 | Run | rpm level | Test accuracy | Test macro-F1 | outer_race recall |
 |---|---|---|---|---|
-| `pc_server/2026-10-18_run01` (**promoted**) | kept | **0.914** | **0.914** | 0.89 |
+| `pc_server/2026-10-18_run01` (**promoted 2026-10-18 → 2026-10-20**) | kept | **0.914** | **0.914** | 0.89 |
 | `pc_server/2026-10-18_run02` (ablation, not promoted) | z-scored | 0.838 | 0.834 | 0.68 |
 
 The test split is by run, 30 of 315 runs, mixing every speed, severity and noise level. It is harder than the old single-point test, which is why 0.914 is below the old 0.960.
 
 **Held-out conditions** (fresh runs, seeds 200–203, steady state; [`classifier_evaluation.md`](audit/ai/classifier_evaluation.md)). The new conditions are outside the training grid: 115 and 190 rad/s fall between grid speeds, 250 rad/s is beyond it, and ×0.6 severity falls between grid severities.
 
-| Condition | 2026-09-01 (old production) | 2026-10-13 (single-point candidate) | **2026-10-18_run01 (promoted)** |
+| Condition | 2026-09-01 (old production) | 2026-10-13 (single-point candidate) | **2026-10-18_run01 (promoted 2026-10-18 → 2026-10-20)** |
 |---|---|---|---|
 | nominal 150 rad/s | 0.667 (inner_race recall 0) | 1.000 | **1.000** |
 | 100 rad/s | 0.667 | 0.667 (inner_race → outer_race) | **1.000** |
@@ -411,11 +411,15 @@ Results on the held-out conditions ([`forecaster_condition_split.json`](audit/ai
 - **Not wired into the model.** The detector is wired into `decide()` and the GUI (`Unknown condition — REQUIRES VERIFICATION`). It is **not** written into the promoted run's `metrics.json`, so the GUI's behavior is unchanged.
 - **Next step.** Per TODO A1, the decision passes to A2 (adding ball/cage classes, with synthetic-only amplitudes) or to the physics cross-check with the simulation-based agent. The agent check was listed as optional and was not implemented.
 
-**AI-N14 (open).** The benign-shift sets expose a generalization gap that the earlier held-out evaluation (115–250 rad/s) did not cover:
+**AI-N14 (open).** The benign-shift sets expose a generalization gap that the earlier held-out evaluation (115–250 rad/s) did not cover. Run evaluated: `configs/classifiers/pc_server/2026-10-18_run01` (3 classes, promoted at the time; [`ood_detector.md`](audit/ai/ood_detector.md)):
 - **50 rad/s**, below the training grid's 80 rad/s floor: accuracy on answered windows is **0.58**;
 - **150 % sensor noise**: accuracy on answered windows is **0.68**.
 
-The earlier evaluation measured 1.000 at 115, 190 and 250 rad/s. Neither the abstention threshold nor the OOD detector catches these failures well: at 50 rad/s, 9 % of windows are flagged by Mahalanobis and 33 % by the energy score.
+**Promoted model, re-measured (round 2026-10-22).** `configs/classifiers/pc_server_5class_w2048/2026-10-20_run01`, same metric (abstention plus the Mahalanobis filter, which is not active in the GUI), 54 windows per condition. Evidence: [`promoted_pc_server_5class_w2048/ood_detector_custom_orders.md`](audit/ai/promoted_pc_server_5class_w2048/ood_detector_custom_orders.md), from `python experiments/report_ood_detector.py --run-dir configs/classifiers/pc_server_5class_w2048/2026-10-20_run01 --ood-set custom_orders --cache data/ood_eval_cache_custom.parquet --out-dir docs/audit/ai/promoted_pc_server_5class_w2048`.
+- **50 rad/s:** 0.818 on the answered windows, but only 41 % are answered (59 % flagged unknown by Mahalanobis). The gap is smaller, not closed.
+- **150 % noise:** 1.000, none flagged.
+
+The earlier evaluation of the same 3-class run measured 1.000 at 115, 190 and 250 rad/s. Neither the abstention threshold nor the OOD detector catches these failures well: at 50 rad/s, 9 % of windows are flagged by Mahalanobis and 33 % by the energy score.
 
 ### 8.2 A3 — RPi5 forecaster without Flex ops
 
@@ -467,7 +471,7 @@ Evidence: [`vsc_capacitor_separability.md`](audit/ai/vsc_capacitor_separability.
 | `pc_server_5class/2026-10-20_run01` | 0.821 | **1.000** (all 5 classes) | 0.803 / 0.811 | 1.000 / 1.000 | 1.000 | 0.661 |
 | `rpi5_resnet1d_se_5class/2026-10-20_run01` | 0.809 | 1.000 | 0.829 / 0.832 | 1.000 / 1.000 | 1.000 | 0.644 |
 | `esp32_dscnn_5class/2026-10-20_run01` | 0.741 | 0.932 | 0.787 / 0.789 | 0.984 / 1.000 | 0.811 | 0.622 |
-| promoted 3-class `pc_server/2026-10-18_run01`, for reference (its 3 classes only) | 0.914 | 1.000 | 1.000 / 1.000 | 1.000 / 1.000 | 0.969 | 0.815 |
+| then-promoted 3-class `pc_server/2026-10-18_run01`, for reference (its 3 classes only) | 0.914 | 1.000 | 1.000 / 1.000 | 1.000 / 1.000 | 0.969 | 0.815 |
 
 Evidence: [`classifier_evaluation_5class.md`](audit/ai/classifier_evaluation_5class.md), from `python experiments/report_classifier_evaluation.py --extra-faults ball,cage …`. The held-out conditions are those of §7.1, simulated with all 5 classes.
 

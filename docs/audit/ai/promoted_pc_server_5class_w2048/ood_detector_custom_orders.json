@@ -1,0 +1,152 @@
+{
+  "run": "configs/classifiers/pc_server_5class_w2048/2026-10-20_run01",
+  "ood_set": "custom_orders",
+  "ood_labels": [
+    "unknown_1p3x",
+    "unknown_6p5x"
+  ],
+  "mahalanobis_layer": "dense1 (head input)",
+  "ood_params_summary": {
+    "mahalanobis": {
+      "threshold": 140.32214172849908
+    },
+    "energy": {
+      "threshold": -1.5874803173154357
+    }
+  },
+  "jobs": {
+    "ood_speeds": [
+      80.0,
+      125.0,
+      175.0,
+      220.0
+    ],
+    "ood_severity_scales": [
+      0.5,
+      1.0,
+      2.0
+    ],
+    "seeds": [
+      11,
+      12
+    ],
+    "duration_s": 2.5,
+    "benign": {
+      "speed_50_rad_s": {
+        "omega_ref_rad_s": 50.0
+      },
+      "speed_300_rad_s": {
+        "omega_ref_rad_s": 300.0
+      },
+      "noise_150pct": {
+        "electrical_noise_pct": 150.0,
+        "mechanical_noise_pct": 150.0
+      }
+    }
+  },
+  "eval": {
+    "in_distribution_test": {
+      "n": 600,
+      "accuracy_on_answered_abstention_only": 0.9629629629629629
+    },
+    "methods": {
+      "mahalanobis": {
+        "threshold": 140.32214172849908,
+        "in_distribution_false_unknown_rate": 0.065,
+        "in_distribution_accuracy_on_answered": 0.9722772277227723,
+        "in_distribution_answered_share": 0.8416666666666667,
+        "ood_unknown_1p3x": {
+          "n": 216,
+          "unknown_rate": 0.05092592592592592,
+          "auroc_vs_id_test": 0.7785030864197531,
+          "abstained_or_unknown_rate": 0.07407407407407407,
+          "unknown_or_called_fault_rate": 1.0,
+          "confident_wrong_answer_rate_without_ood": 0.9722222222222222
+        },
+        "ood_unknown_6p5x": {
+          "n": 216,
+          "unknown_rate": 0.9907407407407407,
+          "auroc_vs_id_test": 0.9892901234567901,
+          "abstained_or_unknown_rate": 0.9907407407407407,
+          "unknown_or_called_fault_rate": 1.0,
+          "confident_wrong_answer_rate_without_ood": 1.0
+        },
+        "benign_speed_50_rad_s": {
+          "n": 54,
+          "unknown_rate": 0.5925925925925926,
+          "auroc_vs_id_test": 0.8575308641975308,
+          "abstained_or_unknown_rate": 0.5925925925925926,
+          "accuracy_on_answered": 0.8181818181818182
+        },
+        "benign_speed_300_rad_s": {
+          "n": 54,
+          "unknown_rate": 1.0,
+          "auroc_vs_id_test": 0.9980246913580247,
+          "abstained_or_unknown_rate": 1.0,
+          "accuracy_on_answered": null
+        },
+        "benign_noise_150pct": {
+          "n": 54,
+          "unknown_rate": 0.0,
+          "auroc_vs_id_test": 0.7016975308641975,
+          "abstained_or_unknown_rate": 0.0,
+          "accuracy_on_answered": 1.0
+        },
+        "targets": {
+          "unknown_1p3x_unknown_ge_90pct": false,
+          "unknown_6p5x_unknown_or_fault_ge_90pct": true,
+          "id_accuracy_drop_le_1pt": true
+        }
+      },
+      "energy": {
+        "threshold": -1.5874803173154357,
+        "in_distribution_false_unknown_rate": 0.04666666666666667,
+        "in_distribution_accuracy_on_answered": 0.9647495361781077,
+        "in_distribution_answered_share": 0.8983333333333333,
+        "ood_unknown_1p3x": {
+          "n": 216,
+          "unknown_rate": 0.0,
+          "auroc_vs_id_test": 0.7098225308641976,
+          "abstained_or_unknown_rate": 0.027777777777777776,
+          "unknown_or_called_fault_rate": 1.0,
+          "confident_wrong_answer_rate_without_ood": 0.9722222222222222
+        },
+        "ood_unknown_6p5x": {
+          "n": 216,
+          "unknown_rate": 0.0,
+          "auroc_vs_id_test": 0.04141975308641975,
+          "abstained_or_unknown_rate": 0.0,
+          "unknown_or_called_fault_rate": 1.0,
+          "confident_wrong_answer_rate_without_ood": 1.0
+        },
+        "benign_speed_50_rad_s": {
+          "n": 54,
+          "unknown_rate": 0.3333333333333333,
+          "auroc_vs_id_test": 0.812283950617284,
+          "abstained_or_unknown_rate": 0.3333333333333333,
+          "accuracy_on_answered": 0.6111111111111112
+        },
+        "benign_speed_300_rad_s": {
+          "n": 54,
+          "unknown_rate": 0.0,
+          "auroc_vs_id_test": 0.3664506172839506,
+          "abstained_or_unknown_rate": 0.0,
+          "accuracy_on_answered": 0.8148148148148148
+        },
+        "benign_noise_150pct": {
+          "n": 54,
+          "unknown_rate": 0.0,
+          "auroc_vs_id_test": 0.3794444444444445,
+          "abstained_or_unknown_rate": 0.0,
+          "accuracy_on_answered": 1.0
+        },
+        "targets": {
+          "unknown_1p3x_unknown_ge_90pct": false,
+          "unknown_6p5x_unknown_or_fault_ge_90pct": true,
+          "id_accuracy_drop_le_1pt": true
+        }
+      }
+    }
+  },
+  "stem": "ood_detector_custom_orders"
+}
