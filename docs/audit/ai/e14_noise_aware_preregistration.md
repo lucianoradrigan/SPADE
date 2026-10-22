@@ -72,7 +72,7 @@ The 21 healthy validation runs recorded in run02 (`val_groups`) reach 91.9 % ele
 ## 5. Single evaluation on the E14 test (criteria unchanged)
 
 - **Decision statistic:** r = score / τ(σ̂); alarm when r > 1. AUROC is computed on r over in-range windows.
-- **Criterion 2:** AUROC ≥ 0.9 for outer_race and inner_race, severity ≥ × 1, in each held-out condition, against the healthy windows of the same condition.
+- **Criterion 2** (as in E14, `report_residual_anomaly.py`): AUROC ≥ 0.9 for outer_race and inner_race at severity × 1, pooled over the five held-out conditions, against the pooled healthy in-range windows of those conditions. The per-condition AUROC is reported without a target.
 - **Criterion 3:** false alarms ≤ 1 % of healthy in-range windows in **each** of: noise_100pct, plant_drift_psi-10pct_J+50pct, unseen_speed_115_rad_s, unseen_speed_190_rad_s, extrapolated_speed_250_rad_s.
 - **Reported, per condition:** the share of windows "out of calibrated noise range", healthy and faulted.
 - **Added guard, declared here before the evaluation:** a condition where more than 10 % of the healthy windows are out of range **fails** criterion 3.
@@ -96,3 +96,10 @@ The 21 healthy validation runs recorded in run02 (`val_groups`) reach 91.9 % ele
 - **Script:** `experiments/report_e14_noise_aware.py`, written after this commit. It implements §2–§5 exactly.
 - **Results:** `docs/audit/ai/e14_noise_aware_results.{md,json}`.
 - **New calibration runs:** simulated by the script and cached under `data/` (not committed).
+
+## Amendment before any computation (second commit, same day)
+
+The first version of §5 required criterion 2 per condition. That is stricter than E14's criterion,
+which is pooled over the held-out conditions, while D2 asks for the original criteria. It was
+corrected to the pooled form **before any σ̂, score or result of this design was computed**. No
+other point changed.
