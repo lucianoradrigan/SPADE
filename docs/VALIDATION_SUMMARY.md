@@ -1,4 +1,4 @@
-# Validation summary — SPADE (2026-10-18, second pass 2026-10-19, third pass 2026-10-20)
+# Validation summary — SPADE (2026-10-18, second pass 2026-10-19, third pass 2026-10-20, rounds 2026-10-21 and 2026-10-22)
 
 This page consolidates the technical state after the stability / AI / installation audit, which started from commit `b053de7`.
 
@@ -302,4 +302,58 @@ Evidence: [`audit/ai/custom_training_tl.md`](audit/ai/custom_training_tl.md) (`p
 | Simulation time | 398 s for 108 simulated seconds with 4 processes, 3.7 s per simulated second. One process measured about 3. Extra processes gave no speed-up, so the GUI now estimates without dividing by processes and defaults to 1. |
 
 **Decided (D1, 2026-10-22):** floors macro-F1 ≥ 0.88 and recall ≥ 0.70 for every class, applied to every classification candidate (raise-only). The 0.8 floor in this report predates D1. Re-evaluation of these candidates: [`audit/ai/tl_gate_floors.md`](audit/ai/tl_gate_floors.md).
+
+## 10. Round of 2026-10-22: closing decisions D1–D5
+
+Instructions: the user's round document of 2026-10-22 (decisions D1–D5). Each task ran on its own branch, was merged into `dev` after a green full suite, and its branch was deleted. Nothing was promoted and `main` was not touched.
+
+### 10.1 Tests per task
+
+Each count is a full suite run with `PYTHONPATH=src python -m pytest -q`. The logs are `docs/audit/**/t*_branch_pytest.txt`.
+
+| Task | Suite |
+|---|---|
+| Baseline (`bca4396`) | 1131 passed, 5 xfailed ([log](audit/expansion/round_2026-10-22_baseline.txt)) |
+| T1 "live" wording | 1133 passed, 5 xfailed |
+| T2 model attribution | 1133 passed, 5 xfailed |
+| T3 ball/cage labelling | 1145 passed, 5 xfailed |
+| T4 xfail inventory | 1147 passed, 5 xfailed |
+| T5 TL gate floors (D1) | 1156 passed, 5 xfailed |
+| T6 E14 last attempt (D2) | 1157 passed, 6 xfailed (new strict xfail AI-N22) |
+| T7 E11a IGBT data audit (D3) | 1159 passed, 6 xfailed |
+| T8 closure | see [`round_2026-10-22_closure.txt`](audit/expansion/round_2026-10-22_closure.txt) |
+
+### 10.2 What changed
+
+| Task | Result | Evidence |
+|---|---|---|
+| T1 (D4) | Visible GUI text no longer says "live". A guard test scans every visible string. | [`t1_gui_wording.md`](audit/expansion/t1_gui_wording.md) |
+| T2 (D5) | AI-N07 and AI-N14 figures name their run (`pc_server/2026-10-18_run01`). The promoted 5-class model at the AI-N14 conditions: 0.818 at 50 rad/s on 41 % of the windows answered; 1.000 at 150 % noise. | [`t2_model_attribution.md`](audit/ai/t2_model_attribution.md) |
+| T3 (D5) | "ball/cage: synthetic-only, uncalibrated amplitude" is shown on every ball/cage run and next to every ball/cage prediction (AI Diagnostics, DC Motor, Monitoring, Model Registry). New runs inherit it. | [`t3_ball_cage_labelling.md`](audit/ai/t3_ball_cage_labelling.md) |
+| T4 | Every xfail is strict and cites a finding; a guard test enforces it. | [`xfail_inventory.md`](audit/expansion/xfail_inventory.md) |
+| T5 (D1) | TL gate floors are macro-F1 ≥ 0.88 and recall ≥ 0.70 per class, always applied and raise-only, recorded with their origin. | [`t5_tl_gate_floors.md`](audit/ai/t5_tl_gate_floors.md), [`tl_gate_floors.md`](audit/ai/tl_gate_floors.md) |
+| T6 (D2) | **E14 closed as a negative result (AI-N22).** The pre-registered noise-aware threshold passes criterion 2 (AUROC 1.000) and fails criterion 3 at 100 % noise. | [`e14_noise_aware_preregistration.md`](audit/ai/e14_noise_aware_preregistration.md), [`e14_noise_aware_results.md`](audit/ai/e14_noise_aware_results.md) |
+| T7 (D3) | **E11 closed as a negative result (AI-N23).** At most 2 run-to-failure devices on a comparable protocol. E11b was not started. | [`e11a_igbt_data_audit.md`](audit/ai/e11a_igbt_data_audit.md) |
+
+### 10.3 Findings of the round
+
+| ID | Summary |
+|---|---|
+| AI-N22 | E14 last attempt: the noise-aware threshold fails criterion 3 at 100 % noise. Closed, negative. |
+| AI-N23 | The IGBT aging archive supports at most 2 run-to-failure devices on comparable protocols; no validated RUL model is feasible. Closed, negative. |
+
+### 10.4 Status of E11 and E14
+
+- **E14:** closed as a negative result. The residual detector is not promoted, not integrated, and gets no further attempts. The edge distillates stay discarded (AI-N20).
+- **E11:** closed as a negative result.
+  - E11b is not started.
+  - Option 3 (another NASA PCoE dataset) is postponed: not rejected.
+
+### 10.5 Still pending (not part of this round)
+
+- **PLECS:** E3/E4, the real E2 3×3 sweep and the DAB dataset need a machine with PLECS 5.0 and a license.
+- **E11 option 3.**
+- **OOD detector for the promoted classifier** (D6).
+- **Installations and UI checks:** manual installs on Windows, macOS and Ubuntu 22.04; colour contrast; the worker heartbeat on Windows; My Plants showing a failed sweep.
+- **AI-N14:** extending the training grid below 80 rad/s.
 

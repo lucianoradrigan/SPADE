@@ -30,10 +30,17 @@
       "test": "tests/test_findings_e14.py::test_ai_n21_gated_detector_meets_the_false_alarm_criterion",
       "strict": true,
       "finding": "AI-N21",
-      "status": "open"
+      "status": "not fixed; superseded by AI-N22 (E14 closed negative)"
+    },
+    {
+      "test": "tests/test_findings_e14.py::test_ai_n22_noise_aware_detector_meets_the_false_alarm_criterion",
+      "strict": true,
+      "finding": "AI-N22",
+      "status": "closed negative (T6)"
     }
   ],
   "non_compliant": 0,
   "converted_to_normal": 0,
-  "guard_test": "tests/test_xfail_inventory.py"
+  "guard_test": "tests/test_xfail_inventory.py",
+  "updated_in": "T8: 6 xfails after T6"
 }

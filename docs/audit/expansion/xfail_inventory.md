@@ -1,4 +1,4 @@
-# xfail inventory (T4, round 2026-10-22)
+# xfail inventory (T4, round 2026-10-22; updated in T8: 6 xfails after T6)
 
 - **Commands:**
   - `grep -rn "xfail" tests conftest.py pyproject.toml`
@@ -11,7 +11,8 @@
 | 2 | `tests/test_findings_e10.py::test_ai_n16_pinn_interval_has_nominal_coverage` | yes | AI-N16 | PINN 5–95 % bootstrap interval covers the truth ≥ 90 % | Open (52–78 %) |
 | 3 | `tests/test_findings_e14.py::test_ai_n18_gui_detector_flags_most_faulted_windows` | yes | AI-N18 | run01 residual detector flags ≥ 90 % of faulted windows | Cause addressed in run02, not adopted (AI-N21); run01 still fails |
 | 4 | `tests/test_findings_e14.py::test_ai_n20_edge_detectors_usable` | yes | AI-N20 | Distilled RPi5/ESP32 residual detectors usable | Open |
-| 5 | `tests/test_findings_e14.py::test_ai_n21_gated_detector_meets_the_false_alarm_criterion` | yes | AI-N21 | Gated (run02) residual detector ≤ 1 % false alarms at 100 % noise | Open; T6 of this round is its last attempt |
+| 5 | `tests/test_findings_e14.py::test_ai_n21_gated_detector_meets_the_false_alarm_criterion` | yes | AI-N21 | Gated (run02) residual detector ≤ 1 % false alarms at 100 % noise | Not fixed: superseded by AI-N22 (E14 closed, negative) |
+| 6 | `tests/test_findings_e14.py::test_ai_n22_noise_aware_detector_meets_the_false_alarm_criterion` | yes | AI-N22 | Noise-aware (T6) detector meets criterion 3 | Closed as a negative result; added in T6 |
 
 - **Non-compliant xfails:** none. No finding had to be assigned or created, and no xfail was converted to a normal test: none of the five defects is fixed.
 - **Other skip mechanisms:** none. There are no `pytest.xfail()` calls inside tests and no conftest-level xfail.
