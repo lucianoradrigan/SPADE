@@ -428,7 +428,7 @@ def _figures(data, cells, out_dir):
         if any(c["label"] == "outer_race" and c["speed"] == 150.0 and c["severity_scale"] == 1.0 and c["electrical_noise_pct"] == 0.0 for c in cells) \
         else next(c for c in cells if c["label"] == "outer_race")
     d = {v: data[(data["cell"] == c["cell"]) & (data["version"] == v)].sort_values("timestamp_s") for v in VERSIONS}
-    for name, (t0, t1) in (("ia_startup", (0.0, 0.1)), ("ia_steady_state", (1.0, 1.05))):
+    for name, (t0, t1) in (("ia_startup", (0.0, 0.005)), ("ia_steady_state", (1.0, 1.05))):
         series = []
         for v, colour, dash in (("REF", "#1f77b4", ""), ("NAT", "#d62728", "5,3")):
             m = (d[v]["timestamp_s"] >= t0) & (d[v]["timestamp_s"] <= t1)
