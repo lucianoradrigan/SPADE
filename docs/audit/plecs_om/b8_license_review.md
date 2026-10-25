@@ -101,3 +101,31 @@ curl -sSL https://www.netlib.org/clapack/clapack.tgz   # SHA-256 6dc4c382164b…
 - `python -m driveflow.fmu fetch` and the Plant Studio button (a job).
 
 **Publishing the Release still needs your confirmation.** This review is not a legal opinion.
+
+## 6. Draft release built by CI (2026-10-25)
+
+- **Trigger:** tag `fmu-v1` on `dev` (`1e49522`). `workflow_dispatch` is not possible while `fmu-release.yml` is not on the default branch.
+- **Run:** [40230235712](https://github.com/lucianoradrigan/SPADE/actions/runs/40230235712). The workflow concluded `success`:
+
+| Job | Result |
+|---|---|
+| `linux` | success: build, B3 on that build, release assets |
+| `draft-release` | success |
+| `windows-attempt` | failure, as allowed (`continue-on-error`). Chocolatey has OpenModelica up to 1.22.2, not the pinned 1.27.1, so no Windows FMU is built. |
+| macOS | not built: there is no official OpenModelica macOS release |
+
+- **Release `fmu-v1`:** `isDraft: true`, **not published**. Assets:
+
+| Asset | Content |
+|---|---|
+| `BuckAveraged-linux64.fmu` | SHA-256 `013dacb29c5ab7c6…`, B3 GO on the CI build |
+| `fmu_manifest.json` | `.mo` `ec5e4545…`, commit `1e49522`. `not_attached`: BuckSwitching and DcMotorSwitching (NO-GO on that build), DcMotorAveraged (G2) |
+| `THIRD_PARTY_NOTICES.txt`, `licenses.zip` | the licence texts of `licenses/fmu/` |
+
+- **Check of the assets:**
+  - `gh release download fmu-v1` gives the FMU SHA-256 equal to the manifest.
+  - The assets were served from a local HTTP server and installed with `SPADE_FMU_RELEASE_URL=… python -m driveflow.fmu fetch --release fmu-v1`: SHA-256 checked, installed.
+  - `SPADE/OmBuck-v0` on that FMU, with the native PI's actions, matches `SPADE/Buck-v0` to 6.0e-6 NRMS on v_out.
+- **Note:** `fetch` against GitHub works only after the release is published; a draft is not publicly downloadable.
+
+**Publishing the draft needs the user's confirmation.**
