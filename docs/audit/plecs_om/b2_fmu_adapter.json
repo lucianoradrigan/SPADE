@@ -1,0 +1,9 @@
+{
+  "task": "B2",
+  "date": "2026-10-24",
+  "module": "src/driveflow/integrations/fmu/adapter.py",
+  "error_codes": ["load", "platform", "solver", "nan", "out_of_range"],
+  "commands": ["SPADE_FMU_DIR=../SPADE-dev/data/fmu PYTHONPATH=src pytest tests/fmu/test_fmu_adapter.py", "full suite: b2_branch_pytest.txt"],
+  "integration": {"fmu": "BuckAveraged.fmu (data/fmu/manifest.json of B1)", "steps": 500, "duty": 0.5, "checks": ["two episodes bit-identical", "max |FMU - native| < 1 % of native range"]},
+  "not_executed": {"windows_macos": "no Windows or macOS FMU binaries built yet (B8 CI)"}
+}
