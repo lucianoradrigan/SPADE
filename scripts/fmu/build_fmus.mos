@@ -1,0 +1,12 @@
+// Builds SPADE's OpenModelica plants as FMI 2.0 Co-Simulation FMUs with CVODE as the internal solver
+// (round PLECS/OM, task B1). Run with scripts/fmu/build_fmus.sh (Docker, pinned OpenModelica).
+// OpenModelica 1.27 user's guide, "FMI support": buildModelFMU(className, version, fmuType, fileNamePrefix,
+// platforms); the co-simulation solver is chosen with the flag --fmiFlags=s:cvode.
+setCommandLineOptions("--fmiFlags=s:cvode"); getErrorString();
+loadModel(Modelica, {"4.1.0"}); getErrorString();
+loadFile("modelica/SPADE/package.mo"); getErrorString();
+cd("data/fmu/build"); getErrorString();
+buildModelFMU(SPADE.BuckAveraged, version="2.0", fmuType="cs", fileNamePrefix="BuckAveraged", platforms={"static"}); getErrorString();
+buildModelFMU(SPADE.BuckSwitching, version="2.0", fmuType="cs", fileNamePrefix="BuckSwitching", platforms={"static"}); getErrorString();
+buildModelFMU(SPADE.DcMotorAveraged, version="2.0", fmuType="cs", fileNamePrefix="DcMotorAveraged", platforms={"static"}); getErrorString();
+buildModelFMU(SPADE.DcMotorSwitching, version="2.0", fmuType="cs", fileNamePrefix="DcMotorSwitching", platforms={"static"}); getErrorString();

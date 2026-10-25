@@ -1,0 +1,478 @@
+{
+  "fmu_manifest": {
+    "openmodelica": "1.27.1",
+    "msl": "4.1.0+maint.om",
+    "solver": "CVODE (--fmiFlags=s:cvode)",
+    "source_mo_sha256": "ec5e4545c2a9939848cb78e9971f65ebd6f4d8354c4f23e3a9d8e10ac89cbe3b"
+  },
+  "fmu_sha256": {
+    "BuckSwitching": "6883e29d8a8da41048ce3084ca2aad213c4d5ebb27d3a230d545928d72190f7b",
+    "DcMotorSwitching": "363065ba452586460c5a31440bbffbd76f50e9d7813f79647c529340fe0e071c"
+  },
+  "stop_s": 0.002,
+  "results": {
+    "BuckSwitching": [
+      {
+        "duty": 0.3,
+        "step_s": 2e-05,
+        "divisor": 1,
+        "steps_completed": 24,
+        "simulated_s": 0.00048000000000000007,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.3,
+        "step_s": 1e-05,
+        "divisor": 2,
+        "steps_completed": 33,
+        "simulated_s": 0.00033000000000000005,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.3,
+        "step_s": 5e-06,
+        "divisor": 4,
+        "steps_completed": 35,
+        "simulated_s": 0.00017500000000000003,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.3,
+        "step_s": 4.000000000000001e-06,
+        "divisor": 5,
+        "steps_completed": 4,
+        "simulated_s": 1.6000000000000003e-05,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.3,
+        "step_s": 2.0000000000000003e-06,
+        "divisor": 10,
+        "steps_completed": 9,
+        "simulated_s": 1.8000000000000004e-05,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.3,
+        "step_s": 1.0000000000000002e-06,
+        "divisor": 20,
+        "steps_completed": 19,
+        "simulated_s": 1.9000000000000004e-05,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.5,
+        "step_s": 2e-05,
+        "divisor": 1,
+        "steps_completed": 24,
+        "simulated_s": 0.00048000000000000007,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.5,
+        "step_s": 1e-05,
+        "divisor": 2,
+        "steps_completed": 33,
+        "simulated_s": 0.00033000000000000005,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.5,
+        "step_s": 5e-06,
+        "divisor": 4,
+        "steps_completed": 35,
+        "simulated_s": 0.00017500000000000003,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.5,
+        "step_s": 4.000000000000001e-06,
+        "divisor": 5,
+        "steps_completed": 4,
+        "simulated_s": 1.6000000000000003e-05,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.5,
+        "step_s": 2.0000000000000003e-06,
+        "divisor": 10,
+        "steps_completed": 9,
+        "simulated_s": 1.8000000000000004e-05,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.5,
+        "step_s": 1.0000000000000002e-06,
+        "divisor": 20,
+        "steps_completed": 19,
+        "simulated_s": 1.9000000000000004e-05,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.8,
+        "step_s": 2e-05,
+        "divisor": 1,
+        "steps_completed": 24,
+        "simulated_s": 0.00048000000000000007,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.8,
+        "step_s": 1e-05,
+        "divisor": 2,
+        "steps_completed": 33,
+        "simulated_s": 0.00033000000000000005,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.8,
+        "step_s": 5e-06,
+        "divisor": 4,
+        "steps_completed": 35,
+        "simulated_s": 0.00017500000000000003,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.8,
+        "step_s": 4.000000000000001e-06,
+        "divisor": 5,
+        "steps_completed": 4,
+        "simulated_s": 1.6000000000000003e-05,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.8,
+        "step_s": 2.0000000000000003e-06,
+        "divisor": 10,
+        "steps_completed": 9,
+        "simulated_s": 1.8000000000000004e-05,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.8,
+        "step_s": 1.0000000000000002e-06,
+        "divisor": 20,
+        "steps_completed": 19,
+        "simulated_s": 1.9000000000000004e-05,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      }
+    ],
+    "DcMotorSwitching": [
+      {
+        "duty": 0.3,
+        "step_s": 0.0001,
+        "divisor": 1,
+        "steps_completed": 8,
+        "simulated_s": 0.0008,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.3,
+        "step_s": 5e-05,
+        "divisor": 2,
+        "steps_completed": 40,
+        "simulated_s": 0.002,
+        "failed": false,
+        "error": null,
+        "fmu_log": []
+      },
+      {
+        "duty": 0.3,
+        "step_s": 2.5e-05,
+        "divisor": 4,
+        "steps_completed": 80,
+        "simulated_s": 0.002,
+        "failed": false,
+        "error": null,
+        "fmu_log": []
+      },
+      {
+        "duty": 0.3,
+        "step_s": 2e-05,
+        "divisor": 5,
+        "steps_completed": 24,
+        "simulated_s": 0.00048000000000000007,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.3,
+        "step_s": 1e-05,
+        "divisor": 10,
+        "steps_completed": 39,
+        "simulated_s": 0.00039000000000000005,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.3,
+        "step_s": 5e-06,
+        "divisor": 20,
+        "steps_completed": 39,
+        "simulated_s": 0.00019500000000000002,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.5,
+        "step_s": 0.0001,
+        "divisor": 1,
+        "steps_completed": 8,
+        "simulated_s": 0.0008,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.5,
+        "step_s": 5e-05,
+        "divisor": 2,
+        "steps_completed": 16,
+        "simulated_s": 0.0008,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.5,
+        "step_s": 2.5e-05,
+        "divisor": 4,
+        "steps_completed": 80,
+        "simulated_s": 0.002,
+        "failed": false,
+        "error": null,
+        "fmu_log": []
+      },
+      {
+        "duty": 0.5,
+        "step_s": 2e-05,
+        "divisor": 5,
+        "steps_completed": 24,
+        "simulated_s": 0.00048000000000000007,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.5,
+        "step_s": 1e-05,
+        "divisor": 10,
+        "steps_completed": 39,
+        "simulated_s": 0.00039000000000000005,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.5,
+        "step_s": 5e-06,
+        "divisor": 20,
+        "steps_completed": 39,
+        "simulated_s": 0.00019500000000000002,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.8,
+        "step_s": 0.0001,
+        "divisor": 1,
+        "steps_completed": 8,
+        "simulated_s": 0.0008,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.8,
+        "step_s": 5e-05,
+        "divisor": 2,
+        "steps_completed": 16,
+        "simulated_s": 0.0008,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.8,
+        "step_s": 2.5e-05,
+        "divisor": 4,
+        "steps_completed": 28,
+        "simulated_s": 0.0007,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.8,
+        "step_s": 2e-05,
+        "divisor": 5,
+        "steps_completed": 24,
+        "simulated_s": 0.00048000000000000007,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.8,
+        "step_s": 1e-05,
+        "divisor": 10,
+        "steps_completed": 39,
+        "simulated_s": 0.00039000000000000005,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      },
+      {
+        "duty": 0.8,
+        "step_s": 5e-06,
+        "divisor": 20,
+        "steps_completed": 39,
+        "simulated_s": 0.00019500000000000002,
+        "failed": true,
+        "error": "FMICallException: fmi2DoStep failed with status 4 (fatal).",
+        "fmu_log": [
+          "fmi2DoStep: ##CVODE## %d error occurred at time = %.15g.",
+          "fmi2DoStep: CVODE integrator step failed."
+        ]
+      }
+    ]
+  }
+}

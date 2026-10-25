@@ -1,0 +1,1 @@
+1186 passed, 8 xfailed, 473 warnings in 978.27s (0:16:18)  # SPADE_FMU_DIR=../SPADE-dev/data/fmu PYTHONPATH=src ../SPADE-dev/.venv/bin/python -m pytest -q -p no:cacheprovider, branch feat/B1-modelica-plants on dev e3e3ae4

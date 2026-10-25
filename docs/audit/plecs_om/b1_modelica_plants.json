@@ -1,0 +1,70 @@
+{
+  "task": "B1",
+  "date": "2026-10-24",
+  "commands": [
+    "SPADE_DATA_DIR=../SPADE-dev/data scripts/fmu/build_fmus.sh",
+    "SPADE_DATA_DIR=../SPADE-dev/data scripts/fmu/om.sh scripts/fmu/check_models.mos",
+    "SPADE_FMU_DIR=../SPADE-dev/data/fmu python experiments/report_b1_switching_cvode.py --out docs/audit/plecs_om/b1_switching_cvode.json",
+    "SPADE_FMU_DIR=../SPADE-dev/data/fmu pytest tests/fmu"
+  ],
+  "manifest": {
+    "fmi_version": "2.0",
+    "fmu_type": "CoSimulation",
+    "solver": "CVODE (--fmiFlags=s:cvode)",
+    "platform": "linux-x86_64",
+    "openmodelica": "1.27.1",
+    "openmodelica_image": "openmodelica/openmodelica:v1.27.1-minimal@sha256:ac9a0223e69b8055d444b42f58ccb9680342b56848c68b81385bf83d7c0ba824",
+    "msl": "4.1.0+maint.om",
+    "source_mo_sha256": "ec5e4545c2a9939848cb78e9971f65ebd6f4d8354c4f23e3a9d8e10ac89cbe3b",
+    "commit": "e5f963142e3ca4d42f8dd7bfb6cc9c4890899d9c",
+    "fmus": {
+      "BuckAveraged": {
+        "file": "BuckAveraged.fmu",
+        "sha256": "48d52b6ac081cd7aab19da6576e7a8d20941597b22db9f617c9c70d97e1d6320",
+        "bytes": 1351818
+      },
+      "BuckSwitching": {
+        "file": "BuckSwitching.fmu",
+        "sha256": "6883e29d8a8da41048ce3084ca2aad213c4d5ebb27d3a230d545928d72190f7b",
+        "bytes": 1515276
+      },
+      "DcMotorAveraged": {
+        "file": "DcMotorAveraged.fmu",
+        "sha256": "1c7111be7ac42f4f28967988a5004a4221f10db1d5ce2fd7f7c32bb069ca1ec8",
+        "bytes": 1452446
+      },
+      "DcMotorSwitching": {
+        "file": "DcMotorSwitching.fmu",
+        "sha256": "363065ba452586460c5a31440bbffbd76f50e9d7813f79647c529340fe0e071c",
+        "bytes": 1608019
+      }
+    }
+  },
+  "build_wall_s": 11.6,
+  "check_model": {
+    "BuckAveraged": [
+      44,
+      44
+    ],
+    "BuckSwitching": [
+      131,
+      131
+    ],
+    "DcMotorAveraged": [
+      204,
+      204
+    ],
+    "DcMotorSwitching": [
+      271,
+      271
+    ]
+  },
+  "check_model_note": "equations, variables; all 'completed successfully'",
+  "rebuilds_same_pattern": 4,
+  "finding": "S-15",
+  "switching_results": "b1_switching_cvode.json",
+  "switching_results_build_2026_10_22": "b1_switching_cvode_build_2026-10-22.json",
+  "not_executed": {
+    "windows_macos_fmus": "builds run in a Linux container; B8 CI covers Windows"
+  }
+}

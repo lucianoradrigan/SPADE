@@ -1,0 +1,6 @@
+loadModel(Modelica, {"4.1.0"}); getErrorString();
+loadFile("modelica/SPADE/package.mo"); getErrorString();
+checkModel(SPADE.BuckAveraged); getErrorString();
+checkModel(SPADE.BuckSwitching); getErrorString();
+checkModel(SPADE.DcMotorAveraged); getErrorString();
+checkModel(SPADE.DcMotorSwitching); getErrorString();
