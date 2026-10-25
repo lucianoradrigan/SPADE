@@ -1,0 +1,1 @@
+1213 passed, 8 xfailed, 473 warnings in 984.58s (0:16:24)  # SPADE_FMU_DIR=../SPADE-dev/data/fmu PYTHONPATH=src ../SPADE-dev/.venv/bin/python -m pytest -q -p no:cacheprovider, branch feat/B3-om-fmu-spike on dev d20eeb1
