@@ -45,3 +45,53 @@ jobs:
         with:
           name: validation-evidence
           path: ci_out/
+
+  # Round PLECS/OpenModelica, B7: build the OpenModelica FMUs in the pinned container (image digest
+  # in scripts/fmu/OPENMODELICA_VERSION), run every `fmu` test and the B3 GO/NO-GO script, and keep
+  # the evidence. Linux only (the FMUs are built with linux64 binaries). The per-commit workflow
+  # (tests.yml) installs no fmpy, so there the `fmu` tests are skipped and the suite stays green.
+  # S-15: the switching FMUs are built and run here too; their strict xfail
+  # (tests/fmu/test_om_fmus.py) keeps documenting the CVODE abort, and an XPASS on a new build fails
+  # the job on purpose. They are not excluded.
+  fmu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install package (dev + fmu extras; viz for the Plant Studio AppTests marked fmu, B5)
+        run: pip install -e ".[dev,viz,fmu]"
+
+      - name: Build the FMUs (pinned OpenModelica image)
+        run: bash scripts/fmu/build_fmus.sh
+
+      - name: FMU tests
+        env:
+          TF_CPP_MIN_LOG_LEVEL: "2"
+        run: |
+          mkdir -p ci_out/fmu
+          pytest -m fmu -v -rxX --junitxml=ci_out/fmu/pytest_fmu.xml 2>&1 | tee ci_out/fmu/pytest_fmu.txt
+          exit "${PIPESTATUS[0]}"
+
+      - name: B3 GO/NO-GO script on the fresh build
+        if: always()
+        env:
+          TF_CPP_MIN_LOG_LEVEL: "2"
+        run: python experiments/report_b3_om_fmu_spike.py --out ci_out/fmu/b3 2>&1 | tee ci_out/fmu/b3_stdout.txt
+
+      - name: Collect the build manifest and log
+        if: always()
+        run: |
+          cp data/fmu/manifest.json ci_out/fmu/ || true
+          cp data/fmu/build/omc.log ci_out/fmu/ || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmu-evidence
+          path: ci_out/fmu/

@@ -1,0 +1,7 @@
+# cmd: PYTHONPATH=src python -m pytest -m fmu -q -rxX  (local FMUs, 2026-10-25)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+XFAIL tests/fmu/test_om_fmus.py::test_switching_fmus_simulate_10_ms_at_the_pwm_period[BuckSwitching] - S-15 (open): OpenModelica 1.27.1 switching FMUs fail with CVODE (CV_TOO_CLOSE) at the PWM period; outcome depends on the build
+XFAIL tests/fmu/test_om_fmus.py::test_switching_fmus_simulate_10_ms_at_the_pwm_period[DcMotorSwitching] - S-15 (open): OpenModelica 1.27.1 switching FMUs fail with CVODE (CV_TOO_CLOSE) at the PWM period; outcome depends on the build
+18 passed, 1225 deselected, 2 xfailed, 2 warnings in 10.44s
