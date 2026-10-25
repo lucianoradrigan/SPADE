@@ -31,6 +31,11 @@ Usage:
     # CALIBRATED_MECHANICAL_SEVERITY in datagen/scenario.py, not calibrated against real data)
     python experiments/generate_diagnosis_grid_dataset.py --faults outer_race,inner_race,ball,cage \
         --out data/diagnosis_grid_dataset_5class.parquet
+    # Round PLECS/OM, after R2 (S-16/S-18; user decision 2026-10-25): the same grid with the DC plant
+    # integrated by the converged RK45 reference instead of one Euler step per tau. New files; the
+    # Euler datasets the promoted models were trained on are kept unchanged.
+    python experiments/generate_diagnosis_grid_dataset.py --dc-plant-solver rk45 \
+        --faults outer_race,inner_race,ball,cage --out data/diagnosis_grid_dataset_5class_rk45.parquet
 """
 
 from __future__ import annotations
@@ -91,10 +96,13 @@ def _simulate(job: dict) -> pd.DataFrame:
         scenario_id=sid, fault_type=fault, seed=job["seed"], duration_s=job["duration_s"], omega_ref_rad_s=job["speed"],
         electrical_noise_pct=job["electrical_noise_pct"], mechanical_noise_pct=job["mechanical_noise_pct"],
         motor_parameter_overrides={"psi_e": job["psi_e"], "j_rotor": job["j_rotor"]}, **kw,
+        **({"dc_plant_solver": job["dc_plant_solver"]} if job.get("dc_plant_solver") else {}),
     )
     df = records_to_dataframe(run_scenario(sc))
     for k in ("speed", "severity_scale", "electrical_noise_pct", "mechanical_noise_pct", "psi_e", "j_rotor"):
         df[f"grid_{k}"] = job[k]
+    if job.get("dc_plant_solver"):
+        df["grid_dc_plant_solver"] = job["dc_plant_solver"]
     return df
 
 
@@ -105,11 +113,16 @@ def main(argv=None):
     ap.add_argument("--duration-s", type=float, default=2.5)
     ap.add_argument("--seed", type=int, default=7, help="seed of the noise / plant-drift draws")
     ap.add_argument("--workers", type=int, default=max(1, (mp.cpu_count() or 2) - 1))
+    ap.add_argument("--dc-plant-solver", choices=("euler", "rk45"), default="euler",
+                    help="euler (default): the production plant, one Euler step per tau; rk45: the converged reference of R2 (Scenario.dc_plant_solver)")
     ap.add_argument("--faults", default=",".join(f for f in FAULTS if f), help="comma-separated fault classes besides healthy (default: outer_race,inner_race)")
     args = ap.parse_args(argv)
 
     faults = (None,) + tuple(f.strip() for f in args.faults.split(",") if f.strip())
     jobs = build_jobs(args.seeds, args.duration_s, args.seed, faults)
+    if args.dc_plant_solver == "rk45":
+        for j in jobs:
+            j["dc_plant_solver"] = "rk45"
     print(f"{len(jobs)} runs ({len(SPEEDS_RAD_S)} speeds x {len(SEVERITY_SCALES)} severities x {args.seeds} seeds x {len(faults)} classes), {args.duration_s} s each")
     t0 = time.time()
     with mp.get_context("spawn").Pool(args.workers) as pool:

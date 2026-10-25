@@ -1,0 +1,65 @@
+{
+  "command": "inline check in R3 (see r3_datasets_rk45.md)",
+  "samples": [
+    {
+      "dataset": "data/diagnosis_grid_dataset_5class.parquet",
+      "run": "grid_normal_w80_s0.00_seed1001",
+      "rows": 25000,
+      "nonzero_max_abs_diff": {
+        "acc_x": 3.6637359812630166e-15,
+        "acc_y": 1.4432899320127035e-15,
+        "acc_z": 1.8041124150158794e-15
+      }
+    },
+    {
+      "dataset": "data/diagnosis_grid_dataset_5class.parquet",
+      "run": "grid_normal_w150_s0.00_seed1266",
+      "rows": 25000,
+      "nonzero_max_abs_diff": {
+        "acc_x": 3.1502578323738817e-15,
+        "acc_y": 1.4988010832439613e-15,
+        "acc_z": 1.8596235662471372e-15
+      }
+    },
+    {
+      "dataset": "data/diagnosis_grid_dataset_5class.parquet",
+      "run": "grid_cage_w220_s2.00_seed1525",
+      "rows": 25000,
+      "nonzero_max_abs_diff": {
+        "acc_x": 3.608224830031759e-15,
+        "acc_y": 1.6653345369377348e-15,
+        "acc_z": 2.4424906541753444e-15
+      }
+    },
+    {
+      "dataset": "data/diagnosis_grid_dataset.parquet",
+      "run": "grid_normal_w80_s0.00_seed1001",
+      "rows": 25000,
+      "nonzero_max_abs_diff": {
+        "acc_x": 3.6637359812630166e-15,
+        "acc_y": 1.4432899320127035e-15,
+        "acc_z": 1.8041124150158794e-15
+      }
+    },
+    {
+      "dataset": "data/diagnosis_grid_dataset.parquet",
+      "run": "grid_outer_race_w150_s1.00_seed1161",
+      "rows": 25000,
+      "nonzero_max_abs_diff": {
+        "acc_x": 4.690692279041286e-15,
+        "acc_y": 1.9984014443252818e-15,
+        "acc_z": 2.3592239273284576e-15
+      }
+    },
+    {
+      "dataset": "data/diagnosis_grid_dataset.parquet",
+      "run": "grid_inner_race_w220_s2.00_seed1315",
+      "rows": 25000,
+      "nonzero_max_abs_diff": {
+        "acc_x": 3.552713678800501e-15,
+        "acc_y": 1.6930901125533637e-15,
+        "acc_z": 2.3314683517128287e-15
+      }
+    }
+  ]
+}

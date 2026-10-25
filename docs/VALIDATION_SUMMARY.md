@@ -396,14 +396,19 @@ Evidence lives in `docs/audit/plecs_om/`. Each `.md` there gives the command tha
   - Start-up top-1 agreement is 0.92–0.97. REF is more accurate there.
   - In steady state, PC and RPi5 pass their own conditions. The ESP32 changes only on ball/cage windows.
 - S-16 stays Open.
-- Options (regenerate datasets with the reference, retrain, change the plant default) await the user; none was taken. Evidence: `r2_s16_sensitivity.md`.
+- **User decision (2026-10-25): regenerate the training datasets with the reference.** Done in R3 (`r3_datasets_rk45.md`):
+  - The Euler generator first reproduces the stored datasets: plant channels bit-identical, vibration within 5e-15.
+  - The new files are `data/diagnosis_grid_dataset_5class_rk45.parquet` and `data/diagnosis_grid_dataset_rk45.parquet`. The originals are kept.
+  - Per run, the current differs by a median of 0.5–0.8 % NRMS. The operating point changes in 4 of 525 runs.
+- **Not retrained, nothing promoted.** Retraining needs a decision. Evidence: `r2_s16_sensitivity.md`.
 
 ### 11.4 New findings
 
 | ID | Severity | Summary | Status |
 |---|---|---|---|
 | S-17 | Low | `sim/solvers.EulerSolver(nsteps > 1)` evaluates f at t_end + k·h/n (inherited from GEM); latent for the production plants | Open; strict xfail |
-| S-18 | Medium | S-16 changes fault-band amplitudes (up to 16.5 %, noisy runs, harmonics) and start-up decisions (agreement 0.92–0.97) | Open; options to the user |
+| S-18 | Medium | S-16 changes fault-band amplitudes (up to 16.5 %, noisy runs, harmonics) and start-up decisions (agreement 0.92–0.97) | Open; datasets regenerated with RK45 (R3), not retrained |
+| S-19 | Info | 15 % (5-class) / 7 % (3-class) of training runs do not hold the speed reference (one-quadrant converter vs fault ripple), with both integrations | Documented |
 
 AI-N24 was not used.
 

@@ -1,0 +1,451 @@
+{
+  "command": "python experiments/report_r3_datasets_rk45.py ",
+  "host": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "python": "3.12.13",
+  "pairs": {
+    "5-class (PC, RPi5)": {
+      "euler": {
+        "path": "data/diagnosis_grid_dataset_5class.parquet",
+        "sha256": "31eb5a0e2f92a0e862e7b0ce0a071f942c18d8156f981fd48fdd54d6cb47ff07",
+        "rows": 13125000
+      },
+      "rk45": {
+        "path": "data/diagnosis_grid_dataset_5class_rk45.parquet",
+        "sha256": "b246a943b918d3f5cc22f7efce26865005a4f3b3d29de4518647140cd8e4fdb7",
+        "rows": 13125000
+      },
+      "runs": 525,
+      "runs_per_label": {
+        "ball": 105,
+        "cage": 105,
+        "inner_race": 105,
+        "normal": 105,
+        "outer_race": 105
+      },
+      "by_label": {
+        "ball": {
+          "runs": 105,
+          "current_r_startup": {
+            "median": 0.005376823769212541,
+            "max": 0.3966864406557847
+          },
+          "rpm_startup": {
+            "median": 0.0005969251720742119,
+            "max": 0.017264307561240554
+          },
+          "torque_nm_startup": {
+            "median": 0.006855890238977844,
+            "max": 0.3989624231514742
+          },
+          "acc_x_startup": {
+            "median": 0.006973169981513468,
+            "max": 0.020310236781686745
+          },
+          "current_r_steady": {
+            "median": 0.007524396787827197,
+            "max": 0.48770121938920863
+          },
+          "rpm_steady": {
+            "median": 0.0003140202012209442,
+            "max": 0.025663680232101208
+          },
+          "torque_nm_steady": {
+            "median": 0.010151137604363774,
+            "max": 0.5057000754720932
+          },
+          "acc_x_steady": {
+            "median": 0.010261821434963667,
+            "max": 0.016785969198238413
+          }
+        },
+        "cage": {
+          "runs": 105,
+          "current_r_startup": {
+            "median": 0.0028839336505980377,
+            "max": 0.3939227506298696
+          },
+          "rpm_startup": {
+            "median": 0.0007224339972254102,
+            "max": 0.018879889305665674
+          },
+          "torque_nm_startup": {
+            "median": 0.0029352288452068895,
+            "max": 0.3939227506298696
+          },
+          "acc_x_startup": {
+            "median": 0.001589505392466846,
+            "max": 0.01840844179227701
+          },
+          "current_r_steady": {
+            "median": 0.01263980674935859,
+            "max": 0.5039625096252385
+          },
+          "rpm_steady": {
+            "median": 0.0003568615931043215,
+            "max": 0.09164747688463848
+          },
+          "torque_nm_steady": {
+            "median": 0.01263980674935859,
+            "max": 0.5039625096252386
+          },
+          "acc_x_steady": {
+            "median": 0.009880601532099504,
+            "max": 0.029195316171558957
+          }
+        },
+        "inner_race": {
+          "runs": 105,
+          "current_r_startup": {
+            "median": 0.005020764603475728,
+            "max": 0.46699161548159424
+          },
+          "rpm_startup": {
+            "median": 0.0005719336988736312,
+            "max": 0.1603129818716126
+          },
+          "torque_nm_startup": {
+            "median": 0.006736989969657377,
+            "max": 0.46699161548159407
+          },
+          "acc_x_startup": {
+            "median": 0.01199677875222766,
+            "max": 0.02846965314172419
+          },
+          "current_r_steady": {
+            "median": 0.007408984402155918,
+            "max": 0.5925994292432358
+          },
+          "rpm_steady": {
+            "median": 0.0003571120834473841,
+            "max": 0.2834581653873645
+          },
+          "torque_nm_steady": {
+            "median": 0.009510352419539295,
+            "max": 0.5925994292432358
+          },
+          "acc_x_steady": {
+            "median": 0.015615391244010608,
+            "max": 0.027175171550392674
+          }
+        },
+        "normal": {
+          "runs": 105,
+          "current_r_startup": {
+            "median": 0.0004903771324092409,
+            "max": 0.0008797166192809231
+          },
+          "rpm_startup": {
+            "median": 0.00014767179104778133,
+            "max": 0.00024794432723806813
+          },
+          "torque_nm_startup": {
+            "median": 0.0007632514702404164,
+            "max": 0.0009302774652061832
+          },
+          "acc_x_startup": {
+            "median": 3.42652492878531e-16,
+            "max": 4.125346780674627e-16
+          },
+          "current_r_steady": {
+            "median": 2.271563105816815e-06,
+            "max": 1.4461819307394899e-05
+          },
+          "rpm_steady": {
+            "median": 2.4987746595453105e-14,
+            "max": 2.605443604194404e-09
+          },
+          "torque_nm_steady": {
+            "median": 3.226841367969001e-13,
+            "max": 2.2528736226771796e-07
+          },
+          "acc_x_steady": {
+            "median": 3.455227929135853e-16,
+            "max": 4.018272124761788e-16
+          }
+        },
+        "outer_race": {
+          "runs": 105,
+          "current_r_startup": {
+            "median": 0.005129869525715505,
+            "max": 0.40862447022515813
+          },
+          "rpm_startup": {
+            "median": 0.000518779378846616,
+            "max": 0.03708665558792147
+          },
+          "torque_nm_startup": {
+            "median": 0.006857717974616728,
+            "max": 0.4086244702251581
+          },
+          "acc_x_startup": {
+            "median": 0.025798684080253244,
+            "max": 0.04939176040526056
+          },
+          "current_r_steady": {
+            "median": 0.007903887076939727,
+            "max": 0.4899694980635974
+          },
+          "rpm_steady": {
+            "median": 0.00031488618589508986,
+            "max": 0.08907013587269115
+          },
+          "torque_nm_steady": {
+            "median": 0.009374685696404126,
+            "max": 0.4899694980635975
+          },
+          "acc_x_steady": {
+            "median": 0.03216117542961174,
+            "max": 0.04149561405376791
+          }
+        }
+      },
+      "all_runs": {
+        "current_r_startup": {
+          "median": 0.0031836367750537713,
+          "max": 0.46699161548159424
+        },
+        "rpm_startup": {
+          "median": 0.0004226514439363297,
+          "max": 0.1603129818716126
+        },
+        "torque_nm_startup": {
+          "median": 0.00454689561836658,
+          "max": 0.46699161548159407
+        },
+        "acc_x_startup": {
+          "median": 0.008571956654337238,
+          "max": 0.04939176040526056
+        },
+        "current_r_steady": {
+          "median": 0.004889106960639444,
+          "max": 0.5925994292432358
+        },
+        "rpm_steady": {
+          "median": 0.00022157915067608642,
+          "max": 0.2834581653873645
+        },
+        "torque_nm_steady": {
+          "median": 0.00652051816902462,
+          "max": 0.5925994292432358
+        },
+        "acc_x_steady": {
+          "median": 0.011397673304599268,
+          "max": 0.04149561405376791
+        }
+      },
+      "worst_current_steady": [
+        {
+          "run": "grid_inner_race_w100_s2.00_seed1138",
+          "label": "inner_race",
+          "current_r_steady": 0.5925994292432358
+        },
+        {
+          "run": "grid_cage_w125_s1.00_seed1195",
+          "label": "cage",
+          "current_r_steady": 0.5039625096252385
+        },
+        {
+          "run": "grid_outer_race_w100_s2.00_seed1137",
+          "label": "outer_race",
+          "current_r_steady": 0.4899694980635974
+        },
+        {
+          "run": "grid_ball_w100_s1.50_seed1129",
+          "label": "ball",
+          "current_r_steady": 0.48770121938920863
+        },
+        {
+          "run": "grid_cage_w100_s0.75_seed1100",
+          "label": "cage",
+          "current_r_steady": 0.48104338774575034
+        }
+      ]
+    },
+    "3-class (ESP32)": {
+      "euler": {
+        "path": "data/diagnosis_grid_dataset.parquet",
+        "sha256": "428cbb91268e8a4611fff3c5dcaec53b18c1f50399092b3b63d24ee66cb34f77",
+        "rows": 7875000
+      },
+      "rk45": {
+        "path": "data/diagnosis_grid_dataset_rk45.parquet",
+        "sha256": "e7c255ff2053ebd843e6e4d5289d3c9f1add3ad8a7dd36a9639ffa37aa4e0db7",
+        "rows": 7875000
+      },
+      "runs": 315,
+      "runs_per_label": {
+        "inner_race": 105,
+        "normal": 105,
+        "outer_race": 105
+      },
+      "by_label": {
+        "inner_race": {
+          "runs": 105,
+          "current_r_startup": {
+            "median": 0.005296142017725359,
+            "max": 0.27634091519375964
+          },
+          "rpm_startup": {
+            "median": 0.0005978205996866384,
+            "max": 0.021693684759377763
+          },
+          "torque_nm_startup": {
+            "median": 0.007440993199028913,
+            "max": 0.40411829192264187
+          },
+          "acc_x_startup": {
+            "median": 0.01119572499067242,
+            "max": 0.025708143760732636
+          },
+          "current_r_steady": {
+            "median": 0.006978308210805276,
+            "max": 0.3639821382764905
+          },
+          "rpm_steady": {
+            "median": 0.0003629207987589286,
+            "max": 0.006679377689675243
+          },
+          "torque_nm_steady": {
+            "median": 0.009282189591882366,
+            "max": 0.46574042167604346
+          },
+          "acc_x_steady": {
+            "median": 0.015147384023025536,
+            "max": 0.022811001249871714
+          }
+        },
+        "normal": {
+          "runs": 105,
+          "current_r_startup": {
+            "median": 0.0005195761639664671,
+            "max": 0.00094019700813588
+          },
+          "rpm_startup": {
+            "median": 0.00015522151774747652,
+            "max": 0.00023634952497202127
+          },
+          "torque_nm_startup": {
+            "median": 0.0007665709555642465,
+            "max": 0.0009401970081358807
+          },
+          "acc_x_startup": {
+            "median": 3.3412769247631207e-16,
+            "max": 4.208257292622995e-16
+          },
+          "current_r_steady": {
+            "median": 2.483227049820664e-06,
+            "max": 1.4461819307394899e-05
+          },
+          "rpm_steady": {
+            "median": 1.1954803495573747e-14,
+            "max": 4.406999891514917e-09
+          },
+          "torque_nm_steady": {
+            "median": 1.6982658334442347e-13,
+            "max": 8.385707525043276e-08
+          },
+          "acc_x_steady": {
+            "median": 3.4208585487632925e-16,
+            "max": 4.236038595394314e-16
+          }
+        },
+        "outer_race": {
+          "runs": 105,
+          "current_r_startup": {
+            "median": 0.005467405675221369,
+            "max": 0.3923294345059937
+          },
+          "rpm_startup": {
+            "median": 0.000555057406492046,
+            "max": 0.012142037530215616
+          },
+          "torque_nm_startup": {
+            "median": 0.006609080695298912,
+            "max": 0.4209532923054952
+          },
+          "acc_x_startup": {
+            "median": 0.025800033872308618,
+            "max": 0.046441540992447565
+          },
+          "current_r_steady": {
+            "median": 0.007394098445342067,
+            "max": 0.49378965220179427
+          },
+          "rpm_steady": {
+            "median": 0.00033747645353370334,
+            "max": 0.005150464169937537
+          },
+          "torque_nm_steady": {
+            "median": 0.009009707206945694,
+            "max": 0.49378965220179427
+          },
+          "acc_x_steady": {
+            "median": 0.03241701058636027,
+            "max": 0.04419216964016032
+          }
+        }
+      },
+      "all_runs": {
+        "current_r_startup": {
+          "median": 0.0028355863291118994,
+          "max": 0.3923294345059937
+        },
+        "rpm_startup": {
+          "median": 0.00035396143996288857,
+          "max": 0.021693684759377763
+        },
+        "torque_nm_startup": {
+          "median": 0.0041982403303731835,
+          "max": 0.4209532923054952
+        },
+        "acc_x_startup": {
+          "median": 0.010625127384223618,
+          "max": 0.046441540992447565
+        },
+        "current_r_steady": {
+          "median": 0.0036556386757617704,
+          "max": 0.49378965220179427
+        },
+        "rpm_steady": {
+          "median": 0.000181008465649923,
+          "max": 0.006679377689675243
+        },
+        "torque_nm_steady": {
+          "median": 0.005166569088255522,
+          "max": 0.49378965220179427
+        },
+        "acc_x_steady": {
+          "median": 0.01510487523123719,
+          "max": 0.04419216964016032
+        }
+      },
+      "worst_current_steady": [
+        {
+          "run": "grid_outer_race_w100_s1.50_seed1080",
+          "label": "outer_race",
+          "current_r_steady": 0.49378965220179427
+        },
+        {
+          "run": "grid_outer_race_w100_s1.50_seed1077",
+          "label": "outer_race",
+          "current_r_steady": 0.47294822490990174
+        },
+        {
+          "run": "grid_outer_race_w80_s1.00_seed1026",
+          "label": "outer_race",
+          "current_r_steady": 0.45373060545613975
+        },
+        {
+          "run": "grid_outer_race_w80_s1.00_seed1020",
+          "label": "outer_race",
+          "current_r_steady": 0.4514124524780421
+        },
+        {
+          "run": "grid_inner_race_w80_s2.00_seed1045",
+          "label": "inner_race",
+          "current_r_steady": 0.3639821382764905
+        }
+      ]
+    }
+  }
+}
