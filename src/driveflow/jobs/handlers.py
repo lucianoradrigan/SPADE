@@ -31,6 +31,9 @@ Kinds:
   (driveflow.ai.custom_training, one condition per run, ``params.workers`` processes) and trains a
   classifier on it. The model is written to configs/classifiers/custom/<name>/<date>_runNN/ as a
   candidate; nothing is promoted. One extra condition records the training step itself.
+- ``fmu_verification`` (task B5): the Plant Studio stage-6 checks of an ``om_fmu_co_sim`` profile
+  (integrations/fmu/gym_profile.verify), one condition per check; the result is stored on the
+  profile with the FMU and configuration hashes it covers. Origin SIMULATED · OPENMODELICA.
 - ``selftest.steps``: no physics; sleeps ``step_s`` per step. Used by the tests to exercise the
   worker (cancel, kill, recover) deterministically, and by "Check worker" in the GUI.
 """
@@ -563,6 +566,39 @@ def classifier_training(ctx: JobContext) -> HandlerResult:
     return HandlerResult(conditions=outcomes + [{**train_cond, "status": "ok", "metrics": summary}], metrics={"n_runs": n, "n_ok": n_ok, **summary})
 
 
+# --------------------------------------------------------------------------- fmu_verification
+def _validate_fmu_verification(spec: ExperimentSpec) -> None:
+    from driveflow.integrations.fmu import gym_profile
+    from driveflow.runs.store import RunStore
+
+    p = spec.params
+    if not p.get("profile_id") or not isinstance(p.get("version"), int):
+        raise SpadeError(ErrorCode.INVALID_SPEC, "fmu_verification needs profile_id and version")
+    prof = RunStore().get_profile(p["profile_id"], p["version"])
+    if prof.kind != gym_profile.KIND:
+        raise SpadeError(ErrorCode.INVALID_SPEC, f"profile {prof.profile_id} is a {prof.kind} profile, not {gym_profile.KIND}")
+
+
+def fmu_verification(ctx: JobContext) -> HandlerResult:
+    """Plant Studio stage 6 for an OpenModelica FMU profile (task B5): one condition per check."""
+    import json
+
+    from driveflow.integrations.fmu import gym_profile
+    from driveflow.runs.store import RunStore
+
+    p = ctx.spec.params
+    prof = RunStore().get_profile(p["profile_id"], p["version"])
+    ctx.progress(0, 1, "running the environment verification")
+    report = gym_profile.verify(prof, log=ctx.log)
+    ctx.write_artifact("verification.json", json.dumps(report, indent=2).encode())
+    gym_profile.record_verification(prof.profile_id, prof.version, report, ctx.run_id)
+    ctx.progress(1, 1, report["status"])
+    conditions = [{"index": i, "condition": {"check": str(c["id"]), "name": c["name"]}, "status": "ok" if c["status"] == "pass" else ("failed" if c["status"] == "fail" else "skipped"),
+                   **({"metrics": {"detail": c["detail"]}} if c["status"] == "pass" else {"error": c["detail"]})} for i, c in enumerate(report["checks"])]
+    return HandlerResult(conditions=conditions, metrics={k: report[k] for k in ("status", "n_checks", "n_passed", "fmu_sha256", "config_hash", "wall_s")},
+                         origin=gym_profile.ORIGIN)
+
+
 # --------------------------------------------------------------------------- selftest.steps
 def _validate_selftest(spec: ExperimentSpec) -> None:
     steps, step_s = spec.params.get("steps", 3), spec.params.get("step_s", 0.1)
@@ -596,6 +632,7 @@ HANDLERS = {
     "rl_training": HandlerInfo(rl_training, _validate_rl, "RL training + benchmark (DQN / DDPG)"),
     "surrogate_fit": HandlerInfo(surrogate_fit, _validate_surrogate_fit, "Surrogate fit from a PLECS sweep (route a)"),
     "classifier_training": HandlerInfo(classifier_training, _validate_classifier_training, "Classifier training (custom simulated grid)"),
+    "fmu_verification": HandlerInfo(fmu_verification, _validate_fmu_verification, "OpenModelica FMU environment verification (Plant Studio)", engine="fmu"),
     "selftest.steps": HandlerInfo(selftest_steps, _validate_selftest, "Worker self-test (no physics)", engine="selftest"),
 }
 

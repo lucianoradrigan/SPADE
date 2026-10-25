@@ -39,7 +39,8 @@ def test_navigable_without_plecs_and_no_gym_promise():
     assert "No PLECS plant profiles yet. Create your first plant to get started." in text
     assert "What would you like to do with your PLECS circuit?" in text
     assert "Interactive stepping is not available with the detected backend." in text
-    assert at.button(key="plecs_goal_gym").disabled and at.button(key="plecs_goal_surrogate").disabled and not at.button(key="plecs_goal_dataset").disabled
+    # B5 (round PLECS/OM): the Gym card opens the OpenModelica FMU route; PLECS RPC still gives no stepping
+    assert not at.button(key="plecs_goal_gym").disabled and at.button(key="plecs_goal_surrogate").disabled and not at.button(key="plecs_goal_dataset").disabled
     assert "No comparison has been generated yet." in text
     for banned in ("Gym ready", "Publish to Environments", "LIVE", "Connected"):
         assert banned not in text

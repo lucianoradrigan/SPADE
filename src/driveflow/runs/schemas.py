@@ -22,7 +22,7 @@ SCHEMA_VERSION = 1
 #: reads hardware telemetry, and a reachable PLECS RPC server is a tool, not a signal source.
 ORIGINS = ("SIMULATED", "SIMULATED · PLECS", "SIMULATED · SURROGATE", "SIMULATED · OPENMODELICA", "EXTERNAL FILE", "MEASURED · EXTERNAL DATASET")
 
-PROFILE_KINDS = ("native", "plecs_rpc_batch", "plecs_fmu_co_sim", "surrogate")
+PROFILE_KINDS = ("native", "plecs_rpc_batch", "plecs_fmu_co_sim", "om_fmu_co_sim", "surrogate")
 PROFILE_STATUSES = ("draft", "imported", "mapped", "specified", "verifying", "validated", "published", "failed", "unsupported", "stale", "disconnected")
 #: A Run is the record of one execution, successful or not. "legacy_session" marks a record mirrored
 #: from an interactive page's session log (viz/adapters/session.py): parameters only, no artifacts.

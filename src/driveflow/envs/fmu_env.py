@@ -114,7 +114,7 @@ class FmuGymEnv(gym.Env):
     mapping: FmuMapping
 
     def __init__(self, duration_s: float, reward_terms=None, action_out_of_range: str = "clip", solver_failure_penalty: float = 100.0,
-                 slave_factory=None):
+                 slave_factory=None, fmu_path: str | None = None):
         from driveflow.integrations.fmu.adapter import FmuAdapter
 
         if not (math.isfinite(duration_s) and duration_s > 0):
@@ -133,7 +133,7 @@ class FmuGymEnv(gym.Env):
         self.action_space = spaces.Box(m.action_low, m.action_high, shape=(1,), dtype=np.float64)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(len(m.observations),), dtype=np.float32)
         self.adapter = FmuAdapter(slave_factory)
-        path = fmu_dir() / m.fmu_file
+        path = Path(fmu_path) if fmu_path else fmu_dir() / m.fmu_file
         self.fmu_info = self.adapter.load(path)
         self._k = 0
         self._outputs: dict | None = None
@@ -308,4 +308,66 @@ class OmBuckEnv(FmuGymEnv):
             return "non_finite_state"
         if abs(i) > 2 * self.i_max:
             return "limit_violation:inductor_current"
+        return None
+
+
+class MappedFmuEnv(FmuGymEnv):
+    """An FMU environment published from Plant Studio (task B5): everything comes from the plant
+    profile's mapping and Gym configuration (integrations/fmu/gym_profile.py), not from code.
+
+    spec = {"fmu_path", "model", "plant_profile_id", "mapping": {"action": {input, name, unit, low, high},
+    "observations": [{output, unit, scale}], "reference": {output, value} | None,
+    "safety": {output, rated} | None}, "gym": {tau_s, duration_s, parameters, reward_terms, action_out_of_range}}.
+
+    Observation: each mapped output / its scale, then (with a reference) reference / scale and
+    (reference − output) / scale. Reward signals: tracking_error = (reference − output) / scale (0
+    without a reference); current_fraction = safety output / rated (0 without one); action_delta.
+    Terminated when |safety output| > 2 × rated (the native buck's rule) or the state is not finite."""
+
+    metadata = {"render_modes": []}
+
+    def __init__(self, spec: dict, reward_terms=None, duration_s: float | None = None, render_mode: str | None = None, slave_factory=None):
+        if render_mode is not None:
+            raise ValueError("MappedFmuEnv has no render modes.")
+        m, g = spec["mapping"], spec["gym"]
+        a, ref = m["action"], m.get("reference")
+        obs = [Signal(o["output"], o["unit"], o["output"], o["output"]) for o in m["observations"]]
+        if ref:
+            unit = next(o["unit"] for o in m["observations"] if o["output"] == ref["output"])
+            obs += [Signal(f"{ref['output']}_ref", unit, None, ref["output"]), Signal(f"{ref['output']}_error", unit, None, ref["output"])]
+        self.mapping = FmuMapping(model=spec["model"], plant_profile_id=spec["plant_profile_id"], tau_s=float(g["tau_s"]), action_name=a["name"],
+                                  action_input=a["input"], action_low=float(a["low"]), action_high=float(a["high"]), action_unit=a["unit"],
+                                  observations=tuple(obs), parameters={k: k for k in g.get("parameters", {})})
+        self.spec_dict = spec
+        self.scales = {o["output"]: float(o["scale"]) for o in m["observations"]}
+        self.reference, self.safety = ref, m.get("safety")
+        super().__init__(float(duration_s if duration_s is not None else g["duration_s"]), reward_terms if reward_terms is not None else g.get("reward_terms"),
+                         g.get("action_out_of_range", "clip"), float(g.get("solver_failure_penalty", 100.0)), slave_factory, spec["fmu_path"])
+        self.metadata = {**MappedFmuEnv.metadata, "plant_profile_id": spec["plant_profile_id"], "tau_s": self.tau,
+                         "observation_names": tuple(s.name for s in obs), "observation_units": tuple(s.unit for s in obs),
+                         "observation_scales": tuple(self.scales[s.scale] for s in obs), "action_names": (a["name"],), "action_units": (a["unit"],),
+                         "limits": ({"safety_output": self.safety["output"], "rated": self.safety["rated"], "terminate_at": 2 * self.safety["rated"]} if self.safety else {}),
+                         "fmu": {"model": self.fmu_info.model_name, "sha256": self.fmu_info.sha256, "path": self.fmu_info.path}}
+
+    def _episode(self, options: dict):
+        params = dict(self.spec_dict["gym"].get("parameters", {}))
+        return params, ({"reference": self.reference["value"]} if self.reference else {})
+
+    def _derived(self, name: str) -> float:
+        out, val = self.reference["output"], float(self.reference["value"])
+        return val if name.endswith("_ref") else val - self._outputs[out]
+
+    def _signals(self, action):
+        track = 0.0
+        if self.reference:
+            out = self.reference["output"]
+            track = (float(self.reference["value"]) - self._outputs[out]) / self.scales[out]
+        cur = self._outputs[self.safety["output"]] / float(self.safety["rated"]) if self.safety else 0.0
+        return {"tracking_error": track, "current_fraction": cur, "action_delta": float(action[0] - self._prev_action[0])}
+
+    def _violation(self):
+        if not all(math.isfinite(v) for v in self._outputs.values()):
+            return "non_finite_state"
+        if self.safety and abs(self._outputs[self.safety["output"]]) > 2 * float(self.safety["rated"]):
+            return f"limit_violation:{self.safety['output']}"
         return None

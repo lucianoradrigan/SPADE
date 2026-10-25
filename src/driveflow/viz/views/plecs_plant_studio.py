@@ -1,10 +1,11 @@
 """Simulation / PLECS Plant Studio (spec Sec. 3, 3.14; expansion task E2: the batch routes).
 
-Tabs: My Plants | Create Plant | Compare with SPADE | Connection & Diagnostics. In this version only
-the Dataset route works ("Generate simulation datasets": PLECS Standalone RPC sweeps run as jobs by
-the worker). The Gymnasium card is visible but blocked -- interactive stepping needs a verified
-Co-Simulation FMU (task E3/E4) and is never derived from RPC connectivity -- and the surrogate card
-and the comparison arrive with task E5. No chart is drawn without a completed sweep behind it.
+Tabs: My Plants | Create Plant | Compare with SPADE | Connection & Diagnostics. Routes: "Generate
+simulation datasets" (PLECS Standalone RPC sweeps run as jobs by the worker) and, since task B5,
+"Use as a Gymnasium plant" with the engine "OpenModelica FMU" (views/plant_studio_fmu.py: six
+stages, verification job, publication). Interactive stepping is never derived from RPC
+connectivity; a PLECS Co-Simulation FMU engine is not supported in this version. No chart is drawn
+without a completed sweep behind it.
 """
 
 from __future__ import annotations
@@ -73,10 +74,12 @@ def _goal_cards() -> str | None:
     st.markdown("#### What would you like to do with your PLECS circuit?")
     c1, c2, c3 = st.columns(3, gap="medium")
     with c1, st.container(border=True):
-        st.markdown("**Use PLECS as a Gymnasium plant**")
-        st.caption("Recommended for closed-loop RL · Train or evaluate a controller that interacts with PLECS at each control interval.")
-        st.button("Continue", key="plecs_goal_gym", disabled=True, width="stretch")
-        st.caption(f":material/block: {NOT_AVAILABLE_GYM} It needs a verified Co-Simulation FMU; an RPC connection is not enough.")
+        st.markdown("**Use as a Gymnasium plant**")
+        st.caption("Recommended for closed-loop RL · Train or evaluate a controller that steps the plant at each control interval. "
+                   "Engine in this version: an OpenModelica FMI 2.0 Co-Simulation FMU, verified before publishing.")
+        if st.button("Continue", key="plecs_goal_gym", width="stretch"):
+            st.session_state["plecs_goal"] = "gym"
+        st.caption(f":material/info: PLECS RPC does not provide stepping: {NOT_AVAILABLE_GYM}")
     with c2, st.container(border=True):
         st.markdown("**Generate simulation datasets**")
         st.caption("Grid or Latin-hypercube sweeps of the circuit's ModelVars; the control lives inside the circuit. Produces a dataset, not an interactive environment.")
@@ -226,6 +229,13 @@ def _sweep_results(p):
 
 def _create_plant() -> None:
     goal = _goal_cards()
+    if goal == "gym":
+        from driveflow.viz.views.plant_studio_fmu import render_gym_route
+
+        st.divider()
+        st.markdown("#### Use as a Gymnasium plant")
+        render_gym_route()
+        return
     if goal != "dataset":
         return
     st.divider()
@@ -324,10 +334,14 @@ def _diagnostics() -> None:
             st.caption(rep.get("hint", ""))
     with sections[1], st.container(border=True):
         st.markdown("**FMU import support**")
-        st.caption("Not supported in this version: FMI import needs the FMU spike (task E3).")
+        from driveflow.viz.adapters import fmu_studio_adapter as fa
+
+        eng = fa.engine_report()
+        st.caption(f"OpenModelica FMU (FMI 2.0 Co-Simulation): fmpy {eng['fmpy_version']} on {eng['platform']}." if eng["fmpy"] else eng["message"])
+        st.caption("PLECS Co-Simulation FMU: not supported in this version.")
     with sections[2], st.container(border=True):
         st.markdown("**Step capability**")
-        st.caption(f"Not supported. {NOT_AVAILABLE_GYM}")
+        st.caption(f"PLECS RPC: not supported. {NOT_AVAILABLE_GYM} OpenModelica FMU: shown only by a passing verification (Create Plant → Use as a Gymnasium plant).")
     with sections[3], st.container(border=True):
         st.markdown("**Circuit readiness**")
         plist = pa.profiles()
@@ -335,7 +349,8 @@ def _diagnostics() -> None:
         st.caption(f"{len(plist)} profile(s); {stale} stale." if plist else "No circuit has been imported yet.")
     with sections[4], st.container(border=True):
         st.markdown("**Environment readiness**")
-        st.caption("No PLECS Gymnasium environment. Not derived from RPC connectivity.")
+        n_pub = sum(p.status == "published" for p in fa.profiles())
+        st.caption(f"{n_pub} published OpenModelica FMU environment(s). Not derived from RPC connectivity.")
     if rep is not None:
         with st.expander("Report details", icon=":material/description:"):
             st.caption(f"PLECS version: {rep['plecs_version']}. Checked: {', '.join(rep['checked'])}. Not checked: {', '.join(rep['not_checked']) or '—'}.")
@@ -347,9 +362,10 @@ def _diagnostics() -> None:
 
 def render() -> None:
     page_header("Simulation / PLECS Plant Studio", "PLECS Plant Studio",
-                "Create an environment from a PLECS circuit. In this version: simulation datasets from PLECS Standalone RPC sweeps. "
-                "Interactive (Gymnasium) plants need a verified Co-Simulation FMU and are not available yet.",
-                [source_badge_html("SIMULATED · PLECS", "Results are PLECS simulations, not hardware"), badge_html("DATASET ROUTE ONLY", "warning", "▲", NOT_AVAILABLE_GYM)])
+                "Create an environment from a circuit. In this version: simulation datasets from PLECS Standalone RPC sweeps, and "
+                "Gymnasium plants from verified OpenModelica Co-Simulation FMUs. PLECS FMUs are not supported yet.",
+                [source_badge_html("SIMULATED · PLECS", "Results are PLECS simulations, not hardware"),
+                 source_badge_html("SIMULATED · OPENMODELICA", "Gymnasium plants from OpenModelica FMUs, not hardware")])
     t_plants, t_create, t_compare, t_diag = st.tabs(["My Plants", "Create Plant", "Compare with SPADE", "Connection & Diagnostics"])
     with t_plants:
         _my_plants()

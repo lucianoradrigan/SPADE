@@ -107,6 +107,39 @@ def register_dynamic(env_id: str, profile_id: str, surrogate_dir: str) -> EnvSpe
     return spec
 
 
+def register_fmu_profile(env_id: str, record: dict) -> EnvSpec:
+    """An FMU plant published from Plant Studio (task B5): SPADE/Fmu<Profile>-v0 on
+    envs.fmu_env.MappedFmuEnv, configured entirely by the profile's mapping and Gym settings."""
+    spec = record["spec"]
+    env = EnvSpec(env_id, "driveflow.envs.fmu_env:MappedFmuEnv", spec["plant_profile_id"],
+                  f"{spec['model']} (OpenModelica FMU, profile {record['profile_id']} v{record['version']})", 0, "SIMULATED · OPENMODELICA",
+                  ("Continuous-action RL (DDPG, SAC, PPO)", "DQN after discretizing the action"),
+                  ("|safety output| > 2 × rated", "non-finite state", "FMU solver failure (never a success)", "horizon reached → truncated"),
+                  "—", {"spec": spec},
+                  note=f"Published from PLECS Plant Studio (OpenModelica FMU engine). FMU SHA-256 {record['fmu_sha256'][:12]}…, configuration {record['config_hash'][:12]}…. Simulated, not hardware.")
+    ENVIRONMENTS[env_id] = env
+    if env_id in gym.registry:
+        del gym.registry[env_id]
+    gym.register(id=env_id, entry_point=env.entry_point, kwargs=dict(env.defaults), disable_env_checker=False)
+    return env
+
+
+def _published_fmu_profiles() -> dict:
+    """Published FMU environments whose FMU file still has the verified SHA-256 (a changed FMU is
+    stale and is not registered)."""
+    import hashlib
+    from pathlib import Path
+
+    from driveflow.integrations.fmu import gym_profile
+
+    out = {}
+    for env_id, rec in gym_profile.published().items():
+        path = Path(rec["spec"]["fmu_path"])
+        if path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest() == rec["fmu_sha256"]:
+            out[env_id] = rec
+    return out
+
+
 def availability(env_id: str) -> tuple[bool, str]:
     """(True, "") for environments that can run here; else (False, why) -- e.g. an FMU-backed
     environment without fmpy or without its built FMU."""
@@ -131,6 +164,14 @@ def register_all() -> list[str]:
     for env_id, rec in surrogate_plecs.published().items():
         if env_id not in ENVIRONMENTS or ENVIRONMENTS[env_id].defaults.get("surrogate_path") != rec["surrogate_dir"]:
             register_dynamic(env_id, rec["profile_id"], rec["surrogate_dir"])
+    fmu_published = _published_fmu_profiles()
+    for env_id in [e for e, sp in ENVIRONMENTS.items() if sp.entry_point.endswith(":MappedFmuEnv") and e not in fmu_published]:
+        ENVIRONMENTS.pop(env_id)  # unpublished, stale, or from another workspace
+        if env_id in gym.registry:
+            del gym.registry[env_id]
+    for env_id, rec in fmu_published.items():
+        if env_id not in ENVIRONMENTS or ENVIRONMENTS[env_id].defaults.get("spec") != rec["spec"]:
+            register_fmu_profile(env_id, rec)
     for spec in ENVIRONMENTS.values():
         if spec.availability is not None and not availability(spec.env_id)[0]:
             if spec.env_id in gym.registry:  # e.g. the FMU was removed since the last call
