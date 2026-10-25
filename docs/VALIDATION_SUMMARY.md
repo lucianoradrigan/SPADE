@@ -357,3 +357,70 @@ Each count is a full suite run with `PYTHONPATH=src python -m pytest -q`. The lo
 - **Installations and UI checks:** manual installs on Windows, macOS and Ubuntu 22.04; colour contrast; the worker heartbeat on Windows; My Plants showing a failed sweep.
 - **AI-N14:** extending the training grid below 80 rad/s.
 
+
+## 11. External circuit plants (PLECS / OpenModelica) — rounds of 2026-10-22 and 2026-10-25
+
+Evidence lives in `docs/audit/plecs_om/`. Each `.md` there gives the command that produced its numbers.
+
+### 11.1 What was executed and what was not
+
+| Item | Status | Evidence |
+|---|---|---|
+| PLECS (real) | **Not executed: real PLECS needs the researcher's machine** (PLECS 5.0 with licence). The researcher kit (A2) is ready; it was not sent (G6). | `a2_researcher_kit.md` |
+| A1 surrogate from a PLECS sweep | Executed against the PLECS test double only | `a1_surrogate_from_plecs.md` |
+| B0–B2 OpenModelica toolchain, models, FmuAdapter | Executed (OpenModelica 1.27.1, pinned image digest, MSL 4.1.0+maint.om) | `b0_setup.md`, `b1_modelica_plants.md`, `b2_fmu_adapter.md` |
+| B3 GO/NO-GO (pre-registered) | Executed | `b3_preregistration.md`, `b3_om_fmu_spike.md` |
+| R1 post-hoc analysis of B3 + lesson G7 | Done (documentation) | `b3_om_fmu_spike.md` § Post-hoc analysis; `CLAUDE.md` |
+| R2 S-16 sensitivity | **Stopped at R2.1** (reference convergence; finding S-17). Branch `feat/R2-s16-sensitivity`, not merged | `r2_convergence.md`, `r2_load_step_offset.json` |
+| B4 `SPADE/OmBuck-v0` | Executed | `b4_fmu_gym_env.md` |
+| B5 Plant Studio "OpenModelica FMU" engine | Executed (AppTests + screenshots) | `tests/fmu/test_plant_studio_fmu.py`, `docs/screenshots/plecs_om/` |
+| B6 RL Lab / Tuning Studio on `SPADE/OmBuck-v0` | Executed (jobs through the worker) | `b6_rl_on_fmu.md` |
+| B7 weekly FMU CI | Job added. **Dispatch not executed: `gh` is not installed or authenticated** | `b7_fmu_ci.md` |
+| B8 FMU distribution | **Stopped at the licence review**: no workflow, no Release; `fetch` disabled | `b8_license_review.md`, `docs/guides/BUILD_FMUS_LOCALLY.md` |
+| Windows / macOS FMUs | Not executed (Linux x86_64 builds only) | — |
+
+### 11.2 B3 verdicts (pre-registered, unchanged)
+
+| Model | Verdict | Note |
+|---|---|---|
+| BuckAveraged | **GO** | NRMS 1.7e-6 / 2.1e-6 vs the native buck |
+| DcMotorAveraged | **NO-GO** (criterion 4: i_a 2.6 % > 1 %) | **Post-hoc analysis (not pre-registered):** the reference, the native plant with one Euler step per τ, is not converged; the FMU matches Euler × 100 to 2e-5 and GEM RK45 to 5e-7. Reference use only (G2). |
+| BuckSwitching, DcMotorSwitching | **NO-GO** | S-15: CVODE aborts at the PWM period |
+
+### 11.3 R2 and S-16
+
+- **S-16 stays Open.** "Impact on diagnosis: under study (R2)".
+- **R2 did not reach the diagnosis measurement.** The R2.1 convergence rule (the coarsest Euler within 1e-4 of the finest solution in start-up, steady state and load step) is met in start-up and steady state (Euler × 100: worst 8.9e-5), but not in the load-step scenario.
+- **The cause is new finding S-17.** `EulerSolver` with substeps evaluates the right-hand side one control period late, so a time-triggered input is applied one period early.
+- **The production plants are not affected.** Their right-hand sides do not depend on t.
+- **Decision pending (user):** RK45 as the reference; or Euler × 100 justified by the grid having no time-dependent input; or fixing `EulerSolver` (needs confirmation).
+
+### 11.4 New findings
+
+| ID | Severity | Summary | Status |
+|---|---|---|---|
+| S-17 | Low | `sim/solvers.EulerSolver(nsteps > 1)` evaluates f at t_end + k·h/n (inherited from GEM); latent for the production plants | Open; strict xfail on `feat/R2-s16-sensitivity` (enters `dev` with R2) |
+
+AI-N24 was not used.
+
+### 11.5 Capability table (spec §3.15) with the OpenModelica FMU column
+
+| UI function | RPC batch (PLECS) | FMU stepping (PLECS) | Surrogate Gym | **OpenModelica FMU** (state on `dev`) |
+|---|---|---|---|---|
+| Start sweep | Yes (test double only) | — | No | Not implemented (there is no FMU sweep route) |
+| Fit surrogate | With a valid dataset (A1, test double) | Not available | n/a | Not implemented |
+| Run step test | No | Not available (no PLECS FMU) | No | **Yes**: stage 6 "Run verification" job, 13 checks |
+| Publish Gym environment | No | Not available | Yes (A1) | **Yes, for a verified B3-GO FMU only** (BuckAveraged). NO-GO models are blocked |
+| Train agent | No | Not available | Yes | **Yes**: `SPADE/OmBuck-v0` in RL Lab (B6), by capability |
+| Tune a controller | — | — | Yes (buck PI) | **Yes**: buck PI on `SPADE/OmBuck-v0` (B6) |
+| Compare with native SPADE | Yes, with aligned signals | Not available | Yes, own label | **Yes**: B4 report and verification check 4b (B3 criterion 4) |
+
+### 11.6 B8
+
+Stopped by the licence review. The FMUs carry no licence notices. The f2c-LAPACK and MINPACK sources compiled into them have no licence header, and the OpenModelica developers state that part of the runtime's third-party code is LGPL without naming it.
+
+**No Release exists, not even a draft.** Users build the FMUs locally (`docs/guides/BUILD_FMUS_LOCALLY.md`). The options are in `b8_license_review.md` §4.
+
+### 11.7 Screenshots
+
+`docs/screenshots/plecs_om/`: Plant Studio → Use as a Gymnasium plant, with the FMU engine in five readiness states, light and dark. Index in its `README.md`.
