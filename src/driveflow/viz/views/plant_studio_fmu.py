@@ -67,10 +67,16 @@ def _engine() -> None:
         st.error(rep["message"], icon=":material/error:")
         st.code('pip install "driveflow[fmu]"', language="bash")
     st.caption(f"FMU folder: `{rep['fmu_dir']}`. Checked: {', '.join(rep['checked'])}. Not checked: {', '.join(rep['not_checked'])}.")
-    from driveflow.fmu import FETCH_DISABLED
-
-    st.button("Download prebuilt FMUs", key="fmu_download", disabled=True, icon=":material/download:", help=FETCH_DISABLED)
-    st.caption(f":material/block: {FETCH_DISABLED}")
+    with st.expander("Download prebuilt FMUs", icon=":material/download:"):
+        st.caption("From a published GitHub Release of SPADE (fmu-release.yml): only FMUs with a B3 GO verdict, with their licence texts. "
+                   "Each file's SHA-256 is checked; an FMU built from another model version is not installed. Runs as a job.")
+        c1, c2 = st.columns(2)
+        tag = c1.text_input("Release tag (empty: latest published)", key="fmu_dl_tag", placeholder="fmu-v1")
+        model = c2.text_input("Model (empty: all for this platform)", key="fmu_dl_model", placeholder="BuckAveraged")
+        if st.button("Download prebuilt FMUs", key="fmu_download", icon=":material/download:"):
+            job = fa.submit_fetch(tag.strip() or None, model.strip() or None)
+            st.success(f"Queued as job `{job.job_id}`. Follow it in Experiment Runs.", icon=":material/schedule:")
+        st.caption("Or build them locally: docs/guides/BUILD_FMUS_LOCALLY.md.")
 
 
 def _circuit() -> None:

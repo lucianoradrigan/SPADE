@@ -149,6 +149,14 @@ def checks_table(report: dict) -> pd.DataFrame:
     return pd.DataFrame([{"#": str(c["id"]), "Check": c["name"], "Result": icon.get(c["status"], c["status"]), "Detail": c["detail"]} for c in report["checks"]])
 
 
+def submit_fetch(release: str | None, model: str | None):
+    """Queues `python -m driveflow.fmu fetch` as a job (kind fmu_fetch, B8)."""
+    from driveflow.jobs.service import JobService
+
+    spec = ExperimentSpec.create("fmu_fetch", params={"release": release, "model": model}, budget={"downloads": 1})
+    return JobService().submit(spec)
+
+
 def publish(p) -> str:
     return gp.publish(p)
 

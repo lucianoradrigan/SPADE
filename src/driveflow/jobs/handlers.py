@@ -34,6 +34,8 @@ Kinds:
 - ``fmu_verification`` (task B5): the Plant Studio stage-6 checks of an ``om_fmu_co_sim`` profile
   (integrations/fmu/gym_profile.verify), one condition per check; the result is stored on the
   profile with the FMU and configuration hashes it covers. Origin SIMULATED · OPENMODELICA.
+- ``fmu_fetch`` (task B8): downloads prebuilt FMUs of a GitHub Release (driveflow.fmu.fetch),
+  verifying SHA-256 and the model version; one condition per FMU.
 - ``selftest.steps``: no physics; sleeps ``step_s`` per step. Used by the tests to exercise the
   worker (cancel, kill, recover) deterministically, and by "Check worker" in the GUI.
 """
@@ -690,6 +692,35 @@ def fmu_verification(ctx: JobContext) -> HandlerResult:
                          origin=gym_profile.ORIGIN)
 
 
+# --------------------------------------------------------------------------- fmu_fetch
+def _validate_fmu_fetch(spec: ExperimentSpec) -> None:
+    import re
+
+    p = spec.params
+    for k in ("release", "model"):
+        v = p.get(k)
+        if v is not None and not (isinstance(v, str) and re.fullmatch(r"[A-Za-z0-9._-]{1,64}", v)):
+            raise SpadeError(ErrorCode.INVALID_SPEC, f"fmu_fetch: {k} must be a plain name, got {v!r}")
+
+
+def fmu_fetch(ctx: JobContext) -> HandlerResult:
+    """Plant Studio → Download prebuilt FMUs (task B8): driveflow.fmu.fetch, one condition per FMU."""
+    from driveflow.fmu import FetchError, fetch
+
+    p = ctx.spec.params
+    ctx.progress(0, 1, "downloading")
+    try:
+        recs = fetch(p.get("release"), p.get("model"), log=ctx.log)
+    except FetchError as exc:
+        ctx.log(str(exc))
+        return HandlerResult(conditions=[{"index": 0, "condition": {"release": p.get("release"), "model": p.get("model")}, "status": "failed", "error": str(exc)}])
+    ctx.progress(1, 1, "finished")
+    conds = [{"index": i, "condition": {"model": r["model"], "file": r["file"]}, "status": "ok" if r["status"] == "installed" else "failed",
+              **({"metrics": {"sha256": r["sha256"]}} if r["status"] == "installed" else {"error": "FMU built from a different model version: not installed"})}
+             for i, r in enumerate(recs)]
+    return HandlerResult(conditions=conds, metrics={"installed": [r["model"] for r in recs if r["status"] == "installed"]}, origin="SIMULATED · OPENMODELICA")
+
+
 # --------------------------------------------------------------------------- selftest.steps
 def _validate_selftest(spec: ExperimentSpec) -> None:
     steps, step_s = spec.params.get("steps", 3), spec.params.get("step_s", 0.1)
@@ -723,6 +754,7 @@ HANDLERS = {
     "rl_training": HandlerInfo(rl_training, _validate_rl, "RL training + benchmark (DQN / DDPG)"),
     "surrogate_fit": HandlerInfo(surrogate_fit, _validate_surrogate_fit, "Surrogate fit from a PLECS sweep (route a)"),
     "classifier_training": HandlerInfo(classifier_training, _validate_classifier_training, "Classifier training (custom simulated grid)"),
+    "fmu_fetch": HandlerInfo(fmu_fetch, _validate_fmu_fetch, "Download prebuilt OpenModelica FMUs (GitHub Release)", engine="fmu"),
     "fmu_verification": HandlerInfo(fmu_verification, _validate_fmu_verification, "OpenModelica FMU environment verification (Plant Studio)", engine="fmu"),
     "selftest.steps": HandlerInfo(selftest_steps, _validate_selftest, "Worker self-test (no physics)", engine="selftest"),
 }

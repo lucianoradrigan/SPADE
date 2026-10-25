@@ -1,12 +1,20 @@
-# Build the OpenModelica FMUs locally
+# OpenModelica FMUs: download or build locally
 
-SPADE does not distribute prebuilt FMUs.
+## Download (Linux x86_64)
 
-**Why.** The licence review of the OpenModelica runtime that ships inside every exported FMU (`docs/audit/plecs_om/b8_license_review.md`, 2026-10-25) did not clear redistribution. Two points are open:
-- some bundled solver sources (f2c-translated LAPACK, MINPACK) carry no licence header;
-- the OpenModelica developers have said that part of the runtime's third-party code is LGPL.
+```bash
+pip install -e ".[fmu]"
+python -m driveflow.fmu fetch     # latest published release; or: --release fmu-v1 --model BuckAveraged
+```
 
-`python -m driveflow.fmu fetch` therefore says so and exits. Build the FMUs on your own machine instead: the result is the same model, for your platform.
+- `fetch` checks each FMU's SHA-256.
+- An FMU built from another version of `modelica/SPADE/package.mo` is not installed unless you pass `--allow-mismatch`; that choice is recorded in `data/fmu/fetch_log.json`.
+- The same download is in Plant Studio → Use as a Gymnasium plant → 2. Engine → "Download prebuilt FMUs", which runs it as a job.
+- Releases carry only FMUs with a B3 GO verdict on their own build, with the licence texts of everything compiled into them (`licenses/fmu/`; review in `docs/audit/plecs_om/b8_license_review.md`).
+
+## Build locally
+
+For any other platform, or to rebuild from your own model version.
 
 ## Requirements
 

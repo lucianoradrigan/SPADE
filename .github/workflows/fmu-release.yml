@@ -1,0 +1,85 @@
+name: fmu release (draft)
+
+# Round PLECS/OpenModelica, B8: builds SPADE's OpenModelica FMUs in the pinned container, re-runs
+# the B3 GO/NO-GO script on that build, and creates a DRAFT GitHub Release with only the GO FMUs
+# of each platform (minus DcMotorAveraged, decision G2), fmu_manifest.json and the licence texts
+# (licenses/fmu/, review: docs/audit/plecs_om/b8_license_review.md). Publishing the draft is a
+# manual decision of the maintainer; this workflow never publishes.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (fmu-v*)"
+        required: true
+  push:
+    tags: ["fmu-v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install package (fmu extra)
+        run: pip install -e ".[dev,fmu]"
+
+      - name: Build the FMUs (pinned OpenModelica image)
+        run: bash scripts/fmu/build_fmus.sh
+
+      - name: B3 GO/NO-GO on this build
+        env:
+          TF_CPP_MIN_LOG_LEVEL: "2"
+        run: python experiments/report_b3_om_fmu_spike.py --out ci_out/b3
+
+      - name: Assemble the release assets (GO only)
+        run: python scripts/fmu/make_release_bundle.py --fmu-dir data/fmu --b3 ci_out/b3/b3_om_fmu_spike.json --out release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fmu-release-linux
+          path: |
+            release/
+            ci_out/b3/
+
+  # Windows: attempted, not required. OpenModelica's pinned build is the Linux Docker image; a
+  # Windows FMU needs the Windows installer of the same version. The outcome is recorded either way.
+  windows-attempt:
+    runs-on: windows-latest
+    continue-on-error: true
+    timeout-minutes: 60
+    steps:
+      - name: Look for an OpenModelica 1.27.1 Windows installer on Chocolatey
+        shell: pwsh
+        run: |
+          choco search openmodelica --exact --all-versions | Tee-Object -FilePath om_search.txt
+          if (-not (Select-String -Path om_search.txt -Pattern "1\.27\.1")) { Write-Error "No OpenModelica 1.27.1 package: Windows FMUs not built" }
+
+  # macOS: OpenModelica publishes no official macOS release (only Docker), so no macOS FMU is built.
+
+  draft-release:
+    needs: linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: fmu-release-linux
+
+      - name: Create the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          cd release
+          gh release create "$TAG" --repo "${{ github.repository }}" --draft --target "${{ github.sha }}" \
+            --title "SPADE OpenModelica FMUs $TAG (draft)" \
+            --notes "Built by fmu-release.yml from ${{ github.sha }}. Only FMUs with a B3 GO verdict on this build are attached (see fmu_manifest.json, not_attached). Licence texts: THIRD_PARTY_NOTICES.txt / licenses.zip. This product includes software developed by the University of Chicago, as Operator of Argonne National Laboratory. DRAFT: not published." \
+            ./*.fmu fmu_manifest.json THIRD_PARTY_NOTICES.txt licenses.zip
