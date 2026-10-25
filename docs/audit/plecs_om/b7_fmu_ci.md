@@ -26,6 +26,6 @@
 | Check | Command | Result |
 |---|---|---|
 | Workflow parses, jobs listed | `python -c "import yaml; print(list(yaml.safe_load(open('.github/workflows/validation-scheduled.yml'))['jobs']))"` | `['slow-and-reports', 'fmu']` |
-| Full suite without fmpy (as per-commit CI) | `PYTHONPATH=src:<dir with sitecustomize.py setting sys.modules["fmpy"] = None> python -m pytest -q` | see `b7_suite_without_fmpy.txt` |
-| `fmu` tests with fmpy and the local FMUs | `PYTHONPATH=src python -m pytest -m fmu -q -rxX` | see `b7_pytest_fmu_local.txt` |
+| Full suite without fmpy (as per-commit CI) | `PYTHONPATH=src:<dir with sitecustomize.py setting sys.modules["fmpy"] = None> python -m pytest -q` | 1218 passed, 13 skipped (all `fmu`, "could not import fmpy"), 6 xfailed (the 2 S-15 xfails skip with them) — `b7_suite_without_fmpy.txt` |
+| `fmu` tests with fmpy and the local FMUs | `PYTHONPATH=src python -m pytest -m fmu -q -rxX` | 18 passed, 2 xfailed (S-15) — `b7_pytest_fmu_local.txt` |
 | Workflow dispatched once | `gh workflow run validation-scheduled.yml --ref dev` | **not executed: `gh` is not installed or authenticated on this machine.** To dispatch it: install `gh`, run `gh auth login`, then run that command. The run link goes here afterwards. Note: the new `fmu` job exists only on `dev` until the PR to `main`; dispatching with `--ref dev` runs dev's version of the file. |

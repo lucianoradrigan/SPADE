@@ -1,0 +1,8 @@
+# cmd: PYTHONPATH=src:<nofmpy sitecustomize> python -m pytest -q  (fmpy blocked, as per-commit CI; commit 2ddfb3a)
+  /home/seven/post_doc/plataform_proposed/SPADE-dev/.venv/lib/python3.12/site-packages/keras/src/backend/tensorflow/core.py:172: DeprecationWarning: __array__ implementation doesn't accept a copy keyword, so passing copy=False failed. __array__ must implement 'dtype' and 'copy' keyword arguments. To learn more, see the migration guide https://numpy.org/devdocs/numpy_2_0_migration_guide.html#adapting-to-changes-in-the-copy-keyword
+SKIPPED [1] tests/fmu/test_om_fmus.py:15: could not import 'fmpy': import of fmpy halted; None in sys.modules
+SKIPPED [5] tests/envs/test_fmu_env.py:17: could not import 'fmpy': import of fmpy halted; None in sys.modules
+SKIPPED [1] tests/fmu/test_fmu_adapter.py:114: could not import 'fmpy': import of fmpy halted; None in sys.modules
+SKIPPED [1] tests/fmu/test_fmu_adapter.py:126: could not import 'fmpy': import of fmpy halted; None in sys.modules
+SKIPPED [4] tests/fmu/test_plant_studio_fmu.py:25: could not import 'fmpy': import of fmpy halted; None in sys.modules
+1218 passed, 13 skipped, 6 xfailed, 481 warnings in 1000.24s (0:16:40)
