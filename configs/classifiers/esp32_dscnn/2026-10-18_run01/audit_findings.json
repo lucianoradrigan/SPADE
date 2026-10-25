@@ -20,6 +20,13 @@
       "date": "2026-10-19",
       "summary": "Distilled from dc_motor/pc/classifier 2026-10-18_run01 (test accuracy 0.901). INT8 TFLite on the test runs: accuracy 0.940 -> 0.942 but top-1 agreement with Keras only 0.977 (host CPU, not target hardware).",
       "evidence": "docs/audit/tflite_parity_report.txt"
+    },
+    {
+      "id": "three-class-vs-five",
+      "severity": "high",
+      "date": "2026-10-25",
+      "summary": "Promoted with 3 classes (inner_race, normal, outer_race) while the promoted PC and RPi5 classifiers have 5. A ball or cage fault on the ESP32 is assigned to one of the 3 known classes, probably with high confidence (ball windows: outer_race at mean calibrated confidence 0.99); no OOD method catches them (AI-N13). Use the PC or RPi5 model when ball or cage faults matter.",
+      "evidence": "docs/audit/ai/classifier_evaluation.md (unseen fault types), docs/AI_TECHNICAL_AUDIT.md AI-N12/AI-N13, docs/VALIDATION_SUMMARY.md"
     }
   ]
 }

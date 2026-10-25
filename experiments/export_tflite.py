@@ -1,5 +1,5 @@
 """Exports a promoted (domain, tier, block) run to TFLite -- float16 for rpi5, int8 (calibrated
-against real windows rebuilt from --dataset) for esp32 -- docs/design_ai_layer_transversal.md
+on windows sampled from --dataset, the simulated training dataset) for esp32 -- docs/design_ai_layer_transversal.md
 Sec. 4.1/4.2, Sec. 8 step 8. Saves alongside the run's existing artifacts as model.tflite.
 
 Usage (run as a module -- the script imports experiments.train_model, so a direct
@@ -62,7 +62,7 @@ def main(argv=None) -> None:
         print(f"Exported float16 TFLite: {out_path}")
     else:
         if args.dataset is None:
-            raise SystemExit("--dataset is required for --tier esp32 (int8 calibration needs real windows).")
+            raise SystemExit("--dataset is required for --tier esp32 (int8 calibration needs windows sampled from the training dataset).")
         windows = _representative_windows(args.domain, args.block, args.dataset, config, metrics, args.n_calibration_samples, noise_free=args.calibration_noise_free)
         export_int8(model, windows, out_path, n_calibration_samples=len(windows))
         print(f"Exported int8 TFLite: {out_path}")

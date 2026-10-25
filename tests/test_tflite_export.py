@@ -1,5 +1,5 @@
 """Tests driveflow/ai/tflite_export.py (docs/design_ai_layer_transversal.md Sec. 4.1/4.2,
-Sec. 8 step 8): float16 export for the rpi5 tier, int8 (calibrated against real windows) for
+Sec. 8 step 8): float16 export for the rpi5 tier, int8 (calibrated on windows sampled from the training dataset, which is simulated) for
 the esp32 tier -- both actually produce a loadable, correctly-typed TFLite model, not just bytes.
 """
 

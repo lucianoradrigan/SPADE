@@ -128,7 +128,7 @@ to production (`experiments/promote_run.py`) -- a deliberate, separate step from
 **Edge deployment** (Raspberry Pi 5, ESP32): the promoted PC-tier model is distilled into a
 smaller architecture per tier (`--distill` on the training script -- DS-CNN/TCN blocks for ESP32,
 which structurally can't use recurrent layers) and exported to TFLite (`experiments/export_tflite.py`
--- float16 for Raspberry Pi 5, int8 calibrated against real data for ESP32). The dashboard's IA
+-- float16 for Raspberry Pi 5, int8 calibrated on windows sampled from the simulated training dataset for ESP32). The dashboard's IA
 tab has a direct download for each promoted `.tflite` file.
 
 **Monitoring agents** (`src/driveflow/monitoring/`): a rule schema (`rules/schema.py`, validated

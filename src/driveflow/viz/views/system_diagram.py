@@ -165,7 +165,7 @@ _DIAGRAM_COMPONENT_DETAILS = {
         "regressor config schema structurally forbids `recurrent_type: lstm`/`gru` on this tier, so the "
         "regressor is a small causal TCN (`layers: [8, 8]`) and the classifier uses DS-CNN blocks "
         "(depthwise + pointwise Conv1D). **(2) TFLite export is int8** (weights AND activations), calibrated on "
-        "real windows from a dataset, never on random noise. Current numbers: vsc_dpc regressor RMSE 0.18. "
+        "windows sampled from the training dataset (simulated), never on random noise. Current numbers: vsc_dpc regressor RMSE 0.18. "
         "The dc_motor classifier is still the earlier **3-class** run (inner_race, normal, outer_race; "
         "90.1 % on its own 3-class test split, not comparable with the 5-class tiers)."
     ),

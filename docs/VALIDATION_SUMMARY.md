@@ -161,7 +161,7 @@ One row per task of [`TODO_CLAUDE_CODE.md`](../TODO_CLAUDE_CODE.md).
   - **Agent hypotheses:** the VSC anomaly agent now has `capacitor_80pct` / `capacitor_70pct` hypotheses, and `Scenario.vsc_capacitor_scale` / `vsc_esr_ohm` simulate the fault.
   - **Result:** AUC 1.0, with the cause named correctly for C ≤ 80 %.
   - **Limit:** synthetic-only; no trained classifier.
-- **A2 (promoted):** PC and RPi5 run the 5-class models with 2048-sample windows (test accuracy 0.90; cage recognized at 100 rad/s). Ball and cage are synthetic-only. The ESP32 keeps its 3-class model.
+- **A2 (promoted):** PC and RPi5 run the 5-class models with 2048-sample windows (test accuracy 0.90; cage recognized at 100 rad/s). Ball and cage are synthetic-only. The ESP32 keeps its 3-class model. **Warning (X4, 2026-10-25):** the promoted ESP32 classifier (`esp32_dscnn/2026-10-18_run01`) has 3 classes while PC and RPi5 have 5. A ball or cage fault on the ESP32 is assigned to one of the 3 known classes, probably with high confidence (ball windows: outer_race at mean calibrated confidence 0.99), and no OOD method catches it (AI-N13). The Model Registry shows this next to the entry, and the run's `audit_findings.json` records it.
 
 ### 7.2 Waiting for your decision (implemented, evidence written, not switched on)
 

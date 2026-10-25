@@ -10,7 +10,7 @@ import pandas as pd
 import streamlit as st
 
 from driveflow.ai.registry import RegistryError, registry_history, rollback
-from driveflow.viz.adapters.registry_adapter import list_runs
+from driveflow.viz.adapters.registry_adapter import class_coverage_warnings, list_runs
 from driveflow.viz.components.artifact_table import artifact_table
 from driveflow.viz.components.metric_cards import check_list, kpi_row
 from driveflow.viz.components.page_header import badge_html, page_header, provenance_table
@@ -38,9 +38,12 @@ def render() -> None:
     f_domain = c1.multiselect("Domain", sorted({r["domain"] for r in ok_rows}), key="reg_f_domain")
     f_tier = c2.multiselect("Platform / tier", sorted({r["tier"] for r in ok_rows}), key="reg_f_tier")
     f_status = c3.multiselect("Status", sorted({r["status"] for r in rows}), key="reg_f_status")
+    coverage = class_coverage_warnings(rows)
     shown = [r for r in rows if (not f_domain or r["domain"] in f_domain) and (not f_tier or r["tier"] in f_tier) and (not f_status or r["status"] in f_status)]
     table = pd.DataFrame([{"run": r.get("run", str(r["run_dir"])), "domain": r["domain"], "tier": r["tier"], "block": r["block"], "status": r["status"], "validation gate": r.get("validation"), "origin": r.get("origin"), "export": r.get("quantization") or "—", "test metric": r.get("headline", r.get("error")), "audit": f"⚠ {len(r['audit_findings'])} finding(s)" if r.get("audit_findings") else "—",
-                           "class limitation": SYNTHETIC_LABEL if any(is_synthetic_class(c) for c in ((r.get("metrics") or {}).get("classes") or [])) else "—"} for r in shown])
+                           "class limitation": "fewer classes than other tiers (AI-N13)" if any(f"({r.get('run')})" in w for w in coverage) else SYNTHETIC_LABEL if any(is_synthetic_class(c) for c in ((r.get("metrics") or {}).get("classes") or [])) else "—"} for r in shown])
+    for warning in coverage:
+        st.warning(f"**Class coverage:** {warning}", icon=":material/warning:")
     left, right = st.columns([1.5, 1], gap="medium")
     with left:
         st.markdown(f"##### Models ({len(shown)})")

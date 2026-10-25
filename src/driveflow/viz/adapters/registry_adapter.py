@@ -111,3 +111,21 @@ def list_runs(registry_path: Path = DEFAULT_REGISTRY_PATH) -> list:
                 "deployment": dep,
             })
     return rows
+
+
+def class_coverage_warnings(rows: list) -> list[str]:
+    """Promoted classifiers with fewer classes than another promoted classifier of the same domain
+    (X4, round PLECS/OM: the ESP32 keeps a 3-class model while PC and RPi5 have 5). A fault of a
+    missing class is answered as one of the known classes, often with high confidence (AI-N13)."""
+    promoted = [r for r in rows if "error" not in r and r["status"].startswith("Promoted") and r["block"] == "classifier"]
+    out = []
+    for r in promoted:
+        classes = set((r["metrics"] or {}).get("classes") or [])
+        wider = [o for o in promoted if o is not r and o["domain"] == r["domain"] and classes < set((o["metrics"] or {}).get("classes") or [])]
+        if wider:
+            missing = sorted(set().union(*[set(o["metrics"]["classes"]) for o in wider]) - classes)
+            out.append(f"{r['domain']}/{r['tier']}/classifier ({r['run']}) has {len(classes)} classes while "
+                       + ", ".join(f"{o['tier']} has {len(o['metrics']['classes'])}" for o in wider)
+                       + f". A {' or '.join(missing)} fault on this tier is assigned to one of its {len(classes)} known classes, "
+                       "probably with high confidence; no OOD method catches it (AI-N13).")
+    return out

@@ -1,6 +1,6 @@
 """TFLite export for a trained keras.Model (docs/design_ai_layer_transversal.md Sec. 4.1/4.2,
 Sec. 8 step 8): float16 for the Raspberry Pi 5 tier ("TFLite float16/int8"), int8 -- calibrated
-against real windows, not random noise -- for the ESP32 tier ("TFLite Micro int8").
+against windows sampled from the training dataset (simulated), not random noise -- for the ESP32 tier ("TFLite Micro int8").
 
 Deliberately narrow: two functions, no auto-selection of which one to call for a given tier (the
 caller, experiments/export_tflite.py, decides that from --tier) -- this module only knows how to
@@ -54,7 +54,7 @@ def export_int8(model: keras.Model, representative_windows: np.ndarray, out_path
     training was) -- calibrating against random noise would give activation ranges that don't
     reflect what the model actually sees, producing a technically-valid but badly-quantized model."""
     if len(representative_windows) == 0:
-        raise ValueError("representative_windows is empty -- int8 calibration needs at least one real window")
+        raise ValueError("representative_windows is empty -- int8 calibration needs at least one dataset window")
     saved_path = _export_saved_model(model)
     sample = representative_windows[:n_calibration_samples]
 
