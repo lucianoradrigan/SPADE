@@ -88,3 +88,31 @@ This is an error of the pre-registration's set-up, not of the FMU. It is reporte
 | **BuckAveraged** | **GO.** Continue B4–B7 with it: the `SPADE/BuckFmu-v0` environment and the GUI engine "OpenModelica FMU" |
 | **DcMotorAveraged** | Formally NO-GO (criterion 4), and the cause is the native plant's Euler step. Options: **(a)** leave it out of B4 (it stays NO-GO); **(b)** you accept it as GO with this explanation. With (b), the FMU would be a more accurate DC-motor plant than the native one, and the native plant is not changed |
 | **BuckSwitching, DcMotorSwitching** | **NO-GO** (S-15). Not published as Gym environments. A next step would need your decision, for example another OpenModelica version or a fixed-step solver, and it would be a new round |
+
+## Post-hoc analysis (not pre-registered) — added 2026-10-25
+
+This section was written after the verdicts above, at the user's request (decision G2, 2026-10-25). It uses only numbers already measured in this report and in `b3_om_fmu_spike.json`; nothing was re-run for it.
+
+**This section does not change the pre-registered verdict.**
+
+**Formal verdict.** DcMotorAveraged stays **NO-GO** under pre-registered criterion 4: i_a NRMS 2.6 % against a 1 % limit (omega 0.11 %, within the limit).
+
+**Diagnosis: the reference of criterion 4 was not a converged solution.**
+- Criterion 4 compares the FMU with the native plant `dc_perm_ex_v1`. That plant integrates with one forward-Euler step per τ = 100 µs.
+- Its armature time constant is τ_a = L_a / R_a ≈ 1.19 ms, so h / τ_a ≈ 0.084. One Euler step per τ resolves the current transient after each duty step, and after each converter-branch change, only to a few percent.
+- The numbers already measured:
+
+| Comparison | omega NRMS | i_a NRMS | Source |
+|---|---|---|---|
+| FMU vs native integrated with Euler × 100 | 2.6e-06 | 2.0e-05 | § Criterion 4, post-hoc diagnostic |
+| Native Euler × 1 vs native Euler × 100 | 1.12e-03 | 2.63e-02 | same |
+| FMU vs GEM 3.0.3 (RK45, 1e-10), with the voltage GEM actually applied (post hoc) | 8.7e-07 | 4.9e-07 | § DcMotorAveraged vs GEM |
+
+- Against GEM, the FMU agrees to 1e-6 once it receives the voltage GEM applied. The original 27 % (omega) and 13 % (i_a) discrepancy came from the u ≥ 0 clamp of GEM's converter (it applied 0 V where the pre-registered driver gave −168 V), not from the physics.
+- GEM's own Euler reference uses the same discretization as the native plant; the 1e-6 agreement above is with GEM's RK45 trajectory, which is the converged one.
+
+**Conclusion.** The 2.6 % disagreement measures the discretization error of the reference (the native plant), not a defect of the FMU. The FMU is closer to the continuous solution than the native plant is. This is finding S-16 (`docs/SIMULATION_STABILITY_REPORT.md`); its impact on diagnosis is studied in R2.
+
+**Permitted use (decision G2).** DcMotorAveraged may be used only as a high-fidelity reference in studies (for example R2). It is not registered as an environment (`SPADE/OmDcMotor-v0` is not created) and is not published in Plant Studio in this round.
+
+**Process lesson (G7).** Numerical-agreement GO/NO-GO criteria must be measured against a converged reference solution (fine solver with demonstrated convergence), not against another discretization. Recorded as an addendum to `b3_preregistration.md`.

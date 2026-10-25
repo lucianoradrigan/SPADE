@@ -501,5 +501,41 @@
         0.0
       ]
     }
+  },
+  "post_hoc": {
+    "added": "2026-10-25",
+    "pre_registered": false,
+    "statement": "This section does not change the pre-registered verdict.",
+    "model": "DcMotorAveraged",
+    "verdict_unchanged": "NO-GO",
+    "failed_criterion": 4,
+    "criterion_4_nrms": {
+      "i_a": 0.026,
+      "omega": 0.00112,
+      "limit": 0.01
+    },
+    "diagnosis": "The criterion-4 reference (native dc_perm_ex_v1, one forward-Euler step per tau = 100 us, tau_a = L_a/R_a ~= 1.19 ms, h/tau_a ~= 0.084) is not a converged solution.",
+    "evidence_nrms": {
+      "fmu_vs_native_euler100": {
+        "omega": 2.5596635133631924e-06,
+        "i_a": 2.0039705848998735e-05
+      },
+      "native_euler1_vs_euler100": {
+        "omega": 0.0011175547381236052,
+        "i_a": 0.026286881679525406
+      },
+      "fmu_vs_gem_rk45_applied_voltage": {
+        "omega": 8.685877758602058e-07,
+        "i_a": 4.885511923290072e-07
+      },
+      "fmu_vs_gem_as_preregistered": {
+        "omega": 0.2746230386462544,
+        "i_a": 0.1294145732637584
+      },
+      "gem_discrepancy_cause": "GEM ContTwoQuadrantConverter clamps u >= 0 (0 V applied where the driver gave -168 V)"
+    },
+    "conclusion": "The disagreement reflects the reference's discretization error, not an FMU defect; the FMU is closer to the continuous solution than the native plant (S-16).",
+    "permitted_use": "G2: high-fidelity reference in studies only (e.g. R2); not registered as an environment (no SPADE/OmDcMotor-v0) and not published in Plant Studio this round.",
+    "process_lesson_G7": "Numerical-agreement GO/NO-GO criteria must be measured against a converged reference solution (fine solver with demonstrated convergence), not against another discretization."
   }
 }

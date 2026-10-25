@@ -1,0 +1,43 @@
+# Round 2 baseline, 2026-10-25T12:24:18-03:00
+# dev=7f73679 origin/dev=7f73679 main=2988153
+# cmd: PYTHONPATH=src .venv/bin/python -m pytest -q
+tests/envs/test_native_envs.py::test_check_env_passes[SPADE/DcMotor-v0]
+tests/envs/test_native_envs.py::test_check_env_passes[SPADE/Vsc-v0]
+tests/envs/test_native_envs.py::test_check_env_passes[SPADE/Buck-v0]
+tests/envs/test_native_envs.py::test_check_env_passes[SPADE/Pmsm-v0]
+tests/envs/test_surrogate_env.py::test_registered_and_contract
+  /home/seven/post_doc/plataform_proposed/SPADE-dev/.venv/lib/python3.12/site-packages/gymnasium/utils/env_checker.py:372: UserWarning: [33mWARN: A Box observation space minimum value is -infinity. This is probably too low.[0m
+    logger.warn(
+
+tests/envs/test_native_envs.py::test_check_env_passes[SPADE/DcMotor-v0]
+tests/envs/test_native_envs.py::test_check_env_passes[SPADE/Vsc-v0]
+tests/envs/test_native_envs.py::test_check_env_passes[SPADE/Buck-v0]
+tests/envs/test_native_envs.py::test_check_env_passes[SPADE/Pmsm-v0]
+tests/envs/test_surrogate_env.py::test_registered_and_contract
+  /home/seven/post_doc/plataform_proposed/SPADE-dev/.venv/lib/python3.12/site-packages/gymnasium/utils/env_checker.py:376: UserWarning: [33mWARN: A Box observation space maximum value is infinity. This is probably too high.[0m
+    logger.warn(
+
+tests/envs/test_native_envs.py::test_check_env_passes[SPADE/Vsc-v0]
+  /home/seven/post_doc/plataform_proposed/SPADE-dev/.venv/lib/python3.12/site-packages/gymnasium/utils/env_checker.py:394: UserWarning: [33mWARN: For Box action spaces, we recommend using a symmetric and normalized space (range=[-1, 1] or [0, 1]). See https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html for more information.[0m
+    logger.warn(
+
+tests/test_ai_training_gui.py::TestTrainTab::test_train_then_evaluate_the_candidate
+  /home/seven/post_doc/plataform_proposed/SPADE-dev/.venv/lib/python3.12/site-packages/keras/src/models/functional.py:259: UserWarning: The structure of `inputs` doesn't match the expected structure.
+  Expected: ['input']
+  Received: inputs=Tensor(shape=(12, 512, 6))
+    warnings.warn(msg)
+
+tests/test_ball_cage_labelling.py::test_model_registry_shows_the_limitation_for_every_ball_cage_run
+tests/test_edge_benchmark_kit.py::test_rpi5_benchmark_runs_on_host_and_reports_the_fallback
+tests/test_tflite_export.py::TestExportFloat16::test_produces_a_loadable_tflite_model
+tests/test_tflite_export.py::TestExportFloat16::test_matches_keras_output_reasonably
+tests/test_tflite_export.py::TestExportInt8::test_produces_an_int8_quantized_model
+  /home/seven/post_doc/plataform_proposed/SPADE-dev/.venv/lib/python3.12/site-packages/tensorflow/lite/python/interpreter.py:457: UserWarning:     Warning: tf.lite.Interpreter is deprecated and is scheduled for deletion in
+      TF 2.20. Please use the LiteRT interpreter from the ai_edge_litert package.
+      See the [migration guide](https://ai.google.dev/edge/litert/migration)
+      for details.
+      
+    warnings.warn(_INTERPRETER_DELETION_WARNING)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1215 passed, 8 xfailed, 473 warnings in 984.50s (0:16:24)

@@ -73,3 +73,7 @@ This finding is registered as **S-15** in B1. B3 evaluates the FMUs exactly as `
 - script `experiments/report_b3_om_fmu_spike.py`;
 - results `docs/audit/plecs_om/b3_om_fmu_spike.{md,json}`;
 - figures native vs FMU under `docs/audit/plecs_om/b3_figures/`.
+
+## Addendum, 2026-10-25 (after B3; the criteria above are unchanged)
+
+Process lesson G7, decided by the user after B3: numerical-agreement GO/NO-GO criteria must be measured against a converged reference solution (fine solver with demonstrated convergence), not against another discretization. Criterion 4 above compared the FMU with the native single-step Euler plant, which is not converged for the DC motor (S-16; `b3_om_fmu_spike.md`, "Post-hoc analysis"). The rule applies to criteria registered from now on; B3's verdicts are not re-evaluated.
