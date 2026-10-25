@@ -28,35 +28,39 @@ def _step(n: int, title: str):
 
 def _setup() -> dict:
     with _step(1, "Select system"):
-        c1, c2 = st.columns(2)
-        c1.selectbox("Plant", ["DC motor (native:dc_perm_ex_v1)"], key="tun_plant", help="Other plants: not available in this version.")
-        c2.selectbox("Controller", ["PI cascade — speed loop (PICascadeController)"], key="tun_ctrl", help="MPC, DPC and the buck PI: not available in this version.")
-        st.caption("First case: S-04, the ≈15 % overshoot of the PI on small speed steps. The current loop is not tuned.")
+        options = ta.available_systems()
+        key = st.selectbox("Plant and controller", list(options), format_func=options.get, key="tun_system",
+                           help="Listed by capability: the DC-motor speed loop, and the buck PI on every available environment whose reference controller is that PI.")
+        sysm = ta.get_system(key)
+        st.caption(f"Controller: {sysm.controller_label}. " + ("First case: S-04, the ≈15 % overshoot of the PI on small speed steps. The current loop is not tuned."
+                                                             if key == "dc_motor_pi" else (sysm.note or "")))
         g1, g2 = st.columns(2)
         with g1:
             st.markdown("Tuning grid (seen by the optimizer)")
-            st.dataframe(ta.grid_table(ob.TUNING_GRID), hide_index=True, width="stretch")
+            st.dataframe(ta.grid_table(sysm.tuning_grid), hide_index=True, width="stretch")
         with g2:
             st.markdown("Evaluation grid (fixed before tuning, never optimized on)")
-            st.dataframe(ta.grid_table(ob.EVALUATION_GRID), hide_index=True, width="stretch")
-        if ob.grids_overlap():
+            st.dataframe(ta.grid_table(sysm.evaluation_grid), hide_index=True, width="stretch")
+        if sysm.grids_overlap():
             st.warning(ob.REUSED_WARNING, icon=":material/warning:")
     with _step(2, "Search space"):
         bounds = []
-        cols = st.columns(len(ob.PARAMS))
-        for col, p, (lo, hi) in zip(cols, ob.PARAMS, ob.BOUNDS):
+        cols = st.columns(len(sysm.params))
+        for col, p, (lo, hi) in zip(cols, sysm.params, sysm.bounds):
             label, unit = ta.PARAM_LABELS[p]
-            r = col.slider(f"{label} ({unit})", float(lo), float(hi), (float(lo), float(hi)), key=f"tun_b_{p}")
+            r = col.slider(f"{label} ({unit})", float(lo), float(hi), (float(lo), float(hi)), key=f"tun_b_{p}" if key == "dc_motor_pi" else f"tun_b_{key}_{p}")
             bounds.append(list(r))
-            col.caption(f"Baseline {ob.BASELINE[p]:g}")
+            col.caption(f"Baseline {sysm.baseline[p]:g}")
     with _step(3, "Objectives & method"):
-        method = st.radio("Method", list(ta.METHOD_LABELS), format_func=ta.METHOD_LABELS.get, horizontal=True, key="tun_method")
+        methods = [m for m in ta.METHOD_LABELS if m in sysm.methods]
+        method = st.radio("Method", methods, format_func=ta.METHOD_LABELS.get, horizontal=True, key="tun_method" if key == "dc_motor_pi" else f"tun_method_{key}")
         c1, c2 = st.columns(2)
-        evals = c1.slider("Budget (objective evaluations)", 8, 200, 48, 8, key="tun_evals", help="Each evaluation simulates the tuning grid (≈0.4 s of CPU).")
+        evals = c1.slider("Budget (objective evaluations)", 8, 200, 48 if key == "dc_motor_pi" else 24, 8, key="tun_evals" if key == "dc_motor_pi" else f"tun_evals_{key}",
+                          help="Each evaluation simulates the tuning grid.")
         seed = c2.number_input("Seed", 0, 2**31 - 1, 0, key="tun_seed")
-        st.caption("Scalar objective (PSO, Bayesian): J = mean overshoot % + 0.1 × mean settling time (ms) + 2 × mean load-step dip (rad/s). "
-                   "NSGA-II keeps the three terms as separate objectives. Lower is better.")
-    return {"method": method, "bounds": bounds, "evaluations": int(evals), "seed": int(seed)}
+        st.caption(("Scalar objective (PSO, Bayesian): " + sysm.objective_text + ". NSGA-II keeps the three terms as separate objectives. Lower is better.")
+                   if key == "dc_motor_pi" else "Scalar objective: " + sysm.objective_text)
+    return {"method": method, "bounds": bounds, "evaluations": int(evals), "seed": int(seed), "system": key}
 
 
 def _execute(cfg: dict) -> None:
@@ -67,7 +71,7 @@ def _execute(cfg: dict) -> None:
         if not ja.live_workers():
             st.caption(":material/warning: No worker is running: the job will wait in the queue (Experiment Runs → Start local worker).")
         if st.button("Start tuning", type="primary", key="tun_start", icon=":material/play_arrow:"):
-            job = ta.submit(cfg["method"], cfg["bounds"], cfg["evaluations"], cfg["seed"])
+            job = ta.submit(cfg["method"], cfg["bounds"], cfg["evaluations"], cfg["seed"], cfg["system"])
             st.success(f"Queued as job `{job.job_id}`.", icon=":material/schedule:")
         for j in ta.active_jobs():
             st.caption(f":material/schedule: Job `{j['job_id']}`: {j['state']}" + (f" ({j['done']}/{j['total']})" if j["total"] else ""))
@@ -96,6 +100,9 @@ def _review() -> None:
             style_figure(fig, height=300, x_title="Objective evaluations", y_title="J on the tuning grid")
             st.plotly_chart(fig, width="stretch", config=PLOTLY_CONFIG, key=f"tun_hist_{run.run_id}")
         candidates = rep["candidates"]
+        sysm_run = ta.get_system(ta.run_system_key(rep)) if ta.run_system_key(rep) in ta.available_systems() else None
+        params = sysm_run.params if sysm_run else list(candidates[0]["params"])
+        st.caption(f"System: {rep.get('subject', ta.SUBJECT)}.")
         sel_idx = 0
         with c2:
             if run.metrics.get("method") == "nsga2" and "overshoot %" in hist:
@@ -113,7 +120,7 @@ def _review() -> None:
                                        format_func=lambda k: f"{candidates[k]['label']}: overshoot {candidates[k]['objectives'][0]:.1f} %, settling {candidates[k]['objectives'][1]:.0f} ms, dip {candidates[k]['objectives'][2]:.2f} rad/s")
             else:
                 st.markdown("##### Best candidate")
-                st.dataframe(pd.DataFrame([{"Parameter": ta.PARAM_LABELS[p][0], "Baseline": ob.BASELINE[p], "Candidate": candidates[0]["params"][p]} for p in ob.PARAMS]),
+                st.dataframe(pd.DataFrame([{"Parameter": ta.PARAM_LABELS[p][0], "Baseline": rep["baseline"]["params"][p], "Candidate": candidates[0]["params"][p]} for p in params]),
                              hide_index=True, width="stretch")
         cand = candidates[sel_idx]
         st.markdown("##### Baseline vs. candidate on the evaluation grid")
@@ -124,7 +131,10 @@ def _review() -> None:
                                                f"({'better' if better else 'not better'}; tuning-grid J {rep['baseline']['tuning']['J']:.2f} → {cand['tuning']['J']:.2f}).",
                                                icon=":material/compare_arrows:")
         st.dataframe(ta.comparison_table(rep, cand), hide_index=True, width="stretch")
-        st.caption("The objective has no control-effort or noise term: a faster speed loop always lowers the load dip. Check the current and voltage margins before using any candidate.")
+        if ta.run_system_key(rep) == "dc_motor_pi":
+            st.caption("The objective has no control-effort or noise term: a faster speed loop always lowers the load dip. Check the current and voltage margins before using any candidate.")
+        else:
+            st.caption("The objective has no load-step or noise term; check the peak current before using any candidate.")
         c1, c2 = st.columns(2)
         if c1.button("Save candidate", key=f"tun_save_{run.run_id}_{sel_idx}", icon=":material/bookmark:"):
             art = ta.save_candidate(run, cand)
@@ -132,7 +142,7 @@ def _review() -> None:
         with c2:
             st.markdown("**Use as default**")
             gate = ta.gate_report(rep, cand)
-            approval_gate(ta.SUBJECT, run.run_id, gate, lambda who, decision: ta.record_decision(run, cand, gate, who, decision), key=f"tun_gate_{run.run_id}")
+            approval_gate(rep.get("subject", ta.SUBJECT), run.run_id, gate, lambda who, decision: ta.record_decision(run, cand, gate, who, decision), key=f"tun_gate_{run.run_id}")
         provenance_table({"Run ID": run.run_id, "Method": run.metrics.get("method"), "Seed": run.seed, "Evaluations": run.metrics.get("n_evaluations"),
                           "Configuration hash": run.config_hash, "Reproduce": run.command, "Status": rep["status"]})
 

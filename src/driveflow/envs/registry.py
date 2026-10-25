@@ -182,6 +182,25 @@ def register_all() -> list[str]:
     return list(ENVIRONMENTS)
 
 
+#: reference controller (EnvSpec.baseline_controller) -> what RL Lab and Tuning Studio can do with an
+#: environment that exposes that controller's plant interface (B6: listed by capability, not by name)
+_CAPABILITY_BY_BASELINE = {"control.classical.buck_pi.BuckVoltageController": "buck", "control.dpc.controller.ScheduledDpcController": "vsc"}
+
+
+def rl_kind(env_id: str) -> str | None:
+    """"buck" or "vsc" when the RL job can train on and benchmark this environment (its reference
+    controller is supported by control.rl.benchmark), else None."""
+    spec = ENVIRONMENTS.get(env_id)
+    return None if spec is None else _CAPABILITY_BY_BASELINE.get(spec.baseline_controller)
+
+
+def rl_env_ids() -> list[str]:
+    """Registered, available environments with an RL capability."""
+    register_all()
+    order = {"buck": 0, "vsc": 1}  # buck plants first, as RL Lab has always listed them
+    return sorted((e for e in ENVIRONMENTS if rl_kind(e) and is_registered(e)), key=lambda e: order[rl_kind(e)])
+
+
 def is_registered(env_id: str) -> bool:
     return env_id in ENVIRONMENTS and env_id in gym.registry
 

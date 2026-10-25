@@ -11,7 +11,6 @@ import pandas as pd
 import driveflow.envs  # noqa: F401 -- registers SPADE/*
 from driveflow.control.rl import benchmark as bm
 from driveflow.envs import registry
-from driveflow.jobs.handlers import RL_ENVS
 from driveflow.jobs.schemas import JobState
 from driveflow.jobs.service import JobService
 from driveflow.runs.schemas import ApprovalRecord, ExperimentSpec, Run, SpadeError, new_id, utc_now
@@ -21,19 +20,20 @@ NOT_AUTHORIZED = "Using an RL policy as a default is not authorized (decision D4
 
 
 def env_ids() -> list[str]:
-    """Environments the RL job supports AND that are registered in this build."""
-    return [e for e in RL_ENVS if registry.is_registered(e)]
+    """Environments with an RL capability that are registered and available here (B6: by
+    capability, not by name)."""
+    return registry.rl_env_ids()
 
 
 def baseline_name(env_id: str) -> str:
-    return "PI (BuckVoltageController)" if RL_ENVS[env_id] == "buck" else "DPC v4"
+    return "PI (BuckVoltageController)" if registry.rl_kind(env_id) == "buck" else "DPC v4"
 
 
 def preview_baseline(env_id: str, terms: list[dict]) -> dict:
     """One executed episode of the plant's classical controller under these reward terms (the
     'Preview on baseline episode'): total reward and the per-term sums."""
     env = gym.make(env_id, reward_terms=terms)
-    make = bm.buck_pi if RL_ENVS[env_id] == "buck" else (lambda e: bm.vsc_dpc(e, "v4"))
+    make = bm.buck_pi if registry.rl_kind(env_id) == "buck" else (lambda e: bm.vsc_dpc(e, "v4"))
     obs, _ = env.reset(seed=0)
     act = make(env.unwrapped)
     total, sums, n, reason = 0.0, {}, 0, None

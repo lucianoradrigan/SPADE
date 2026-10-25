@@ -268,7 +268,28 @@ class _Cancelled(Exception):
 
 def _validate_tuning(spec: ExperimentSpec) -> None:
     from driveflow.optim import objectives as ob
+    from driveflow.optim import systems
 
+    key = spec.params.get("system", systems.DC_MOTOR)
+    if key != systems.DC_MOTOR:
+        try:
+            system = systems.get(key)
+        except KeyError as exc:
+            raise SpadeError(ErrorCode.INVALID_SPEC, str(exc)) from None
+        if spec.algorithm not in system.methods:
+            raise SpadeError(ErrorCode.INVALID_SPEC, f"{key} supports {system.methods}, got {spec.algorithm!r}")
+        if spec.seed is None:
+            raise SpadeError(ErrorCode.INVALID_SPEC, "controller_tuning needs a seed")
+        try:
+            b = [[float(lo), float(hi)] for lo, hi in spec.params.get("bounds")]
+        except (TypeError, ValueError):
+            raise SpadeError(ErrorCode.INVALID_SPEC, f"bounds must be {len(system.params)} [low, high] pairs") from None
+        if len(b) != len(system.params) or not all(alo <= lo < hi <= ahi for (lo, hi), (alo, ahi) in zip(b, system.bounds)):
+            raise SpadeError(ErrorCode.INVALID_SPEC, f"bounds must be {len(system.params)} pairs inside {system.bounds} with low < high")
+        budget = (spec.budget or {}).get("evaluations")
+        if not (isinstance(budget, int) and 4 <= budget <= 500):
+            raise SpadeError(ErrorCode.INVALID_SPEC, "budget.evaluations must be an int in [4, 500]")
+        return
     if spec.algorithm not in TUNING_METHODS:
         raise SpadeError(ErrorCode.INVALID_SPEC, f"controller_tuning needs algorithm in {TUNING_METHODS}, got {spec.algorithm!r}")
     if spec.seed is None:
@@ -290,10 +311,70 @@ def _validate_tuning(spec: ExperimentSpec) -> None:
         raise SpadeError(ErrorCode.INVALID_SPEC, f"objective must be one of {sorted(ob.OBJECTIVES)}")
 
 
+def _tune_system(ctx: JobContext, system) -> HandlerResult:
+    """controller_tuning for a TuningSystem other than the DC motor (B6: the buck PI on a Gym
+    environment). Same report layout as the DC-motor case."""
+    import json
+
+    from driveflow.optim.bayes import bayes_opt
+    from driveflow.optim.pso import pso
+
+    spec = ctx.spec
+    bounds = [[float(lo), float(hi)] for lo, hi in spec.params["bounds"]]
+    n_eval, seed, method = int(spec.budget["evaluations"]), int(spec.seed), spec.algorithm
+    conditions = []
+
+    def as_kwargs(x):
+        return dict(zip(system.params, map(float, x)))
+
+    def callback(i, x, fx):
+        f = float(np.atleast_1d(fx)[0])
+        conditions.append({"index": i - 1, "condition": as_kwargs(x), "status": "ok" if math.isfinite(f) else "failed", "metrics": {"objective": [f]},
+                           **({} if math.isfinite(f) else {"error": "an episode terminated or became non-finite"})})
+        ctx.progress(i, n_eval, f"evaluation {i}/{n_eval}")
+        if ctx.cancel_requested():
+            raise _Cancelled
+
+    try:
+        if method == "pso":
+            n_part = max(4, min(16, n_eval // 4))
+            res = pso(system.scalar_objective, bounds, n_particles=n_part, iterations=max(1, n_eval // n_part), seed=seed, callback=callback)
+        else:
+            n_init = max(4, n_eval // 4)
+            res = bayes_opt(system.scalar_objective, bounds, n_init=n_init, iterations=n_eval - n_init, seed=seed, callback=callback)
+    except _Cancelled:
+        conditions.append({"index": len(conditions), "condition": {}, "status": "skipped", "error": "Cancelled before the remaining evaluations."})
+        return HandlerResult(conditions=conditions, metrics={"method": method, "n_evaluations": len(conditions) - 1, "system": system.key})
+    best = as_kwargs(res.x_best)
+    ctx.log(f"{method} on {system.key}: {len(conditions)} evaluations; evaluating baseline and candidate on the evaluation grid")
+    base_tune, _ = system.evaluate(system.baseline, system.tuning_grid)
+    base_eval, base_rows = system.evaluate(system.baseline, system.evaluation_grid)
+    cand_tune, _ = system.evaluate(best, system.tuning_grid)
+    cand_eval, cand_rows = system.evaluate(best, system.evaluation_grid)
+    history = {"method": method, "seed": seed, "bounds": bounds, "params": list(system.params), "system": system.key,
+               "X": [list(map(float, c["condition"].values())) for c in conditions if c["status"] != "skipped"],
+               "objective": [c["metrics"]["objective"] for c in conditions if c["status"] != "skipped"]}
+    ctx.write_artifact("tuning_history.json", json.dumps(history).encode())
+    report = {"system": system.key, "subject": system.subject,
+              "baseline": {"params": system.baseline, "tuning": base_tune, "evaluation": base_eval, "evaluation_rows": base_rows},
+              "candidates": [{"label": "best", "params": best, "tuning": cand_tune, "evaluation": cand_eval, "evaluation_rows": cand_rows}],
+              "tuning_grid": [c.name for c in system.tuning_grid], "evaluation_grid": [c.name for c in system.evaluation_grid],
+              "evaluation_reused_tuning_conditions": system.grids_overlap(), "objective": system.objective_text, "objective_name": "J",
+              "status": "candidate -- no default changed"}
+    ctx.write_artifact("tuning_report.json", json.dumps(report, default=float).encode())
+    metrics = {"method": method, "system": system.key, "n_evaluations": len(conditions), "baseline_J_tuning": base_tune["J"], "baseline_J_evaluation": base_eval["J"],
+               "best_J_tuning": cand_tune["J"], "best_J_evaluation": cand_eval["J"], "best_params": best, "n_candidates": 1}
+    return HandlerResult(conditions=conditions, metrics=metrics, origin="SIMULATED · OPENMODELICA" if "OPENMODELICA" in system.plant_label else "SIMULATED")
+
+
 def controller_tuning(ctx: JobContext) -> HandlerResult:
     import json
 
     from driveflow.optim import objectives as ob
+    from driveflow.optim import systems
+
+    if ctx.spec.params.get("system", systems.DC_MOTOR) != systems.DC_MOTOR:
+        return _tune_system(ctx, systems.get(ctx.spec.params["system"]))
     from driveflow.optim.bayes import bayes_opt
     from driveflow.optim.multiobjective import nsga2
     from driveflow.optim.pso import pso
@@ -363,22 +444,28 @@ def controller_tuning(ctx: JobContext) -> HandlerResult:
 
 
 # --------------------------------------------------------------------------- rl_training
-RL_ENVS = {"SPADE/Buck-v0": "buck", "SPADE/BuckSurrogate-v0": "buck", "SPADE/Vsc-v0": "vsc"}
+def _rl_kind(env_id) -> str | None:
+    """B6: the environments RL can use are found by capability (envs.registry.rl_kind)."""
+    from driveflow.envs import registry
+
+    registry.register_all()
+    return registry.rl_kind(env_id) if registry.is_registered(env_id) else None
 
 
 def _validate_rl(spec: ExperimentSpec) -> None:
     from driveflow.envs import reward as rw
+    from driveflow.envs import registry
 
     p = spec.params
-    if p.get("env_id") not in RL_ENVS:
-        raise SpadeError(ErrorCode.INVALID_SPEC, f"rl_training supports {sorted(RL_ENVS)}, got {p.get('env_id')!r}")
+    if _rl_kind(p.get("env_id")) is None:
+        raise SpadeError(ErrorCode.INVALID_SPEC, f"rl_training supports {registry.rl_env_ids()}, got {p.get('env_id')!r}")
     if spec.algorithm not in ("dqn", "ddpg"):
         raise SpadeError(ErrorCode.INVALID_SPEC, f"rl_training needs algorithm 'dqn' or 'ddpg', got {spec.algorithm!r}")
     if spec.algorithm == "dqn":
         n = p.get("discrete_levels")
         if not (isinstance(n, int) and 2 <= n <= 41):
             raise SpadeError(ErrorCode.INVALID_SPEC, "DQN on a continuous action space needs discrete_levels (2..41 per action dimension)")
-        if RL_ENVS[p["env_id"]] == "vsc" and n > 11:
+        if _rl_kind(p["env_id"]) == "vsc" and n > 11:
             raise SpadeError(ErrorCode.INVALID_SPEC, "the VSC action is 2-D: at most 11 levels per axis (121 actions)")
     if spec.seed is None:
         raise SpadeError(ErrorCode.INVALID_SPEC, "rl_training needs a seed")
@@ -444,11 +531,11 @@ def rl_training(ctx: JobContext) -> HandlerResult:
     ctx.write_artifact("history.json", h.to_json().encode())
     # benchmark on the plant's grid, same env (limits, timestep, reward terms) for every controller
     pc = PolicyController(policy)
-    kind = RL_ENVS[p["env_id"]]
+    kind = _rl_kind(p["env_id"])
     controllers = {f"RL ({spec.algorithm.upper()})": (lambda e: pc.control)}
     if kind == "buck":
         controllers["PI (BuckVoltageController)"] = bm.buck_pi
-        grid = bm.BUCK_GRID
+        grid = bm.buck_grid(u)
     else:
         controllers["DPC v3"] = lambda e: bm.vsc_dpc(e, "v3")
         controllers["DPC v4"] = lambda e: bm.vsc_dpc(e, "v4")
@@ -463,7 +550,11 @@ def rl_training(ctx: JobContext) -> HandlerResult:
                "rl_mean_reward_grid": s[rl_name]["mean_reward"], "rl_median_tracking_rmse": s[rl_name]["median_tracking_rmse"], "rl_terminated": s[rl_name]["n_terminated"],
                "baselines": {k: v for k, v in s.items() if k != rl_name}}
     env.close()
-    return HandlerResult(conditions=conditions, metrics=metrics)
+    from driveflow.envs import registry
+    from driveflow.runs.schemas import ORIGINS
+
+    source = registry.ENVIRONMENTS[p["env_id"]].source  # e.g. SIMULATED · OPENMODELICA for an FMU plant (B6)
+    return HandlerResult(conditions=conditions, metrics=metrics, origin=source if source in ORIGINS else "SIMULATED")
 
 
 # --------------------------------------------------------------------------- surrogate_fit

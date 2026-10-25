@@ -29,6 +29,16 @@ BUCK_GRID = (
     {"vout_ref_v": 30.0, "load_resistance_ohm": 8.0, "load_step_ohm": 16.0},
     {"vout_ref_v": 18.0, "load_resistance_ohm": 20.0, "load_step_ohm": 10.0},
 )
+#: BUCK_GRID without the load step, for buck environments whose load is fixed per episode
+#: (SPADE/OmBuck-v0: the FMU's R is a parameter set at reset; task B6)
+BUCK_GRID_NO_STEP = tuple({k: v for k, v in c.items() if k != "load_step_ohm"} for c in BUCK_GRID)
+
+
+def buck_grid(env) -> tuple:
+    """BUCK_GRID, or BUCK_GRID_NO_STEP when the environment declares no load step."""
+    return BUCK_GRID if env.unwrapped.metadata.get("supports_load_step", True) else BUCK_GRID_NO_STEP
+
+
 VSC_GRID = tuple({"reference_magnitude_v": 50.0, "load_resistance_ohm": r, "phase0_rad": 0.0} for r in (4.0, 5.0, 8.0064, 10.0, 15.0, 20.0))
 
 

@@ -1,0 +1,441 @@
+{
+  "command": "python experiments/report_b6_rl_on_fmu.py ",
+  "host": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "python": "3.12.13",
+  "workspace": "temporary (not kept)",
+  "environments_by_capability": {
+    "rl": [
+      "SPADE/Buck-v0",
+      "SPADE/BuckSurrogate-v0",
+      "SPADE/OmBuck-v0",
+      "SPADE/Vsc-v0"
+    ],
+    "tuning": [
+      "dc_motor_pi",
+      "buck_pi:SPADE/Buck-v0",
+      "buck_pi:SPADE/BuckSurrogate-v0",
+      "buck_pi:SPADE/OmBuck-v0"
+    ]
+  },
+  "rl_job": {
+    "job_state": "completed",
+    "run_id": "run-20261025T162826-8e7e178f",
+    "origin": "SIMULATED \u00b7 OPENMODELICA",
+    "wall_s": 289.2,
+    "grid": [
+      {
+        "vout_ref_v": 24.0,
+        "load_resistance_ohm": 6.0
+      },
+      {
+        "vout_ref_v": 12.0,
+        "load_resistance_ohm": 12.0
+      },
+      {
+        "vout_ref_v": 30.0,
+        "load_resistance_ohm": 8.0
+      },
+      {
+        "vout_ref_v": 18.0,
+        "load_resistance_ohm": 20.0
+      }
+    ],
+    "summary": {
+      "RL (DDPG)": {
+        "mean_reward": -7.018507331391795,
+        "n_conditions": 4,
+        "n_terminated": 0,
+        "median_tracking_rmse": 2.979665685384634
+      },
+      "PI (BuckVoltageController)": {
+        "mean_reward": -5.013961849948645,
+        "n_conditions": 4,
+        "n_terminated": 0,
+        "median_tracking_rmse": 0.0002763481332464297
+      }
+    }
+  },
+  "transfer_differences": {
+    "RL (DDPG)": {
+      "max_abs_reward_diff": 8.535132172404758e-05,
+      "max_rel_reward_diff": 6.250813984452747e-06
+    },
+    "PI (BuckVoltageController)": {
+      "max_abs_reward_diff": 0.0001784154036776897,
+      "max_rel_reward_diff": 9.550019060863612e-05
+    }
+  },
+  "transfer": {
+    "grid": [
+      {
+        "vout_ref_v": 24.0,
+        "load_resistance_ohm": 6.0
+      },
+      {
+        "vout_ref_v": 12.0,
+        "load_resistance_ohm": 12.0
+      },
+      {
+        "vout_ref_v": 30.0,
+        "load_resistance_ohm": 8.0
+      },
+      {
+        "vout_ref_v": 18.0,
+        "load_resistance_ohm": 20.0
+      }
+    ],
+    "SPADE/OmBuck-v0": {
+      "RL (DDPG)": {
+        "mean_reward": -7.018507331391795,
+        "n_conditions": 4,
+        "n_terminated": 0,
+        "median_tracking_rmse": 2.979665685384634
+      },
+      "PI (BuckVoltageController)": {
+        "mean_reward": -5.013961849948645,
+        "n_conditions": 4,
+        "n_terminated": 0,
+        "median_tracking_rmse": 0.0002763481332464297
+      }
+    },
+    "SPADE/Buck-v0": {
+      "RL (DDPG)": {
+        "mean_reward": -7.018512771604307,
+        "n_conditions": 4,
+        "n_terminated": 0,
+        "median_tracking_rmse": 2.9796656823802747
+      },
+      "PI (BuckVoltageController)": {
+        "mean_reward": -5.013881362546366,
+        "n_conditions": 4,
+        "n_terminated": 0,
+        "median_tracking_rmse": 0.0002762666529573962
+      }
+    },
+    "rows": {
+      "SPADE/OmBuck-v0": {
+        "RL (DDPG)": [
+          {
+            "options": {
+              "vout_ref_v": 24.0,
+              "load_resistance_ohm": 6.0
+            },
+            "reward": -8.609465267113608,
+            "tracking_rmse_second_half": 3.8621708935048824,
+            "peak_current": 12.6689022096345,
+            "termination": null
+          },
+          {
+            "options": {
+              "vout_ref_v": 12.0,
+              "load_resistance_ohm": 12.0
+            },
+            "reward": -1.3821940826826984,
+            "tracking_rmse_second_half": 1.5039656353482795,
+            "peak_current": 8.500172142618913,
+            "termination": null
+          },
+          {
+            "options": {
+              "vout_ref_v": 30.0,
+              "load_resistance_ohm": 8.0
+            },
+            "reward": -15.113952638884545,
+            "tracking_rmse_second_half": 4.396036315986271,
+            "peak_current": 14.407567600932937,
+            "termination": null
+          },
+          {
+            "options": {
+              "vout_ref_v": 18.0,
+              "load_resistance_ohm": 20.0
+            },
+            "reward": -2.9684173368863327,
+            "tracking_rmse_second_half": 2.0971604772643855,
+            "peak_current": 9.883098668269998,
+            "termination": null
+          }
+        ],
+        "PI (BuckVoltageController)": [
+          {
+            "options": {
+              "vout_ref_v": 24.0,
+              "load_resistance_ohm": 6.0
+            },
+            "reward": -6.607445936042861,
+            "tracking_rmse_second_half": 0.00032608402139823917,
+            "peak_current": 14.863165970077517,
+            "termination": null
+          },
+          {
+            "options": {
+              "vout_ref_v": 12.0,
+              "load_resistance_ohm": 12.0
+            },
+            "reward": -0.6774114592377202,
+            "tracking_rmse_second_half": 0.00011857161226103209,
+            "peak_current": 13.993085724011785,
+            "termination": null
+          },
+          {
+            "options": {
+              "vout_ref_v": 30.0,
+              "load_resistance_ohm": 8.0
+            },
+            "reward": -9.997065234310172,
+            "tracking_rmse_second_half": 0.00031148441821993395,
+            "peak_current": 14.867361988097034,
+            "termination": null
+          },
+          {
+            "options": {
+              "vout_ref_v": 18.0,
+              "load_resistance_ohm": 20.0
+            },
+            "reward": -2.7739247702038266,
+            "tracking_rmse_second_half": 0.00024121184827292547,
+            "peak_current": 14.829036002651296,
+            "termination": null
+          }
+        ]
+      },
+      "SPADE/Buck-v0": {
+        "RL (DDPG)": [
+          {
+            "options": {
+              "vout_ref_v": 24.0,
+              "load_resistance_ohm": 6.0
+            },
+            "reward": -8.60941145128411,
+            "tracking_rmse_second_half": 3.862170883036043,
+            "peak_current": 12.668650237046332,
+            "termination": null
+          },
+          {
+            "options": {
+              "vout_ref_v": 12.0,
+              "load_resistance_ohm": 12.0
+            },
+            "reward": -1.3821994962182749,
+            "tracking_rmse_second_half": 1.5039656397384658,
+            "peak_current": 8.500051404485847,
+            "termination": null
+          },
+          {
+            "options": {
+              "vout_ref_v": 30.0,
+              "load_resistance_ohm": 8.0
+            },
+            "reward": -15.114037990206269,
+            "tracking_rmse_second_half": 4.39603632148947,
+            "peak_current": 14.407605914521401,
+            "termination": null
+          },
+          {
+            "options": {
+              "vout_ref_v": 18.0,
+              "load_resistance_ohm": 20.0
+            },
+            "reward": -2.9684021487085746,
+            "tracking_rmse_second_half": 2.097160481724506,
+            "peak_current": 9.883062966505474,
+            "termination": null
+          }
+        ],
+        "PI (BuckVoltageController)": [
+          {
+            "options": {
+              "vout_ref_v": 24.0,
+              "load_resistance_ohm": 6.0
+            },
+            "reward": -6.607417864153199,
+            "tracking_rmse_second_half": 0.00032598142824618627,
+            "peak_current": 14.863263943877161,
+            "termination": null
+          },
+          {
+            "options": {
+              "vout_ref_v": 12.0,
+              "load_resistance_ohm": 12.0
+            },
+            "reward": -0.677346772491839,
+            "tracking_rmse_second_half": 0.00011865934256647703,
+            "peak_current": 13.992996843509808,
+            "termination": null
+          },
+          {
+            "options": {
+              "vout_ref_v": 30.0,
+              "load_resistance_ohm": 8.0
+            },
+            "reward": -9.997014458740276,
+            "tracking_rmse_second_half": 0.0003113927361766705,
+            "peak_current": 14.86744307800936,
+            "termination": null
+          },
+          {
+            "options": {
+              "vout_ref_v": 18.0,
+              "load_resistance_ohm": 20.0
+            },
+            "reward": -2.773746354800149,
+            "tracking_rmse_second_half": 0.00024114056973812195,
+            "peak_current": 14.829048751106585,
+            "termination": null
+          }
+        ]
+      }
+    }
+  },
+  "tuning_job": {
+    "job_state": "completed",
+    "run_id": "run-20261025T163317-23832c9d",
+    "origin": "SIMULATED \u00b7 OPENMODELICA",
+    "wall_s": 4.7,
+    "method": "pso",
+    "evaluations": 24,
+    "objective": "J = mean tracking RMSE (% of v_ref, whole 20 ms episode from rest) + mean overshoot (% of v_ref). Lower is better.",
+    "tuning_grid": [
+      "24V_6ohm",
+      "12V_12ohm"
+    ],
+    "evaluation_grid": [
+      "30V_8ohm",
+      "18V_20ohm",
+      "36V_4ohm",
+      "8V_3ohm"
+    ],
+    "baseline_params": {
+      "current_bandwidth_hz": 5000.0,
+      "voltage_bandwidth_hz": 1000.0
+    },
+    "candidate_params": {
+      "current_bandwidth_hz": 6339.257247016496,
+      "voltage_bandwidth_hz": 919.3378277387601
+    },
+    "on_OmBuck": {
+      "baseline_tuning_J": 14.632863877595776,
+      "candidate_tuning_J": 14.664274042108094,
+      "baseline_evaluation": {
+        "J": 16.145929018463313,
+        "mean_rmse_pct": 8.692726119582082,
+        "mean_overshoot_pct": 7.453202898881232,
+        "n_terminated": 0
+      },
+      "candidate_evaluation": {
+        "J": 15.197099885303459,
+        "mean_rmse_pct": 8.681680845740278,
+        "mean_overshoot_pct": 6.515419039563181,
+        "n_terminated": 0
+      }
+    },
+    "on_native_Buck": {
+      "baseline_evaluation": {
+        "J": 16.14560936947283,
+        "mean_rmse_pct": 8.692685268077803,
+        "mean_overshoot_pct": 7.452924101395026,
+        "n_terminated": 0
+      },
+      "candidate_evaluation": {
+        "J": 15.197045137524373,
+        "mean_rmse_pct": 8.681624004503666,
+        "mean_overshoot_pct": 6.515421133020706,
+        "n_terminated": 0
+      },
+      "baseline_rows": [
+        {
+          "condition": "30V_8ohm",
+          "vout_ref_v": 30.0,
+          "load_resistance_ohm": 8.0,
+          "termination": null,
+          "rmse_pct": 9.63625505749675,
+          "overshoot_pct": 3.220393462092884,
+          "peak_current_a": 14.86744307800936,
+          "final_v_out_v": 30.00006864718569,
+          "wall_s": 0.020669207093305886
+        },
+        {
+          "condition": "18V_20ohm",
+          "vout_ref_v": 18.0,
+          "load_resistance_ohm": 20.0,
+          "termination": null,
+          "rmse_pct": 7.765908227459461,
+          "overshoot_pct": 7.238601525055681,
+          "peak_current_a": 14.829048751106585,
+          "final_v_out_v": 18.000053160039887,
+          "wall_s": 0.021136355004273355
+        },
+        {
+          "condition": "36V_4ohm",
+          "vout_ref_v": 36.0,
+          "load_resistance_ohm": 4.0,
+          "termination": null,
+          "rmse_pct": 10.9707286110788,
+          "overshoot_pct": 1.1430294289650353,
+          "peak_current_a": 14.908776831620175,
+          "final_v_out_v": 36.00006635602429,
+          "wall_s": 0.020624157041311264
+        },
+        {
+          "condition": "8V_3ohm",
+          "vout_ref_v": 8.0,
+          "load_resistance_ohm": 3.0,
+          "termination": null,
+          "rmse_pct": 6.397849176276206,
+          "overshoot_pct": 18.209671989466504,
+          "peak_current_a": 12.008717741678122,
+          "final_v_out_v": 8.000004573452536,
+          "wall_s": 0.02062626602128148
+        }
+      ],
+      "candidate_rows": [
+        {
+          "condition": "30V_8ohm",
+          "vout_ref_v": 30.0,
+          "load_resistance_ohm": 8.0,
+          "termination": null,
+          "rmse_pct": 9.61263972476609,
+          "overshoot_pct": 3.1002418492578223,
+          "peak_current_a": 14.873112391446373,
+          "final_v_out_v": 30.000103920870092,
+          "wall_s": 0.02045159798581153
+        },
+        {
+          "condition": "18V_20ohm",
+          "vout_ref_v": 18.0,
+          "load_resistance_ohm": 20.0,
+          "termination": null,
+          "rmse_pct": 7.795431497376013,
+          "overshoot_pct": 8.050799244503498,
+          "peak_current_a": 14.84954548796123,
+          "final_v_out_v": 18.000062961414844,
+          "wall_s": 0.020034069078974426
+        },
+        {
+          "condition": "36V_4ohm",
+          "vout_ref_v": 36.0,
+          "load_resistance_ohm": 4.0,
+          "termination": null,
+          "rmse_pct": 10.940119528545052,
+          "overshoot_pct": 1.296105113711003,
+          "peak_current_a": 14.906083402683919,
+          "final_v_out_v": 36.00010269470737,
+          "wall_s": 0.02004078996833414
+        },
+        {
+          "condition": "8V_3ohm",
+          "vout_ref_v": 8.0,
+          "load_resistance_ohm": 3.0,
+          "termination": null,
+          "rmse_pct": 6.378305267327508,
+          "overshoot_pct": 13.614538324610503,
+          "peak_current_a": 11.575510700270588,
+          "final_v_out_v": 8.000006982843386,
+          "wall_s": 0.02000205998774618
+        }
+      ]
+    },
+    "status": "candidate -- no default changed"
+  },
+  "total_wall_s": 295.6
+}

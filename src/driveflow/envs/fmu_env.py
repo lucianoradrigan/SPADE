@@ -233,6 +233,7 @@ class OmBuckEnv(FmuGymEnv):
         "observation_units": tuple(s.unit for s in BUCK_MAPPING.observations),
         "action_names": (BUCK_MAPPING.action_name,),
         "action_units": (BUCK_MAPPING.action_unit,),
+        "supports_load_step": False,
     }
 
     def __init__(self, vout_ref_v: float | None = 24.0, vout_ref_range: tuple = (5.0, 40.0), load_resistance_ohm: float | None = 6.0,
