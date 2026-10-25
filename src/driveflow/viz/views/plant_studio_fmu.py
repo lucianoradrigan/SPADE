@@ -67,6 +67,10 @@ def _engine() -> None:
         st.error(rep["message"], icon=":material/error:")
         st.code('pip install "driveflow[fmu]"', language="bash")
     st.caption(f"FMU folder: `{rep['fmu_dir']}`. Checked: {', '.join(rep['checked'])}. Not checked: {', '.join(rep['not_checked'])}.")
+    from driveflow.fmu import FETCH_DISABLED
+
+    st.button("Download prebuilt FMUs", key="fmu_download", disabled=True, icon=":material/download:", help=FETCH_DISABLED)
+    st.caption(f":material/block: {FETCH_DISABLED}")
 
 
 def _circuit() -> None:
