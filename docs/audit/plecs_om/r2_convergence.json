@@ -1,0 +1,389 @@
+{
+  "command": "python experiments/report_s16_discretization_sensitivity.py convergence --workers 6",
+  "host": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "python": "3.12.13",
+  "stage": "convergence",
+  "finest": "rk45",
+  "rk45_tol": 1e-09,
+  "tolerance": 0.0001,
+  "rule": "reference = the coarsest Euler substep count whose NRMS vs the finest solution is < 1e-4 on i_a, omega and torque, in every scenario and fault case",
+  "normalisation": "primary: RMS(diff over the segment) / range of the finest solution over the whole run; secondary (reported only): / RMS of the finest solution over the segment",
+  "scenarios": {
+    "startup": {
+      "duration_s": 1.5,
+      "load_step": null,
+      "segment_s": [
+        0.0,
+        0.5
+      ]
+    },
+    "steady_state": {
+      "duration_s": 1.5,
+      "load_step": null,
+      "segment_s": [
+        0.5,
+        1.5
+      ]
+    },
+    "load_step": {
+      "duration_s": 1.5,
+      "load_step": {
+        "nm": 4.0,
+        "t_s": 1.0
+      },
+      "segment_s": [
+        0.9,
+        1.5
+      ]
+    }
+  },
+  "speed_rad_s": 150.0,
+  "faults": [
+    "healthy",
+    "outer_race"
+  ],
+  "cases": {
+    "startup|healthy": {
+      "euler_x1": {
+        "nrms_full_range": {
+          "i_a": 0.0006812473282172685,
+          "omega": 0.00015797145978657488,
+          "torque": 0.000681247328217268
+        },
+        "nrms_segment_rms": {
+          "i_a": 0.00080724628358882,
+          "omega": 0.0001794746022617874,
+          "torque": 0.0008072462835888196
+        }
+      },
+      "euler_x10": {
+        "nrms_full_range": {
+          "i_a": 7.505733890056725e-05,
+          "omega": 1.4412432278339318e-05,
+          "torque": 7.505733890056834e-05
+        },
+        "nrms_segment_rms": {
+          "i_a": 8.893944295107127e-05,
+          "omega": 1.6374258706443386e-05,
+          "torque": 8.89394429510726e-05
+        }
+      },
+      "euler_x100": {
+        "nrms_full_range": {
+          "i_a": 7.626237344070981e-06,
+          "omega": 1.4208482898470191e-06,
+          "torque": 7.62623734407222e-06
+        },
+        "nrms_segment_rms": {
+          "i_a": 9.036735263061722e-06,
+          "omega": 1.6142547650009507e-06,
+          "torque": 9.036735263063192e-06
+        }
+      },
+      "euler_x1000": {
+        "nrms_full_range": {
+          "i_a": 1.2983707426824844e-06,
+          "omega": 1.3512217915800756e-07,
+          "torque": 1.298370742681355e-06
+        },
+        "nrms_segment_rms": {
+          "i_a": 1.5385087226597125e-06,
+          "omega": 1.5351506780967497e-07,
+          "torque": 1.5385087226583748e-06
+        }
+      }
+    },
+    "startup|outer_race": {
+      "euler_x1": {
+        "nrms_full_range": {
+          "i_a": 0.0070117903027089425,
+          "omega": 0.0005354129018053799,
+          "torque": 0.0070117903027089425
+        },
+        "nrms_segment_rms": {
+          "i_a": 0.009032705176785701,
+          "omega": 0.0006182026757185833,
+          "torque": 0.009032705176785703
+        }
+      },
+      "euler_x10": {
+        "nrms_full_range": {
+          "i_a": 0.0006880368157490994,
+          "omega": 5.211069829579153e-05,
+          "torque": 0.0006880368157491005
+        },
+        "nrms_segment_rms": {
+          "i_a": 0.0008863404978090966,
+          "omega": 6.0168466264812076e-05,
+          "torque": 0.0008863404978090981
+        }
+      },
+      "euler_x100": {
+        "nrms_full_range": {
+          "i_a": 7.225368104487712e-05,
+          "omega": 5.345977255068611e-06,
+          "torque": 7.225368104487708e-05
+        },
+        "nrms_segment_rms": {
+          "i_a": 9.307839662058069e-05,
+          "omega": 6.172614504189548e-06,
+          "torque": 9.307839662058065e-05
+        }
+      },
+      "euler_x1000": {
+        "nrms_full_range": {
+          "i_a": 1.088261057743848e-05,
+          "omega": 6.906869365441335e-07,
+          "torque": 1.0882610577438134e-05
+        },
+        "nrms_segment_rms": {
+          "i_a": 1.4019160393572279e-05,
+          "omega": 7.974864087430257e-07,
+          "torque": 1.4019160393571836e-05
+        }
+      }
+    },
+    "steady_state|healthy": {
+      "euler_x1": {
+        "nrms_full_range": {
+          "i_a": 1.6223318140160475e-13,
+          "omega": 1.2510180401663798e-14,
+          "torque": 1.6223352993612805e-13
+        },
+        "nrms_segment_rms": {
+          "i_a": 4.435083479383059e-13,
+          "omega": 1.2531855167760648e-14,
+          "torque": 4.435093007518382e-13
+        }
+      },
+      "euler_x10": {
+        "nrms_full_range": {
+          "i_a": 1.6775961828014064e-12,
+          "omega": 6.018561731437563e-15,
+          "torque": 1.6776056873736834e-12
+        },
+        "nrms_segment_rms": {
+          "i_a": 4.586163601760572e-12,
+          "omega": 6.028989312302105e-15,
+          "torque": 4.5861895850835405e-12
+        }
+      },
+      "euler_x100": {
+        "nrms_full_range": {
+          "i_a": 1.8650264725028433e-11,
+          "omega": 6.941450288786009e-14,
+          "torque": 1.8650269540832988e-11
+        },
+        "nrms_segment_rms": {
+          "i_a": 5.098555070761624e-11,
+          "omega": 6.953476838887742e-14,
+          "torque": 5.098556387292253e-11
+        }
+      },
+      "euler_x1000": {
+        "nrms_full_range": {
+          "i_a": 1.9063658955568966e-10,
+          "omega": 1.922460565501786e-13,
+          "torque": 1.9063658756610719e-10
+        },
+        "nrms_segment_rms": {
+          "i_a": 5.211567581920112e-10,
+          "omega": 1.9257913634399296e-13,
+          "torque": 5.211567527529487e-10
+        }
+      }
+    },
+    "steady_state|outer_race": {
+      "euler_x1": {
+        "nrms_full_range": {
+          "i_a": 0.00856153797218803,
+          "omega": 0.00033097258371685313,
+          "torque": 0.008561537972188029
+        },
+        "nrms_segment_rms": {
+          "i_a": 0.02532043480129183,
+          "omega": 0.0003328545867036858,
+          "torque": 0.025320434801291824
+        }
+      },
+      "euler_x10": {
+        "nrms_full_range": {
+          "i_a": 0.0008417565244006992,
+          "omega": 3.253086668933555e-05,
+          "torque": 0.0008417565244006991
+        },
+        "nrms_segment_rms": {
+          "i_a": 0.0024894640733810697,
+          "omega": 3.271584632597506e-05,
+          "torque": 0.0024894640733810693
+        }
+      },
+      "euler_x100": {
+        "nrms_full_range": {
+          "i_a": 8.86789227220503e-05,
+          "omega": 3.4260395679815866e-06,
+          "torque": 8.867892272205068e-05
+        },
+        "nrms_segment_rms": {
+          "i_a": 0.0002622646641674157,
+          "omega": 3.4455209903626754e-06,
+          "torque": 0.0002622646641674168
+        }
+      },
+      "euler_x1000": {
+        "nrms_full_range": {
+          "i_a": 1.3603573488971067e-05,
+          "omega": 5.244086457022205e-07,
+          "torque": 1.3603573488971262e-05
+        },
+        "nrms_segment_rms": {
+          "i_a": 4.0232070068602976e-05,
+          "omega": 5.273905804185315e-07,
+          "torque": 4.023207006860355e-05
+        }
+      }
+    },
+    "load_step|healthy": {
+      "euler_x1": {
+        "nrms_full_range": {
+          "i_a": 0.00010871428788697004,
+          "omega": 3.056541241565859e-06,
+          "torque": 0.00010871428788697097
+        },
+        "nrms_segment_rms": {
+          "i_a": 0.00020387079984004075,
+          "omega": 3.0626090971726846e-06,
+          "torque": 0.00020387079984004252
+        }
+      },
+      "euler_x10": {
+        "nrms_full_range": {
+          "i_a": 0.00027636214763305194,
+          "omega": 8.38066469719885e-06,
+          "torque": 0.0002763621476330516
+        },
+        "nrms_segment_rms": {
+          "i_a": 0.0005182591283865147,
+          "omega": 8.397302019993739e-06,
+          "torque": 0.0005182591283865141
+        }
+      },
+      "euler_x100": {
+        "nrms_full_range": {
+          "i_a": 0.000247448558193727,
+          "omega": 7.552052562557839e-06,
+          "torque": 0.00024744855819372664
+        },
+        "nrms_segment_rms": {
+          "i_a": 0.00046403776779249255,
+          "omega": 7.567044921849966e-06,
+          "torque": 0.000464037767792492
+        }
+      },
+      "euler_x1000": {
+        "nrms_full_range": {
+          "i_a": 0.00024456777013709077,
+          "omega": 7.469621740760677e-06,
+          "torque": 0.0002445677701370905
+        },
+        "nrms_segment_rms": {
+          "i_a": 0.00045863545521066624,
+          "omega": 7.484450458117464e-06,
+          "torque": 0.00045863545521066586
+        }
+      }
+    },
+    "load_step|outer_race": {
+      "euler_x1": {
+        "nrms_full_range": {
+          "i_a": 0.00854918288833578,
+          "omega": 0.00033056120041134545,
+          "torque": 0.00854918288833578
+        },
+        "nrms_segment_rms": {
+          "i_a": 0.01762176108048586,
+          "omega": 0.0003325196959386682,
+          "torque": 0.01762176108048586
+        }
+      },
+      "euler_x10": {
+        "nrms_full_range": {
+          "i_a": 0.000873255668400834,
+          "omega": 3.3430610772654075e-05,
+          "torque": 0.0008732556684008341
+        },
+        "nrms_segment_rms": {
+          "i_a": 0.0017999735122914222,
+          "omega": 3.3628679092809124e-05,
+          "torque": 0.0017999735122914225
+        }
+      },
+      "euler_x100": {
+        "nrms_full_range": {
+          "i_a": 0.00023778390724672272,
+          "omega": 8.210224389933456e-06,
+          "torque": 0.00023778390724672264
+        },
+        "nrms_segment_rms": {
+          "i_a": 0.0004901253437919883,
+          "omega": 8.258867992770061e-06,
+          "torque": 0.0004901253437919882
+        }
+      },
+      "euler_x1000": {
+        "nrms_full_range": {
+          "i_a": 0.00021946336827252278,
+          "omega": 7.439478225499024e-06,
+          "torque": 0.00021946336827252249
+        },
+        "nrms_segment_rms": {
+          "i_a": 0.00045236265174459356,
+          "omega": 7.483555342874337e-06,
+          "torque": 0.0004523626517445929
+        }
+      }
+    }
+  },
+  "per_integration": {
+    "euler_x1": {
+      "worst_nrms_vs_finest": 0.00856153797218803,
+      "passes": false
+    },
+    "euler_x10": {
+      "worst_nrms_vs_finest": 0.0008732556684008341,
+      "passes": false
+    },
+    "euler_x100": {
+      "worst_nrms_vs_finest": 0.000247448558193727,
+      "passes": false
+    },
+    "euler_x1000": {
+      "worst_nrms_vs_finest": 0.00024456777013709077,
+      "passes": false
+    }
+  },
+  "reference": null,
+  "wall_s": {
+    "startup|None|euler_x1": 4.9,
+    "startup|None|euler_x10": 6.16,
+    "startup|None|euler_x100": 19.26,
+    "startup|None|euler_x1000": 145.67,
+    "startup|None|rk45": 10.93,
+    "startup|outer_race|euler_x1": 5.27,
+    "startup|outer_race|euler_x10": 6.83,
+    "startup|outer_race|euler_x100": 23.93,
+    "startup|outer_race|euler_x1000": 173.91,
+    "startup|outer_race|rk45": 22.22,
+    "load_step|None|euler_x1": 5.57,
+    "load_step|None|euler_x10": 6.67,
+    "load_step|None|euler_x100": 19.75,
+    "load_step|None|euler_x1000": 153.15,
+    "load_step|None|rk45": 10.44,
+    "load_step|outer_race|euler_x1": 5.76,
+    "load_step|outer_race|euler_x10": 11.74,
+    "load_step|outer_race|euler_x100": 28.13,
+    "load_step|outer_race|euler_x1000": 171.13,
+    "load_step|outer_race|rk45": 23.74
+  },
+  "total_wall_s": 223.2
+}

@@ -141,6 +141,14 @@ class Scenario:
             is the initial load (default 6 ohm); buck_load_step_ohm switches the load to that value
             at buck_load_step_time_s (default: half of duration_s); buck_parameter_overrides sets
             any of l_h, c_f, r_l_ohm, i_max_a. No fault model: every record is labelled "normal".
+        dc_plant_solver / dc_plant_substeps: dc_perm_ex_v1 only (round PLECS/OM task R2, decision
+            G3; finding S-16) -- how the plant is integrated over each control period TAU = 100 us.
+            The controller still acts every TAU and its action (including the converter branch) is
+            held for the whole period; only the plant integration changes. dc_plant_solver "euler"
+            (forward Euler, dc_plant_substeps substeps per TAU) or "rk45" (scipy solve_ivp RK45 at
+            rtol = atol = 1e-9, the fine solver of the validation benches; dc_plant_substeps must
+            then be unset). None for both (default) is the production plant: one Euler step per
+            TAU, bit for bit. Not a default anywhere; for reference studies only.
     """
 
     scenario_id: str
@@ -174,6 +182,8 @@ class Scenario:
     plecs_model_vars: dict = None
     plecs_time_limit_s: float = None
     plecs_output_points: int = None
+    dc_plant_solver: str = None
+    dc_plant_substeps: int = None
 
     _VALID_PAIRS = {("PI", "dc_perm_ex_v1"), ("MPC", "dc_perm_ex_v1"), ("DPC", "vsc_dpc_v1"), ("FOC_MTPA", "pmsm_v1"), ("FOC_naive", "pmsm_v1"),
                     ("PI", "buck_v1")}
@@ -278,6 +288,25 @@ class Scenario:
             finite(f"motor_parameter_overrides[{key!r}]", value, 0.0, strict=key in self._POSITIVE_MOTOR_PARAMETERS)
         for i, (_ft, order) in enumerate(self.extra_faults or []):
             finite(f"extra_faults[{i}] order_override", order, 0.0, strict=True)
+        self._validate_dc_plant_integration()
+
+    #: dc_plant_solver values (see the class docstring); DC_PLANT_MAX_SUBSTEPS bounds the cost.
+    DC_PLANT_SOLVERS = ("euler", "rk45")
+    DC_PLANT_MAX_SUBSTEPS = 10_000
+
+    def _validate_dc_plant_integration(self):
+        solver, n = self.dc_plant_solver, self.dc_plant_substeps
+        if solver is None and n is None:
+            return
+        if self.plant_config_id != "dc_perm_ex_v1":
+            raise ValueError("Scenario.dc_plant_solver / dc_plant_substeps apply only to plant_config_id='dc_perm_ex_v1'")
+        if solver is not None and solver not in self.DC_PLANT_SOLVERS:
+            raise ValueError(f"Scenario.dc_plant_solver must be one of {self.DC_PLANT_SOLVERS}, got {solver!r}")
+        if n is not None:
+            if isinstance(n, bool) or not isinstance(n, numbers.Integral) or not 1 <= n <= self.DC_PLANT_MAX_SUBSTEPS:
+                raise ValueError(f"Scenario.dc_plant_substeps must be an int in [1, {self.DC_PLANT_MAX_SUBSTEPS}], got {n!r}")
+            if solver == "rk45":
+                raise ValueError("Scenario.dc_plant_substeps applies only to dc_plant_solver='euler' (RK45 chooses its own steps)")
 
     @property
     def label(self) -> str:

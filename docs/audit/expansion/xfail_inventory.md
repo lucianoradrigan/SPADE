@@ -1,4 +1,4 @@
-# xfail inventory (T4, round 2026-10-22; updated in T8: 6 xfails after T6)
+# xfail inventory (T4, round 2026-10-22; updated in T8: 6 xfails after T6; B1 added 7–8, R2.1 added 9)
 
 - **Commands:**
   - `grep -rn "xfail" tests conftest.py pyproject.toml`
@@ -14,6 +14,7 @@
 | 5 | `tests/test_findings_e14.py::test_ai_n21_gated_detector_meets_the_false_alarm_criterion` | yes | AI-N21 | Gated (run02) residual detector ≤ 1 % false alarms at 100 % noise | Not fixed: superseded by AI-N22 (E14 closed, negative) |
 | 6 | `tests/test_findings_e14.py::test_ai_n22_noise_aware_detector_meets_the_false_alarm_criterion` | yes | AI-N22 | Noise-aware (T6) detector meets criterion 3 | Closed as a negative result; added in T6 |
 | 7–8 | `tests/fmu/test_om_fmus.py::test_switching_fmus_simulate_10_ms_at_the_pwm_period[BuckSwitching, DcMotorSwitching]` | yes | S-15 | OpenModelica switching FMUs simulate 10 ms at the PWM period | Open; added in B1 (round PLECS/OM, 2026-10-24). Skipped when the FMUs are not built. The outcome depends on the build, so an XPASS on another build fails the suite on purpose |
+| 9 | `tests/test_r2_dc_plant_integration.py::test_s17_euler_substeps_evaluate_inside_the_step` | yes | S-17 | `EulerSolver(nsteps > 1)` evaluates the right-hand side inside the step it integrates | Open; added in R2.1 (round PLECS/OM, 2026-10-25). Fixing the solver needs the user's confirmation |
 
 - **Non-compliant xfails:** none. No finding had to be assigned or created, and no xfail was converted to a normal test: none of the five defects is fixed.
 - **Other skip mechanisms:** none. There are no `pytest.xfail()` calls inside tests and no conftest-level xfail.

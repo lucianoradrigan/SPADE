@@ -57,6 +57,7 @@ from driveflow.sim import (
     EulerSolver,
     IdealVoltageSupply,
     PolynomialStaticLoad,
+    ScipySolveIvpSolver,
 )
 from driveflow.sim.vibration import (
     KAT_DATACENTER_6203_GEOMETRY,
@@ -69,6 +70,9 @@ from driveflow.sim.vibration import bearing_frequencies as bf
 from driveflow.sim.vsc_system import VscSystem
 
 TAU = 1e-4
+#: Fine solver for Scenario.dc_plant_solver="rk45" (R2, S-16): the validation benches' RK45 setting
+#: (experiments/run_stability_battery.py).
+DC_RK45_TOL = 1e-9
 
 #: DPC checkpoints of every DPC Scenario. Since 2026-10-20 (C1) a Scenario runs
 #: control/dpc/controller.ScheduledDpcController: v3 (fine-tuned at 8.0064 ohm) inside
@@ -139,9 +143,18 @@ def build_plant(scenario: Scenario) -> DcMotorSystem:
         motor=DcPermanentlyExcitedMotor(motor_parameter=scenario.motor_parameter_overrides),
         load=load,
         supply=IdealVoltageSupply(u_nominal=65.0),  # motor is rated u=60V, see DcPermanentlyExcitedMotor
-        ode_solver=EulerSolver(),
+        ode_solver=dc_ode_solver(scenario),
         tau=TAU,
     )
+
+
+def dc_ode_solver(scenario: Scenario):
+    """The DC plant's ODE solver: one Euler step per TAU unless the Scenario asks for a reference
+    integration (dc_plant_solver / dc_plant_substeps, R2). The default object is EulerSolver(), the
+    production plant unchanged."""
+    if scenario.dc_plant_solver == "rk45":
+        return ScipySolveIvpSolver(method="RK45", rtol=DC_RK45_TOL, atol=DC_RK45_TOL)
+    return EulerSolver() if scenario.dc_plant_substeps is None else EulerSolver(nsteps=scenario.dc_plant_substeps)
 
 
 def build_vibration_synthesizer(scenario: Scenario) -> VibrationSynthesizer:

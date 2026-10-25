@@ -1,0 +1,12 @@
+{
+  "command": "python experiments/report_s16_discretization_sensitivity.py load_step_offset --workers 4",
+  "host": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "python": "3.12.13",
+  "stage": "load_step_offset",
+  "euler_x1000_step_at_s": 1.0,
+  "nrms_euler_x1000_vs_rk45": {
+    "rk45 step 0 period(s) earlier": 0.0004236037655971797,
+    "rk45 step 0.5 period(s) earlier": 0.0002121013082591818,
+    "rk45 step 1 period(s) earlier": 2.190507846183134e-06
+  }
+}
