@@ -371,7 +371,7 @@ Evidence lives in `docs/audit/plecs_om/`. Each `.md` there gives the command tha
 | B0–B2 OpenModelica toolchain, models, FmuAdapter | Executed (OpenModelica 1.27.1, pinned image digest, MSL 4.1.0+maint.om) | `b0_setup.md`, `b1_modelica_plants.md`, `b2_fmu_adapter.md` |
 | B3 GO/NO-GO (pre-registered) | Executed | `b3_preregistration.md`, `b3_om_fmu_spike.md` |
 | R1 post-hoc analysis of B3 + lesson G7 | Done (documentation) | `b3_om_fmu_spike.md` § Post-hoc analysis; `CLAUDE.md` |
-| R2 S-16 sensitivity | **Stopped at R2.1** (reference convergence; finding S-17). Branch `feat/R2-s16-sensitivity`, not merged | `r2_convergence.md`, `r2_load_step_offset.json` |
+| R2 S-16 sensitivity | Executed with the RK45 reference (user decision a): **S-16 affects diagnosis** (S-18) | `r2_convergence.md`, `r2_preregistration.md`, `r2_s16_sensitivity.md` |
 | B4 `SPADE/OmBuck-v0` | Executed | `b4_fmu_gym_env.md` |
 | B5 Plant Studio "OpenModelica FMU" engine | Executed (AppTests + screenshots) | `tests/fmu/test_plant_studio_fmu.py`, `docs/screenshots/plecs_om/` |
 | B6 RL Lab / Tuning Studio on `SPADE/OmBuck-v0` | Executed (jobs through the worker) | `b6_rl_on_fmu.md` |
@@ -389,17 +389,21 @@ Evidence lives in `docs/audit/plecs_om/`. Each `.md` there gives the command tha
 
 ### 11.3 R2 and S-16
 
-- **S-16 stays Open.** "Impact on diagnosis: under study (R2)".
-- **R2 did not reach the diagnosis measurement.** The R2.1 convergence rule (the coarsest Euler within 1e-4 of the finest solution in start-up, steady state and load step) is met in start-up and steady state (Euler × 100: worst 8.9e-5), but not in the load-step scenario.
-- **The cause is new finding S-17.** `EulerSolver` with substeps evaluates the right-hand side one control period late, so a time-triggered input is applied one period early.
-- **The production plants are not affected.** Their right-hand sides do not depend on t.
-- **Decision pending (user):** RK45 as the reference; or Euler × 100 justified by the grid having no time-dependent input; or fixing `EulerSolver` (needs confirmation).
+- **R2.1:** Euler substeps do not converge in a load-step scenario. Cause: S-17, the Euler substep time offset.
+- **Reference (user decision a, 2026-10-25):** RK45 at 1e-9, shown converged within 6.4e-6 of RK45 at 1e-11.
+- **Pre-registered study, NAT vs REF, 60 + 60 runs:** **S-16 affects diagnosis** (finding S-18).
+  - The current_r fault-band amplitudes differ by up to 16.5 %. This is in noisy runs, at the 2nd and 3rd harmonics; noise-free runs stay ≤ 2.4 %.
+  - Start-up top-1 agreement is 0.92–0.97. REF is more accurate there.
+  - In steady state, PC and RPi5 pass their own conditions. The ESP32 changes only on ball/cage windows.
+- S-16 stays Open.
+- Options (regenerate datasets with the reference, retrain, change the plant default) await the user; none was taken. Evidence: `r2_s16_sensitivity.md`.
 
 ### 11.4 New findings
 
 | ID | Severity | Summary | Status |
 |---|---|---|---|
-| S-17 | Low | `sim/solvers.EulerSolver(nsteps > 1)` evaluates f at t_end + k·h/n (inherited from GEM); latent for the production plants | Open; strict xfail on `feat/R2-s16-sensitivity` (enters `dev` with R2) |
+| S-17 | Low | `sim/solvers.EulerSolver(nsteps > 1)` evaluates f at t_end + k·h/n (inherited from GEM); latent for the production plants | Open; strict xfail |
+| S-18 | Medium | S-16 changes fault-band amplitudes (up to 16.5 %, noisy runs, harmonics) and start-up decisions (agreement 0.92–0.97) | Open; options to the user |
 
 AI-N24 was not used.
 

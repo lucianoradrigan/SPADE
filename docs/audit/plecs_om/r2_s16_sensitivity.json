@@ -1,0 +1,5915 @@
+{
+  "command": "python experiments/report_s16_discretization_sensitivity.py sensitivity --workers 10 --cache <scratch>/r2_sims.parquet",
+  "host": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "python": "3.12.13",
+  "stage": "sensitivity",
+  "preregistration": "docs/audit/plecs_om/r2_preregistration.md",
+  "versions": {
+    "NAT": "Euler x1 (production)",
+    "REF": "RK45 rtol=atol=1e-9"
+  },
+  "grid": {
+    "speeds": [
+      100.0,
+      150.0,
+      200.0
+    ],
+    "severities": [
+      1.0,
+      0.5
+    ],
+    "seeds_per_cell": 2,
+    "classes": [
+      "normal",
+      "outer_race",
+      "inner_race",
+      "ball",
+      "cage"
+    ],
+    "n_runs_per_version": 60,
+    "duration_s": 2.5,
+    "noise_rng_seed": 25,
+    "first_scenario_seed": 5000
+  },
+  "cells": [
+    {
+      "cell": 0,
+      "speed": 100.0,
+      "severity_scale": 1.0,
+      "fault": null,
+      "label": "normal",
+      "seed_index": 0,
+      "seed": 5000,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 1,
+      "speed": 100.0,
+      "severity_scale": 1.0,
+      "fault": null,
+      "label": "normal",
+      "seed_index": 1,
+      "seed": 5001,
+      "electrical_noise_pct": 0.20262080143022,
+      "mechanical_noise_pct": 19.308288036760114
+    },
+    {
+      "cell": 2,
+      "speed": 100.0,
+      "severity_scale": 1.0,
+      "fault": "outer_race",
+      "label": "outer_race",
+      "seed_index": 0,
+      "seed": 5002,
+      "electrical_noise_pct": 78.6934281826405,
+      "mechanical_noise_pct": 12.128112737116204
+    },
+    {
+      "cell": 3,
+      "speed": 100.0,
+      "severity_scale": 1.0,
+      "fault": "outer_race",
+      "label": "outer_race",
+      "seed_index": 1,
+      "seed": 5003,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 4,
+      "speed": 100.0,
+      "severity_scale": 1.0,
+      "fault": "inner_race",
+      "label": "inner_race",
+      "seed_index": 0,
+      "seed": 5004,
+      "electrical_noise_pct": 78.57072386313311,
+      "mechanical_noise_pct": 14.671926792360157
+    },
+    {
+      "cell": 5,
+      "speed": 100.0,
+      "severity_scale": 1.0,
+      "fault": "inner_race",
+      "label": "inner_race",
+      "seed_index": 1,
+      "seed": 5005,
+      "electrical_noise_pct": 59.68611609315305,
+      "mechanical_noise_pct": 78.99008474120255
+    },
+    {
+      "cell": 6,
+      "speed": 100.0,
+      "severity_scale": 1.0,
+      "fault": "ball",
+      "label": "ball",
+      "seed_index": 0,
+      "seed": 5006,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 7,
+      "speed": 100.0,
+      "severity_scale": 1.0,
+      "fault": "ball",
+      "label": "ball",
+      "seed_index": 1,
+      "seed": 5007,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 8,
+      "speed": 100.0,
+      "severity_scale": 1.0,
+      "fault": "cage",
+      "label": "cage",
+      "seed_index": 0,
+      "seed": 5008,
+      "electrical_noise_pct": 62.64120902151043,
+      "mechanical_noise_pct": 60.52587320258031
+    },
+    {
+      "cell": 9,
+      "speed": 100.0,
+      "severity_scale": 1.0,
+      "fault": "cage",
+      "label": "cage",
+      "seed_index": 1,
+      "seed": 5009,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 10,
+      "speed": 100.0,
+      "severity_scale": 0.5,
+      "fault": null,
+      "label": "normal",
+      "seed_index": 0,
+      "seed": 5010,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 11,
+      "speed": 100.0,
+      "severity_scale": 0.5,
+      "fault": null,
+      "label": "normal",
+      "seed_index": 1,
+      "seed": 5011,
+      "electrical_noise_pct": 1.6163807993650137,
+      "mechanical_noise_pct": 9.742227522999924
+    },
+    {
+      "cell": 12,
+      "speed": 100.0,
+      "severity_scale": 0.5,
+      "fault": "outer_race",
+      "label": "outer_race",
+      "seed_index": 0,
+      "seed": 5012,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 13,
+      "speed": 100.0,
+      "severity_scale": 0.5,
+      "fault": "outer_race",
+      "label": "outer_race",
+      "seed_index": 1,
+      "seed": 5013,
+      "electrical_noise_pct": 2.9547264702854736,
+      "mechanical_noise_pct": 63.20578424069112
+    },
+    {
+      "cell": 14,
+      "speed": 100.0,
+      "severity_scale": 0.5,
+      "fault": "inner_race",
+      "label": "inner_race",
+      "seed_index": 0,
+      "seed": 5014,
+      "electrical_noise_pct": 58.41762126594182,
+      "mechanical_noise_pct": 38.525806391251734
+    },
+    {
+      "cell": 15,
+      "speed": 100.0,
+      "severity_scale": 0.5,
+      "fault": "inner_race",
+      "label": "inner_race",
+      "seed_index": 1,
+      "seed": 5015,
+      "electrical_noise_pct": 29.530747645123213,
+      "mechanical_noise_pct": 18.55456874948863
+    },
+    {
+      "cell": 16,
+      "speed": 100.0,
+      "severity_scale": 0.5,
+      "fault": "ball",
+      "label": "ball",
+      "seed_index": 0,
+      "seed": 5016,
+      "electrical_noise_pct": 12.36892821842025,
+      "mechanical_noise_pct": 8.289738540705827
+    },
+    {
+      "cell": 17,
+      "speed": 100.0,
+      "severity_scale": 0.5,
+      "fault": "ball",
+      "label": "ball",
+      "seed_index": 1,
+      "seed": 5017,
+      "electrical_noise_pct": 47.439029324277605,
+      "mechanical_noise_pct": 22.32522150899834
+    },
+    {
+      "cell": 18,
+      "speed": 100.0,
+      "severity_scale": 0.5,
+      "fault": "cage",
+      "label": "cage",
+      "seed_index": 0,
+      "seed": 5018,
+      "electrical_noise_pct": 89.33211855478369,
+      "mechanical_noise_pct": 8.455142798346383
+    },
+    {
+      "cell": 19,
+      "speed": 100.0,
+      "severity_scale": 0.5,
+      "fault": "cage",
+      "label": "cage",
+      "seed_index": 1,
+      "seed": 5019,
+      "electrical_noise_pct": 33.01522276539984,
+      "mechanical_noise_pct": 89.75460321610687
+    },
+    {
+      "cell": 20,
+      "speed": 150.0,
+      "severity_scale": 1.0,
+      "fault": null,
+      "label": "normal",
+      "seed_index": 0,
+      "seed": 5020,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 21,
+      "speed": 150.0,
+      "severity_scale": 1.0,
+      "fault": null,
+      "label": "normal",
+      "seed_index": 1,
+      "seed": 5021,
+      "electrical_noise_pct": 20.577042945362045,
+      "mechanical_noise_pct": 67.22334596646257
+    },
+    {
+      "cell": 22,
+      "speed": 150.0,
+      "severity_scale": 1.0,
+      "fault": "outer_race",
+      "label": "outer_race",
+      "seed_index": 0,
+      "seed": 5022,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 23,
+      "speed": 150.0,
+      "severity_scale": 1.0,
+      "fault": "outer_race",
+      "label": "outer_race",
+      "seed_index": 1,
+      "seed": 5023,
+      "electrical_noise_pct": 42.799851167349715,
+      "mechanical_noise_pct": 16.195108306599295
+    },
+    {
+      "cell": 24,
+      "speed": 150.0,
+      "severity_scale": 1.0,
+      "fault": "inner_race",
+      "label": "inner_race",
+      "seed_index": 0,
+      "seed": 5024,
+      "electrical_noise_pct": 64.1750011443333,
+      "mechanical_noise_pct": 90.86285672538735
+    },
+    {
+      "cell": 25,
+      "speed": 150.0,
+      "severity_scale": 1.0,
+      "fault": "inner_race",
+      "label": "inner_race",
+      "seed_index": 1,
+      "seed": 5025,
+      "electrical_noise_pct": 77.08329414209135,
+      "mechanical_noise_pct": 49.26161561168138
+    },
+    {
+      "cell": 26,
+      "speed": 150.0,
+      "severity_scale": 1.0,
+      "fault": "ball",
+      "label": "ball",
+      "seed_index": 0,
+      "seed": 5026,
+      "electrical_noise_pct": 74.29428890799127,
+      "mechanical_noise_pct": 24.302715969290723
+    },
+    {
+      "cell": 27,
+      "speed": 150.0,
+      "severity_scale": 1.0,
+      "fault": "ball",
+      "label": "ball",
+      "seed_index": 1,
+      "seed": 5027,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 28,
+      "speed": 150.0,
+      "severity_scale": 1.0,
+      "fault": "cage",
+      "label": "cage",
+      "seed_index": 0,
+      "seed": 5028,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 29,
+      "speed": 150.0,
+      "severity_scale": 1.0,
+      "fault": "cage",
+      "label": "cage",
+      "seed_index": 1,
+      "seed": 5029,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 30,
+      "speed": 150.0,
+      "severity_scale": 0.5,
+      "fault": null,
+      "label": "normal",
+      "seed_index": 0,
+      "seed": 5030,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 31,
+      "speed": 150.0,
+      "severity_scale": 0.5,
+      "fault": null,
+      "label": "normal",
+      "seed_index": 1,
+      "seed": 5031,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 32,
+      "speed": 150.0,
+      "severity_scale": 0.5,
+      "fault": "outer_race",
+      "label": "outer_race",
+      "seed_index": 0,
+      "seed": 5032,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 33,
+      "speed": 150.0,
+      "severity_scale": 0.5,
+      "fault": "outer_race",
+      "label": "outer_race",
+      "seed_index": 1,
+      "seed": 5033,
+      "electrical_noise_pct": 13.382835869533483,
+      "mechanical_noise_pct": 21.164048075578002
+    },
+    {
+      "cell": 34,
+      "speed": 150.0,
+      "severity_scale": 0.5,
+      "fault": "inner_race",
+      "label": "inner_race",
+      "seed_index": 0,
+      "seed": 5034,
+      "electrical_noise_pct": 41.7149238991758,
+      "mechanical_noise_pct": 53.32368016407359
+    },
+    {
+      "cell": 35,
+      "speed": 150.0,
+      "severity_scale": 0.5,
+      "fault": "inner_race",
+      "label": "inner_race",
+      "seed_index": 1,
+      "seed": 5035,
+      "electrical_noise_pct": 67.40356229315462,
+      "mechanical_noise_pct": 43.19468649744075
+    },
+    {
+      "cell": 36,
+      "speed": 150.0,
+      "severity_scale": 0.5,
+      "fault": "ball",
+      "label": "ball",
+      "seed_index": 0,
+      "seed": 5036,
+      "electrical_noise_pct": 34.873670595847074,
+      "mechanical_noise_pct": 46.76325280374753
+    },
+    {
+      "cell": 37,
+      "speed": 150.0,
+      "severity_scale": 0.5,
+      "fault": "ball",
+      "label": "ball",
+      "seed_index": 1,
+      "seed": 5037,
+      "electrical_noise_pct": 14.276965891208249,
+      "mechanical_noise_pct": 55.991655197201965
+    },
+    {
+      "cell": 38,
+      "speed": 150.0,
+      "severity_scale": 0.5,
+      "fault": "cage",
+      "label": "cage",
+      "seed_index": 0,
+      "seed": 5038,
+      "electrical_noise_pct": 80.7806857139821,
+      "mechanical_noise_pct": 51.734122661466294
+    },
+    {
+      "cell": 39,
+      "speed": 150.0,
+      "severity_scale": 0.5,
+      "fault": "cage",
+      "label": "cage",
+      "seed_index": 1,
+      "seed": 5039,
+      "electrical_noise_pct": 92.73109251805191,
+      "mechanical_noise_pct": 62.41350997830259
+    },
+    {
+      "cell": 40,
+      "speed": 200.0,
+      "severity_scale": 1.0,
+      "fault": null,
+      "label": "normal",
+      "seed_index": 0,
+      "seed": 5040,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 41,
+      "speed": 200.0,
+      "severity_scale": 1.0,
+      "fault": null,
+      "label": "normal",
+      "seed_index": 1,
+      "seed": 5041,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 42,
+      "speed": 200.0,
+      "severity_scale": 1.0,
+      "fault": "outer_race",
+      "label": "outer_race",
+      "seed_index": 0,
+      "seed": 5042,
+      "electrical_noise_pct": 77.07981007112096,
+      "mechanical_noise_pct": 43.304520337310095
+    },
+    {
+      "cell": 43,
+      "speed": 200.0,
+      "severity_scale": 1.0,
+      "fault": "outer_race",
+      "label": "outer_race",
+      "seed_index": 1,
+      "seed": 5043,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 44,
+      "speed": 200.0,
+      "severity_scale": 1.0,
+      "fault": "inner_race",
+      "label": "inner_race",
+      "seed_index": 0,
+      "seed": 5044,
+      "electrical_noise_pct": 64.99038569722156,
+      "mechanical_noise_pct": 9.31912686910139
+    },
+    {
+      "cell": 45,
+      "speed": 200.0,
+      "severity_scale": 1.0,
+      "fault": "inner_race",
+      "label": "inner_race",
+      "seed_index": 1,
+      "seed": 5045,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 46,
+      "speed": 200.0,
+      "severity_scale": 1.0,
+      "fault": "ball",
+      "label": "ball",
+      "seed_index": 0,
+      "seed": 5046,
+      "electrical_noise_pct": 7.578630200416569,
+      "mechanical_noise_pct": 23.829305354795682
+    },
+    {
+      "cell": 47,
+      "speed": 200.0,
+      "severity_scale": 1.0,
+      "fault": "ball",
+      "label": "ball",
+      "seed_index": 1,
+      "seed": 5047,
+      "electrical_noise_pct": 8.187742347300286,
+      "mechanical_noise_pct": 93.55490551507656
+    },
+    {
+      "cell": 48,
+      "speed": 200.0,
+      "severity_scale": 1.0,
+      "fault": "cage",
+      "label": "cage",
+      "seed_index": 0,
+      "seed": 5048,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 49,
+      "speed": 200.0,
+      "severity_scale": 1.0,
+      "fault": "cage",
+      "label": "cage",
+      "seed_index": 1,
+      "seed": 5049,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 50,
+      "speed": 200.0,
+      "severity_scale": 0.5,
+      "fault": null,
+      "label": "normal",
+      "seed_index": 0,
+      "seed": 5050,
+      "electrical_noise_pct": 11.828148555891804,
+      "mechanical_noise_pct": 73.2524437308312
+    },
+    {
+      "cell": 51,
+      "speed": 200.0,
+      "severity_scale": 0.5,
+      "fault": null,
+      "label": "normal",
+      "seed_index": 1,
+      "seed": 5051,
+      "electrical_noise_pct": 11.015225065803413,
+      "mechanical_noise_pct": 25.184785072023708
+    },
+    {
+      "cell": 52,
+      "speed": 200.0,
+      "severity_scale": 0.5,
+      "fault": "outer_race",
+      "label": "outer_race",
+      "seed_index": 0,
+      "seed": 5052,
+      "electrical_noise_pct": 52.02598242739992,
+      "mechanical_noise_pct": 28.856321971024535
+    },
+    {
+      "cell": 53,
+      "speed": 200.0,
+      "severity_scale": 0.5,
+      "fault": "outer_race",
+      "label": "outer_race",
+      "seed_index": 1,
+      "seed": 5053,
+      "electrical_noise_pct": 88.4249541527966,
+      "mechanical_noise_pct": 5.541284022841442
+    },
+    {
+      "cell": 54,
+      "speed": 200.0,
+      "severity_scale": 0.5,
+      "fault": "inner_race",
+      "label": "inner_race",
+      "seed_index": 0,
+      "seed": 5054,
+      "electrical_noise_pct": 20.925679257152265,
+      "mechanical_noise_pct": 67.49771058939285
+    },
+    {
+      "cell": 55,
+      "speed": 200.0,
+      "severity_scale": 0.5,
+      "fault": "inner_race",
+      "label": "inner_race",
+      "seed_index": 1,
+      "seed": 5055,
+      "electrical_noise_pct": 0.7362323407302696,
+      "mechanical_noise_pct": 30.860378822604794
+    },
+    {
+      "cell": 56,
+      "speed": 200.0,
+      "severity_scale": 0.5,
+      "fault": "ball",
+      "label": "ball",
+      "seed_index": 0,
+      "seed": 5056,
+      "electrical_noise_pct": 61.27434837576524,
+      "mechanical_noise_pct": 94.9551116905895
+    },
+    {
+      "cell": 57,
+      "speed": 200.0,
+      "severity_scale": 0.5,
+      "fault": "ball",
+      "label": "ball",
+      "seed_index": 1,
+      "seed": 5057,
+      "electrical_noise_pct": 29.332402483338484,
+      "mechanical_noise_pct": 0.819610884128763
+    },
+    {
+      "cell": 58,
+      "speed": 200.0,
+      "severity_scale": 0.5,
+      "fault": "cage",
+      "label": "cage",
+      "seed_index": 0,
+      "seed": 5058,
+      "electrical_noise_pct": 0.0,
+      "mechanical_noise_pct": 0.0
+    },
+    {
+      "cell": 59,
+      "speed": 200.0,
+      "severity_scale": 0.5,
+      "fault": "cage",
+      "label": "cage",
+      "seed_index": 1,
+      "seed": 5059,
+      "electrical_noise_pct": 38.006832961736215,
+      "mechanical_noise_pct": 82.31256555702828
+    }
+  ],
+  "simulation": {
+    "runs": 120,
+    "median_wall_s_NAT": 15.990992665290833,
+    "median_wall_s_REF": 51.27139389514923
+  },
+  "signal_nrms": {
+    "startup": {
+      "current_r": {
+        "median": 0.0023210109659265584,
+        "max": 0.38585040538571796
+      },
+      "rpm": {
+        "median": 0.00034404335654949917,
+        "max": 0.0023671383806933943
+      },
+      "torque_nm": {
+        "median": 0.003051904341586349,
+        "max": 0.38585040538571785
+      },
+      "acc_x": {
+        "median": 0.0088380789222079,
+        "max": 0.0314661901874445
+      },
+      "acc_y": {
+        "median": 0.008747071250056934,
+        "max": 0.031353983135764575
+      },
+      "acc_z": {
+        "median": 0.008439833676116375,
+        "max": 0.03133892880733326
+      }
+    },
+    "steady_state": {
+      "current_r": {
+        "median": 0.0028688299125722854,
+        "max": 0.47241750045726577
+      },
+      "rpm": {
+        "median": 0.00013069836785593674,
+        "max": 0.0005084853279960646
+      },
+      "torque_nm": {
+        "median": 0.003670468459987172,
+        "max": 0.47241750045726577
+      },
+      "acc_x": {
+        "median": 0.011432911305267367,
+        "max": 0.03839558703211323
+      },
+      "acc_y": {
+        "median": 0.01134485215500225,
+        "max": 0.038104544164926084
+      },
+      "acc_z": {
+        "median": 0.011273515035599764,
+        "max": 0.03829853327261978
+      }
+    }
+  },
+  "spectral": {
+    "per_run": [
+      {
+        "cell": 0,
+        "label": "normal",
+        "speed": 100.0,
+        "severity_scale": 1.0,
+        "noisy": false,
+        "own_band_max_rel_diff": null,
+        "all_bands_max_rel_diff": 3742.7277654816025,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 48.86960731083326,
+            "A_NAT": 2.879570989217934e-17,
+            "A_REF": 5.959854657511739e-18,
+            "rel_diff": 3.831612773624525
+          },
+          "outer_race_x2": {
+            "f_hz": 97.73921462166652,
+            "A_NAT": 1.530594598608842e-17,
+            "A_REF": 8.309461239941952e-18,
+            "rel_diff": 0.8419901777164247
+          },
+          "outer_race_x3": {
+            "f_hz": 146.60882193249978,
+            "A_NAT": 1.0511259228059375e-17,
+            "A_REF": 2.146854300078704e-18,
+            "rel_diff": 3.8961213752018624
+          },
+          "inner_race_x1": {
+            "f_hz": 78.45434716268299,
+            "A_NAT": 6.209766637710892e-18,
+            "A_REF": 6.306992129039687e-18,
+            "rel_diff": 0.015415508587862916
+          },
+          "inner_race_x2": {
+            "f_hz": 156.90869432536599,
+            "A_NAT": 8.995805142363854e-15,
+            "A_REF": 2.4029004526739704e-18,
+            "rel_diff": 3742.7277654816025
+          },
+          "inner_race_x3": {
+            "f_hz": 235.36304148804896,
+            "A_NAT": 8.332768115630407e-19,
+            "A_REF": 1.5884257841697771e-18,
+            "rel_diff": 0.47540714846896687
+          },
+          "ball_x1": {
+            "f_hz": 32.3987396616265,
+            "A_NAT": 2.6037471253680026e-17,
+            "A_REF": 9.063682174791877e-18,
+            "rel_diff": 1.8727255382030106
+          },
+          "ball_x2": {
+            "f_hz": 64.797479323253,
+            "A_NAT": 2.0285605179452468e-17,
+            "A_REF": 4.517274457178749e-18,
+            "rel_diff": 3.4906736067840756
+          },
+          "ball_x3": {
+            "f_hz": 97.1962189848795,
+            "A_NAT": 1.530594598608842e-17,
+            "A_REF": 8.307016048096577e-18,
+            "rel_diff": 0.8425323723306803
+          },
+          "cage_x1": {
+            "f_hz": 6.1087009138541575,
+            "A_NAT": 1.5432252846405137e-17,
+            "A_REF": 2.2568352289029557e-17,
+            "rel_diff": 0.316199399550018
+          },
+          "cage_x2": {
+            "f_hz": 12.217401827708315,
+            "A_NAT": 1.8477080975956734e-17,
+            "A_REF": 2.0057987408595976e-17,
+            "rel_diff": 0.07881680252534884
+          },
+          "cage_x3": {
+            "f_hz": 18.326102741562472,
+            "A_NAT": 2.1650638637103968e-17,
+            "A_REF": 1.634963359876049e-17,
+            "rel_diff": 0.3242277575410228
+          }
+        }
+      },
+      {
+        "cell": 1,
+        "label": "normal",
+        "speed": 100.0,
+        "severity_scale": 1.0,
+        "noisy": true,
+        "own_band_max_rel_diff": null,
+        "all_bands_max_rel_diff": 5.840935317199138e-05,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 48.86960731083326,
+            "A_NAT": 0.0013658877306495952,
+            "A_REF": 0.0013659675159280165,
+            "rel_diff": 5.8409352704942356e-05
+          },
+          "outer_race_x2": {
+            "f_hz": 97.73921462166652,
+            "A_NAT": 0.001588545019650853,
+            "A_REF": 0.001588637810957048,
+            "rel_diff": 5.840935268881621e-05
+          },
+          "outer_race_x3": {
+            "f_hz": 146.60882193249978,
+            "A_NAT": 0.0011001032892551177,
+            "A_REF": 0.0011001675493295384,
+            "rel_diff": 5.840935270255093e-05
+          },
+          "inner_race_x1": {
+            "f_hz": 78.45434716268299,
+            "A_NAT": 0.0017965554557205256,
+            "A_REF": 0.0017966603974913444,
+            "rel_diff": 5.840935268864027e-05
+          },
+          "inner_race_x2": {
+            "f_hz": 156.90869432536599,
+            "A_NAT": 0.001147369954350282,
+            "A_REF": 0.0011474369754018209,
+            "rel_diff": 5.840935317199138e-05
+          },
+          "inner_race_x3": {
+            "f_hz": 235.36304148804896,
+            "A_NAT": 0.0009493063841471271,
+            "A_REF": 0.0009493618357574012,
+            "rel_diff": 5.840935266782964e-05
+          },
+          "ball_x1": {
+            "f_hz": 32.3987396616265,
+            "A_NAT": 0.0010902331126363602,
+            "A_REF": 0.0010902967961664552,
+            "rel_diff": 5.840935268164509e-05
+          },
+          "ball_x2": {
+            "f_hz": 64.797479323253,
+            "A_NAT": 0.0017441859825995762,
+            "A_REF": 0.0017442878653246524,
+            "rel_diff": 5.840935266564812e-05
+          },
+          "ball_x3": {
+            "f_hz": 97.1962189848795,
+            "A_NAT": 0.001588545019650853,
+            "A_REF": 0.001588637810957048,
+            "rel_diff": 5.840935268881621e-05
+          },
+          "cage_x1": {
+            "f_hz": 6.1087009138541575,
+            "A_NAT": 0.0011187215827424784,
+            "A_REF": 0.001118786930362869,
+            "rel_diff": 5.840935268115959e-05
+          },
+          "cage_x2": {
+            "f_hz": 12.217401827708315,
+            "A_NAT": 0.0012816107915331234,
+            "A_REF": 0.0012816856539624992,
+            "rel_diff": 5.840935267113118e-05
+          },
+          "cage_x3": {
+            "f_hz": 18.326102741562472,
+            "A_NAT": 0.0017626249163238445,
+            "A_REF": 0.001762727876118043,
+            "rel_diff": 5.84093526820352e-05
+          }
+        }
+      },
+      {
+        "cell": 2,
+        "label": "outer_race",
+        "speed": 100.0,
+        "severity_scale": 1.0,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.10780908794436596,
+        "all_bands_max_rel_diff": 0.10780908794436596,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 48.870493858163286,
+            "A_NAT": 21.79174038311204,
+            "A_REF": 21.707226300367303,
+            "rel_diff": 0.003893361665617587
+          },
+          "outer_race_x2": {
+            "f_hz": 97.74098771632657,
+            "A_NAT": 3.6702300662812917,
+            "A_REF": 3.666183681834532,
+            "rel_diff": 0.0011037047780254018
+          },
+          "outer_race_x3": {
+            "f_hz": 146.61148157448986,
+            "A_NAT": 1.3628015379199057,
+            "A_REF": 1.2301772505303237,
+            "rel_diff": 0.10780908794436596
+          },
+          "inner_race_x1": {
+            "f_hz": 78.4557704090693,
+            "A_NAT": 0.815994473467606,
+            "A_REF": 0.8144518224346903,
+            "rel_diff": 0.001894097343049944
+          },
+          "inner_race_x2": {
+            "f_hz": 156.9115408181386,
+            "A_NAT": 0.6383191414662351,
+            "A_REF": 0.6371104357205418,
+            "rel_diff": 0.001897168336799142
+          },
+          "inner_race_x3": {
+            "f_hz": 235.3673112272079,
+            "A_NAT": 0.6932276995872295,
+            "A_REF": 0.6919158286281925,
+            "rel_diff": 0.0018959979014181666
+          },
+          "ball_x1": {
+            "f_hz": 32.39932740967122,
+            "A_NAT": 0.6943284716216315,
+            "A_REF": 0.6930292962744297,
+            "rel_diff": 0.001874632651441843
+          },
+          "ball_x2": {
+            "f_hz": 64.79865481934245,
+            "A_NAT": 0.6623073600417225,
+            "A_REF": 0.6610467216233875,
+            "rel_diff": 0.0019070337649344346
+          },
+          "ball_x3": {
+            "f_hz": 97.19798222901366,
+            "A_NAT": 3.6702300662812917,
+            "A_REF": 3.666183681834532,
+            "rel_diff": 0.0011037047780254018
+          },
+          "cage_x1": {
+            "f_hz": 6.108811732270411,
+            "A_NAT": 0.4660631022953965,
+            "A_REF": 0.4651804478615311,
+            "rel_diff": 0.001897445255756123
+          },
+          "cage_x2": {
+            "f_hz": 12.217623464540821,
+            "A_NAT": 0.8919539526846489,
+            "A_REF": 0.8902565814750989,
+            "rel_diff": 0.0019066089988771667
+          },
+          "cage_x3": {
+            "f_hz": 18.326435196811232,
+            "A_NAT": 0.5726872734625569,
+            "A_REF": 0.5715993713603338,
+            "rel_diff": 0.0019032597947650366
+          }
+        }
+      },
+      {
+        "cell": 3,
+        "label": "outer_race",
+        "speed": 100.0,
+        "severity_scale": 1.0,
+        "noisy": false,
+        "own_band_max_rel_diff": 0.0064472621055792845,
+        "all_bands_max_rel_diff": 0.27650555536463395,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 48.870493858163286,
+            "A_NAT": 21.752966647206822,
+            "A_REF": 21.613617986994804,
+            "rel_diff": 0.0064472621055792845
+          },
+          "outer_race_x2": {
+            "f_hz": 97.74098771632657,
+            "A_NAT": 3.4682014559395116,
+            "A_REF": 3.446671929030423,
+            "rel_diff": 0.006246468289526159
+          },
+          "outer_race_x3": {
+            "f_hz": 146.61148157448986,
+            "A_NAT": 1.1155681930666654,
+            "A_REF": 1.1086862420979071,
+            "rel_diff": 0.006207302577991747
+          },
+          "inner_race_x1": {
+            "f_hz": 78.4557704090693,
+            "A_NAT": 3.076094388148085e-05,
+            "A_REF": 3.243350301176094e-05,
+            "rel_diff": 0.05156887091948066
+          },
+          "inner_race_x2": {
+            "f_hz": 156.9115408181386,
+            "A_NAT": 5.211102796687026e-05,
+            "A_REF": 5.1763390348234603e-05,
+            "rel_diff": 0.00671589739962831
+          },
+          "inner_race_x3": {
+            "f_hz": 235.3673112272079,
+            "A_NAT": 6.711298425337877e-07,
+            "A_REF": 5.997375743541656e-07,
+            "rel_diff": 0.11903917852154201
+          },
+          "ball_x1": {
+            "f_hz": 32.39932740967122,
+            "A_NAT": 0.00020001734438507727,
+            "A_REF": 0.00019874286651158505,
+            "rel_diff": 0.006412697451044993
+          },
+          "ball_x2": {
+            "f_hz": 64.79865481934245,
+            "A_NAT": 0.00022853814811577716,
+            "A_REF": 0.0002275078240476784,
+            "rel_diff": 0.004528741252796785
+          },
+          "ball_x3": {
+            "f_hz": 97.19798222901366,
+            "A_NAT": 3.4682014559395116,
+            "A_REF": 3.446671929030423,
+            "rel_diff": 0.006246468289526159
+          },
+          "cage_x1": {
+            "f_hz": 6.108811732270411,
+            "A_NAT": 1.3016262867617946e-05,
+            "A_REF": 1.333948014419459e-05,
+            "rel_diff": 0.02423012539340297
+          },
+          "cage_x2": {
+            "f_hz": 12.217623464540821,
+            "A_NAT": 1.798103026183572e-05,
+            "A_REF": 2.2928788293259446e-05,
+            "rel_diff": 0.2157880289242435
+          },
+          "cage_x3": {
+            "f_hz": 18.326435196811232,
+            "A_NAT": 2.9168995442464517e-05,
+            "A_REF": 4.031682020331946e-05,
+            "rel_diff": 0.27650555536463395
+          }
+        }
+      },
+      {
+        "cell": 4,
+        "label": "inner_race",
+        "speed": 100.0,
+        "severity_scale": 1.0,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.021990003415876612,
+        "all_bands_max_rel_diff": 0.021990003415876612,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 48.8696048675701,
+            "A_NAT": 0.549990108758652,
+            "A_REF": 0.5493889482052416,
+            "rel_diff": 0.0010942348865483993
+          },
+          "outer_race_x2": {
+            "f_hz": 97.7392097351402,
+            "A_NAT": 0.6429973678697286,
+            "A_REF": 0.6422953388509879,
+            "rel_diff": 0.0010930003322094704
+          },
+          "outer_race_x3": {
+            "f_hz": 146.60881460271028,
+            "A_NAT": 0.6092098830423069,
+            "A_REF": 0.6085394779095579,
+            "rel_diff": 0.001101662516706453
+          },
+          "inner_race_x1": {
+            "f_hz": 78.45434324031432,
+            "A_NAT": 14.586139917224838,
+            "A_REF": 14.482517535900818,
+            "rel_diff": 0.007154997814927471
+          },
+          "inner_race_x2": {
+            "f_hz": 156.90868648062863,
+            "A_NAT": 2.4728531092448893,
+            "A_REF": 2.4196451051181325,
+            "rel_diff": 0.021990003415876612
+          },
+          "inner_race_x3": {
+            "f_hz": 235.36302972094296,
+            "A_NAT": 0.6488343687781905,
+            "A_REF": 0.6455362200585046,
+            "rel_diff": 0.00510916137190087
+          },
+          "ball_x1": {
+            "f_hz": 32.398738041833504,
+            "A_NAT": 0.3997004188298891,
+            "A_REF": 0.39926779054668265,
+            "rel_diff": 0.0010835541795497414
+          },
+          "ball_x2": {
+            "f_hz": 64.79747608366701,
+            "A_NAT": 0.7476615844259484,
+            "A_REF": 0.7468349099071722,
+            "rel_diff": 0.001106903959375738
+          },
+          "ball_x3": {
+            "f_hz": 97.19621412550052,
+            "A_NAT": 0.6429973678697286,
+            "A_REF": 0.6422953388509879,
+            "rel_diff": 0.0010930003322094704
+          },
+          "cage_x1": {
+            "f_hz": 6.108700608446262,
+            "A_NAT": 0.564432266088822,
+            "A_REF": 0.5638153940151378,
+            "rel_diff": 0.0010941029284270546
+          },
+          "cage_x2": {
+            "f_hz": 12.217401216892524,
+            "A_NAT": 0.699824920210819,
+            "A_REF": 0.699056998019022,
+            "rel_diff": 0.0010985115576743047
+          },
+          "cage_x3": {
+            "f_hz": 18.326101825338785,
+            "A_NAT": 0.6926758072019391,
+            "A_REF": 0.6919204263885016,
+            "rel_diff": 0.0010917163081602366
+          }
+        }
+      },
+      {
+        "cell": 5,
+        "label": "inner_race",
+        "speed": 100.0,
+        "severity_scale": 1.0,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.07732513300994881,
+        "all_bands_max_rel_diff": 0.07732513300994881,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 48.8696048675701,
+            "A_NAT": 0.5009085802329459,
+            "A_REF": 0.5003628164298627,
+            "rel_diff": 0.0010907361321876817
+          },
+          "outer_race_x2": {
+            "f_hz": 97.7392097351402,
+            "A_NAT": 0.34400834811551434,
+            "A_REF": 0.3436304196242035,
+            "rel_diff": 0.0010998109297895042
+          },
+          "outer_race_x3": {
+            "f_hz": 146.60881460271028,
+            "A_NAT": 0.3281119170340959,
+            "A_REF": 0.3277632424524158,
+            "rel_diff": 0.001063800135339343
+          },
+          "inner_race_x1": {
+            "f_hz": 78.45434324031432,
+            "A_NAT": 14.120250879971648,
+            "A_REF": 13.988025101909976,
+            "rel_diff": 0.00945278387037048
+          },
+          "inner_race_x2": {
+            "f_hz": 156.90868648062863,
+            "A_NAT": 2.463020810239759,
+            "A_REF": 2.3936217042072534,
+            "rel_diff": 0.028993347574733007
+          },
+          "inner_race_x3": {
+            "f_hz": 235.36302972094296,
+            "A_NAT": 1.018929247752344,
+            "A_REF": 0.9457954859973868,
+            "rel_diff": 0.07732513300994881
+          },
+          "ball_x1": {
+            "f_hz": 32.398738041833504,
+            "A_NAT": 0.6779233080898973,
+            "A_REF": 0.6771871448637233,
+            "rel_diff": 0.0010870897827248704
+          },
+          "ball_x2": {
+            "f_hz": 64.79747608366701,
+            "A_NAT": 0.7063588323837737,
+            "A_REF": 0.7055896144579598,
+            "rel_diff": 0.00109017750552478
+          },
+          "ball_x3": {
+            "f_hz": 97.19621412550052,
+            "A_NAT": 0.4092691414072346,
+            "A_REF": 0.40881865293151026,
+            "rel_diff": 0.0011019274010469152
+          },
+          "cage_x1": {
+            "f_hz": 6.108700608446262,
+            "A_NAT": 0.4238576167713074,
+            "A_REF": 0.42338732535569606,
+            "rel_diff": 0.0011107829343172558
+          },
+          "cage_x2": {
+            "f_hz": 12.217401216892524,
+            "A_NAT": 0.4606850044069275,
+            "A_REF": 0.460180733939975,
+            "rel_diff": 0.0010958096020992516
+          },
+          "cage_x3": {
+            "f_hz": 18.326101825338785,
+            "A_NAT": 0.5878158539473075,
+            "A_REF": 0.5871734288552817,
+            "rel_diff": 0.001094097689805663
+          }
+        }
+      },
+      {
+        "cell": 6,
+        "label": "ball",
+        "speed": 100.0,
+        "severity_scale": 1.0,
+        "noisy": false,
+        "own_band_max_rel_diff": 0.024458966957414768,
+        "all_bands_max_rel_diff": 0.15970786953596713,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 62.33361971436744,
+            "A_NAT": 6.26948269693087e-05,
+            "A_REF": 6.236192316979932e-05,
+            "rel_diff": 0.005338254219693409
+          },
+          "outer_race_x2": {
+            "f_hz": 124.66723942873487,
+            "A_NAT": 0.45013721759313247,
+            "A_REF": 0.43939018751528386,
+            "rel_diff": 0.024458966957414768
+          },
+          "outer_race_x3": {
+            "f_hz": 187.0008591431023,
+            "A_NAT": 5.266269798475649e-07,
+            "A_REF": 5.233756006640577e-07,
+            "rel_diff": 0.006212324723166046
+          },
+          "inner_race_x1": {
+            "f_hz": 100.06921909302037,
+            "A_NAT": 1.3386800149974753e-05,
+            "A_REF": 1.3066644066029916e-05,
+            "rel_diff": 0.024501783497505994
+          },
+          "inner_race_x2": {
+            "f_hz": 200.13843818604073,
+            "A_NAT": 5.616489679948974e-07,
+            "A_REF": 5.248808816183696e-07,
+            "rel_diff": 0.0700503441145741
+          },
+          "inner_race_x3": {
+            "f_hz": 300.2076572790611,
+            "A_NAT": 2.1641837007435342e-08,
+            "A_REF": 2.57551346999812e-08,
+            "rel_diff": 0.15970786953596713
+          },
+          "ball_x1": {
+            "f_hz": 41.3248812180436,
+            "A_NAT": 10.739694064960473,
+            "A_REF": 10.662126378688074,
+            "rel_diff": 0.0072750672349415
+          },
+          "ball_x2": {
+            "f_hz": 82.6497624360872,
+            "A_NAT": 1.7228113309474815,
+            "A_REF": 1.6962583162121634,
+            "rel_diff": 0.015653874460944395
+          },
+          "ball_x3": {
+            "f_hz": 123.9746436541308,
+            "A_NAT": 0.45013721759313247,
+            "A_REF": 0.43939018751528386,
+            "rel_diff": 0.024458966957414768
+          },
+          "cage_x1": {
+            "f_hz": 7.79170246429593,
+            "A_NAT": 1.2773511368892294e-05,
+            "A_REF": 1.2387957787899491e-05,
+            "rel_diff": 0.03112325595502185
+          },
+          "cage_x2": {
+            "f_hz": 15.58340492859186,
+            "A_NAT": 2.9984359099959644e-05,
+            "A_REF": 2.9590923017432458e-05,
+            "rel_diff": 0.013295836777224122
+          },
+          "cage_x3": {
+            "f_hz": 23.375107392887788,
+            "A_NAT": 9.349395895126537e-05,
+            "A_REF": 9.275428454823747e-05,
+            "rel_diff": 0.007974557796769205
+          }
+        }
+      },
+      {
+        "cell": 7,
+        "label": "ball",
+        "speed": 100.0,
+        "severity_scale": 1.0,
+        "noisy": false,
+        "own_band_max_rel_diff": 0.024458966957414768,
+        "all_bands_max_rel_diff": 0.15970786953596713,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 62.33361971436744,
+            "A_NAT": 6.26948269693087e-05,
+            "A_REF": 6.236192316979932e-05,
+            "rel_diff": 0.005338254219693409
+          },
+          "outer_race_x2": {
+            "f_hz": 124.66723942873487,
+            "A_NAT": 0.45013721759313247,
+            "A_REF": 0.43939018751528386,
+            "rel_diff": 0.024458966957414768
+          },
+          "outer_race_x3": {
+            "f_hz": 187.0008591431023,
+            "A_NAT": 5.266269798475649e-07,
+            "A_REF": 5.233756006640577e-07,
+            "rel_diff": 0.006212324723166046
+          },
+          "inner_race_x1": {
+            "f_hz": 100.06921909302037,
+            "A_NAT": 1.3386800149974753e-05,
+            "A_REF": 1.3066644066029916e-05,
+            "rel_diff": 0.024501783497505994
+          },
+          "inner_race_x2": {
+            "f_hz": 200.13843818604073,
+            "A_NAT": 5.616489679948974e-07,
+            "A_REF": 5.248808816183696e-07,
+            "rel_diff": 0.0700503441145741
+          },
+          "inner_race_x3": {
+            "f_hz": 300.2076572790611,
+            "A_NAT": 2.1641837007435342e-08,
+            "A_REF": 2.57551346999812e-08,
+            "rel_diff": 0.15970786953596713
+          },
+          "ball_x1": {
+            "f_hz": 41.3248812180436,
+            "A_NAT": 10.739694064960473,
+            "A_REF": 10.662126378688074,
+            "rel_diff": 0.0072750672349415
+          },
+          "ball_x2": {
+            "f_hz": 82.6497624360872,
+            "A_NAT": 1.7228113309474815,
+            "A_REF": 1.6962583162121634,
+            "rel_diff": 0.015653874460944395
+          },
+          "ball_x3": {
+            "f_hz": 123.9746436541308,
+            "A_NAT": 0.45013721759313247,
+            "A_REF": 0.43939018751528386,
+            "rel_diff": 0.024458966957414768
+          },
+          "cage_x1": {
+            "f_hz": 7.79170246429593,
+            "A_NAT": 1.2773511368892294e-05,
+            "A_REF": 1.2387957787899491e-05,
+            "rel_diff": 0.03112325595502185
+          },
+          "cage_x2": {
+            "f_hz": 15.58340492859186,
+            "A_NAT": 2.9984359099959644e-05,
+            "A_REF": 2.9590923017432458e-05,
+            "rel_diff": 0.013295836777224122
+          },
+          "cage_x3": {
+            "f_hz": 23.375107392887788,
+            "A_NAT": 9.349395895126537e-05,
+            "A_REF": 9.275428454823747e-05,
+            "rel_diff": 0.007974557796769205
+          }
+        }
+      },
+      {
+        "cell": 8,
+        "label": "cage",
+        "speed": 100.0,
+        "severity_scale": 1.0,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.015550705005774629,
+        "all_bands_max_rel_diff": 0.03720607725753238,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 62.31305591140988,
+            "A_NAT": 2.033756057448684,
+            "A_REF": 1.9608022957463966,
+            "rel_diff": 0.03720607725753238
+          },
+          "outer_race_x2": {
+            "f_hz": 124.62611182281977,
+            "A_NAT": 1.687208459535825,
+            "A_REF": 1.6266862024373405,
+            "rel_diff": 0.03720585876231145
+          },
+          "outer_race_x3": {
+            "f_hz": 186.93916773422964,
+            "A_NAT": 1.7978720275894062,
+            "A_REF": 1.7333801968751454,
+            "rel_diff": 0.03720581949102889
+          },
+          "inner_race_x1": {
+            "f_hz": 100.03620635105264,
+            "A_NAT": 1.4306589313513927,
+            "A_REF": 1.3793395868083838,
+            "rel_diff": 0.03720573601585331
+          },
+          "inner_race_x2": {
+            "f_hz": 200.07241270210528,
+            "A_NAT": 1.7305274254833112,
+            "A_REF": 1.6684513120845603,
+            "rel_diff": 0.03720582851242633
+          },
+          "inner_race_x3": {
+            "f_hz": 300.1086190531579,
+            "A_NAT": 1.339646438090731,
+            "A_REF": 1.2915916940416385,
+            "rel_diff": 0.03720583236233105
+          },
+          "ball_x1": {
+            "f_hz": 41.31124817830508,
+            "A_NAT": 2.474967246102508,
+            "A_REF": 2.3861889407997494,
+            "rel_diff": 0.037205061084980104
+          },
+          "ball_x2": {
+            "f_hz": 82.62249635661016,
+            "A_NAT": 1.4332937553865304,
+            "A_REF": 1.381879590590661,
+            "rel_diff": 0.03720596580624898
+          },
+          "ball_x3": {
+            "f_hz": 123.93374453491523,
+            "A_NAT": 1.405552998764921,
+            "A_REF": 1.3551341228928582,
+            "rel_diff": 0.0372058197194766
+          },
+          "cage_x1": {
+            "f_hz": 7.789131988926235,
+            "A_NAT": 34.4622486359336,
+            "A_REF": 34.42351250183121,
+            "rel_diff": 0.0011252812768692783
+          },
+          "cage_x2": {
+            "f_hz": 15.57826397785247,
+            "A_NAT": 8.508887365441682,
+            "A_REF": 8.486161805076584,
+            "rel_diff": 0.0026779551093997407
+          },
+          "cage_x3": {
+            "f_hz": 23.367395966778705,
+            "A_NAT": 4.399581889499878,
+            "A_REF": 4.332212924292008,
+            "rel_diff": 0.015550705005774629
+          }
+        }
+      },
+      {
+        "cell": 9,
+        "label": "cage",
+        "speed": 100.0,
+        "severity_scale": 1.0,
+        "noisy": false,
+        "own_band_max_rel_diff": 0.004328029016312152,
+        "all_bands_max_rel_diff": 0.169264469133001,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 62.31305591140988,
+            "A_NAT": 0.00011509405584356696,
+            "A_REF": 0.00011407530549603129,
+            "rel_diff": 0.00893050729170405
+          },
+          "outer_race_x2": {
+            "f_hz": 124.62611182281977,
+            "A_NAT": 1.8424069067255252e-06,
+            "A_REF": 2.005865700800675e-06,
+            "rel_diff": 0.08149039789149519
+          },
+          "outer_race_x3": {
+            "f_hz": 186.93916773422964,
+            "A_NAT": 5.286299596624605e-07,
+            "A_REF": 6.121802776501698e-07,
+            "rel_diff": 0.13647992435890602
+          },
+          "inner_race_x1": {
+            "f_hz": 100.03620635105264,
+            "A_NAT": 3.6766018806238166e-06,
+            "A_REF": 4.425718828694763e-06,
+            "rel_diff": 0.169264469133001
+          },
+          "inner_race_x2": {
+            "f_hz": 200.07241270210528,
+            "A_NAT": 4.2683771713601756e-07,
+            "A_REF": 4.598283209074145e-07,
+            "rel_diff": 0.07174548037035657
+          },
+          "inner_race_x3": {
+            "f_hz": 300.1086190531579,
+            "A_NAT": 1.2418399061998427e-07,
+            "A_REF": 1.2653045168968536e-07,
+            "rel_diff": 0.018544635211259344
+          },
+          "ball_x1": {
+            "f_hz": 41.31124817830508,
+            "A_NAT": 0.026270196447496393,
+            "A_REF": 0.02606046831734513,
+            "rel_diff": 0.008047749856117314
+          },
+          "ball_x2": {
+            "f_hz": 82.62249635661016,
+            "A_NAT": 6.843146240011998e-06,
+            "A_REF": 6.831666733784632e-06,
+            "rel_diff": 0.0016803375625155598
+          },
+          "ball_x3": {
+            "f_hz": 123.93374453491523,
+            "A_NAT": 1.8894253640687865e-06,
+            "A_REF": 2.005865700800675e-06,
+            "rel_diff": 0.05804991664467342
+          },
+          "cage_x1": {
+            "f_hz": 7.789131988926235,
+            "A_NAT": 34.56099226905706,
+            "A_REF": 34.51659649576396,
+            "rel_diff": 0.0012862152645480359
+          },
+          "cage_x2": {
+            "f_hz": 15.57826397785247,
+            "A_NAT": 9.160149387916002,
+            "A_REF": 9.133394100466402,
+            "rel_diff": 0.0029293915444022598
+          },
+          "cage_x3": {
+            "f_hz": 23.367395966778705,
+            "A_NAT": 2.724730561578804,
+            "A_REF": 2.712988667903193,
+            "rel_diff": 0.004328029016312152
+          }
+        }
+      },
+      {
+        "cell": 10,
+        "label": "normal",
+        "speed": 100.0,
+        "severity_scale": 0.5,
+        "noisy": false,
+        "own_band_max_rel_diff": null,
+        "all_bands_max_rel_diff": 3742.7277654816025,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 48.86960731083326,
+            "A_NAT": 2.879570989217934e-17,
+            "A_REF": 5.959854657511739e-18,
+            "rel_diff": 3.831612773624525
+          },
+          "outer_race_x2": {
+            "f_hz": 97.73921462166652,
+            "A_NAT": 1.530594598608842e-17,
+            "A_REF": 8.309461239941952e-18,
+            "rel_diff": 0.8419901777164247
+          },
+          "outer_race_x3": {
+            "f_hz": 146.60882193249978,
+            "A_NAT": 1.0511259228059375e-17,
+            "A_REF": 2.146854300078704e-18,
+            "rel_diff": 3.8961213752018624
+          },
+          "inner_race_x1": {
+            "f_hz": 78.45434716268299,
+            "A_NAT": 6.209766637710892e-18,
+            "A_REF": 6.306992129039687e-18,
+            "rel_diff": 0.015415508587862916
+          },
+          "inner_race_x2": {
+            "f_hz": 156.90869432536599,
+            "A_NAT": 8.995805142363854e-15,
+            "A_REF": 2.4029004526739704e-18,
+            "rel_diff": 3742.7277654816025
+          },
+          "inner_race_x3": {
+            "f_hz": 235.36304148804896,
+            "A_NAT": 8.332768115630407e-19,
+            "A_REF": 1.5884257841697771e-18,
+            "rel_diff": 0.47540714846896687
+          },
+          "ball_x1": {
+            "f_hz": 32.3987396616265,
+            "A_NAT": 2.6037471253680026e-17,
+            "A_REF": 9.063682174791877e-18,
+            "rel_diff": 1.8727255382030106
+          },
+          "ball_x2": {
+            "f_hz": 64.797479323253,
+            "A_NAT": 2.0285605179452468e-17,
+            "A_REF": 4.517274457178749e-18,
+            "rel_diff": 3.4906736067840756
+          },
+          "ball_x3": {
+            "f_hz": 97.1962189848795,
+            "A_NAT": 1.530594598608842e-17,
+            "A_REF": 8.307016048096577e-18,
+            "rel_diff": 0.8425323723306803
+          },
+          "cage_x1": {
+            "f_hz": 6.1087009138541575,
+            "A_NAT": 1.5432252846405137e-17,
+            "A_REF": 2.2568352289029557e-17,
+            "rel_diff": 0.316199399550018
+          },
+          "cage_x2": {
+            "f_hz": 12.217401827708315,
+            "A_NAT": 1.8477080975956734e-17,
+            "A_REF": 2.0057987408595976e-17,
+            "rel_diff": 0.07881680252534884
+          },
+          "cage_x3": {
+            "f_hz": 18.326102741562472,
+            "A_NAT": 2.1650638637103968e-17,
+            "A_REF": 1.634963359876049e-17,
+            "rel_diff": 0.3242277575410228
+          }
+        }
+      },
+      {
+        "cell": 11,
+        "label": "normal",
+        "speed": 100.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": null,
+        "all_bands_max_rel_diff": 5.840935269649508e-05,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 48.86960731083326,
+            "A_NAT": 0.0101211426369481,
+            "A_REF": 0.010121733840869838,
+            "rel_diff": 5.84093526892723e-05
+          },
+          "outer_race_x2": {
+            "f_hz": 97.73921462166652,
+            "A_NAT": 0.013556364935842282,
+            "A_REF": 0.013557156800595348,
+            "rel_diff": 5.8409352691948044e-05
+          },
+          "outer_race_x3": {
+            "f_hz": 146.60882193249978,
+            "A_NAT": 0.010192422339927842,
+            "A_REF": 0.010193017707494081,
+            "rel_diff": 5.840935268864902e-05
+          },
+          "inner_race_x1": {
+            "f_hz": 78.45434716268299,
+            "A_NAT": 0.008019352179005308,
+            "A_REF": 0.008019820611535933,
+            "rel_diff": 5.8409352692015176e-05
+          },
+          "inner_race_x2": {
+            "f_hz": 156.90869432536599,
+            "A_NAT": 0.009183393277728689,
+            "A_REF": 0.009183929705117975,
+            "rel_diff": 5.840935269649508e-05
+          },
+          "inner_race_x3": {
+            "f_hz": 235.36304148804896,
+            "A_NAT": 0.010752250147196279,
+            "A_REF": 0.01075287821585243,
+            "rel_diff": 5.840935269080422e-05
+          },
+          "ball_x1": {
+            "f_hz": 32.3987396616265,
+            "A_NAT": 0.00893487878075625,
+            "A_REF": 0.008935400691726703,
+            "rel_diff": 5.840935269267535e-05
+          },
+          "ball_x2": {
+            "f_hz": 64.797479323253,
+            "A_NAT": 0.01160196227574024,
+            "A_REF": 0.01160263997843093,
+            "rel_diff": 5.840935269468571e-05
+          },
+          "ball_x3": {
+            "f_hz": 97.1962189848795,
+            "A_NAT": 0.013556364935842282,
+            "A_REF": 0.013557156800595348,
+            "rel_diff": 5.8409352691948044e-05
+          },
+          "cage_x1": {
+            "f_hz": 6.1087009138541575,
+            "A_NAT": 0.012944970349177166,
+            "A_REF": 0.012945726500682172,
+            "rel_diff": 5.840935268993505e-05
+          },
+          "cage_x2": {
+            "f_hz": 12.217401827708315,
+            "A_NAT": 0.012193067634088308,
+            "A_REF": 0.012193779864877057,
+            "rel_diff": 5.840935268978127e-05
+          },
+          "cage_x3": {
+            "f_hz": 18.326102741562472,
+            "A_NAT": 0.012756459201818187,
+            "A_REF": 0.012757204341865969,
+            "rel_diff": 5.84093526931247e-05
+          }
+        }
+      },
+      {
+        "cell": 12,
+        "label": "outer_race",
+        "speed": 100.0,
+        "severity_scale": 0.5,
+        "noisy": false,
+        "own_band_max_rel_diff": 0.006511331282386338,
+        "all_bands_max_rel_diff": 0.6256348882513711,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 48.869318182497686,
+            "A_NAT": 10.868288394245653,
+            "A_REF": 10.797979174659138,
+            "rel_diff": 0.006511331282386338
+          },
+          "outer_race_x2": {
+            "f_hz": 97.73863636499537,
+            "A_NAT": 1.7367965713485236,
+            "A_REF": 1.7261079619830104,
+            "rel_diff": 0.006192317978322607
+          },
+          "outer_race_x3": {
+            "f_hz": 146.60795454749305,
+            "A_NAT": 0.5594862895829398,
+            "A_REF": 0.5561711253139235,
+            "rel_diff": 0.005960691086120362
+          },
+          "inner_race_x1": {
+            "f_hz": 78.45388300149853,
+            "A_NAT": 2.515069738845979e-05,
+            "A_REF": 2.5308229089565144e-05,
+            "rel_diff": 0.006224524859003487
+          },
+          "inner_race_x2": {
+            "f_hz": 156.90776600299705,
+            "A_NAT": 2.6104330595751695e-05,
+            "A_REF": 2.5920479396211245e-05,
+            "rel_diff": 0.00709289348897317
+          },
+          "inner_race_x3": {
+            "f_hz": 235.36164900449558,
+            "A_NAT": 1.2369421769545144e-07,
+            "A_REF": 1.5827004532630267e-07,
+            "rel_diff": 0.21846097004374282
+          },
+          "ball_x1": {
+            "f_hz": 32.39854798024847,
+            "A_NAT": 9.8644085208742e-05,
+            "A_REF": 9.800026695813955e-05,
+            "rel_diff": 0.006569556089856899
+          },
+          "ball_x2": {
+            "f_hz": 64.79709596049695,
+            "A_NAT": 0.00011692128023327335,
+            "A_REF": 0.00011614832697146295,
+            "rel_diff": 0.006654880719894593
+          },
+          "ball_x3": {
+            "f_hz": 97.19564394074541,
+            "A_NAT": 1.7367965713485236,
+            "A_REF": 1.7261079619830104,
+            "rel_diff": 0.006192317978322607
+          },
+          "cage_x1": {
+            "f_hz": 6.108664772812211,
+            "A_NAT": 3.6794979067948853e-06,
+            "A_REF": 7.604377472047698e-06,
+            "rel_diff": 0.5161342371127621
+          },
+          "cage_x2": {
+            "f_hz": 12.217329545624422,
+            "A_NAT": 6.758939348636341e-06,
+            "A_REF": 1.8054405008698295e-05,
+            "rel_diff": 0.6256348882513711
+          },
+          "cage_x3": {
+            "f_hz": 18.32599431843663,
+            "A_NAT": 1.2783365353126468e-05,
+            "A_REF": 1.8482600879233357e-05,
+            "rel_diff": 0.3083567926043582
+          }
+        }
+      },
+      {
+        "cell": 13,
+        "label": "outer_race",
+        "speed": 100.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.008730192929212982,
+        "all_bands_max_rel_diff": 0.008730192929212982,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 48.869318182497686,
+            "A_NAT": 10.864101856991814,
+            "A_REF": 10.79401245357388,
+            "rel_diff": 0.0064933595101354935
+          },
+          "outer_race_x2": {
+            "f_hz": 97.73863636499537,
+            "A_NAT": 1.7460593542204503,
+            "A_REF": 1.7348107373114017,
+            "rel_diff": 0.00648405999981398
+          },
+          "outer_race_x3": {
+            "f_hz": 146.60795454749305,
+            "A_NAT": 0.566271737109934,
+            "A_REF": 0.5613708611869336,
+            "rel_diff": 0.008730192929212982
+          },
+          "inner_race_x1": {
+            "f_hz": 78.45388300149853,
+            "A_NAT": 0.016470092006930226,
+            "A_REF": 0.01646106086747272,
+            "rel_diff": 0.0005486365386905195
+          },
+          "inner_race_x2": {
+            "f_hz": 156.90776600299705,
+            "A_NAT": 0.023320184416502507,
+            "A_REF": 0.023305460736274257,
+            "rel_diff": 0.0006317695408326755
+          },
+          "inner_race_x3": {
+            "f_hz": 235.36164900449558,
+            "A_NAT": 0.02714399839812986,
+            "A_REF": 0.027125619191904888,
+            "rel_diff": 0.0006775589561641578
+          },
+          "ball_x1": {
+            "f_hz": 32.39854798024847,
+            "A_NAT": 0.024071965438451987,
+            "A_REF": 0.02407349801491733,
+            "rel_diff": 6.366239191301037e-05
+          },
+          "ball_x2": {
+            "f_hz": 64.79709596049695,
+            "A_NAT": 0.02457479252377795,
+            "A_REF": 0.024561133509116834,
+            "rel_diff": 0.0005561231388626746
+          },
+          "ball_x3": {
+            "f_hz": 97.19564394074541,
+            "A_NAT": 1.7460593542204503,
+            "A_REF": 1.7348107373114017,
+            "rel_diff": 0.00648405999981398
+          },
+          "cage_x1": {
+            "f_hz": 6.108664772812211,
+            "A_NAT": 0.020290135234515738,
+            "A_REF": 0.020275812936171374,
+            "rel_diff": 0.0007063735688157411
+          },
+          "cage_x2": {
+            "f_hz": 12.217329545624422,
+            "A_NAT": 0.02290596848136484,
+            "A_REF": 0.022892302671303894,
+            "rel_diff": 0.0005969609198848908
+          },
+          "cage_x3": {
+            "f_hz": 18.32599431843663,
+            "A_NAT": 0.025857344557741205,
+            "A_REF": 0.025840403307128838,
+            "rel_diff": 0.0006556109210452378
+          }
+        }
+      },
+      {
+        "cell": 14,
+        "label": "inner_race",
+        "speed": 100.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.05094363569216067,
+        "all_bands_max_rel_diff": 0.05094363569216067,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 48.86953710524836,
+            "A_NAT": 0.4106742283159748,
+            "A_REF": 0.410535346990331,
+            "rel_diff": 0.0003382932228903551
+          },
+          "outer_race_x2": {
+            "f_hz": 97.73907421049672,
+            "A_NAT": 0.35749027662671495,
+            "A_REF": 0.357366001611734,
+            "rel_diff": 0.0003477527644501239
+          },
+          "outer_race_x3": {
+            "f_hz": 146.6086113157451,
+            "A_NAT": 0.5202321265744078,
+            "A_REF": 0.5200529568621901,
+            "rel_diff": 0.0003445220527130496
+          },
+          "inner_race_x1": {
+            "f_hz": 78.45423445595925,
+            "A_NAT": 7.1116758832190605,
+            "A_REF": 7.061523852150246,
+            "rel_diff": 0.007102154169392695
+          },
+          "inner_race_x2": {
+            "f_hz": 156.9084689119185,
+            "A_NAT": 1.1715337513895663,
+            "A_REF": 1.2007817966136576,
+            "rel_diff": 0.02435750217614403
+          },
+          "inner_race_x3": {
+            "f_hz": 235.36270336787777,
+            "A_NAT": 0.44225395377031174,
+            "A_REF": 0.4208160540208604,
+            "rel_diff": 0.05094363569216067
+          },
+          "ball_x1": {
+            "f_hz": 32.39869311792392,
+            "A_NAT": 0.6572703376778827,
+            "A_REF": 0.6570444129709689,
+            "rel_diff": 0.00034384997795228276
+          },
+          "ball_x2": {
+            "f_hz": 64.79738623584784,
+            "A_NAT": 0.3240222909169797,
+            "A_REF": 0.3239141219680199,
+            "rel_diff": 0.0003339432942985387
+          },
+          "ball_x3": {
+            "f_hz": 97.19607935377175,
+            "A_NAT": 0.4219249538976416,
+            "A_REF": 0.421780674474497,
+            "rel_diff": 0.00034207215236771996
+          },
+          "cage_x1": {
+            "f_hz": 6.108692138156045,
+            "A_NAT": 0.5892403479786952,
+            "A_REF": 0.5890363964145223,
+            "rel_diff": 0.00034624611554449404
+          },
+          "cage_x2": {
+            "f_hz": 12.21738427631209,
+            "A_NAT": 0.45509252597003536,
+            "A_REF": 0.4549371840285371,
+            "rel_diff": 0.00034145800113032646
+          },
+          "cage_x3": {
+            "f_hz": 18.326076414468137,
+            "A_NAT": 0.48094820577416875,
+            "A_REF": 0.48078394652134376,
+            "rel_diff": 0.000341648788428694
+          }
+        }
+      },
+      {
+        "cell": 15,
+        "label": "inner_race",
+        "speed": 100.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.04793339861936563,
+        "all_bands_max_rel_diff": 0.04793339861936563,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 48.86953710524836,
+            "A_NAT": 0.1742816945326738,
+            "A_REF": 0.17422276556909652,
+            "rel_diff": 0.00033823916974797425
+          },
+          "outer_race_x2": {
+            "f_hz": 97.73907421049672,
+            "A_NAT": 0.11597740910398309,
+            "A_REF": 0.11593790016890329,
+            "rel_diff": 0.000340776700477071
+          },
+          "outer_race_x3": {
+            "f_hz": 146.6086113157451,
+            "A_NAT": 0.19492426141307256,
+            "A_REF": 0.19485111939883631,
+            "rel_diff": 0.0003753738467703468
+          },
+          "inner_race_x1": {
+            "f_hz": 78.45423445595925,
+            "A_NAT": 7.403250469597406,
+            "A_REF": 7.355669619685306,
+            "rel_diff": 0.006468595297532598
+          },
+          "inner_race_x2": {
+            "f_hz": 156.9084689119185,
+            "A_NAT": 1.1315126016236228,
+            "A_REF": 1.0941834220322397,
+            "rel_diff": 0.034116016418939264
+          },
+          "inner_race_x3": {
+            "f_hz": 235.36270336787777,
+            "A_NAT": 0.5280784699736222,
+            "A_REF": 0.5039236946444846,
+            "rel_diff": 0.04793339861936563
+          },
+          "ball_x1": {
+            "f_hz": 32.39869311792392,
+            "A_NAT": 0.1818606306586956,
+            "A_REF": 0.1817982532089463,
+            "rel_diff": 0.0003431135813918047
+          },
+          "ball_x2": {
+            "f_hz": 64.79738623584784,
+            "A_NAT": 0.3013810563772649,
+            "A_REF": 0.30127593271745695,
+            "rel_diff": 0.00034892816980026746
+          },
+          "ball_x3": {
+            "f_hz": 97.19607935377175,
+            "A_NAT": 0.11597740910398309,
+            "A_REF": 0.11593790016890329,
+            "rel_diff": 0.000340776700477071
+          },
+          "cage_x1": {
+            "f_hz": 6.108692138156045,
+            "A_NAT": 0.21360382497226765,
+            "A_REF": 0.21352860294064566,
+            "rel_diff": 0.00035228082133289596
+          },
+          "cage_x2": {
+            "f_hz": 12.21738427631209,
+            "A_NAT": 0.2933661039359491,
+            "A_REF": 0.29326414309283894,
+            "rel_diff": 0.0003476757916424561
+          },
+          "cage_x3": {
+            "f_hz": 18.326076414468137,
+            "A_NAT": 0.2530014543705444,
+            "A_REF": 0.2529134781325497,
+            "rel_diff": 0.00034785112538985197
+          }
+        }
+      },
+      {
+        "cell": 16,
+        "label": "ball",
+        "speed": 100.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.012443444997544262,
+        "all_bands_max_rel_diff": 0.012443444997544262,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 48.87034234141113,
+            "A_NAT": 0.091103611664669,
+            "A_REF": 0.09101409941651183,
+            "rel_diff": 0.0009834986966968321
+          },
+          "outer_race_x2": {
+            "f_hz": 97.74068468282226,
+            "A_NAT": 0.8036890720976506,
+            "A_REF": 0.793811324542281,
+            "rel_diff": 0.012443444997544262
+          },
+          "outer_race_x3": {
+            "f_hz": 146.6110270242334,
+            "A_NAT": 0.07645314342226017,
+            "A_REF": 0.07637663648154439,
+            "rel_diff": 0.001001706074530712
+          },
+          "inner_race_x1": {
+            "f_hz": 78.45552716692907,
+            "A_NAT": 0.10085549100417049,
+            "A_REF": 0.1007577826860942,
+            "rel_diff": 0.0009697346991119761
+          },
+          "inner_race_x2": {
+            "f_hz": 156.91105433385815,
+            "A_NAT": 0.11636942433407742,
+            "A_REF": 0.11625417609210452,
+            "rel_diff": 0.000991347114116493
+          },
+          "inner_race_x3": {
+            "f_hz": 235.36658150078722,
+            "A_NAT": 0.10255216527101554,
+            "A_REF": 0.10245018352077843,
+            "rel_diff": 0.0009954276969784646
+          },
+          "ball_x1": {
+            "f_hz": 32.39922695967628,
+            "A_NAT": 15.866937211835742,
+            "A_REF": 15.774103447136513,
+            "rel_diff": 0.005885200703186791
+          },
+          "ball_x2": {
+            "f_hz": 64.79845391935255,
+            "A_NAT": 2.8004843572753155,
+            "A_REF": 2.7786561198593223,
+            "rel_diff": 0.007855681478533726
+          },
+          "ball_x3": {
+            "f_hz": 97.19768087902884,
+            "A_NAT": 0.8036890720976506,
+            "A_REF": 0.793811324542281,
+            "rel_diff": 0.012443444997544262
+          },
+          "cage_x1": {
+            "f_hz": 6.108792792676391,
+            "A_NAT": 0.09364597090499811,
+            "A_REF": 0.09355694188644215,
+            "rel_diff": 0.0009516024867938567
+          },
+          "cage_x2": {
+            "f_hz": 12.217585585352783,
+            "A_NAT": 0.08124308684015154,
+            "A_REF": 0.08115824071878622,
+            "rel_diff": 0.0010454406184001994
+          },
+          "cage_x3": {
+            "f_hz": 18.326378378029176,
+            "A_NAT": 0.10988578552634147,
+            "A_REF": 0.10977015604245403,
+            "rel_diff": 0.0010533781499109463
+          }
+        }
+      },
+      {
+        "cell": 17,
+        "label": "ball",
+        "speed": 100.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.007326302383554964,
+        "all_bands_max_rel_diff": 0.007326302383554964,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 48.87034234141113,
+            "A_NAT": 0.4057997316345708,
+            "A_REF": 0.4053933953085179,
+            "rel_diff": 0.0010023259647425262
+          },
+          "outer_race_x2": {
+            "f_hz": 97.74068468282226,
+            "A_NAT": 0.9591987143802695,
+            "A_REF": 0.966277958893689,
+            "rel_diff": 0.007326302383554964
+          },
+          "outer_race_x3": {
+            "f_hz": 146.6110270242334,
+            "A_NAT": 0.5082322114657081,
+            "A_REF": 0.5077252307527826,
+            "rel_diff": 0.0009985336205840163
+          },
+          "inner_race_x1": {
+            "f_hz": 78.45552716692907,
+            "A_NAT": 0.3583371659572488,
+            "A_REF": 0.35797707139281953,
+            "rel_diff": 0.0010059151638628706
+          },
+          "inner_race_x2": {
+            "f_hz": 156.91105433385815,
+            "A_NAT": 0.4361251683243898,
+            "A_REF": 0.4356895711633804,
+            "rel_diff": 0.0009997878990912006
+          },
+          "inner_race_x3": {
+            "f_hz": 235.36658150078722,
+            "A_NAT": 0.5190546223003513,
+            "A_REF": 0.5185369650848164,
+            "rel_diff": 0.0009983034005110899
+          },
+          "ball_x1": {
+            "f_hz": 32.39922695967628,
+            "A_NAT": 16.230993412021416,
+            "A_REF": 16.140982082524413,
+            "rel_diff": 0.0055765708081949045
+          },
+          "ball_x2": {
+            "f_hz": 64.79845391935255,
+            "A_NAT": 2.4965146924153205,
+            "A_REF": 2.504687727340483,
+            "rel_diff": 0.003263095369513701
+          },
+          "ball_x3": {
+            "f_hz": 97.19768087902884,
+            "A_NAT": 0.9591987143802695,
+            "A_REF": 0.966277958893689,
+            "rel_diff": 0.007326302383554964
+          },
+          "cage_x1": {
+            "f_hz": 6.108792792676391,
+            "A_NAT": 0.3709908159951447,
+            "A_REF": 0.37061349645192865,
+            "rel_diff": 0.0010180944483359135
+          },
+          "cage_x2": {
+            "f_hz": 12.217585585352783,
+            "A_NAT": 0.2188954222217416,
+            "A_REF": 0.21867846283157524,
+            "rel_diff": 0.0009921388112804734
+          },
+          "cage_x3": {
+            "f_hz": 18.326378378029176,
+            "A_NAT": 0.47171341580335685,
+            "A_REF": 0.47124733076396497,
+            "rel_diff": 0.0009890454735017543
+          }
+        }
+      },
+      {
+        "cell": 18,
+        "label": "cage",
+        "speed": 100.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.003933511674287656,
+        "all_bands_max_rel_diff": 0.003933511674287656,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 48.86702834344411,
+            "A_NAT": 0.68697612999739,
+            "A_REF": 0.6867341281745215,
+            "rel_diff": 0.00035239521809084565
+          },
+          "outer_race_x2": {
+            "f_hz": 97.73405668688822,
+            "A_NAT": 0.8834848353353582,
+            "A_REF": 0.8831737743085463,
+            "rel_diff": 0.000352208179025043
+          },
+          "outer_race_x3": {
+            "f_hz": 146.60108503033234,
+            "A_NAT": 0.737949095357086,
+            "A_REF": 0.7376893862410954,
+            "rel_diff": 0.00035205754730179
+          },
+          "inner_race_x1": {
+            "f_hz": 78.45020693700893,
+            "A_NAT": 0.8555660953608256,
+            "A_REF": 0.8552649298146385,
+            "rel_diff": 0.0003521312936944103
+          },
+          "inner_race_x2": {
+            "f_hz": 156.90041387401786,
+            "A_NAT": 1.3594332961864692,
+            "A_REF": 1.3589547664816994,
+            "rel_diff": 0.0003521307085214507
+          },
+          "inner_race_x3": {
+            "f_hz": 235.35062081102677,
+            "A_NAT": 0.4083026010088929,
+            "A_REF": 0.4081589165007518,
+            "rel_diff": 0.00035203079568346847
+          },
+          "ball_x1": {
+            "f_hz": 32.3970299017648,
+            "A_NAT": 1.2838166001014952,
+            "A_REF": 1.2833660097581723,
+            "rel_diff": 0.00035110041866221776
+          },
+          "ball_x2": {
+            "f_hz": 64.7940598035296,
+            "A_NAT": 0.6891735125354812,
+            "A_REF": 0.6889309558110406,
+            "rel_diff": 0.0003520769714217222
+          },
+          "ball_x3": {
+            "f_hz": 97.19108970529442,
+            "A_NAT": 0.8834848353353582,
+            "A_REF": 0.8831737743085463,
+            "rel_diff": 0.000352208179025043
+          },
+          "cage_x1": {
+            "f_hz": 6.108378542930514,
+            "A_NAT": 26.99334588379155,
+            "A_REF": 26.98586171325952,
+            "rel_diff": 0.0002773367258586979
+          },
+          "cage_x2": {
+            "f_hz": 12.216757085861028,
+            "A_NAT": 8.109253777652752,
+            "A_REF": 8.088597570239205,
+            "rel_diff": 0.0025537439876534367
+          },
+          "cage_x3": {
+            "f_hz": 18.325135628791543,
+            "A_NAT": 4.042445727300138,
+            "A_REF": 4.026607021573012,
+            "rel_diff": 0.003933511674287656
+          }
+        }
+      },
+      {
+        "cell": 19,
+        "label": "cage",
+        "speed": 100.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.0043481740857335485,
+        "all_bands_max_rel_diff": 0.0043481740857335485,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 48.86702834344411,
+            "A_NAT": 0.399852567098459,
+            "A_REF": 0.39971190948552543,
+            "rel_diff": 0.0003518974781477579
+          },
+          "outer_race_x2": {
+            "f_hz": 97.73405668688822,
+            "A_NAT": 0.2735832865356156,
+            "A_REF": 0.2734885089031859,
+            "rel_diff": 0.0003465506935183922
+          },
+          "outer_race_x3": {
+            "f_hz": 146.60108503033234,
+            "A_NAT": 0.18662502777549803,
+            "A_REF": 0.18655738849582998,
+            "rel_diff": 0.00036256553660729904
+          },
+          "inner_race_x1": {
+            "f_hz": 78.45020693700893,
+            "A_NAT": 0.3901841174582743,
+            "A_REF": 0.39004645863858184,
+            "rel_diff": 0.00035292928994394633
+          },
+          "inner_race_x2": {
+            "f_hz": 156.90041387401786,
+            "A_NAT": 0.3557337154397954,
+            "A_REF": 0.35560851935545873,
+            "rel_diff": 0.0003520615438672872
+          },
+          "inner_race_x3": {
+            "f_hz": 235.35062081102677,
+            "A_NAT": 0.31915010573634206,
+            "A_REF": 0.3190377794858534,
+            "rel_diff": 0.00035207821051695226
+          },
+          "ball_x1": {
+            "f_hz": 32.3970299017648,
+            "A_NAT": 0.19483488294736284,
+            "A_REF": 0.19476309971098288,
+            "rel_diff": 0.00036856692302846504
+          },
+          "ball_x2": {
+            "f_hz": 64.7940598035296,
+            "A_NAT": 0.2249238614327838,
+            "A_REF": 0.22484474469058605,
+            "rel_diff": 0.0003518727658351099
+          },
+          "ball_x3": {
+            "f_hz": 97.19108970529442,
+            "A_NAT": 0.2735832865356156,
+            "A_REF": 0.2734885089031859,
+            "rel_diff": 0.0003465506935183922
+          },
+          "cage_x1": {
+            "f_hz": 6.108378542930514,
+            "A_NAT": 26.67241577626923,
+            "A_REF": 26.663952494355087,
+            "rel_diff": 0.00031740537776364213
+          },
+          "cage_x2": {
+            "f_hz": 12.216757085861028,
+            "A_NAT": 8.979684767066809,
+            "A_REF": 8.959907772682591,
+            "rel_diff": 0.0022072765575238337
+          },
+          "cage_x3": {
+            "f_hz": 18.325135628791543,
+            "A_NAT": 3.4542390964498986,
+            "A_REF": 3.4392844887623966,
+            "rel_diff": 0.0043481740857335485
+          }
+        }
+      },
+      {
+        "cell": 20,
+        "label": "normal",
+        "speed": 150.0,
+        "severity_scale": 1.0,
+        "noisy": false,
+        "own_band_max_rel_diff": null,
+        "all_bands_max_rel_diff": 11.21566969517468,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 73.30441096624943,
+            "A_NAT": 7.057645557568466e-16,
+            "A_REF": 5.67830698753618e-16,
+            "rel_diff": 0.2429137017529906
+          },
+          "outer_race_x2": {
+            "f_hz": 146.60882193249887,
+            "A_NAT": 2.560711980537994e-16,
+            "A_REF": 2.481765447000764e-17,
+            "rel_diff": 9.318106344951484
+          },
+          "outer_race_x3": {
+            "f_hz": 219.9132328987483,
+            "A_NAT": 9.878177708047837e-17,
+            "A_REF": 1.2250343082698576e-16,
+            "rel_diff": 0.19364072978502936
+          },
+          "inner_race_x1": {
+            "f_hz": 117.68152074402376,
+            "A_NAT": 2.911667406927594e-16,
+            "A_REF": 2.6317817586641663e-16,
+            "rel_diff": 0.10634835025435066
+          },
+          "inner_race_x2": {
+            "f_hz": 235.36304148804751,
+            "A_NAT": 3.264154466696628e-17,
+            "A_REF": 9.360051262144865e-17,
+            "rel_diff": 0.6512674583420343
+          },
+          "inner_race_x3": {
+            "f_hz": 353.04456223207126,
+            "A_NAT": 6.039702636511379e-17,
+            "A_REF": 6.195595018885728e-17,
+            "rel_diff": 0.02516180962428155
+          },
+          "ball_x1": {
+            "f_hz": 48.59810949243945,
+            "A_NAT": 3.8383437330689764e-16,
+            "A_REF": 5.769088489250615e-16,
+            "rel_diff": 0.3346706780073044
+          },
+          "ball_x2": {
+            "f_hz": 97.1962189848789,
+            "A_NAT": 6.495076188181421e-16,
+            "A_REF": 5.855227912907174e-16,
+            "rel_diff": 0.10927811603435197
+          },
+          "ball_x3": {
+            "f_hz": 145.79432847731834,
+            "A_NAT": 2.6406147218409545e-16,
+            "A_REF": 2.1616618554151194e-17,
+            "rel_diff": 11.21566969517468
+          },
+          "cage_x1": {
+            "f_hz": 9.16305137078118,
+            "A_NAT": 1.8944377312098337e-14,
+            "A_REF": 2.421078035546925e-14,
+            "rel_diff": 0.21752306063861446
+          },
+          "cage_x2": {
+            "f_hz": 18.32610274156236,
+            "A_NAT": 1.0330790276385947e-14,
+            "A_REF": 1.2780750855609862e-14,
+            "rel_diff": 0.1916914433981437
+          },
+          "cage_x3": {
+            "f_hz": 27.489154112343538,
+            "A_NAT": 2.040696694537309e-15,
+            "A_REF": 2.3793367240627835e-15,
+            "rel_diff": 0.14232539098006994
+          }
+        }
+      },
+      {
+        "cell": 21,
+        "label": "normal",
+        "speed": 150.0,
+        "severity_scale": 1.0,
+        "noisy": true,
+        "own_band_max_rel_diff": null,
+        "all_bands_max_rel_diff": 6.60408688008355e-05,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 73.30441096624943,
+            "A_NAT": 0.18730984830485842,
+            "A_REF": 0.18732221922695766,
+            "rel_diff": 6.60408687783768e-05
+          },
+          "outer_race_x2": {
+            "f_hz": 146.60882193249887,
+            "A_NAT": 0.055409548105306614,
+            "A_REF": 0.05541320764168082,
+            "rel_diff": 6.604086877389925e-05
+          },
+          "outer_race_x3": {
+            "f_hz": 219.9132328987483,
+            "A_NAT": 0.16356256650821158,
+            "A_REF": 0.16357336903561148,
+            "rel_diff": 6.604086877708017e-05
+          },
+          "inner_race_x1": {
+            "f_hz": 117.68152074402376,
+            "A_NAT": 0.1717750687853415,
+            "A_REF": 0.1717864137093468,
+            "rel_diff": 6.604086877620114e-05
+          },
+          "inner_race_x2": {
+            "f_hz": 235.36304148804751,
+            "A_NAT": 0.15601969231295632,
+            "A_REF": 0.15602999666949155,
+            "rel_diff": 6.604086877641613e-05
+          },
+          "inner_race_x3": {
+            "f_hz": 353.04456223207126,
+            "A_NAT": 0.14447730391021868,
+            "A_REF": 0.14448684594705175,
+            "rel_diff": 6.604086877612649e-05
+          },
+          "ball_x1": {
+            "f_hz": 48.59810949243945,
+            "A_NAT": 0.18130931878036932,
+            "A_REF": 0.1813212933961134,
+            "rel_diff": 6.604086877929502e-05
+          },
+          "ball_x2": {
+            "f_hz": 97.1962189848789,
+            "A_NAT": 0.08786342373723982,
+            "A_REF": 0.08786922669730923,
+            "rel_diff": 6.604086877197653e-05
+          },
+          "ball_x3": {
+            "f_hz": 145.79432847731834,
+            "A_NAT": 0.05821877286510598,
+            "A_REF": 0.05822261793737699,
+            "rel_diff": 6.604086877623089e-05
+          },
+          "cage_x1": {
+            "f_hz": 9.16305137078118,
+            "A_NAT": 0.1547640262385199,
+            "A_REF": 0.15477424766430364,
+            "rel_diff": 6.60408688008355e-05
+          },
+          "cage_x2": {
+            "f_hz": 18.32610274156236,
+            "A_NAT": 0.12740289795779752,
+            "A_REF": 0.12741131231155434,
+            "rel_diff": 6.604086877496752e-05
+          },
+          "cage_x3": {
+            "f_hz": 27.489154112343538,
+            "A_NAT": 0.16070425334257687,
+            "A_REF": 0.16071486709202534,
+            "rel_diff": 6.604086877905778e-05
+          }
+        }
+      },
+      {
+        "cell": 22,
+        "label": "outer_race",
+        "speed": 150.0,
+        "severity_scale": 1.0,
+        "noisy": false,
+        "own_band_max_rel_diff": 0.00691028787116593,
+        "all_bands_max_rel_diff": 0.9390485281095845,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 73.3037904657732,
+            "A_NAT": 14.003445270330657,
+            "A_REF": 13.915081255652229,
+            "rel_diff": 0.006350233466479739
+          },
+          "outer_race_x2": {
+            "f_hz": 146.6075809315464,
+            "A_NAT": 2.61664251856132,
+            "A_REF": 2.601304748280979,
+            "rel_diff": 0.005896183555762417
+          },
+          "outer_race_x3": {
+            "f_hz": 219.9113713973196,
+            "A_NAT": 0.7557493407906455,
+            "A_REF": 0.7505627362180091,
+            "rel_diff": 0.00691028787116593
+          },
+          "inner_race_x1": {
+            "f_hz": 117.68052460424578,
+            "A_NAT": 8.583634702546308e-06,
+            "A_REF": 1.379233880145036e-05,
+            "rel_diff": 0.37765198302381614
+          },
+          "inner_race_x2": {
+            "f_hz": 235.36104920849155,
+            "A_NAT": 5.694570817887452e-06,
+            "A_REF": 6.023243305126229e-06,
+            "rel_diff": 0.0545673602391344
+          },
+          "inner_race_x3": {
+            "f_hz": 353.04157381273734,
+            "A_NAT": 4.167334017957895e-08,
+            "A_REF": 6.837134344270358e-07,
+            "rel_diff": 0.9390485281095845
+          },
+          "ball_x1": {
+            "f_hz": 48.597698123605205,
+            "A_NAT": 4.870926663575519e-05,
+            "A_REF": 4.798828031331514e-05,
+            "rel_diff": 0.01502421669900946
+          },
+          "ball_x2": {
+            "f_hz": 97.19539624721041,
+            "A_NAT": 5.241866887049314e-05,
+            "A_REF": 5.19848670817993e-05,
+            "rel_diff": 0.008344770565850245
+          },
+          "ball_x3": {
+            "f_hz": 145.79309437081562,
+            "A_NAT": 2.61664251856132,
+            "A_REF": 2.601304748280979,
+            "rel_diff": 0.005896183555762417
+          },
+          "cage_x1": {
+            "f_hz": 9.16297380822165,
+            "A_NAT": 3.321100176794205e-06,
+            "A_REF": 5.322207421826752e-06,
+            "rel_diff": 0.37599196845013283
+          },
+          "cage_x2": {
+            "f_hz": 18.3259476164433,
+            "A_NAT": 4.485364714685594e-06,
+            "A_REF": 1.7751863169592826e-05,
+            "rel_diff": 0.7473299184522457
+          },
+          "cage_x3": {
+            "f_hz": 27.48892142466495,
+            "A_NAT": 7.128988738506624e-06,
+            "A_REF": 1.1473790848963894e-05,
+            "rel_diff": 0.3786718938536006
+          }
+        }
+      },
+      {
+        "cell": 23,
+        "label": "outer_race",
+        "speed": 150.0,
+        "severity_scale": 1.0,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.022420573795206827,
+        "all_bands_max_rel_diff": 0.022420573795206827,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 73.3037904657732,
+            "A_NAT": 13.737984878752732,
+            "A_REF": 13.636422028219608,
+            "rel_diff": 0.007447910479959273
+          },
+          "outer_race_x2": {
+            "f_hz": 146.6075809315464,
+            "A_NAT": 2.7796917413151854,
+            "A_REF": 2.7844936489774947,
+            "rel_diff": 0.0017245173692792212
+          },
+          "outer_race_x3": {
+            "f_hz": 219.9113713973196,
+            "A_NAT": 0.8177643438379512,
+            "A_REF": 0.7998316591013271,
+            "rel_diff": 0.022420573795206827
+          },
+          "inner_race_x1": {
+            "f_hz": 117.68052460424578,
+            "A_NAT": 0.38974201277955683,
+            "A_REF": 0.38933933412532457,
+            "rel_diff": 0.0010342614242583841
+          },
+          "inner_race_x2": {
+            "f_hz": 235.36104920849155,
+            "A_NAT": 0.4721937117443054,
+            "A_REF": 0.4717074583642159,
+            "rel_diff": 0.0010308367431283232
+          },
+          "inner_race_x3": {
+            "f_hz": 353.04157381273734,
+            "A_NAT": 0.19396163956363593,
+            "A_REF": 0.1937616725944314,
+            "rel_diff": 0.00103202540795105
+          },
+          "ball_x1": {
+            "f_hz": 48.597698123605205,
+            "A_NAT": 0.6418087059726174,
+            "A_REF": 0.6411500508341297,
+            "rel_diff": 0.001027302637862737
+          },
+          "ball_x2": {
+            "f_hz": 97.19539624721041,
+            "A_NAT": 0.37130807903649915,
+            "A_REF": 0.370926082726246,
+            "rel_diff": 0.0010298448344358577
+          },
+          "ball_x3": {
+            "f_hz": 145.79309437081562,
+            "A_NAT": 2.7796917413151854,
+            "A_REF": 2.7844936489774947,
+            "rel_diff": 0.0017245173692792212
+          },
+          "cage_x1": {
+            "f_hz": 9.16297380822165,
+            "A_NAT": 0.25653085456035163,
+            "A_REF": 0.25626569417108647,
+            "rel_diff": 0.001034708879480909
+          },
+          "cage_x2": {
+            "f_hz": 18.3259476164433,
+            "A_NAT": 0.3651524390525592,
+            "A_REF": 0.3647768521639238,
+            "rel_diff": 0.0010296346558377261
+          },
+          "cage_x3": {
+            "f_hz": 27.48892142466495,
+            "A_NAT": 0.38027538405716516,
+            "A_REF": 0.3798836384858841,
+            "rel_diff": 0.001031225174220378
+          }
+        }
+      },
+      {
+        "cell": 24,
+        "label": "inner_race",
+        "speed": 150.0,
+        "severity_scale": 1.0,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.16458451544723415,
+        "all_bands_max_rel_diff": 0.16458451544723415,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 73.30439513885497,
+            "A_NAT": 0.4036376434797515,
+            "A_REF": 0.40342752440688906,
+            "rel_diff": 0.0005208347476324519
+          },
+          "outer_race_x2": {
+            "f_hz": 146.60879027770994,
+            "A_NAT": 0.4370532521063418,
+            "A_REF": 0.4368259556290753,
+            "rel_diff": 0.00052033647345707
+          },
+          "outer_race_x3": {
+            "f_hz": 219.91318541656491,
+            "A_NAT": 0.43544545668805495,
+            "A_REF": 0.43522406762287047,
+            "rel_diff": 0.0005086783605366301
+          },
+          "inner_race_x1": {
+            "f_hz": 117.68149533502277,
+            "A_NAT": 8.338288382893571,
+            "A_REF": 8.372643808568549,
+            "rel_diff": 0.004103294784834671
+          },
+          "inner_race_x2": {
+            "f_hz": 235.36299067004555,
+            "A_NAT": 1.4177723076449635,
+            "A_REF": 1.4642017076938214,
+            "rel_diff": 0.03170970215707924
+          },
+          "inner_race_x3": {
+            "f_hz": 353.04448600506834,
+            "A_NAT": 0.5940014339706537,
+            "A_REF": 0.7110251664639045,
+            "rel_diff": 0.16458451544723415
+          },
+          "ball_x1": {
+            "f_hz": 48.59809899946311,
+            "A_NAT": 0.3503161405831915,
+            "A_REF": 0.35013345818585906,
+            "rel_diff": 0.0005217507583507264
+          },
+          "ball_x2": {
+            "f_hz": 97.19619799892622,
+            "A_NAT": 0.6690975370701409,
+            "A_REF": 0.6687581423502095,
+            "rel_diff": 0.0005074999442080121
+          },
+          "ball_x3": {
+            "f_hz": 145.79429699838934,
+            "A_NAT": 0.4370532521063418,
+            "A_REF": 0.4368259556290753,
+            "rel_diff": 0.00052033647345707
+          },
+          "cage_x1": {
+            "f_hz": 9.163049392356871,
+            "A_NAT": 0.5056003877370645,
+            "A_REF": 0.505338280289571,
+            "rel_diff": 0.0005186772063722539
+          },
+          "cage_x2": {
+            "f_hz": 18.326098784713743,
+            "A_NAT": 0.6233184516250502,
+            "A_REF": 0.6230004521065557,
+            "rel_diff": 0.0005104322435387862
+          },
+          "cage_x3": {
+            "f_hz": 27.489148177070614,
+            "A_NAT": 0.608326675725982,
+            "A_REF": 0.6080121872065467,
+            "rel_diff": 0.0005172404863793296
+          }
+        }
+      },
+      {
+        "cell": 25,
+        "label": "inner_race",
+        "speed": 150.0,
+        "severity_scale": 1.0,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.08277248275244867,
+        "all_bands_max_rel_diff": 0.08277248275244867,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 73.30439513885497,
+            "A_NAT": 0.5646194093263895,
+            "A_REF": 0.5643270274965163,
+            "rel_diff": 0.0005181070826437403
+          },
+          "outer_race_x2": {
+            "f_hz": 146.60879027770994,
+            "A_NAT": 0.9945395534138081,
+            "A_REF": 0.9940224148349078,
+            "rel_diff": 0.0005202484080664545
+          },
+          "outer_race_x3": {
+            "f_hz": 219.91318541656491,
+            "A_NAT": 0.9244322680517653,
+            "A_REF": 0.923952417406687,
+            "rel_diff": 0.0005193456243397233
+          },
+          "inner_race_x1": {
+            "f_hz": 117.68149533502277,
+            "A_NAT": 8.571807688623407,
+            "A_REF": 8.58683637654117,
+            "rel_diff": 0.001750200802570369
+          },
+          "inner_race_x2": {
+            "f_hz": 235.36299067004555,
+            "A_NAT": 1.6683051294189533,
+            "A_REF": 1.8188563884621147,
+            "rel_diff": 0.08277248275244867
+          },
+          "inner_race_x3": {
+            "f_hz": 353.04448600506834,
+            "A_NAT": 0.3711918816022693,
+            "A_REF": 0.3719828896236222,
+            "rel_diff": 0.0021264634568360255
+          },
+          "ball_x1": {
+            "f_hz": 48.59809899946311,
+            "A_NAT": 0.4313214057979671,
+            "A_REF": 0.4310974310617604,
+            "rel_diff": 0.0005195455135397907
+          },
+          "ball_x2": {
+            "f_hz": 97.19619799892622,
+            "A_NAT": 0.46561012352734005,
+            "A_REF": 0.465361954169433,
+            "rel_diff": 0.0005332824389350531
+          },
+          "ball_x3": {
+            "f_hz": 145.79429699838934,
+            "A_NAT": 0.9945395534138081,
+            "A_REF": 0.9940224148349078,
+            "rel_diff": 0.0005202484080664545
+          },
+          "cage_x1": {
+            "f_hz": 9.163049392356871,
+            "A_NAT": 0.5687701969404834,
+            "A_REF": 0.5684773719582132,
+            "rel_diff": 0.0005151040247414597
+          },
+          "cage_x2": {
+            "f_hz": 18.326098784713743,
+            "A_NAT": 0.7490727983207868,
+            "A_REF": 0.7486850010829578,
+            "rel_diff": 0.000517971159123077
+          },
+          "cage_x3": {
+            "f_hz": 27.489148177070614,
+            "A_NAT": 1.0733134606456645,
+            "A_REF": 1.0727504207988183,
+            "rel_diff": 0.000524856328116722
+          }
+        }
+      },
+      {
+        "cell": 26,
+        "label": "ball",
+        "speed": 150.0,
+        "severity_scale": 1.0,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.03748174052319488,
+        "all_bands_max_rel_diff": 0.03748174052319488,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 73.30500107278742,
+            "A_NAT": 0.7789466691637055,
+            "A_REF": 0.7776944110973183,
+            "rel_diff": 0.0016102186778226388
+          },
+          "outer_race_x2": {
+            "f_hz": 146.61000214557484,
+            "A_NAT": 0.9290435435428491,
+            "A_REF": 0.9652217341288135,
+            "rel_diff": 0.03748174052319488
+          },
+          "outer_race_x3": {
+            "f_hz": 219.91500321836224,
+            "A_NAT": 0.8903407689347932,
+            "A_REF": 0.8889137678843384,
+            "rel_diff": 0.0016053312503541575
+          },
+          "inner_race_x1": {
+            "f_hz": 117.68246808994571,
+            "A_NAT": 0.7618229071451763,
+            "A_REF": 0.7606020144516555,
+            "rel_diff": 0.001605166263464282
+          },
+          "inner_race_x2": {
+            "f_hz": 235.36493617989143,
+            "A_NAT": 0.9900343648378909,
+            "A_REF": 0.9884476530956279,
+            "rel_diff": 0.0016052562189749916
+          },
+          "inner_race_x3": {
+            "f_hz": 353.04740426983716,
+            "A_NAT": 0.5224357717584694,
+            "A_REF": 0.5215983013347238,
+            "rel_diff": 0.0016055850289438988
+          },
+          "ball_x1": {
+            "f_hz": 48.59850071121833,
+            "A_NAT": 22.094090428506384,
+            "A_REF": 21.969775471465105,
+            "rel_diff": 0.005658453688010678
+          },
+          "ball_x2": {
+            "f_hz": 97.19700142243666,
+            "A_NAT": 3.552680414919798,
+            "A_REF": 3.5840662265667937,
+            "rel_diff": 0.008757040094390314
+          },
+          "ball_x3": {
+            "f_hz": 145.795502133655,
+            "A_NAT": 0.9290435435428491,
+            "A_REF": 0.9652217341288135,
+            "rel_diff": 0.03748174052319488
+          },
+          "cage_x1": {
+            "f_hz": 9.163125134098427,
+            "A_NAT": 0.3843096634993599,
+            "A_REF": 0.3836780575520507,
+            "rel_diff": 0.0016461873043743852
+          },
+          "cage_x2": {
+            "f_hz": 18.326250268196855,
+            "A_NAT": 0.7970787689336474,
+            "A_REF": 0.7958029742586862,
+            "rel_diff": 0.0016031539416519961
+          },
+          "cage_x3": {
+            "f_hz": 27.48937540229528,
+            "A_NAT": 0.8251306985015157,
+            "A_REF": 0.823809657833963,
+            "rel_diff": 0.0016035751159146135
+          }
+        }
+      },
+      {
+        "cell": 27,
+        "label": "ball",
+        "speed": 150.0,
+        "severity_scale": 1.0,
+        "noisy": false,
+        "own_band_max_rel_diff": 0.006488683158360033,
+        "all_bands_max_rel_diff": 0.9869769383500933,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 73.30500107278742,
+            "A_NAT": 4.384901501468474e-05,
+            "A_REF": 4.4511362023459944e-05,
+            "rel_diff": 0.014880403085084455
+          },
+          "outer_race_x2": {
+            "f_hz": 146.61000214557484,
+            "A_NAT": 1.0505657156958146,
+            "A_REF": 1.044261476720054,
+            "rel_diff": 0.006037031065784153
+          },
+          "outer_race_x3": {
+            "f_hz": 219.91500321836224,
+            "A_NAT": 6.017520713281067e-07,
+            "A_REF": 6.089205065490994e-07,
+            "rel_diff": 0.011772366251250154
+          },
+          "inner_race_x1": {
+            "f_hz": 117.68246808994571,
+            "A_NAT": 2.3353320121124245e-05,
+            "A_REF": 2.3513672971501198e-05,
+            "rel_diff": 0.006819557734400008
+          },
+          "inner_race_x2": {
+            "f_hz": 235.36493617989143,
+            "A_NAT": 8.28394213037214e-08,
+            "A_REF": 1.264680088694104e-06,
+            "rel_diff": 0.9344977263070057
+          },
+          "inner_race_x3": {
+            "f_hz": 353.04740426983716,
+            "A_NAT": 1.562982863206927e-08,
+            "A_REF": 1.2001654489734454e-06,
+            "rel_diff": 0.9869769383500933
+          },
+          "ball_x1": {
+            "f_hz": 48.59850071121833,
+            "A_NAT": 22.213184737355245,
+            "A_REF": 22.069979632210373,
+            "rel_diff": 0.006488683158360033
+          },
+          "ball_x2": {
+            "f_hz": 97.19700142243666,
+            "A_NAT": 3.672534364540851,
+            "A_REF": 3.6498556184590183,
+            "rel_diff": 0.006213600879754191
+          },
+          "ball_x3": {
+            "f_hz": 145.795502133655,
+            "A_NAT": 1.0505657156958146,
+            "A_REF": 1.044261476720054,
+            "rel_diff": 0.006037031065784153
+          },
+          "cage_x1": {
+            "f_hz": 9.163125134098427,
+            "A_NAT": 1.0623727483665139e-05,
+            "A_REF": 3.268973424904476e-05,
+            "rel_diff": 0.675013342025698
+          },
+          "cage_x2": {
+            "f_hz": 18.326250268196855,
+            "A_NAT": 2.2990753881260297e-05,
+            "A_REF": 2.2756060078622097e-05,
+            "rel_diff": 0.010313463834571239
+          },
+          "cage_x3": {
+            "f_hz": 27.48937540229528,
+            "A_NAT": 7.087645678432069e-05,
+            "A_REF": 7.01758306007019e-05,
+            "rel_diff": 0.00998386734608559
+          }
+        }
+      },
+      {
+        "cell": 28,
+        "label": "cage",
+        "speed": 150.0,
+        "severity_scale": 1.0,
+        "noisy": false,
+        "own_band_max_rel_diff": 0.005581214982852569,
+        "all_bands_max_rel_diff": 0.9803460642062373,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 73.30223409910157,
+            "A_NAT": 0.0002120114404790511,
+            "A_REF": 0.0001601561093087028,
+            "rel_diff": 0.32377991319954286
+          },
+          "outer_race_x2": {
+            "f_hz": 146.60446819820314,
+            "A_NAT": 8.7140527218266e-07,
+            "A_REF": 2.288758185664588e-05,
+            "rel_diff": 0.9619267217637659
+          },
+          "outer_race_x3": {
+            "f_hz": 219.90670229730472,
+            "A_NAT": 2.560434637668937e-07,
+            "A_REF": 1.3027592358785967e-05,
+            "rel_diff": 0.9803460642062373
+          },
+          "inner_race_x1": {
+            "f_hz": 117.67802604250386,
+            "A_NAT": 1.700232825779564e-06,
+            "A_REF": 2.932181956396069e-05,
+            "rel_diff": 0.9420147572332341
+          },
+          "inner_race_x2": {
+            "f_hz": 235.35605208500772,
+            "A_NAT": 2.0827569027363317e-07,
+            "A_REF": 4.446561577503871e-07,
+            "rel_diff": 0.531602820194045
+          },
+          "inner_race_x3": {
+            "f_hz": 353.0340781275116,
+            "A_NAT": 6.083428713364593e-08,
+            "A_REF": 3.1206973266617087e-07,
+            "rel_diff": 0.8050618795552276
+          },
+          "ball_x1": {
+            "f_hz": 48.59666631014512,
+            "A_NAT": 0.001479438520395338,
+            "A_REF": 0.001467982954662186,
+            "rel_diff": 0.007803609501575021
+          },
+          "ball_x2": {
+            "f_hz": 97.19333262029024,
+            "A_NAT": 3.032551159517078e-06,
+            "A_REF": 3.880987258217432e-06,
+            "rel_diff": 0.2186134718437718
+          },
+          "ball_x3": {
+            "f_hz": 145.78999893043536,
+            "A_NAT": 8.89686353055723e-07,
+            "A_REF": 2.288758185664588e-05,
+            "rel_diff": 0.9611279881540922
+          },
+          "cage_x1": {
+            "f_hz": 9.162779262387696,
+            "A_NAT": 53.57316127219454,
+            "A_REF": 53.51788864171894,
+            "rel_diff": 0.0010327879495700518
+          },
+          "cage_x2": {
+            "f_hz": 18.325558524775392,
+            "A_NAT": 15.565152497133269,
+            "A_REF": 15.503299811834626,
+            "rel_diff": 0.003989646465549661
+          },
+          "cage_x3": {
+            "f_hz": 27.48833778716309,
+            "A_NAT": 5.445699644718773,
+            "A_REF": 5.4154747160940495,
+            "rel_diff": 0.005581214982852569
+          }
+        }
+      },
+      {
+        "cell": 29,
+        "label": "cage",
+        "speed": 150.0,
+        "severity_scale": 1.0,
+        "noisy": false,
+        "own_band_max_rel_diff": 0.005581214982852569,
+        "all_bands_max_rel_diff": 0.9803460642062373,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 73.30223409910157,
+            "A_NAT": 0.0002120114404790511,
+            "A_REF": 0.0001601561093087028,
+            "rel_diff": 0.32377991319954286
+          },
+          "outer_race_x2": {
+            "f_hz": 146.60446819820314,
+            "A_NAT": 8.7140527218266e-07,
+            "A_REF": 2.288758185664588e-05,
+            "rel_diff": 0.9619267217637659
+          },
+          "outer_race_x3": {
+            "f_hz": 219.90670229730472,
+            "A_NAT": 2.560434637668937e-07,
+            "A_REF": 1.3027592358785967e-05,
+            "rel_diff": 0.9803460642062373
+          },
+          "inner_race_x1": {
+            "f_hz": 117.67802604250386,
+            "A_NAT": 1.700232825779564e-06,
+            "A_REF": 2.932181956396069e-05,
+            "rel_diff": 0.9420147572332341
+          },
+          "inner_race_x2": {
+            "f_hz": 235.35605208500772,
+            "A_NAT": 2.0827569027363317e-07,
+            "A_REF": 4.446561577503871e-07,
+            "rel_diff": 0.531602820194045
+          },
+          "inner_race_x3": {
+            "f_hz": 353.0340781275116,
+            "A_NAT": 6.083428713364593e-08,
+            "A_REF": 3.1206973266617087e-07,
+            "rel_diff": 0.8050618795552276
+          },
+          "ball_x1": {
+            "f_hz": 48.59666631014512,
+            "A_NAT": 0.001479438520395338,
+            "A_REF": 0.001467982954662186,
+            "rel_diff": 0.007803609501575021
+          },
+          "ball_x2": {
+            "f_hz": 97.19333262029024,
+            "A_NAT": 3.032551159517078e-06,
+            "A_REF": 3.880987258217432e-06,
+            "rel_diff": 0.2186134718437718
+          },
+          "ball_x3": {
+            "f_hz": 145.78999893043536,
+            "A_NAT": 8.89686353055723e-07,
+            "A_REF": 2.288758185664588e-05,
+            "rel_diff": 0.9611279881540922
+          },
+          "cage_x1": {
+            "f_hz": 9.162779262387696,
+            "A_NAT": 53.57316127219454,
+            "A_REF": 53.51788864171894,
+            "rel_diff": 0.0010327879495700518
+          },
+          "cage_x2": {
+            "f_hz": 18.325558524775392,
+            "A_NAT": 15.565152497133269,
+            "A_REF": 15.503299811834626,
+            "rel_diff": 0.003989646465549661
+          },
+          "cage_x3": {
+            "f_hz": 27.48833778716309,
+            "A_NAT": 5.445699644718773,
+            "A_REF": 5.4154747160940495,
+            "rel_diff": 0.005581214982852569
+          }
+        }
+      },
+      {
+        "cell": 30,
+        "label": "normal",
+        "speed": 150.0,
+        "severity_scale": 0.5,
+        "noisy": false,
+        "own_band_max_rel_diff": null,
+        "all_bands_max_rel_diff": 11.21566969517468,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 73.30441096624943,
+            "A_NAT": 7.057645557568466e-16,
+            "A_REF": 5.67830698753618e-16,
+            "rel_diff": 0.2429137017529906
+          },
+          "outer_race_x2": {
+            "f_hz": 146.60882193249887,
+            "A_NAT": 2.560711980537994e-16,
+            "A_REF": 2.481765447000764e-17,
+            "rel_diff": 9.318106344951484
+          },
+          "outer_race_x3": {
+            "f_hz": 219.9132328987483,
+            "A_NAT": 9.878177708047837e-17,
+            "A_REF": 1.2250343082698576e-16,
+            "rel_diff": 0.19364072978502936
+          },
+          "inner_race_x1": {
+            "f_hz": 117.68152074402376,
+            "A_NAT": 2.911667406927594e-16,
+            "A_REF": 2.6317817586641663e-16,
+            "rel_diff": 0.10634835025435066
+          },
+          "inner_race_x2": {
+            "f_hz": 235.36304148804751,
+            "A_NAT": 3.264154466696628e-17,
+            "A_REF": 9.360051262144865e-17,
+            "rel_diff": 0.6512674583420343
+          },
+          "inner_race_x3": {
+            "f_hz": 353.04456223207126,
+            "A_NAT": 6.039702636511379e-17,
+            "A_REF": 6.195595018885728e-17,
+            "rel_diff": 0.02516180962428155
+          },
+          "ball_x1": {
+            "f_hz": 48.59810949243945,
+            "A_NAT": 3.8383437330689764e-16,
+            "A_REF": 5.769088489250615e-16,
+            "rel_diff": 0.3346706780073044
+          },
+          "ball_x2": {
+            "f_hz": 97.1962189848789,
+            "A_NAT": 6.495076188181421e-16,
+            "A_REF": 5.855227912907174e-16,
+            "rel_diff": 0.10927811603435197
+          },
+          "ball_x3": {
+            "f_hz": 145.79432847731834,
+            "A_NAT": 2.6406147218409545e-16,
+            "A_REF": 2.1616618554151194e-17,
+            "rel_diff": 11.21566969517468
+          },
+          "cage_x1": {
+            "f_hz": 9.16305137078118,
+            "A_NAT": 1.8944377312098337e-14,
+            "A_REF": 2.421078035546925e-14,
+            "rel_diff": 0.21752306063861446
+          },
+          "cage_x2": {
+            "f_hz": 18.32610274156236,
+            "A_NAT": 1.0330790276385947e-14,
+            "A_REF": 1.2780750855609862e-14,
+            "rel_diff": 0.1916914433981437
+          },
+          "cage_x3": {
+            "f_hz": 27.489154112343538,
+            "A_NAT": 2.040696694537309e-15,
+            "A_REF": 2.3793367240627835e-15,
+            "rel_diff": 0.14232539098006994
+          }
+        }
+      },
+      {
+        "cell": 31,
+        "label": "normal",
+        "speed": 150.0,
+        "severity_scale": 0.5,
+        "noisy": false,
+        "own_band_max_rel_diff": null,
+        "all_bands_max_rel_diff": 11.21566969517468,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 73.30441096624943,
+            "A_NAT": 7.057645557568466e-16,
+            "A_REF": 5.67830698753618e-16,
+            "rel_diff": 0.2429137017529906
+          },
+          "outer_race_x2": {
+            "f_hz": 146.60882193249887,
+            "A_NAT": 2.560711980537994e-16,
+            "A_REF": 2.481765447000764e-17,
+            "rel_diff": 9.318106344951484
+          },
+          "outer_race_x3": {
+            "f_hz": 219.9132328987483,
+            "A_NAT": 9.878177708047837e-17,
+            "A_REF": 1.2250343082698576e-16,
+            "rel_diff": 0.19364072978502936
+          },
+          "inner_race_x1": {
+            "f_hz": 117.68152074402376,
+            "A_NAT": 2.911667406927594e-16,
+            "A_REF": 2.6317817586641663e-16,
+            "rel_diff": 0.10634835025435066
+          },
+          "inner_race_x2": {
+            "f_hz": 235.36304148804751,
+            "A_NAT": 3.264154466696628e-17,
+            "A_REF": 9.360051262144865e-17,
+            "rel_diff": 0.6512674583420343
+          },
+          "inner_race_x3": {
+            "f_hz": 353.04456223207126,
+            "A_NAT": 6.039702636511379e-17,
+            "A_REF": 6.195595018885728e-17,
+            "rel_diff": 0.02516180962428155
+          },
+          "ball_x1": {
+            "f_hz": 48.59810949243945,
+            "A_NAT": 3.8383437330689764e-16,
+            "A_REF": 5.769088489250615e-16,
+            "rel_diff": 0.3346706780073044
+          },
+          "ball_x2": {
+            "f_hz": 97.1962189848789,
+            "A_NAT": 6.495076188181421e-16,
+            "A_REF": 5.855227912907174e-16,
+            "rel_diff": 0.10927811603435197
+          },
+          "ball_x3": {
+            "f_hz": 145.79432847731834,
+            "A_NAT": 2.6406147218409545e-16,
+            "A_REF": 2.1616618554151194e-17,
+            "rel_diff": 11.21566969517468
+          },
+          "cage_x1": {
+            "f_hz": 9.16305137078118,
+            "A_NAT": 1.8944377312098337e-14,
+            "A_REF": 2.421078035546925e-14,
+            "rel_diff": 0.21752306063861446
+          },
+          "cage_x2": {
+            "f_hz": 18.32610274156236,
+            "A_NAT": 1.0330790276385947e-14,
+            "A_REF": 1.2780750855609862e-14,
+            "rel_diff": 0.1916914433981437
+          },
+          "cage_x3": {
+            "f_hz": 27.489154112343538,
+            "A_NAT": 2.040696694537309e-15,
+            "A_REF": 2.3793367240627835e-15,
+            "rel_diff": 0.14232539098006994
+          }
+        }
+      },
+      {
+        "cell": 32,
+        "label": "outer_race",
+        "speed": 150.0,
+        "severity_scale": 0.5,
+        "noisy": false,
+        "own_band_max_rel_diff": 0.00676534739037041,
+        "all_bands_max_rel_diff": 0.9713618516247738,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 73.30472131576235,
+            "A_NAT": 7.000276317527734,
+            "A_REF": 6.955786199871259,
+            "rel_diff": 0.006396130700121119
+          },
+          "outer_race_x2": {
+            "f_hz": 146.6094426315247,
+            "A_NAT": 1.308909723700329,
+            "A_REF": 1.301295248252933,
+            "rel_diff": 0.0058514587351479385
+          },
+          "outer_race_x3": {
+            "f_hz": 219.91416394728705,
+            "A_NAT": 0.37819083707000717,
+            "A_REF": 0.3756494381241002,
+            "rel_diff": 0.00676534739037041
+          },
+          "inner_race_x1": {
+            "f_hz": 117.68201897328665,
+            "A_NAT": 2.7055594963239406e-06,
+            "A_REF": 8.036386247642295e-06,
+            "rel_diff": 0.663336304036196
+          },
+          "inner_race_x2": {
+            "f_hz": 235.3640379465733,
+            "A_NAT": 2.7029538624138805e-06,
+            "A_REF": 2.9431594788688235e-06,
+            "rel_diff": 0.08161488297850031
+          },
+          "inner_race_x3": {
+            "f_hz": 353.04605691985995,
+            "A_NAT": 3.803575262139836e-08,
+            "A_REF": 1.3281498553272994e-06,
+            "rel_diff": 0.9713618516247738
+          },
+          "ball_x1": {
+            "f_hz": 48.59831524267208,
+            "A_NAT": 2.4291424998092263e-05,
+            "A_REF": 2.4540606701944555e-05,
+            "rel_diff": 0.010153852627960815
+          },
+          "ball_x2": {
+            "f_hz": 97.19663048534416,
+            "A_NAT": 2.591450515038993e-05,
+            "A_REF": 2.583852299945828e-05,
+            "rel_diff": 0.002940653803363424
+          },
+          "ball_x3": {
+            "f_hz": 145.79494572801624,
+            "A_NAT": 1.308909723700329,
+            "A_REF": 1.301295248252933,
+            "rel_diff": 0.0058514587351479385
+          },
+          "cage_x1": {
+            "f_hz": 9.163090164470294,
+            "A_NAT": 1.4147117879960198e-06,
+            "A_REF": 4.5860159490238685e-06,
+            "rel_diff": 0.6915161648539097
+          },
+          "cage_x2": {
+            "f_hz": 18.326180328940588,
+            "A_NAT": 2.041180205945434e-06,
+            "A_REF": 1.9628441962155566e-05,
+            "rel_diff": 0.8960090561502073
+          },
+          "cage_x3": {
+            "f_hz": 27.48927049341088,
+            "A_NAT": 3.4097661235163e-06,
+            "A_REF": 4.163957429753114e-06,
+            "rel_diff": 0.1811236831692419
+          }
+        }
+      },
+      {
+        "cell": 33,
+        "label": "outer_race",
+        "speed": 150.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.014327536891421985,
+        "all_bands_max_rel_diff": 0.014327536891421985,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 73.30472131576235,
+            "A_NAT": 7.0995252330065775,
+            "A_REF": 7.0577848141904775,
+            "rel_diff": 0.0059140962660374765
+          },
+          "outer_race_x2": {
+            "f_hz": 146.6094426315247,
+            "A_NAT": 1.2656172266846273,
+            "A_REF": 1.2477401831792174,
+            "rel_diff": 0.014327536891421985
+          },
+          "outer_race_x3": {
+            "f_hz": 219.91416394728705,
+            "A_NAT": 0.37680156415205607,
+            "A_REF": 0.3723572366889176,
+            "rel_diff": 0.011935654863749603
+          },
+          "inner_race_x1": {
+            "f_hz": 117.68201897328665,
+            "A_NAT": 0.11740835337933073,
+            "A_REF": 0.11735437743077563,
+            "rel_diff": 0.00045993979719190616
+          },
+          "inner_race_x2": {
+            "f_hz": 235.3640379465733,
+            "A_NAT": 0.13402866835531796,
+            "A_REF": 0.13397522860220798,
+            "rel_diff": 0.0003988778647181856
+          },
+          "inner_race_x3": {
+            "f_hz": 353.04605691985995,
+            "A_NAT": 0.1385345471487335,
+            "A_REF": 0.13847881112812546,
+            "rel_diff": 0.0004024877174636833
+          },
+          "ball_x1": {
+            "f_hz": 48.59831524267208,
+            "A_NAT": 0.08002558503067851,
+            "A_REF": 0.07999256344820617,
+            "rel_diff": 0.0004128081542695308
+          },
+          "ball_x2": {
+            "f_hz": 97.19663048534416,
+            "A_NAT": 0.12635957023344485,
+            "A_REF": 0.1263092789768841,
+            "rel_diff": 0.0003981596361575031
+          },
+          "ball_x3": {
+            "f_hz": 145.79494572801624,
+            "A_NAT": 1.2656172266846273,
+            "A_REF": 1.2477401831792174,
+            "rel_diff": 0.014327536891421985
+          },
+          "cage_x1": {
+            "f_hz": 9.163090164470294,
+            "A_NAT": 0.10843593973214186,
+            "A_REF": 0.10839368124832131,
+            "rel_diff": 0.0003898611370503388
+          },
+          "cage_x2": {
+            "f_hz": 18.326180328940588,
+            "A_NAT": 0.14879243374217982,
+            "A_REF": 0.14873377997063902,
+            "rel_diff": 0.0003943540704228316
+          },
+          "cage_x3": {
+            "f_hz": 27.48927049341088,
+            "A_NAT": 0.07773266638650793,
+            "A_REF": 0.07770312154759688,
+            "rel_diff": 0.0003802271816447757
+          }
+        }
+      },
+      {
+        "cell": 34,
+        "label": "inner_race",
+        "speed": 150.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.02570686158280599,
+        "all_bands_max_rel_diff": 0.02570686158280599,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 73.30441116508898,
+            "A_NAT": 0.39158007070019757,
+            "A_REF": 0.39152041892573736,
+            "rel_diff": 0.00015235929360692344
+          },
+          "outer_race_x2": {
+            "f_hz": 146.60882233017796,
+            "A_NAT": 0.3076080807167046,
+            "A_REF": 0.3075605692121694,
+            "rel_diff": 0.0001544785297312149
+          },
+          "outer_race_x3": {
+            "f_hz": 219.91323349526692,
+            "A_NAT": 0.32451864557429405,
+            "A_REF": 0.3244687022569103,
+            "rel_diff": 0.0001539233739227725
+          },
+          "inner_race_x1": {
+            "f_hz": 117.681521063237,
+            "A_NAT": 4.4140228007136315,
+            "A_REF": 4.3843602401771395,
+            "rel_diff": 0.006765539077896008
+          },
+          "inner_race_x2": {
+            "f_hz": 235.363042126474,
+            "A_NAT": 0.6680153414100971,
+            "A_REF": 0.6856410202121856,
+            "rel_diff": 0.02570686158280599
+          },
+          "inner_race_x3": {
+            "f_hz": 353.04456318971097,
+            "A_NAT": 0.38693574553405086,
+            "A_REF": 0.38649538429455255,
+            "rel_diff": 0.0011393699831683008
+          },
+          "ball_x1": {
+            "f_hz": 48.5981096242627,
+            "A_NAT": 0.4732726697567891,
+            "A_REF": 0.4731991146275554,
+            "rel_diff": 0.00015544223765429354
+          },
+          "ball_x2": {
+            "f_hz": 97.1962192485254,
+            "A_NAT": 0.34296135211422396,
+            "A_REF": 0.3429102246764919,
+            "rel_diff": 0.00014909860964423436
+          },
+          "ball_x3": {
+            "f_hz": 145.7943288727881,
+            "A_NAT": 0.3076080807167046,
+            "A_REF": 0.3075605692121694,
+            "rel_diff": 0.0001544785297312149
+          },
+          "cage_x1": {
+            "f_hz": 9.163051395636122,
+            "A_NAT": 0.2968277983333106,
+            "A_REF": 0.296783499694718,
+            "rel_diff": 0.00014926247125643114
+          },
+          "cage_x2": {
+            "f_hz": 18.326102791272245,
+            "A_NAT": 0.303446787539429,
+            "A_REF": 0.30340402311007136,
+            "rel_diff": 0.0001409487880855128
+          },
+          "cage_x3": {
+            "f_hz": 27.489154186908365,
+            "A_NAT": 0.4857625514928562,
+            "A_REF": 0.48568915566744797,
+            "rel_diff": 0.00015111687084582982
+          }
+        }
+      },
+      {
+        "cell": 35,
+        "label": "inner_race",
+        "speed": 150.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.039354776955779734,
+        "all_bands_max_rel_diff": 0.039354776955779734,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 73.30441116508898,
+            "A_NAT": 0.3761242816691078,
+            "A_REF": 0.3760677776577748,
+            "rel_diff": 0.00015024954194391664
+          },
+          "outer_race_x2": {
+            "f_hz": 146.60882233017796,
+            "A_NAT": 0.6717314722882863,
+            "A_REF": 0.6716284845861663,
+            "rel_diff": 0.00015334028333161746
+          },
+          "outer_race_x3": {
+            "f_hz": 219.91323349526692,
+            "A_NAT": 0.5350873845598912,
+            "A_REF": 0.5350049048115652,
+            "rel_diff": 0.00015416634050325625
+          },
+          "inner_race_x1": {
+            "f_hz": 117.681521063237,
+            "A_NAT": 4.85306971261359,
+            "A_REF": 4.792899043598323,
+            "rel_diff": 0.012554128194215575
+          },
+          "inner_race_x2": {
+            "f_hz": 235.363042126474,
+            "A_NAT": 1.3572035683782049,
+            "A_REF": 1.4128041610172357,
+            "rel_diff": 0.039354776955779734
+          },
+          "inner_race_x3": {
+            "f_hz": 353.04456318971097,
+            "A_NAT": 0.5237928049047192,
+            "A_REF": 0.523907434752516,
+            "rel_diff": 0.0002187979024403489
+          },
+          "ball_x1": {
+            "f_hz": 48.5981096242627,
+            "A_NAT": 0.6678735874116752,
+            "A_REF": 0.6677720274917134,
+            "rel_diff": 0.00015208771224415812
+          },
+          "ball_x2": {
+            "f_hz": 97.1962192485254,
+            "A_NAT": 0.48629586607347974,
+            "A_REF": 0.4862248264897559,
+            "rel_diff": 0.00014610439420937037
+          },
+          "ball_x3": {
+            "f_hz": 145.7943288727881,
+            "A_NAT": 0.6822578063181313,
+            "A_REF": 0.6821524865970224,
+            "rel_diff": 0.00015439322318420122
+          },
+          "cage_x1": {
+            "f_hz": 9.163051395636122,
+            "A_NAT": 0.6612446132766079,
+            "A_REF": 0.6611522710886271,
+            "rel_diff": 0.00013966856353495334
+          },
+          "cage_x2": {
+            "f_hz": 18.326102791272245,
+            "A_NAT": 0.5805476757974841,
+            "A_REF": 0.580459177432476,
+            "rel_diff": 0.00015246268548906204
+          },
+          "cage_x3": {
+            "f_hz": 27.489154186908365,
+            "A_NAT": 0.42853213372300414,
+            "A_REF": 0.4284671912034558,
+            "rel_diff": 0.0001515694104044559
+          }
+        }
+      },
+      {
+        "cell": 36,
+        "label": "ball",
+        "speed": 150.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.015552283578495061,
+        "all_bands_max_rel_diff": 0.015552283578495061,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 73.30392635037478,
+            "A_NAT": 0.4100337324349013,
+            "A_REF": 0.4098420784142728,
+            "rel_diff": 0.0004676289495946144
+          },
+          "outer_race_x2": {
+            "f_hz": 146.60785270074956,
+            "A_NAT": 0.7603851381676403,
+            "A_REF": 0.7692306136677637,
+            "rel_diff": 0.011499120475649457
+          },
+          "outer_race_x3": {
+            "f_hz": 219.91177905112434,
+            "A_NAT": 0.32446940226721777,
+            "A_REF": 0.3243175559089391,
+            "rel_diff": 0.00046820270907960024
+          },
+          "inner_race_x1": {
+            "f_hz": 117.68074275082587,
+            "A_NAT": 0.26578185684334105,
+            "A_REF": 0.26565201504962305,
+            "rel_diff": 0.000488766455220547
+          },
+          "inner_race_x2": {
+            "f_hz": 235.36148550165174,
+            "A_NAT": 0.31762596315898634,
+            "A_REF": 0.31747731823948844,
+            "rel_diff": 0.0004682064228152759
+          },
+          "inner_race_x3": {
+            "f_hz": 353.0422282524776,
+            "A_NAT": 0.12181758206543293,
+            "A_REF": 0.12176058961108478,
+            "rel_diff": 0.0004680697960660967
+          },
+          "ball_x1": {
+            "f_hz": 48.597788210063285,
+            "A_NAT": 11.287911932458172,
+            "A_REF": 11.229542153643484,
+            "rel_diff": 0.005197876994098981
+          },
+          "ball_x2": {
+            "f_hz": 97.19557642012657,
+            "A_NAT": 2.01714867507654,
+            "A_REF": 1.9862578300436944,
+            "rel_diff": 0.015552283578495061
+          },
+          "ball_x3": {
+            "f_hz": 145.79336463018984,
+            "A_NAT": 0.7603851381676403,
+            "A_REF": 0.7692306136677637,
+            "rel_diff": 0.011499120475649457
+          },
+          "cage_x1": {
+            "f_hz": 9.162990793796848,
+            "A_NAT": 0.20159283226503874,
+            "A_REF": 0.20150304407365394,
+            "rel_diff": 0.0004455922330979009
+          },
+          "cage_x2": {
+            "f_hz": 18.325981587593695,
+            "A_NAT": 0.2665035987997846,
+            "A_REF": 0.26637833965550317,
+            "rel_diff": 0.00047023021632840585
+          },
+          "cage_x3": {
+            "f_hz": 27.488972381390543,
+            "A_NAT": 0.2985212788848941,
+            "A_REF": 0.2984044909219446,
+            "rel_diff": 0.000391374682695556
+          }
+        }
+      },
+      {
+        "cell": 37,
+        "label": "ball",
+        "speed": 150.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.024076461824735718,
+        "all_bands_max_rel_diff": 0.024076461824735718,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 73.30392635037478,
+            "A_NAT": 0.07204894983480012,
+            "A_REF": 0.07201560003940286,
+            "rel_diff": 0.00046309126604536776
+          },
+          "outer_race_x2": {
+            "f_hz": 146.60785270074956,
+            "A_NAT": 0.4897577492730151,
+            "A_REF": 0.4782433417133203,
+            "rel_diff": 0.024076461824735718
+          },
+          "outer_race_x3": {
+            "f_hz": 219.91177905112434,
+            "A_NAT": 0.1244781078875342,
+            "A_REF": 0.12441947630813961,
+            "rel_diff": 0.00047124116845969694
+          },
+          "inner_race_x1": {
+            "f_hz": 117.68074275082587,
+            "A_NAT": 0.13140767717586682,
+            "A_REF": 0.13134772466577654,
+            "rel_diff": 0.00045644117736208165
+          },
+          "inner_race_x2": {
+            "f_hz": 235.36148550165174,
+            "A_NAT": 0.08325678915033144,
+            "A_REF": 0.08321785764344762,
+            "rel_diff": 0.00046782635345676924
+          },
+          "inner_race_x3": {
+            "f_hz": 353.0422282524776,
+            "A_NAT": 0.11545907039296746,
+            "A_REF": 0.11540922876073892,
+            "rel_diff": 0.00043186868817806224
+          },
+          "ball_x1": {
+            "f_hz": 48.597788210063285,
+            "A_NAT": 11.128215867284943,
+            "A_REF": 11.054157836966757,
+            "rel_diff": 0.0066995633145860295
+          },
+          "ball_x2": {
+            "f_hz": 97.19557642012657,
+            "A_NAT": 1.8618287743729702,
+            "A_REF": 1.8577259085098747,
+            "rel_diff": 0.0022085420913284777
+          },
+          "ball_x3": {
+            "f_hz": 145.79336463018984,
+            "A_NAT": 0.4897577492730151,
+            "A_REF": 0.4782433417133203,
+            "rel_diff": 0.024076461824735718
+          },
+          "cage_x1": {
+            "f_hz": 9.162990793796848,
+            "A_NAT": 0.10130650189909826,
+            "A_REF": 0.10125929511549794,
+            "rel_diff": 0.00046619703945670175
+          },
+          "cage_x2": {
+            "f_hz": 18.325981587593695,
+            "A_NAT": 0.14602180204603385,
+            "A_REF": 0.14594392229759645,
+            "rel_diff": 0.0005336278976975317
+          },
+          "cage_x3": {
+            "f_hz": 27.488972381390543,
+            "A_NAT": 0.11867932550607531,
+            "A_REF": 0.11862244123136538,
+            "rel_diff": 0.000479540583716191
+          }
+        }
+      },
+      {
+        "cell": 38,
+        "label": "cage",
+        "speed": 150.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.005823607340332274,
+        "all_bands_max_rel_diff": 0.005823607340332274,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 73.2980839077087,
+            "A_NAT": 1.1284510722498458,
+            "A_REF": 1.1279782008567778,
+            "rel_diff": 0.0004192203295318777
+          },
+          "outer_race_x2": {
+            "f_hz": 146.5961678154174,
+            "A_NAT": 0.45271009650756067,
+            "A_REF": 0.4525203636843772,
+            "rel_diff": 0.00041928018805314636
+          },
+          "outer_race_x3": {
+            "f_hz": 219.8942517231261,
+            "A_NAT": 0.7311025519120234,
+            "A_REF": 0.7307960091894726,
+            "rel_diff": 0.00041946414416083754
+          },
+          "inner_race_x1": {
+            "f_hz": 117.6713634034068,
+            "A_NAT": 1.0121304774484405,
+            "A_REF": 1.0117062377514308,
+            "rel_diff": 0.0004193309096844858
+          },
+          "inner_race_x2": {
+            "f_hz": 235.3427268068136,
+            "A_NAT": 0.6890076851026785,
+            "A_REF": 0.6887185437653187,
+            "rel_diff": 0.000419825108496461
+          },
+          "inner_race_x3": {
+            "f_hz": 353.0140902102204,
+            "A_NAT": 0.8987251209435339,
+            "A_REF": 0.8983483084014757,
+            "rel_diff": 0.0004194503830353133
+          },
+          "ball_x1": {
+            "f_hz": 48.593914886962445,
+            "A_NAT": 0.8065369150251277,
+            "A_REF": 0.8061969674804925,
+            "rel_diff": 0.0004216681014040196
+          },
+          "ball_x2": {
+            "f_hz": 97.18782977392489,
+            "A_NAT": 1.0752005025235842,
+            "A_REF": 1.0747495696318317,
+            "rel_diff": 0.00041957019988112036
+          },
+          "ball_x3": {
+            "f_hz": 145.78174466088734,
+            "A_NAT": 0.5451802744930968,
+            "A_REF": 0.5449516840281536,
+            "rel_diff": 0.0004194692330400404
+          },
+          "cage_x1": {
+            "f_hz": 9.162260488463588,
+            "A_NAT": 26.175713829866993,
+            "A_REF": 26.151706079112042,
+            "rel_diff": 0.0009180185293580634
+          },
+          "cage_x2": {
+            "f_hz": 18.324520976927175,
+            "A_NAT": 6.719136183488008,
+            "A_REF": 6.680233128803974,
+            "rel_diff": 0.005823607340332274
+          },
+          "cage_x3": {
+            "f_hz": 27.486781465390763,
+            "A_NAT": 2.672224635103923,
+            "A_REF": 2.6618451904096165,
+            "rel_diff": 0.0038993419796548696
+          }
+        }
+      },
+      {
+        "cell": 39,
+        "label": "cage",
+        "speed": 150.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.007251542627991033,
+        "all_bands_max_rel_diff": 0.007251542627991033,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 73.2980839077087,
+            "A_NAT": 0.7281763695972375,
+            "A_REF": 0.7278702663206635,
+            "rel_diff": 0.00042054647749429296
+          },
+          "outer_race_x2": {
+            "f_hz": 146.5961678154174,
+            "A_NAT": 1.287539357542294,
+            "A_REF": 1.286999333529016,
+            "rel_diff": 0.0004195992952049517
+          },
+          "outer_race_x3": {
+            "f_hz": 219.8942517231261,
+            "A_NAT": 1.0203145906083706,
+            "A_REF": 1.0198867672705074,
+            "rel_diff": 0.0004194812126135792
+          },
+          "inner_race_x1": {
+            "f_hz": 117.6713634034068,
+            "A_NAT": 0.9176526694932748,
+            "A_REF": 0.9172517901441973,
+            "rel_diff": 0.0004370439538902281
+          },
+          "inner_race_x2": {
+            "f_hz": 235.3427268068136,
+            "A_NAT": 0.9237112548672134,
+            "A_REF": 0.9233239883546921,
+            "rel_diff": 0.0004194264607068057
+          },
+          "inner_race_x3": {
+            "f_hz": 353.0140902102204,
+            "A_NAT": 0.9155415860251982,
+            "A_REF": 0.9151577515043249,
+            "rel_diff": 0.000419418969289583
+          },
+          "ball_x1": {
+            "f_hz": 48.593914886962445,
+            "A_NAT": 0.7642317131719403,
+            "A_REF": 0.7639114070185539,
+            "rel_diff": 0.0004192975133550107
+          },
+          "ball_x2": {
+            "f_hz": 97.18782977392489,
+            "A_NAT": 1.4262845083931956,
+            "A_REF": 1.4256864880516944,
+            "rel_diff": 0.00041946132372937576
+          },
+          "ball_x3": {
+            "f_hz": 145.78174466088734,
+            "A_NAT": 1.0495663415149996,
+            "A_REF": 1.0491258876217102,
+            "rel_diff": 0.00041982940130080116
+          },
+          "cage_x1": {
+            "f_hz": 9.162260488463588,
+            "A_NAT": 27.099446081001172,
+            "A_REF": 27.07133708112113,
+            "rel_diff": 0.0010383306814810318
+          },
+          "cage_x2": {
+            "f_hz": 18.324520976927175,
+            "A_NAT": 7.166134455900232,
+            "A_REF": 7.1385372883657165,
+            "rel_diff": 0.003865941497495951
+          },
+          "cage_x3": {
+            "f_hz": 27.486781465390763,
+            "A_NAT": 3.070074334364844,
+            "A_REF": 3.0479718366623705,
+            "rel_diff": 0.007251542627991033
+          }
+        }
+      },
+      {
+        "cell": 40,
+        "label": "normal",
+        "speed": 200.0,
+        "severity_scale": 1.0,
+        "noisy": false,
+        "own_band_max_rel_diff": null,
+        "all_bands_max_rel_diff": 0.4212842437690076,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 97.73921462173992,
+            "A_NAT": 1.2382908299650816e-14,
+            "A_REF": 1.2035817938961213e-14,
+            "rel_diff": 0.02883811988930432
+          },
+          "outer_race_x2": {
+            "f_hz": 195.47842924347984,
+            "A_NAT": 1.0964384716227488e-15,
+            "A_REF": 1.8946062204415066e-15,
+            "rel_diff": 0.4212842437690076
+          },
+          "outer_race_x3": {
+            "f_hz": 293.21764386521977,
+            "A_NAT": 5.520742507340683e-16,
+            "A_REF": 5.5158354504136435e-16,
+            "rel_diff": 0.0008896307678416936
+          },
+          "inner_race_x1": {
+            "f_hz": 156.90869432548382,
+            "A_NAT": 3.635044386916714e-15,
+            "A_REF": 4.1491097873233075e-15,
+            "rel_diff": 0.1238977580147932
+          },
+          "inner_race_x2": {
+            "f_hz": 313.81738865096764,
+            "A_NAT": 5.663390543334281e-16,
+            "A_REF": 7.425419020638839e-16,
+            "rel_diff": 0.23729684108156401
+          },
+          "inner_race_x3": {
+            "f_hz": 470.7260829764515,
+            "A_NAT": 2.3214127943413003e-16,
+            "A_REF": 2.2497261458699385e-16,
+            "rel_diff": 0.03186461098963739
+          },
+          "ball_x1": {
+            "f_hz": 64.79747932330166,
+            "A_NAT": 3.8671688763555497e-14,
+            "A_REF": 4.2422960212230014e-14,
+            "rel_diff": 0.08842549953864541
+          },
+          "ball_x2": {
+            "f_hz": 129.59495864660332,
+            "A_NAT": 4.699096974882142e-15,
+            "A_REF": 5.204392127892547e-15,
+            "rel_diff": 0.09709013859703496
+          },
+          "ball_x3": {
+            "f_hz": 194.39243796990496,
+            "A_NAT": 1.1429449124318936e-15,
+            "A_REF": 1.8946062204415066e-15,
+            "rel_diff": 0.39673748555224886
+          },
+          "cage_x1": {
+            "f_hz": 12.21740182771749,
+            "A_NAT": 3.4185574385106124e-12,
+            "A_REF": 3.903960829750648e-12,
+            "rel_diff": 0.124336132560797
+          },
+          "cage_x2": {
+            "f_hz": 24.43480365543498,
+            "A_NAT": 8.078415799197857e-13,
+            "A_REF": 9.271345565503131e-13,
+            "rel_diff": 0.12866846110708394
+          },
+          "cage_x3": {
+            "f_hz": 36.65220548315247,
+            "A_NAT": 2.3472948808344406e-13,
+            "A_REF": 2.6991487147845287e-13,
+            "rel_diff": 0.1303573352675295
+          }
+        }
+      },
+      {
+        "cell": 41,
+        "label": "normal",
+        "speed": 200.0,
+        "severity_scale": 1.0,
+        "noisy": false,
+        "own_band_max_rel_diff": null,
+        "all_bands_max_rel_diff": 0.4212842437690076,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 97.73921462173992,
+            "A_NAT": 1.2382908299650816e-14,
+            "A_REF": 1.2035817938961213e-14,
+            "rel_diff": 0.02883811988930432
+          },
+          "outer_race_x2": {
+            "f_hz": 195.47842924347984,
+            "A_NAT": 1.0964384716227488e-15,
+            "A_REF": 1.8946062204415066e-15,
+            "rel_diff": 0.4212842437690076
+          },
+          "outer_race_x3": {
+            "f_hz": 293.21764386521977,
+            "A_NAT": 5.520742507340683e-16,
+            "A_REF": 5.5158354504136435e-16,
+            "rel_diff": 0.0008896307678416936
+          },
+          "inner_race_x1": {
+            "f_hz": 156.90869432548382,
+            "A_NAT": 3.635044386916714e-15,
+            "A_REF": 4.1491097873233075e-15,
+            "rel_diff": 0.1238977580147932
+          },
+          "inner_race_x2": {
+            "f_hz": 313.81738865096764,
+            "A_NAT": 5.663390543334281e-16,
+            "A_REF": 7.425419020638839e-16,
+            "rel_diff": 0.23729684108156401
+          },
+          "inner_race_x3": {
+            "f_hz": 470.7260829764515,
+            "A_NAT": 2.3214127943413003e-16,
+            "A_REF": 2.2497261458699385e-16,
+            "rel_diff": 0.03186461098963739
+          },
+          "ball_x1": {
+            "f_hz": 64.79747932330166,
+            "A_NAT": 3.8671688763555497e-14,
+            "A_REF": 4.2422960212230014e-14,
+            "rel_diff": 0.08842549953864541
+          },
+          "ball_x2": {
+            "f_hz": 129.59495864660332,
+            "A_NAT": 4.699096974882142e-15,
+            "A_REF": 5.204392127892547e-15,
+            "rel_diff": 0.09709013859703496
+          },
+          "ball_x3": {
+            "f_hz": 194.39243796990496,
+            "A_NAT": 1.1429449124318936e-15,
+            "A_REF": 1.8946062204415066e-15,
+            "rel_diff": 0.39673748555224886
+          },
+          "cage_x1": {
+            "f_hz": 12.21740182771749,
+            "A_NAT": 3.4185574385106124e-12,
+            "A_REF": 3.903960829750648e-12,
+            "rel_diff": 0.124336132560797
+          },
+          "cage_x2": {
+            "f_hz": 24.43480365543498,
+            "A_NAT": 8.078415799197857e-13,
+            "A_REF": 9.271345565503131e-13,
+            "rel_diff": 0.12866846110708394
+          },
+          "cage_x3": {
+            "f_hz": 36.65220548315247,
+            "A_NAT": 2.3472948808344406e-13,
+            "A_REF": 2.6991487147845287e-13,
+            "rel_diff": 0.1303573352675295
+          }
+        }
+      },
+      {
+        "cell": 42,
+        "label": "outer_race",
+        "speed": 200.0,
+        "severity_scale": 1.0,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.057090778121961616,
+        "all_bands_max_rel_diff": 0.057090778121961616,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 97.73903944283276,
+            "A_NAT": 10.334792179900187,
+            "A_REF": 10.333495618995086,
+            "rel_diff": 0.00012547166543706075
+          },
+          "outer_race_x2": {
+            "f_hz": 195.47807888566552,
+            "A_NAT": 2.484664596505789,
+            "A_REF": 2.350474195716729,
+            "rel_diff": 0.057090778121961616
+          },
+          "outer_race_x3": {
+            "f_hz": 293.21711832849826,
+            "A_NAT": 0.8006887036685553,
+            "A_REF": 0.7614086483126241,
+            "rel_diff": 0.051588664566630055
+          },
+          "inner_race_x1": {
+            "f_hz": 156.9084130965656,
+            "A_NAT": 0.9032707692675019,
+            "A_REF": 0.9028099531106549,
+            "rel_diff": 0.0005104243204887767
+          },
+          "inner_race_x2": {
+            "f_hz": 313.8168261931312,
+            "A_NAT": 0.6222088070547483,
+            "A_REF": 0.6218912845556778,
+            "rel_diff": 0.0005105755731846882
+          },
+          "inner_race_x3": {
+            "f_hz": 470.7252392896968,
+            "A_NAT": 0.8027640596365124,
+            "A_REF": 0.8023540856055177,
+            "rel_diff": 0.000510963972577449
+          },
+          "ball_x1": {
+            "f_hz": 64.79736318617432,
+            "A_NAT": 0.7951160375893481,
+            "A_REF": 0.7947100056461909,
+            "rel_diff": 0.0005109183730826405
+          },
+          "ball_x2": {
+            "f_hz": 129.59472637234865,
+            "A_NAT": 0.5576246233309818,
+            "A_REF": 0.557337903644692,
+            "rel_diff": 0.0005144449792752298
+          },
+          "ball_x3": {
+            "f_hz": 194.39208955852297,
+            "A_NAT": 2.484664596505789,
+            "A_REF": 2.350474195716729,
+            "rel_diff": 0.057090778121961616
+          },
+          "cage_x1": {
+            "f_hz": 12.217379930354095,
+            "A_NAT": 0.5637432710316442,
+            "A_REF": 0.5634583157291849,
+            "rel_diff": 0.0005057256135984851
+          },
+          "cage_x2": {
+            "f_hz": 24.43475986070819,
+            "A_NAT": 0.5639229625192299,
+            "A_REF": 0.5636351209316179,
+            "rel_diff": 0.0005106878136625058
+          },
+          "cage_x3": {
+            "f_hz": 36.65213979106228,
+            "A_NAT": 0.6721650795872054,
+            "A_REF": 0.6718198727232325,
+            "rel_diff": 0.0005138384230486939
+          }
+        }
+      },
+      {
+        "cell": 43,
+        "label": "outer_race",
+        "speed": 200.0,
+        "severity_scale": 1.0,
+        "noisy": false,
+        "own_band_max_rel_diff": 0.008974895028058615,
+        "all_bands_max_rel_diff": 0.9841122573743055,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 97.73903944283276,
+            "A_NAT": 9.941498253631401,
+            "A_REF": 9.881728782644364,
+            "rel_diff": 0.006048483246374094
+          },
+          "outer_race_x2": {
+            "f_hz": 195.47807888566552,
+            "A_NAT": 2.022634482352695,
+            "A_REF": 2.0101257708159714,
+            "rel_diff": 0.006222850190934102
+          },
+          "outer_race_x3": {
+            "f_hz": 293.21711832849826,
+            "A_NAT": 0.49320361283065284,
+            "A_REF": 0.4888165357344568,
+            "rel_diff": 0.008974895028058615
+          },
+          "inner_race_x1": {
+            "f_hz": 156.9084130965656,
+            "A_NAT": 2.394659213922141e-06,
+            "A_REF": 2.6705486067768194e-06,
+            "rel_diff": 0.10330813382485454
+          },
+          "inner_race_x2": {
+            "f_hz": 313.8168261931312,
+            "A_NAT": 3.34503298944964e-06,
+            "A_REF": 3.3022188772145904e-06,
+            "rel_diff": 0.012965255734702622
+          },
+          "inner_race_x3": {
+            "f_hz": 470.7252392896968,
+            "A_NAT": 9.393015828113386e-09,
+            "A_REF": 5.912114797808027e-07,
+            "rel_diff": 0.9841122573743055
+          },
+          "ball_x1": {
+            "f_hz": 64.79736318617432,
+            "A_NAT": 1.5052714844896314e-05,
+            "A_REF": 1.9167783253960532e-05,
+            "rel_diff": 0.21468671439687445
+          },
+          "ball_x2": {
+            "f_hz": 129.59472637234865,
+            "A_NAT": 1.6714076232524206e-05,
+            "A_REF": 2.287073247870718e-05,
+            "rel_diff": 0.26919366277030554
+          },
+          "ball_x3": {
+            "f_hz": 194.39208955852297,
+            "A_NAT": 2.022634482352695,
+            "A_REF": 2.0101257708159714,
+            "rel_diff": 0.006222850190934102
+          },
+          "cage_x1": {
+            "f_hz": 12.217379930354095,
+            "A_NAT": 4.806062102232088e-07,
+            "A_REF": 8.84395707295004e-06,
+            "rel_diff": 0.9456571073040163
+          },
+          "cage_x2": {
+            "f_hz": 24.43475986070819,
+            "A_NAT": 1.020831371494057e-06,
+            "A_REF": 7.0848915738355094e-06,
+            "rel_diff": 0.855914326866485
+          },
+          "cage_x3": {
+            "f_hz": 36.65213979106228,
+            "A_NAT": 2.0482499470439366e-06,
+            "A_REF": 2.1750994306871786e-05,
+            "rel_diff": 0.9058318935609839
+          }
+        }
+      },
+      {
+        "cell": 44,
+        "label": "inner_race",
+        "speed": 200.0,
+        "severity_scale": 1.0,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.11620056019095044,
+        "all_bands_max_rel_diff": 0.11620056019095044,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 97.73927764794972,
+            "A_NAT": 0.46414746045793953,
+            "A_REF": 0.46398963474711025,
+            "rel_diff": 0.00034014921672831096
+          },
+          "outer_race_x2": {
+            "f_hz": 195.47855529589944,
+            "A_NAT": 0.5334336672474796,
+            "A_REF": 0.5332527118659449,
+            "rel_diff": 0.00033934263719266654
+          },
+          "outer_race_x3": {
+            "f_hz": 293.21783294384915,
+            "A_NAT": 0.644539506754129,
+            "A_REF": 0.6443193860791262,
+            "rel_diff": 0.00034163286059459664
+          },
+          "inner_race_x1": {
+            "f_hz": 156.90879550657397,
+            "A_NAT": 6.4405136161076335,
+            "A_REF": 6.48430794639018,
+            "rel_diff": 0.00675389426976963
+          },
+          "inner_race_x2": {
+            "f_hz": 313.81759101314793,
+            "A_NAT": 1.2660837018286188,
+            "A_REF": 1.3580673165065629,
+            "rel_diff": 0.06773126306769456
+          },
+          "inner_race_x3": {
+            "f_hz": 470.7263865197219,
+            "A_NAT": 0.5602444285079724,
+            "A_REF": 0.6339044847426207,
+            "rel_diff": 0.11620056019095044
+          },
+          "ball_x1": {
+            "f_hz": 64.79752110734445,
+            "A_NAT": 0.662732493931587,
+            "A_REF": 0.6625057017351951,
+            "rel_diff": 0.0003423248974278681
+          },
+          "ball_x2": {
+            "f_hz": 129.5950422146889,
+            "A_NAT": 0.5546702579010561,
+            "A_REF": 0.554483296392308,
+            "rel_diff": 0.000337181498459073
+          },
+          "ball_x3": {
+            "f_hz": 194.39256332203337,
+            "A_NAT": 0.5334336672474796,
+            "A_REF": 0.5332527118659449,
+            "rel_diff": 0.00033934263719266654
+          },
+          "cage_x1": {
+            "f_hz": 12.217409705993715,
+            "A_NAT": 0.34613699073409027,
+            "A_REF": 0.3460224173590112,
+            "rel_diff": 0.00033111546920444596
+          },
+          "cage_x2": {
+            "f_hz": 24.43481941198743,
+            "A_NAT": 0.2971489825522282,
+            "A_REF": 0.2970458190943549,
+            "rel_diff": 0.0003472981312709295
+          },
+          "cage_x3": {
+            "f_hz": 36.65222911798114,
+            "A_NAT": 0.5699134345256739,
+            "A_REF": 0.5697258092365763,
+            "rel_diff": 0.00032932559146120347
+          }
+        }
+      },
+      {
+        "cell": 45,
+        "label": "inner_race",
+        "speed": 200.0,
+        "severity_scale": 1.0,
+        "noisy": false,
+        "own_band_max_rel_diff": 0.01742211298054732,
+        "all_bands_max_rel_diff": 0.9973831935278974,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 97.73927764794972,
+            "A_NAT": 7.95875925980737e-07,
+            "A_REF": 8.839358389933098e-06,
+            "rel_diff": 0.90996225168479
+          },
+          "outer_race_x2": {
+            "f_hz": 195.47855529589944,
+            "A_NAT": 2.8766441511689757e-06,
+            "A_REF": 4.931041097234071e-06,
+            "rel_diff": 0.4166253952370122
+          },
+          "outer_race_x3": {
+            "f_hz": 293.21783294384915,
+            "A_NAT": 6.383395459167355e-06,
+            "A_REF": 6.093047051708546e-06,
+            "rel_diff": 0.047652415120837274
+          },
+          "inner_race_x1": {
+            "f_hz": 156.90879550657397,
+            "A_NAT": 7.105763156364339,
+            "A_REF": 7.065414875266613,
+            "rel_diff": 0.005710674009953834
+          },
+          "inner_race_x2": {
+            "f_hz": 313.81759101314793,
+            "A_NAT": 1.147111513079447,
+            "A_REF": 1.1363984519440586,
+            "rel_diff": 0.009427204971162395
+          },
+          "inner_race_x3": {
+            "f_hz": 470.7263865197219,
+            "A_NAT": 0.2864519809794754,
+            "A_REF": 0.28154684012156145,
+            "rel_diff": 0.01742211298054732
+          },
+          "ball_x1": {
+            "f_hz": 64.79752110734445,
+            "A_NAT": 2.1959073750387716e-07,
+            "A_REF": 7.183940823771577e-06,
+            "rel_diff": 0.9694331088060673
+          },
+          "ball_x2": {
+            "f_hz": 129.5950422146889,
+            "A_NAT": 8.912344472088641e-06,
+            "A_REF": 1.0374880179866852e-05,
+            "rel_diff": 0.14096892517528625
+          },
+          "ball_x3": {
+            "f_hz": 194.39256332203337,
+            "A_NAT": 3.1287455448607725e-06,
+            "A_REF": 4.931041097234071e-06,
+            "rel_diff": 0.3655000063544888
+          },
+          "cage_x1": {
+            "f_hz": 12.217409705993715,
+            "A_NAT": 8.552857496852797e-08,
+            "A_REF": 3.268433332014984e-05,
+            "rel_diff": 0.9973831935278974
+          },
+          "cage_x2": {
+            "f_hz": 24.43481941198743,
+            "A_NAT": 9.514946667968577e-08,
+            "A_REF": 1.1637168209087308e-05,
+            "rel_diff": 0.9918236580437683
+          },
+          "cage_x3": {
+            "f_hz": 36.65222911798114,
+            "A_NAT": 1.1416793722252214e-07,
+            "A_REF": 9.314571743769529e-06,
+            "rel_diff": 0.9877430825202577
+          }
+        }
+      },
+      {
+        "cell": 46,
+        "label": "ball",
+        "speed": 200.0,
+        "severity_scale": 1.0,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.011429521184893649,
+        "all_bands_max_rel_diff": 0.011429521184893649,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 97.73978270487247,
+            "A_NAT": 0.0754082433166577,
+            "A_REF": 0.07534082175146803,
+            "rel_diff": 0.00089488757385842
+          },
+          "outer_race_x2": {
+            "f_hz": 195.47956540974494,
+            "A_NAT": 0.8882429148200481,
+            "A_REF": 0.8782054470582074,
+            "rel_diff": 0.011429521184893649
+          },
+          "outer_race_x3": {
+            "f_hz": 293.2193481146174,
+            "A_NAT": 0.058737716729250745,
+            "A_REF": 0.0586860857913433,
+            "rel_diff": 0.0008797815906655529
+          },
+          "inner_race_x1": {
+            "f_hz": 156.90960631544547,
+            "A_NAT": 0.03878475792347701,
+            "A_REF": 0.03874987868618507,
+            "rel_diff": 0.0009001121674318835
+          },
+          "inner_race_x2": {
+            "f_hz": 313.81921263089095,
+            "A_NAT": 0.08033360458300182,
+            "A_REF": 0.08026316381371025,
+            "rel_diff": 0.0008776226346504114
+          },
+          "inner_race_x3": {
+            "f_hz": 470.72881894633645,
+            "A_NAT": 0.06488529759117496,
+            "A_REF": 0.06482846133404538,
+            "rel_diff": 0.0008767176631992326
+          },
+          "ball_x1": {
+            "f_hz": 64.79785594137842,
+            "A_NAT": 15.65324677306156,
+            "A_REF": 15.552960092304772,
+            "rel_diff": 0.006448076775199069
+          },
+          "ball_x2": {
+            "f_hz": 129.59571188275683,
+            "A_NAT": 2.999129653396231,
+            "A_REF": 2.982210842566209,
+            "rel_diff": 0.005673244355675083
+          },
+          "ball_x3": {
+            "f_hz": 194.39356782413523,
+            "A_NAT": 0.8882429148200481,
+            "A_REF": 0.8782054470582074,
+            "rel_diff": 0.011429521184893649
+          },
+          "cage_x1": {
+            "f_hz": 12.217472838109058,
+            "A_NAT": 0.05539926301712305,
+            "A_REF": 0.05535181727936733,
+            "rel_diff": 0.0008571667578004416
+          },
+          "cage_x2": {
+            "f_hz": 24.434945676218117,
+            "A_NAT": 0.045364359882817167,
+            "A_REF": 0.04532698405766187,
+            "rel_diff": 0.0008245822203337093
+          },
+          "cage_x3": {
+            "f_hz": 36.652418514327174,
+            "A_NAT": 0.05805626122182653,
+            "A_REF": 0.05800641737794952,
+            "rel_diff": 0.0008592815438374473
+          }
+        }
+      },
+      {
+        "cell": 47,
+        "label": "ball",
+        "speed": 200.0,
+        "severity_scale": 1.0,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.006821680597270404,
+        "all_bands_max_rel_diff": 0.006821680597270404,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 97.73978270487247,
+            "A_NAT": 0.11657353170746873,
+            "A_REF": 0.11647146741762045,
+            "rel_diff": 0.0008763029444998848
+          },
+          "outer_race_x2": {
+            "f_hz": 195.47956540974494,
+            "A_NAT": 0.8444904329134534,
+            "A_REF": 0.8393054946820748,
+            "rel_diff": 0.006177653148026377
+          },
+          "outer_race_x3": {
+            "f_hz": 293.2193481146174,
+            "A_NAT": 0.0900394981280981,
+            "A_REF": 0.08996043633801881,
+            "rel_diff": 0.0008788506736696672
+          },
+          "inner_race_x1": {
+            "f_hz": 156.90960631544547,
+            "A_NAT": 0.05997879277030176,
+            "A_REF": 0.05992557013958792,
+            "rel_diff": 0.000888145587766065
+          },
+          "inner_race_x2": {
+            "f_hz": 313.81921263089095,
+            "A_NAT": 0.08912539860758449,
+            "A_REF": 0.08904723104123931,
+            "rel_diff": 0.0008778214148959031
+          },
+          "inner_race_x3": {
+            "f_hz": 470.72881894633645,
+            "A_NAT": 0.07053877401388697,
+            "A_REF": 0.07047674473981914,
+            "rel_diff": 0.0008801381831244363
+          },
+          "ball_x1": {
+            "f_hz": 64.79785594137842,
+            "A_NAT": 15.69814574231519,
+            "A_REF": 15.59831242601516,
+            "rel_diff": 0.006400263924290048
+          },
+          "ball_x2": {
+            "f_hz": 129.59571188275683,
+            "A_NAT": 3.0112735121973992,
+            "A_REF": 2.990870747251927,
+            "rel_diff": 0.006821680597270404
+          },
+          "ball_x3": {
+            "f_hz": 194.39356782413523,
+            "A_NAT": 0.8444904329134534,
+            "A_REF": 0.8393054946820748,
+            "rel_diff": 0.006177653148026377
+          },
+          "cage_x1": {
+            "f_hz": 12.217472838109058,
+            "A_NAT": 0.1011709458288987,
+            "A_REF": 0.10108406148948637,
+            "rel_diff": 0.0008595256080145109
+          },
+          "cage_x2": {
+            "f_hz": 24.434945676218117,
+            "A_NAT": 0.058583873616441906,
+            "A_REF": 0.058530172812903285,
+            "rel_diff": 0.0009174892360266996
+          },
+          "cage_x3": {
+            "f_hz": 36.652418514327174,
+            "A_NAT": 0.07447730888519555,
+            "A_REF": 0.07441272162168429,
+            "rel_diff": 0.0008679599684530047
+          }
+        }
+      },
+      {
+        "cell": 48,
+        "label": "cage",
+        "speed": 200.0,
+        "severity_scale": 1.0,
+        "noisy": false,
+        "own_band_max_rel_diff": 0.00624930807783671,
+        "all_bands_max_rel_diff": 1.0319284960524666,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 97.74810030583193,
+            "A_NAT": 9.217998347900849e-05,
+            "A_REF": 4.5365761471474685e-05,
+            "rel_diff": 1.0319284960524666
+          },
+          "outer_race_x2": {
+            "f_hz": 195.49620061166385,
+            "A_NAT": 1.0617280954756145e-07,
+            "A_REF": 2.620624585963594e-05,
+            "rel_diff": 0.9959485685162142
+          },
+          "outer_race_x3": {
+            "f_hz": 293.24430091749576,
+            "A_NAT": 2.6962556485479507e-08,
+            "A_REF": 1.2977453146321913e-05,
+            "rel_diff": 0.9979223537791682
+          },
+          "inner_race_x1": {
+            "f_hz": 156.92295923537142,
+            "A_NAT": 2.343633902756841e-07,
+            "A_REF": 2.4614221560465e-05,
+            "rel_diff": 0.9904785373894531
+          },
+          "inner_race_x2": {
+            "f_hz": 313.84591847074284,
+            "A_NAT": 2.1639020253486642e-08,
+            "A_REF": 1.2187082030259407e-06,
+            "rel_diff": 0.9822442975276945
+          },
+          "inner_race_x3": {
+            "f_hz": 470.76887770611427,
+            "A_NAT": 6.096332034874987e-09,
+            "A_REF": 1.1848056956949017e-06,
+            "rel_diff": 0.9948545723091756
+          },
+          "ball_x1": {
+            "f_hz": 64.80337020275525,
+            "A_NAT": 9.490498808987023e-05,
+            "A_REF": 9.432094492956617e-05,
+            "rel_diff": 0.006192083431099967
+          },
+          "ball_x2": {
+            "f_hz": 129.6067404055105,
+            "A_NAT": 4.6822386618943647e-07,
+            "A_REF": 4.091378767656338e-06,
+            "rel_diff": 0.885558416177232
+          },
+          "ball_x3": {
+            "f_hz": 194.41011060826574,
+            "A_NAT": 1.0907666495731045e-07,
+            "A_REF": 2.620624585963594e-05,
+            "rel_diff": 0.9958377607559077
+          },
+          "cage_x1": {
+            "f_hz": 12.21851253822899,
+            "A_NAT": 49.56193809795123,
+            "A_REF": 49.45962550784775,
+            "rel_diff": 0.0020686082648815516
+          },
+          "cage_x2": {
+            "f_hz": 24.43702507645798,
+            "A_NAT": 13.942977047082525,
+            "A_REF": 13.870666608712677,
+            "rel_diff": 0.005213191291356386
+          },
+          "cage_x3": {
+            "f_hz": 36.65553761468697,
+            "A_NAT": 4.065877193503431,
+            "A_REF": 4.040626076325134,
+            "rel_diff": 0.00624930807783671
+          }
+        }
+      },
+      {
+        "cell": 49,
+        "label": "cage",
+        "speed": 200.0,
+        "severity_scale": 1.0,
+        "noisy": false,
+        "own_band_max_rel_diff": 0.00624930807783671,
+        "all_bands_max_rel_diff": 1.0319284960524666,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 97.74810030583193,
+            "A_NAT": 9.217998347900849e-05,
+            "A_REF": 4.5365761471474685e-05,
+            "rel_diff": 1.0319284960524666
+          },
+          "outer_race_x2": {
+            "f_hz": 195.49620061166385,
+            "A_NAT": 1.0617280954756145e-07,
+            "A_REF": 2.620624585963594e-05,
+            "rel_diff": 0.9959485685162142
+          },
+          "outer_race_x3": {
+            "f_hz": 293.24430091749576,
+            "A_NAT": 2.6962556485479507e-08,
+            "A_REF": 1.2977453146321913e-05,
+            "rel_diff": 0.9979223537791682
+          },
+          "inner_race_x1": {
+            "f_hz": 156.92295923537142,
+            "A_NAT": 2.343633902756841e-07,
+            "A_REF": 2.4614221560465e-05,
+            "rel_diff": 0.9904785373894531
+          },
+          "inner_race_x2": {
+            "f_hz": 313.84591847074284,
+            "A_NAT": 2.1639020253486642e-08,
+            "A_REF": 1.2187082030259407e-06,
+            "rel_diff": 0.9822442975276945
+          },
+          "inner_race_x3": {
+            "f_hz": 470.76887770611427,
+            "A_NAT": 6.096332034874987e-09,
+            "A_REF": 1.1848056956949017e-06,
+            "rel_diff": 0.9948545723091756
+          },
+          "ball_x1": {
+            "f_hz": 64.80337020275525,
+            "A_NAT": 9.490498808987023e-05,
+            "A_REF": 9.432094492956617e-05,
+            "rel_diff": 0.006192083431099967
+          },
+          "ball_x2": {
+            "f_hz": 129.6067404055105,
+            "A_NAT": 4.6822386618943647e-07,
+            "A_REF": 4.091378767656338e-06,
+            "rel_diff": 0.885558416177232
+          },
+          "ball_x3": {
+            "f_hz": 194.41011060826574,
+            "A_NAT": 1.0907666495731045e-07,
+            "A_REF": 2.620624585963594e-05,
+            "rel_diff": 0.9958377607559077
+          },
+          "cage_x1": {
+            "f_hz": 12.21851253822899,
+            "A_NAT": 49.56193809795123,
+            "A_REF": 49.45962550784775,
+            "rel_diff": 0.0020686082648815516
+          },
+          "cage_x2": {
+            "f_hz": 24.43702507645798,
+            "A_NAT": 13.942977047082525,
+            "A_REF": 13.870666608712677,
+            "rel_diff": 0.005213191291356386
+          },
+          "cage_x3": {
+            "f_hz": 36.65553761468697,
+            "A_NAT": 4.065877193503431,
+            "A_REF": 4.040626076325134,
+            "rel_diff": 0.00624930807783671
+          }
+        }
+      },
+      {
+        "cell": 50,
+        "label": "normal",
+        "speed": 200.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": null,
+        "all_bands_max_rel_diff": 7.315543682477637e-05,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 97.73921462173992,
+            "A_NAT": 0.08114408091123515,
+            "A_REF": 0.08115001747620945,
+            "rel_diff": 7.315543679386039e-05
+          },
+          "outer_race_x2": {
+            "f_hz": 195.47842924347984,
+            "A_NAT": 0.07609314417696819,
+            "A_REF": 0.07609871121142663,
+            "rel_diff": 7.315543679796478e-05
+          },
+          "outer_race_x3": {
+            "f_hz": 293.21764386521977,
+            "A_NAT": 0.09273272408679191,
+            "A_REF": 0.0927395084860451,
+            "rel_diff": 7.315543681382154e-05
+          },
+          "inner_race_x1": {
+            "f_hz": 156.90869432548382,
+            "A_NAT": 0.06859273723274581,
+            "A_REF": 0.06859775553151373,
+            "rel_diff": 7.315543677835334e-05
+          },
+          "inner_race_x2": {
+            "f_hz": 313.81738865096764,
+            "A_NAT": 0.11462577383716038,
+            "A_REF": 0.11463415994920481,
+            "rel_diff": 7.315543680997315e-05
+          },
+          "inner_race_x3": {
+            "f_hz": 470.7260829764515,
+            "A_NAT": 0.11830386428466831,
+            "A_REF": 0.11831251948871205,
+            "rel_diff": 7.315543681378805e-05
+          },
+          "ball_x1": {
+            "f_hz": 64.79747932330166,
+            "A_NAT": 0.11301785717180285,
+            "A_REF": 0.1130261256473972,
+            "rel_diff": 7.315543682477637e-05
+          },
+          "ball_x2": {
+            "f_hz": 129.59495864660332,
+            "A_NAT": 0.1237556140869702,
+            "A_REF": 0.12376466814533008,
+            "rel_diff": 7.315543681052123e-05
+          },
+          "ball_x3": {
+            "f_hz": 194.39243796990496,
+            "A_NAT": 0.07609314417696819,
+            "A_REF": 0.07609871121142663,
+            "rel_diff": 7.315543679796478e-05
+          },
+          "cage_x1": {
+            "f_hz": 12.21740182771749,
+            "A_NAT": 0.09842786794573663,
+            "A_REF": 0.09843506900598287,
+            "rel_diff": 7.315543453115497e-05
+          },
+          "cage_x2": {
+            "f_hz": 24.43480365543498,
+            "A_NAT": 0.11267477873210012,
+            "A_REF": 0.11268302210773529,
+            "rel_diff": 7.315543620480324e-05
+          },
+          "cage_x3": {
+            "f_hz": 36.65220548315247,
+            "A_NAT": 0.11288490397740161,
+            "A_REF": 0.11289316272603528,
+            "rel_diff": 7.315543682400019e-05
+          }
+        }
+      },
+      {
+        "cell": 51,
+        "label": "normal",
+        "speed": 200.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": null,
+        "all_bands_max_rel_diff": 7.31554398281635e-05,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 97.73921462173992,
+            "A_NAT": 0.10419602024408184,
+            "A_REF": 0.10420364330712234,
+            "rel_diff": 7.31554367828961e-05
+          },
+          "outer_race_x2": {
+            "f_hz": 195.47842924347984,
+            "A_NAT": 0.08618320672710743,
+            "A_REF": 0.0861895119585028,
+            "rel_diff": 7.315543680545432e-05
+          },
+          "outer_race_x3": {
+            "f_hz": 293.21764386521977,
+            "A_NAT": 0.10602046863837916,
+            "A_REF": 0.10602822517950633,
+            "rel_diff": 7.315543680974231e-05
+          },
+          "inner_race_x1": {
+            "f_hz": 156.90869432548382,
+            "A_NAT": 0.059096203369350064,
+            "A_REF": 0.05910052689421092,
+            "rel_diff": 7.315543681354539e-05
+          },
+          "inner_race_x2": {
+            "f_hz": 313.81738865096764,
+            "A_NAT": 0.07400124449227843,
+            "A_REF": 0.07400665848170726,
+            "rel_diff": 7.315543682011435e-05
+          },
+          "inner_race_x3": {
+            "f_hz": 470.7260829764515,
+            "A_NAT": 0.07897281023928265,
+            "A_REF": 0.07897858795238309,
+            "rel_diff": 7.315543681183212e-05
+          },
+          "ball_x1": {
+            "f_hz": 64.79747932330166,
+            "A_NAT": 0.09639076389826227,
+            "A_REF": 0.09639781592259622,
+            "rel_diff": 7.315543683694593e-05
+          },
+          "ball_x2": {
+            "f_hz": 129.59495864660332,
+            "A_NAT": 0.08927856403521064,
+            "A_REF": 0.089285095725389,
+            "rel_diff": 7.315543680927868e-05
+          },
+          "ball_x3": {
+            "f_hz": 194.39243796990496,
+            "A_NAT": 0.09577670770291348,
+            "A_REF": 0.0957837148024088,
+            "rel_diff": 7.315543680648585e-05
+          },
+          "cage_x1": {
+            "f_hz": 12.21740182771749,
+            "A_NAT": 0.1178788346237274,
+            "A_REF": 0.11788745873262121,
+            "rel_diff": 7.31554398281635e-05
+          },
+          "cage_x2": {
+            "f_hz": 24.43480365543498,
+            "A_NAT": 0.10556603598812014,
+            "A_REF": 0.1055737592826563,
+            "rel_diff": 7.31554373798763e-05
+          },
+          "cage_x3": {
+            "f_hz": 36.65220548315247,
+            "A_NAT": 0.10827826412721765,
+            "A_REF": 0.10828618585047149,
+            "rel_diff": 7.315543706358443e-05
+          }
+        }
+      },
+      {
+        "cell": 52,
+        "label": "outer_race",
+        "speed": 200.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.05391888013715816,
+        "all_bands_max_rel_diff": 0.05391888013715816,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 97.73934087053833,
+            "A_NAT": 5.363621809202525,
+            "A_REF": 5.3348341597597315,
+            "rel_diff": 0.005396165762740364
+          },
+          "outer_race_x2": {
+            "f_hz": 195.47868174107666,
+            "A_NAT": 1.2559050507274176,
+            "A_REF": 1.1916524833144395,
+            "rel_diff": 0.05391888013715816
+          },
+          "outer_race_x3": {
+            "f_hz": 293.21802261161497,
+            "A_NAT": 0.5699291875552893,
+            "A_REF": 0.5696400375374032,
+            "rel_diff": 0.0005076012899937908
+          },
+          "inner_race_x1": {
+            "f_hz": 156.90889700292698,
+            "A_NAT": 0.425514304314534,
+            "A_REF": 0.4254645578782205,
+            "rel_diff": 0.00011692263290175461
+          },
+          "inner_race_x2": {
+            "f_hz": 313.81779400585395,
+            "A_NAT": 0.7324619881967888,
+            "A_REF": 0.7323769758627536,
+            "rel_diff": 0.00011607728920612531
+          },
+          "inner_race_x3": {
+            "f_hz": 470.7266910087809,
+            "A_NAT": 0.4345550401020364,
+            "A_REF": 0.4345045042529353,
+            "rel_diff": 0.00011630684746979593
+          },
+          "ball_x1": {
+            "f_hz": 64.79756302157912,
+            "A_NAT": 0.4184516188325233,
+            "A_REF": 0.41840276977582314,
+            "rel_diff": 0.00011675127467806912
+          },
+          "ball_x2": {
+            "f_hz": 129.59512604315825,
+            "A_NAT": 0.4526149439994783,
+            "A_REF": 0.4525624689211781,
+            "rel_diff": 0.00011595101649799184
+          },
+          "ball_x3": {
+            "f_hz": 194.39268906473737,
+            "A_NAT": 1.2559050507274176,
+            "A_REF": 1.1916524833144395,
+            "rel_diff": 0.05391888013715816
+          },
+          "cage_x1": {
+            "f_hz": 12.217417608817291,
+            "A_NAT": 0.47619671578974165,
+            "A_REF": 0.4761435805096299,
+            "rel_diff": 0.00011159507822173487
+          },
+          "cage_x2": {
+            "f_hz": 24.434835217634582,
+            "A_NAT": 0.3074031573601581,
+            "A_REF": 0.30737386656073834,
+            "rel_diff": 9.529372079515997e-05
+          },
+          "cage_x3": {
+            "f_hz": 36.65225282645187,
+            "A_NAT": 0.25487034661326013,
+            "A_REF": 0.2548403323452974,
+            "rel_diff": 0.0001177767572601585
+          }
+        }
+      },
+      {
+        "cell": 53,
+        "label": "outer_race",
+        "speed": 200.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.01187831743260963,
+        "all_bands_max_rel_diff": 0.01187831743260963,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 97.73934087053833,
+            "A_NAT": 5.023377963030588,
+            "A_REF": 4.979362742543739,
+            "rel_diff": 0.008839528823795571
+          },
+          "outer_race_x2": {
+            "f_hz": 195.47868174107666,
+            "A_NAT": 1.5548937370080704,
+            "A_REF": 1.536641027108109,
+            "rel_diff": 0.01187831743260963
+          },
+          "outer_race_x3": {
+            "f_hz": 293.21802261161497,
+            "A_NAT": 0.5842099152441643,
+            "A_REF": 0.5841292482587466,
+            "rel_diff": 0.00013809783649460755
+          },
+          "inner_race_x1": {
+            "f_hz": 156.90889700292698,
+            "A_NAT": 0.7392237628153759,
+            "A_REF": 0.739137606228831,
+            "rel_diff": 0.00011656366259669079
+          },
+          "inner_race_x2": {
+            "f_hz": 313.81779400585395,
+            "A_NAT": 0.7941945813860994,
+            "A_REF": 0.7941022218030901,
+            "rel_diff": 0.00011630691927751753
+          },
+          "inner_race_x3": {
+            "f_hz": 470.7266910087809,
+            "A_NAT": 0.5463936003555764,
+            "A_REF": 0.5463298903521789,
+            "rel_diff": 0.00011661453001660666
+          },
+          "ball_x1": {
+            "f_hz": 64.79756302157912,
+            "A_NAT": 0.6138924196800248,
+            "A_REF": 0.613818843486042,
+            "rel_diff": 0.00011986630056026053
+          },
+          "ball_x2": {
+            "f_hz": 129.59512604315825,
+            "A_NAT": 0.6046383925750874,
+            "A_REF": 0.6045679403278978,
+            "rel_diff": 0.00011653321734425706
+          },
+          "ball_x3": {
+            "f_hz": 194.39268906473737,
+            "A_NAT": 1.5548937370080704,
+            "A_REF": 1.536641027108109,
+            "rel_diff": 0.01187831743260963
+          },
+          "cage_x1": {
+            "f_hz": 12.217417608817291,
+            "A_NAT": 0.49358457416046975,
+            "A_REF": 0.4935258573442317,
+            "rel_diff": 0.00011897414363252126
+          },
+          "cage_x2": {
+            "f_hz": 24.434835217634582,
+            "A_NAT": 0.391918453973022,
+            "A_REF": 0.39187356258795913,
+            "rel_diff": 0.00011455578877634952
+          },
+          "cage_x3": {
+            "f_hz": 36.65225282645187,
+            "A_NAT": 0.7581915915435775,
+            "A_REF": 0.7581025895601053,
+            "rel_diff": 0.00011740097540599894
+          }
+        }
+      },
+      {
+        "cell": 54,
+        "label": "inner_race",
+        "speed": 200.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.08524617873488477,
+        "all_bands_max_rel_diff": 0.08524617873488477,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 97.73921272880472,
+            "A_NAT": 0.14965717731581304,
+            "A_REF": 0.14964424915308144,
+            "rel_diff": 8.639264659195987e-05
+          },
+          "outer_race_x2": {
+            "f_hz": 195.47842545760943,
+            "A_NAT": 0.26210891913111195,
+            "A_REF": 0.26208742687181424,
+            "rel_diff": 8.200416004014579e-05
+          },
+          "outer_race_x3": {
+            "f_hz": 293.21763818641415,
+            "A_NAT": 0.1512151989901382,
+            "A_REF": 0.15120227930998761,
+            "rel_diff": 8.544633195699101e-05
+          },
+          "inner_race_x1": {
+            "f_hz": 156.90869128660128,
+            "A_NAT": 3.5466592577779936,
+            "A_REF": 3.5235044366802484,
+            "rel_diff": 0.006571531699151513
+          },
+          "inner_race_x2": {
+            "f_hz": 313.81738257320256,
+            "A_NAT": 0.6830702960364975,
+            "A_REF": 0.6294150667572772,
+            "rel_diff": 0.08524617873488477
+          },
+          "inner_race_x3": {
+            "f_hz": 470.7260738598038,
+            "A_NAT": 0.25308774070907963,
+            "A_REF": 0.25079645718475807,
+            "rel_diff": 0.009136028275844458
+          },
+          "ball_x1": {
+            "f_hz": 64.79747806835573,
+            "A_NAT": 0.2579564536239301,
+            "A_REF": 0.25793544977893673,
+            "rel_diff": 8.143062541955287e-05
+          },
+          "ball_x2": {
+            "f_hz": 129.59495613671146,
+            "A_NAT": 0.16367770997408812,
+            "A_REF": 0.16366369943657927,
+            "rel_diff": 8.560565083817442e-05
+          },
+          "ball_x3": {
+            "f_hz": 194.3924342050672,
+            "A_NAT": 0.21139305313666842,
+            "A_REF": 0.2113759202655862,
+            "rel_diff": 8.105403425664723e-05
+          },
+          "cage_x1": {
+            "f_hz": 12.21740159110059,
+            "A_NAT": 0.13022702900283903,
+            "A_REF": 0.1302161914724864,
+            "rel_diff": 8.322721030376887e-05
+          },
+          "cage_x2": {
+            "f_hz": 24.43480318220118,
+            "A_NAT": 0.19185242030300503,
+            "A_REF": 0.1918357095933378,
+            "rel_diff": 8.710948395723031e-05
+          },
+          "cage_x3": {
+            "f_hz": 36.65220477330177,
+            "A_NAT": 0.2626242336716206,
+            "A_REF": 0.2626047871650249,
+            "rel_diff": 7.405236898239741e-05
+          }
+        }
+      },
+      {
+        "cell": 55,
+        "label": "inner_race",
+        "speed": 200.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.026229235669012467,
+        "all_bands_max_rel_diff": 0.026229235669012467,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 97.73921272880472,
+            "A_NAT": 0.005454634136956343,
+            "A_REF": 0.005454036340990726,
+            "rel_diff": 0.0001096061573928499
+          },
+          "outer_race_x2": {
+            "f_hz": 195.47842545760943,
+            "A_NAT": 0.006390257312007663,
+            "A_REF": 0.006389856926156355,
+            "rel_diff": 6.265959565836008e-05
+          },
+          "outer_race_x3": {
+            "f_hz": 293.21763818641415,
+            "A_NAT": 0.003466862828187167,
+            "A_REF": 0.0034671116498418406,
+            "rel_diff": 7.176626535372901e-05
+          },
+          "inner_race_x1": {
+            "f_hz": 156.90869128660128,
+            "A_NAT": 3.549451386919027,
+            "A_REF": 3.5293625861526614,
+            "rel_diff": 0.005691906194388556
+          },
+          "inner_race_x2": {
+            "f_hz": 313.81738257320256,
+            "A_NAT": 0.5718975868398025,
+            "A_REF": 0.5675076548943556,
+            "rel_diff": 0.007735458557407668
+          },
+          "inner_race_x3": {
+            "f_hz": 470.7260738598038,
+            "A_NAT": 0.14368692020515658,
+            "A_REF": 0.1400144482450699,
+            "rel_diff": 0.026229235669012467
+          },
+          "ball_x1": {
+            "f_hz": 64.79747806835573,
+            "A_NAT": 0.006176439684440157,
+            "A_REF": 0.006176133833602034,
+            "rel_diff": 4.952140713968182e-05
+          },
+          "ball_x2": {
+            "f_hz": 129.59495613671146,
+            "A_NAT": 0.006175668597597934,
+            "A_REF": 0.006174538260242113,
+            "rel_diff": 0.0001830642726922119
+          },
+          "ball_x3": {
+            "f_hz": 194.3924342050672,
+            "A_NAT": 0.006390257312007663,
+            "A_REF": 0.006389856926156355,
+            "rel_diff": 6.265959565836008e-05
+          },
+          "cage_x1": {
+            "f_hz": 12.21740159110059,
+            "A_NAT": 0.0052696489060152394,
+            "A_REF": 0.005268654739750339,
+            "rel_diff": 0.0001886945176724972
+          },
+          "cage_x2": {
+            "f_hz": 24.43480318220118,
+            "A_NAT": 0.006025314985457139,
+            "A_REF": 0.006027469758516491,
+            "rel_diff": 0.00035749213943497084
+          },
+          "cage_x3": {
+            "f_hz": 36.65220477330177,
+            "A_NAT": 0.0049327609681293514,
+            "A_REF": 0.0049324542880622236,
+            "rel_diff": 6.217595728562938e-05
+          }
+        }
+      },
+      {
+        "cell": 56,
+        "label": "ball",
+        "speed": 200.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.005826477812162852,
+        "all_bands_max_rel_diff": 0.005826477812162852,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 97.7390770675444,
+            "A_NAT": 0.3460604662088397,
+            "A_REF": 0.34597784786811764,
+            "rel_diff": 0.00023879662016261082
+          },
+          "outer_race_x2": {
+            "f_hz": 195.4781541350888,
+            "A_NAT": 0.6731481998324808,
+            "A_REF": 0.6735255312509547,
+            "rel_diff": 0.0005602332813919199
+          },
+          "outer_race_x3": {
+            "f_hz": 293.21723120263323,
+            "A_NAT": 0.5148706220487029,
+            "A_REF": 0.5147473830103398,
+            "rel_diff": 0.0002394165418430348
+          },
+          "inner_race_x1": {
+            "f_hz": 156.90847349856904,
+            "A_NAT": 0.441448994346357,
+            "A_REF": 0.4413427673902864,
+            "rel_diff": 0.0002406903747369229
+          },
+          "inner_race_x2": {
+            "f_hz": 313.8169469971381,
+            "A_NAT": 0.460950502930941,
+            "A_REF": 0.460840115395709,
+            "rel_diff": 0.0002395354300637936
+          },
+          "inner_race_x3": {
+            "f_hz": 470.7254204957071,
+            "A_NAT": 0.5476041604670632,
+            "A_REF": 0.5474729965584219,
+            "rel_diff": 0.00023958059934618494
+          },
+          "ball_x1": {
+            "f_hz": 64.79738812996463,
+            "A_NAT": 7.660057733407603,
+            "A_REF": 7.615685113071871,
+            "rel_diff": 0.005826477812162852
+          },
+          "ball_x2": {
+            "f_hz": 129.59477625992926,
+            "A_NAT": 1.6295314007391801,
+            "A_REF": 1.6309518165619712,
+            "rel_diff": 0.0008709121927251578
+          },
+          "ball_x3": {
+            "f_hz": 194.39216438989388,
+            "A_NAT": 0.6731481998324808,
+            "A_REF": 0.6735255312509547,
+            "rel_diff": 0.0005602332813919199
+          },
+          "cage_x1": {
+            "f_hz": 12.21738463344305,
+            "A_NAT": 0.47477578649039787,
+            "A_REF": 0.47466210363898637,
+            "rel_diff": 0.00023950269157776378
+          },
+          "cage_x2": {
+            "f_hz": 24.4347692668861,
+            "A_NAT": 0.41209680642825386,
+            "A_REF": 0.41200494999857995,
+            "rel_diff": 0.0002229498205645962
+          },
+          "cage_x3": {
+            "f_hz": 36.652153900329154,
+            "A_NAT": 0.49298275092302873,
+            "A_REF": 0.4928643773408012,
+            "rel_diff": 0.00024017475733633122
+          }
+        }
+      },
+      {
+        "cell": 57,
+        "label": "ball",
+        "speed": 200.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.08854072064038099,
+        "all_bands_max_rel_diff": 0.08854072064038099,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 97.7390770675444,
+            "A_NAT": 0.23109672260254938,
+            "A_REF": 0.2310416936688407,
+            "rel_diff": 0.00023817750309410883
+          },
+          "outer_race_x2": {
+            "f_hz": 195.4781541350888,
+            "A_NAT": 0.4326420278700403,
+            "A_REF": 0.3974513949423224,
+            "rel_diff": 0.08854072064038099
+          },
+          "outer_race_x3": {
+            "f_hz": 293.21723120263323,
+            "A_NAT": 0.2648010312402531,
+            "A_REF": 0.26473752285269864,
+            "rel_diff": 0.000239891900740549
+          },
+          "inner_race_x1": {
+            "f_hz": 156.90847349856904,
+            "A_NAT": 0.2306808016389628,
+            "A_REF": 0.23062551220114993,
+            "rel_diff": 0.00023973686729260202
+          },
+          "inner_race_x2": {
+            "f_hz": 313.8169469971381,
+            "A_NAT": 0.2509931259979454,
+            "A_REF": 0.25093303714155907,
+            "rel_diff": 0.0002394617188346185
+          },
+          "inner_race_x3": {
+            "f_hz": 470.7254204957071,
+            "A_NAT": 0.3341709586500982,
+            "A_REF": 0.3340909796762189,
+            "rel_diff": 0.00023939279640773886
+          },
+          "ball_x1": {
+            "f_hz": 64.79738812996463,
+            "A_NAT": 7.852519997901004,
+            "A_REF": 7.796373912387096,
+            "rel_diff": 0.00720156397638927
+          },
+          "ball_x2": {
+            "f_hz": 129.59477625992926,
+            "A_NAT": 1.364003347653104,
+            "A_REF": 1.3370450861065994,
+            "rel_diff": 0.020162567311028712
+          },
+          "ball_x3": {
+            "f_hz": 194.39216438989388,
+            "A_NAT": 0.4326420278700403,
+            "A_REF": 0.3974513949423224,
+            "rel_diff": 0.08854072064038099
+          },
+          "cage_x1": {
+            "f_hz": 12.21738463344305,
+            "A_NAT": 0.20545425246174132,
+            "A_REF": 0.20540701074541257,
+            "rel_diff": 0.0002299907688511299
+          },
+          "cage_x2": {
+            "f_hz": 24.4347692668861,
+            "A_NAT": 0.2780749676421974,
+            "A_REF": 0.27801600019880857,
+            "rel_diff": 0.00021210089831764735
+          },
+          "cage_x3": {
+            "f_hz": 36.652153900329154,
+            "A_NAT": 0.34178263485911753,
+            "A_REF": 0.3417017127913902,
+            "rel_diff": 0.00023682078461429945
+          }
+        }
+      },
+      {
+        "cell": 58,
+        "label": "cage",
+        "speed": 200.0,
+        "severity_scale": 0.5,
+        "noisy": false,
+        "own_band_max_rel_diff": 0.006251406492095647,
+        "all_bands_max_rel_diff": 0.9906340634733699,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 97.73736348457022,
+            "A_NAT": 2.6094002972955582e-05,
+            "A_REF": 3.0485683093423806e-05,
+            "rel_diff": 0.14405713354068064
+          },
+          "outer_race_x2": {
+            "f_hz": 195.47472696914045,
+            "A_NAT": 3.150427580645994e-07,
+            "A_REF": 1.922545078085774e-05,
+            "rel_diff": 0.9836132446694942
+          },
+          "outer_race_x3": {
+            "f_hz": 293.2120904537107,
+            "A_NAT": 8.999868157165984e-08,
+            "A_REF": 9.609149209560293e-06,
+            "rel_diff": 0.9906340634733699
+          },
+          "inner_race_x1": {
+            "f_hz": 156.90572254473605,
+            "A_NAT": 6.270106500275463e-07,
+            "A_REF": 1.776346763187564e-05,
+            "rel_diff": 0.9647022381540861
+          },
+          "inner_race_x2": {
+            "f_hz": 313.8114450894721,
+            "A_NAT": 7.32013557811759e-08,
+            "A_REF": 5.133345824098941e-07,
+            "rel_diff": 0.8574003032534342
+          },
+          "inner_race_x3": {
+            "f_hz": 470.7171676342082,
+            "A_NAT": 2.1254261100855773e-08,
+            "A_REF": 5.58775473336865e-07,
+            "rel_diff": 0.9619627880695429
+          },
+          "ball_x1": {
+            "f_hz": 64.79625208791879,
+            "A_NAT": 1.6890470325936037e-05,
+            "A_REF": 1.721775270418195e-05,
+            "rel_diff": 0.019008426004772466
+          },
+          "ball_x2": {
+            "f_hz": 129.59250417583758,
+            "A_NAT": 1.1476630804065931e-06,
+            "A_REF": 2.72362587207578e-06,
+            "rel_diff": 0.5786267518703239
+          },
+          "ball_x3": {
+            "f_hz": 194.38875626375636,
+            "A_NAT": 3.2011339022023454e-07,
+            "A_REF": 1.922545078085774e-05,
+            "rel_diff": 0.9833494988560183
+          },
+          "cage_x1": {
+            "f_hz": 12.217170435571278,
+            "A_NAT": 24.726040580862925,
+            "A_REF": 24.674924204042775,
+            "rel_diff": 0.002071592050190598
+          },
+          "cage_x2": {
+            "f_hz": 24.434340871142556,
+            "A_NAT": 6.996834170262852,
+            "A_REF": 6.960392978873558,
+            "rel_diff": 0.005235507750769438
+          },
+          "cage_x3": {
+            "f_hz": 36.651511306713836,
+            "A_NAT": 2.051747087529053,
+            "A_REF": 2.039000466773678,
+            "rel_diff": 0.006251406492095647
+          }
+        }
+      },
+      {
+        "cell": 59,
+        "label": "cage",
+        "speed": 200.0,
+        "severity_scale": 0.5,
+        "noisy": true,
+        "own_band_max_rel_diff": 0.0051074255617827805,
+        "all_bands_max_rel_diff": 0.0051074255617827805,
+        "bands": {
+          "outer_race_x1": {
+            "f_hz": 97.73736348457022,
+            "A_NAT": 0.34108410514817455,
+            "A_REF": 0.34085748128741017,
+            "rel_diff": 0.0006648639774853494
+          },
+          "outer_race_x2": {
+            "f_hz": 195.47472696914045,
+            "A_NAT": 0.3171887601153775,
+            "A_REF": 0.3169766760377986,
+            "rel_diff": 0.0006690841743624019
+          },
+          "outer_race_x3": {
+            "f_hz": 293.2120904537107,
+            "A_NAT": 0.41675530127891913,
+            "A_REF": 0.416485915533213,
+            "rel_diff": 0.0006468063760601202
+          },
+          "inner_race_x1": {
+            "f_hz": 156.90572254473605,
+            "A_NAT": 0.3669095507291383,
+            "A_REF": 0.36666425500054106,
+            "rel_diff": 0.0006689927508664701
+          },
+          "inner_race_x2": {
+            "f_hz": 313.8114450894721,
+            "A_NAT": 0.2753419701668861,
+            "A_REF": 0.2751578804737843,
+            "rel_diff": 0.000669032966763733
+          },
+          "inner_race_x3": {
+            "f_hz": 470.7171676342082,
+            "A_NAT": 0.3262686907736461,
+            "A_REF": 0.32605059672334846,
+            "rel_diff": 0.0006688963384499128
+          },
+          "ball_x1": {
+            "f_hz": 64.79625208791879,
+            "A_NAT": 0.3547623927432865,
+            "A_REF": 0.3545260634405868,
+            "rel_diff": 0.0006666062867316917
+          },
+          "ball_x2": {
+            "f_hz": 129.59250417583758,
+            "A_NAT": 0.2899722894080509,
+            "A_REF": 0.28977845071794295,
+            "rel_diff": 0.0006689203066264102
+          },
+          "ball_x3": {
+            "f_hz": 194.38875626375636,
+            "A_NAT": 0.3171887601153775,
+            "A_REF": 0.3169766760377986,
+            "rel_diff": 0.0006690841743624019
+          },
+          "cage_x1": {
+            "f_hz": 12.217170435571278,
+            "A_NAT": 24.55086189327029,
+            "A_REF": 24.500741082659516,
+            "rel_diff": 0.0020456854934174967
+          },
+          "cage_x2": {
+            "f_hz": 24.434340871142556,
+            "A_NAT": 6.924695328174275,
+            "A_REF": 6.8895076805385935,
+            "rel_diff": 0.0051074255617827805
+          },
+          "cage_x3": {
+            "f_hz": 36.651511306713836,
+            "A_NAT": 2.152043906468483,
+            "A_REF": 2.1414851344258627,
+            "rel_diff": 0.004930583861116064
+          }
+        }
+      }
+    ],
+    "decision_bands_max_rel_diff": 0.16458451544723415,
+    "decision_bands_median_rel_diff": 0.006373182083300429,
+    "all_bands_median_rel_diff": 0.05550482912955989
+  },
+  "classifiers": {
+    "PC": {
+      "run": "configs/classifiers/pc_server_5class_w2048/2026-10-20_run01",
+      "classes": [
+        "ball",
+        "cage",
+        "inner_race",
+        "normal",
+        "outer_race"
+      ],
+      "window": 2048,
+      "startup": {
+        "n_windows": 120,
+        "n_windows_known_label": 120,
+        "agreement": 0.9166666666666666,
+        "mean_abs_delta_confidence": 0.01869058066530884,
+        "accuracy_NAT": 0.575,
+        "macro_f1_NAT": 0.5815774606819384,
+        "abstention_NAT": 0.5583333333333333,
+        "accuracy_REF": 0.6,
+        "macro_f1_REF": 0.6112269984917044,
+        "abstention_REF": 0.55,
+        "delta_accuracy": 0.025000000000000022
+      },
+      "steady_state": {
+        "n_windows": 540,
+        "n_windows_known_label": 540,
+        "agreement": 0.987037037037037,
+        "mean_abs_delta_confidence": 0.0016633860880580819,
+        "accuracy_NAT": 0.9888888888888889,
+        "macro_f1_NAT": 0.9888803088803089,
+        "abstention_NAT": 0.03518518518518519,
+        "accuracy_REF": 0.9944444444444445,
+        "macro_f1_REF": 0.994443372564152,
+        "abstention_REF": 0.03333333333333333,
+        "delta_accuracy": 0.005555555555555536
+      }
+    },
+    "RPi5": {
+      "run": "configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-10-20_run01",
+      "classes": [
+        "ball",
+        "cage",
+        "inner_race",
+        "normal",
+        "outer_race"
+      ],
+      "window": 2048,
+      "startup": {
+        "n_windows": 120,
+        "n_windows_known_label": 120,
+        "agreement": 0.925,
+        "mean_abs_delta_confidence": 0.022194841205370137,
+        "accuracy_NAT": 0.5083333333333333,
+        "macro_f1_NAT": 0.50903710425489,
+        "abstention_NAT": 0.575,
+        "accuracy_REF": 0.5333333333333333,
+        "macro_f1_REF": 0.5283710093435121,
+        "abstention_REF": 0.5416666666666666,
+        "delta_accuracy": 0.025000000000000022
+      },
+      "steady_state": {
+        "n_windows": 540,
+        "n_windows_known_label": 540,
+        "agreement": 1.0,
+        "mean_abs_delta_confidence": 0.00456759166037987,
+        "accuracy_NAT": 1.0,
+        "macro_f1_NAT": 1.0,
+        "abstention_NAT": 0.04814814814814815,
+        "accuracy_REF": 1.0,
+        "macro_f1_REF": 1.0,
+        "abstention_REF": 0.044444444444444446,
+        "delta_accuracy": 0.0
+      }
+    },
+    "ESP32": {
+      "run": "configs/classifiers/esp32_dscnn/2026-10-18_run01",
+      "classes": [
+        "inner_race",
+        "normal",
+        "outer_race"
+      ],
+      "window": 512,
+      "startup": {
+        "n_windows": 540,
+        "n_windows_known_label": 324,
+        "agreement": 0.9685185185185186,
+        "mean_abs_delta_confidence": 0.02172231936972239,
+        "accuracy_NAT": 0.7006172839506173,
+        "macro_f1_NAT": 0.70071244134476,
+        "abstention_NAT": 0.37222222222222223,
+        "accuracy_REF": 0.7098765432098766,
+        "macro_f1_REF": 0.7105246801515278,
+        "abstention_REF": 0.37592592592592594,
+        "delta_accuracy": 0.0092592592592593
+      },
+      "steady_state": {
+        "n_windows": 2340,
+        "n_windows_known_label": 1404,
+        "agreement": 0.9769230769230769,
+        "mean_abs_delta_confidence": 0.013031036426200763,
+        "accuracy_NAT": 1.0,
+        "macro_f1_NAT": 1.0,
+        "abstention_NAT": 0.17307692307692307,
+        "accuracy_REF": 1.0,
+        "macro_f1_REF": 1.0,
+        "abstention_REF": 0.1764957264957265,
+        "delta_accuracy": 0.0
+      }
+    }
+  },
+  "figures": {
+    "cell": 22,
+    "files": [
+      "current_spectrum.svg",
+      "ia_startup.svg",
+      "ia_steady_state.svg"
+    ]
+  },
+  "verdict": {
+    "rule": {
+      "agreement_min": 0.98,
+      "abs_delta_accuracy_max": 0.01,
+      "spectral_rel_diff_max": 0.05
+    },
+    "spectral_ok": false,
+    "per_classifier_regime": {
+      "PC|startup": {
+        "harmless": false,
+        "fails": [
+          "agreement 0.917 < 0.98",
+          "|\u0394 accuracy| 0.025 > 0.01",
+          "spectral difference 0.165 \u2265 0.05"
+        ]
+      },
+      "PC|steady_state": {
+        "harmless": false,
+        "fails": [
+          "spectral difference 0.165 \u2265 0.05"
+        ]
+      },
+      "RPi5|startup": {
+        "harmless": false,
+        "fails": [
+          "agreement 0.925 < 0.98",
+          "|\u0394 accuracy| 0.025 > 0.01",
+          "spectral difference 0.165 \u2265 0.05"
+        ]
+      },
+      "RPi5|steady_state": {
+        "harmless": false,
+        "fails": [
+          "spectral difference 0.165 \u2265 0.05"
+        ]
+      },
+      "ESP32|startup": {
+        "harmless": false,
+        "fails": [
+          "agreement 0.969 < 0.98",
+          "spectral difference 0.165 \u2265 0.05"
+        ]
+      },
+      "ESP32|steady_state": {
+        "harmless": false,
+        "fails": [
+          "agreement 0.977 < 0.98",
+          "spectral difference 0.165 \u2265 0.05"
+        ]
+      }
+    },
+    "overall": "S-16 affects diagnosis"
+  },
+  "total_wall_s": 438.0
+}
