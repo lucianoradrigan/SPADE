@@ -81,3 +81,42 @@ class TestOverviewHonesty:
         html = " ".join(str(getattr(h, "body", "")) for h in at.get("html"))
         assert "ENGINE READY" not in html.upper()
         assert "CHECKS PASS" in html
+
+
+class TestSystemDiagramNumbers:
+    """The diagram quotes promoted runs' metrics in prose; these checks fail when a promotion in
+    configs/registry.yaml changes a number the text still carries."""
+
+    @staticmethod
+    def _metrics(key: str) -> dict:
+        import json
+
+        import yaml
+
+        root = Path(__file__).resolve().parents[1]
+        entries = yaml.safe_load((root / "configs" / "registry.yaml").read_text())["entries"]
+        return json.loads((root / entries[key] / "metrics.json").read_text())
+
+    def test_quoted_metrics_match_the_promoted_runs(self):
+        from driveflow.viz.views.system_diagram import _DIAGRAM_COMPONENT_DETAILS as d
+
+        pc_cls = self._metrics("dc_motor/pc/classifier")
+        assert f"{100 * pc_cls['test_accuracy']:.1f} %" in d["Classifier (CNN)"]
+        assert f"{len(pc_cls['classes'])} classes" in d["Classifier (CNN)"]
+        assert f"{self._metrics('vsc_dpc/pc/regressor')['test_rmse']:.3f}" in d["Regressor (LSTM/TCN)"]
+        assert f"{100 * self._metrics('dc_motor/rpi5/classifier')['test_accuracy']:.1f} %" in d["Raspberry Pi 5"]
+        assert f"{self._metrics('vsc_dpc/rpi5/regressor')['test_rmse']:.3f}" in d["Raspberry Pi 5"]
+        esp_cls = self._metrics("dc_motor/esp32/classifier")
+        assert f"{100 * esp_cls['test_accuracy']:.1f} %" in d["ESP32"]
+        assert f"{len(esp_cls['classes'])}-class" in d["ESP32"]
+        assert f"{self._metrics('vsc_dpc/esp32/regressor')['test_rmse']:.2f}" in d["ESP32"]
+
+    def test_every_registered_environment_is_named(self):
+        import driveflow.envs  # noqa: F401  (registers the SPADE/* IDs)
+        from driveflow.envs.registry import ENVIRONMENTS
+        from driveflow.viz.views.system_diagram import _DIAGRAM_COMPONENT_DETAILS as d
+
+        for env_id in ENVIRONMENTS:
+            if env_id.endswith("Surrogate-v0") and env_id != "SPADE/BuckSurrogate-v0":
+                continue  # per-PLECS-sweep surrogates (A1), covered by SPADE/<Profile>Surrogate-v0
+            assert f"`{env_id}`" in d["Gymnasium environments"], env_id

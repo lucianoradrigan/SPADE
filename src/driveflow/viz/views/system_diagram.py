@@ -77,19 +77,33 @@ def _diagram_arrow(fig, x0, y0, x1, y1, dash=False):
 
 #: Per-component detail shown below the diagram (Plotly shapes have no reliable click-to-select
 #: in Streamlit -- fill/shape hit-testing isn't part of st.plotly_chart's on_select API, only
-#: data-trace points are -- so this is a selectbox + panel instead of an actual click-on-the-box
-#: interaction). Ordered the same top-to-bottom/left-to-right path the diagram itself reads in.
+#: data-trace points are -- so the boxes carry an invisible marker grid instead). Ordered the same
+#: bottom-to-top path the diagram itself reads in: plants, then the two lanes (AI on the left,
+#: design & control on the right), then deployment and the dashboard; monitoring last. Every number
+#: is the promoted run's own metrics.json (configs/registry.yaml), not an illustrative value.
 _DIAGRAM_COMPONENT_DETAILS = {
-    "DC motor + PMSM (Fase A)": (
-        "Physics simulation, no ML yet at this stage: `DcPermanentlyExcitedMotor` under a native PI cascade "
-        "(speed or torque), plus a separate PMSM FOC/MTPA demo, with bearing-fault injection on two paths "
-        "(electrical/MCSA + synthetic vibration). This is domain `dc_motor`'s data source -- see the DC Motor and "
-        "PMSM / FOC pages (Simulation section)."
+    "DC motor + PMSM": (
+        "Physics simulation: `DcPermanentlyExcitedMotor` under a native PI cascade (speed or torque) or MPC, "
+        "with bearing-fault injection on two paths (electrical/MCSA + synthetic vibration). This is domain "
+        "`dc_motor`'s data source. The PMSM is a separate FOC/MTPA control-law demo with no diagnosis. See the "
+        "DC Motor and PMSM / FOC pages (Simulation section)."
     ),
-    "VSC + trained DPC network (Fase B)": (
-        "Also physics, plus a separately pre-trained Direct Power Control network (ported from "
-        "DPC4PowerElectronics, not part of this AI layer's own training) tracking a rotating voltage "
-        "reference. This is domain `vsc_dpc`'s data source -- see the VSC / DPC page."
+    "VSC + DPC network": (
+        "Physics plus a separately pre-trained Direct Power Control network (ported from "
+        "DPC4PowerElectronics, not trained by this AI layer) tracking a rotating voltage reference. This is "
+        "domain `vsc_dpc`'s data source -- see the VSC / DPC page."
+    ),
+    "DC-DC converters": (
+        "`sim/buck_system.py`: an averaged synchronous buck (48 V input, 220 µH, 220 µF, 6 Ω load) under a PI "
+        "cascade, discretised with an exact zero-order hold at 20 µs. The DAB tab is a modulation selector "
+        "only: SPADE has no DAB simulation (it needs PLECS). See the DC-DC Converters page."
+    ),
+    "PLECS Plant Studio": (
+        "External circuits: datasets from PLECS Standalone sweeps over its local XML-RPC interface, run as "
+        "jobs (needs a PLECS licence on the same computer). A surrogate fitted to a sweep becomes a Gymnasium "
+        "environment, `SPADE/<Profile>Surrogate-v0`, and is compared with the native buck. SPADE's authors have "
+        "no PLECS licence, so no PLECS run has been executed here: researchers with PLECS use the PLECS "
+        "researcher kit (docs/guides/PLECS_RESEARCHER_KIT.md)."
     ),
     "Common data layer": (
         "`models/common/windowing.py`: turns either domain's raw simulation rows into fixed-size windows "
@@ -97,52 +111,73 @@ _DIAGRAM_COMPONENT_DETAILS = {
         "domain isolation design doc Sec. 1 requires -- dc_motor and vsc_dpc rows are never combined into "
         "one training set, even though the mechanism (windowing code) is shared."
     ),
-    "Classifier (CNN)": (
-        "`models/classifiers/builder.py` -- Conv1D+SE blocks, config-driven "
-        "(`configs/classifiers/pc_server.yaml` for this tier). Only trained for `dc_motor` so far (89.5% "
-        "recorded test accuracy, but on a 2-run test set without any inner_race run -- the audit found it "
-        "never predicts inner_race, see the Model Registry) -- `vsc_dpc`'s classifier is deliberately not built yet, blocked on a separability "
-        "verdict (Fase D.2, INSTRUCTIONS.md Sec. 6 Paso 0)."
+    "Gymnasium environments": (
+        "`envs/registry.py` registers `SPADE/DcMotor-v0`, `SPADE/Vsc-v0`, `SPADE/Buck-v0`, `SPADE/Pmsm-v0` "
+        "(native plants) and `SPADE/BuckSurrogate-v0`. The packaged surrogate is fitted to SPADE's own "
+        "averaged buck, not to PLECS: it validates the surrogate mechanics, not fidelity to any PLECS circuit. "
+        "Observation, action, reward and limits of each one are on the Environments page."
     ),
-    "Regressor (LSTM/GRU/TCN)": (
-        "`models/regressors/builder.py` -- stacked LSTM/GRU with optional attention, config-driven "
-        "(`configs/regressors/pc_full.yaml` for this tier). Trained for `vsc_dpc` (0.06 normalized test "
-        "RMSE) -- `dc_motor` has no regressor yet (no forecasting need identified for that domain so far)."
+    "Classifier (CNN)": (
+        "`models/classifiers/builder.py` -- Conv1D+SE blocks, config-driven. `dc_motor` only. Promoted PC tier: "
+        "`pc_server_5class_w2048/2026-10-20_run01`, 5 classes (ball, cage, inner_race, normal, outer_race), "
+        "test accuracy 90.3 % and macro-F1 0.90 on 600 test windows. No `vsc_dpc` classifier is promoted: "
+        "capacitor degradation is synthetic-only. A classifier can be trained from AI Diagnostics → Train a model."
+    ),
+    "Regressor (LSTM/TCN)": (
+        "`models/regressors/builder.py` -- config-driven forecaster. `vsc_dpc` only. Promoted PC tier: "
+        "`pc_full/2026-10-19_run01`, stacked LSTM [128, 64], normalized test RMSE 0.073 (persistence "
+        "baseline: 1.06). The `dc_motor` forecaster is trained but not promoted."
+    ),
+    "Tuning Studio": (
+        "PSO, Bayesian optimization or NSGA-II over the DC-motor PI speed loop, run as a job. Each candidate "
+        "is simulated on the native DC-motor closed-loop bench (`validation/benches.py`, not through a "
+        "Gymnasium environment), tuned on one grid and compared with the baseline on a separate evaluation "
+        "grid. The result is a candidate: \"Use as default\" is blocked by the approval gate (decision D1)."
+    ),
+    "RL Lab": (
+        "DQN or DDPG trained on SPADE's Gymnasium environments as a job, then benchmarked against the plant's "
+        "classical controllers on the same grid -- the benchmark is shown even when RL loses. Policies are "
+        "candidates: \"Use as default\" is blocked (decision D4)."
     ),
     "Model registry": (
-        "`ai/registry.py` -- one manifest (`configs/registry.yaml`) mapping `(domain, tier, block)` to the "
-        "promoted run folder (weights + the exact config that produced them + metrics). Promotion "
-        "(`experiments/promote_run.py`) is a deliberate, separate step from training -- a training run "
-        "existing doesn't mean it is the one in use."
+        "`ai/registry.py` -- one manifest (`configs/registry.yaml`, 6 entries today) mapping `(domain, tier, "
+        "block)` to the promoted run folder (weights + the exact config that produced them + metrics). "
+        "Promotion (`experiments/promote_run.py`) is a deliberate, separate step from training -- a training "
+        "run existing doesn't mean it is the one in use."
+    ),
+    "Experiment runs & jobs": (
+        "`driveflow.jobs` + `driveflow.runs`: one SQLite database in the workspace holds the job queue and every "
+        "run (configuration hash, seed, versions, logs, reproducible command). Long jobs -- PLECS sweeps, tuning, "
+        "RL training, classifier training -- execute in a separate worker process "
+        "(`python -m driveflow.jobs.worker serve`); the GUI only queues, observes and cancels. See the "
+        "Experiment Runs page."
     ),
     "Raspberry Pi 5": (
-        "**Not trained from scratch.** Distilled from the promoted PC-tier model (the \"teacher\"): "
-        "`python experiments/train_model.py --config configs/classifiers/rpi5_resnet1d_se.yaml "
-        "--dataset ... --distill` blends the true label/value with the teacher's own prediction "
-        "(`--distill-alpha`, default 0.5 -- 1.0 would mean no distillation at all). The architecture itself "
-        "is also smaller: fewer/narrower Conv1D+SE blocks for the classifier, a single-layer GRU instead of "
-        "the PC tier's stacked LSTM for the regressor. Once promoted, exported to TFLite as **float16** "
-        "(`python -m experiments.export_tflite --tier rpi5 ...` -- halves weight size, no calibration data "
-        "needed, since RPi5 runs full Linux and can afford it). Current real numbers: dc_motor classifier "
-        "86.8% acc (vs. 89.5% teacher), vsc_dpc regressor 0.20 RMSE (vs. 0.06 teacher) -- the accuracy drop "
-        "is the expected cost of a smaller model, not a bug. Both classifier numbers share the teacher's "
-        "2-run test split without inner_race (see the audit finding in the Model Registry)."
+        "**Not trained from scratch.** Distilled from the promoted PC-tier model (the \"teacher\"): `--distill` "
+        "blends the true label/value with the teacher's own prediction (`--distill-alpha` 0.5). Smaller "
+        "architectures: a ResNet1D-SE classifier with 2 Conv1D blocks instead of 3, and a dilated causal TCN "
+        "regressor (7 × 32 filters) instead of the PC tier's LSTM. Exported to TFLite as **float16** (no "
+        "calibration data needed). Current numbers: dc_motor classifier 90.2 % (teacher 90.3 %, same 5 classes "
+        "and test split); vsc_dpc regressor RMSE 0.064 (teacher 0.073)."
     ),
     "ESP32": (
-        "Same distillation idea as Raspberry Pi 5 (a smaller model, trained from the PC-tier teacher's "
-        "predictions via `--distill`), but two tiers stricter: **(1) no recurrent layers at all** -- the "
-        "config schema structurally forbids `recurrent_type: lstm`/`gru` here (a real guardrail, not just a "
-        "convention), so the regressor uses a small causal TCN instead (dilated Conv1D, `layers: [8, 8]`) "
-        "and the classifier uses DS-CNN blocks (depthwise+pointwise Conv1D) instead of RPi5's Conv1D+SE. "
-        "**(2) TFLite export is int8** (weights AND activations quantized), which needs REAL calibration "
-        "windows from an actual dataset (`--dataset data/....parquet`) -- calibrating against random noise "
-        "would badly misjudge the activation ranges the model actually sees. Current real numbers: dc_motor "
-        "classifier 86.8% acc, vsc_dpc regressor 0.56 RMSE -- notably worse than RPi5's 0.20 (a much smaller "
-        "TCN, and the first training attempt at this tier undertrained at 20 epochs -- 0.95 RMSE -- before "
-        "80 epochs got it to 0.56)."
+        "Same distillation as Raspberry Pi 5, two tiers stricter: **(1) no recurrent layers at all** -- the "
+        "regressor config schema structurally forbids `recurrent_type: lstm`/`gru` on this tier, so the "
+        "regressor is a small causal TCN (`layers: [8, 8]`) and the classifier uses DS-CNN blocks "
+        "(depthwise + pointwise Conv1D). **(2) TFLite export is int8** (weights AND activations), calibrated on "
+        "real windows from a dataset, never on random noise. Current numbers: vsc_dpc regressor RMSE 0.18. "
+        "The dc_motor classifier is still the earlier **3-class** run (inner_race, normal, outer_race; "
+        "90.1 % on its own 3-class test split, not comparable with the 5-class tiers)."
+    ),
+    "Dashboard — Engineering Workbench": (
+        "`viz/app.py`: the multipage Streamlit app (Workspace, Simulation, Design & Control, Intelligence, "
+        "Operations, Help). AI Diagnostics runs the promoted **PC-tier** models and labels the output as an AI "
+        "suggestion with its model version; Model Registry lists every run with its lineage and edge "
+        "artifacts. Edge (.tflite) models are not executed in the dashboard: they are listed and downloadable "
+        "only. Every signal is simulated -- there is no hardware ingestion."
     ),
     "ESP32 watchdog": (
-        "Not a model, not related to the \"ESP32\" box above's classifier/regressor -- this is the "
+        "Not a model, not related to the \"ESP32\" box's classifier/regressor -- this is the "
         "**rule-based monitoring** tier (Sec. 4.3), pure hard-coded thresholds with zero ML: "
         "`monitoring/rules/vsc_dpc.yaml` + a validated schema (`schema.py`), e.g. the R < R* ≈ 3.37 Ω divergence "
         "rule for vsc_dpc. No training, no distillation -- just YAML data plus an AST-checked boolean "
@@ -151,46 +186,50 @@ _DIAGRAM_COMPONENT_DETAILS = {
     "GatewayAgent — RPi5": (
         "`monitoring/agents/agent_gateway.py` -- evaluates a domain's ruleset against a telemetry stream "
         "with per-rule hysteresis (must hold N seconds before firing) and debounce (doesn't re-fire every "
-        "tick while still true). Can run without a connection to the PC tier below."
+        "tick while still true). Can run without a connection to the PC tier."
     ),
     "ServerAgent — PC": (
         "`monitoring/agents/agent_server.py` -- aggregates the Alert events a GatewayAgent already produced "
         "into a per-domain badge status + history, and separately tracks classifier confidence over time to "
-        "flag drift and suggest retraining. Does not evaluate telemetry itself."
-    ),
-    "Dashboard — IA tab": (
-        "`viz/views/ai_diagnostics.py` (AI Diagnostics page) -- pick a domain, generate a sample run or upload "
-        "a file, and see the promoted **PC-tier** classifier/regressor output, labelled as an AI suggestion "
-        "with its model version. The rest of the AI layer has its own pages now: Transfer Learning (gated "
-        "fine-tuning), Model Registry (versions, lineage, artifacts, edge export status) and Monitoring "
-        "(agent consensus, derived from ALL active alerts). Edge (.tflite) predictions are not executed in "
-        "the dashboard; only the artifacts are listed and downloadable."
+        "flag drift and suggest retraining. Does not evaluate telemetry itself. Shown on the Monitoring page "
+        "(SIMULATED)."
     ),
 }
 
 
+#: Box palette: one colour per role, reused across lanes (plants, data/environments, learners,
+#: registry/jobs, edge tiers, dashboard, monitoring).
+_EDGE = "#F472B6"
+_UI = "#2563EB"
+
 #: Single source of truth for the diagram's boxes -- (component_key, cx, cy, w, h, color,
-#: display_text). component_key must match a key in _DIAGRAM_COMPONENT_DETAILS (checked by
-#: tests/test_dashboard_landing.py); display_text is the multi-line label shown IN the box, while
-#: component_key is the short name used by the click handler/selectbox below the diagram.
+#: display_text). component_key must match a key in _DIAGRAM_COMPONENT_DETAILS (checked below and
+#: by tests/test_dashboard_landing.py); display_text is the multi-line label shown IN the box, while
+#: component_key is the short name the click handler uses. Columns: monitoring at x≈1.45; the AI
+#: lane over x 3.2–10.6; the design & control lane over x 10.8–18.2.
 _DIAGRAM_LAYOUT = [
-    ("DC motor + PMSM (Fase A)", 2.3, 1.0, 3.8, 1.05, DARK["primary"], "DC motor + PMSM<br>(Fase A — physics simulation)"),
-    ("VSC + trained DPC network (Fase B)", 7.3, 1.0, 3.8, 1.05, DARK["training"], "VSC + trained DPC network<br>(Fase B — physics + real network)"),
-    ("Common data layer", 4.8, 2.6, 6.6, 0.95, DARK["text_muted"], "Common data layer — Scenario · windowing · dataset<br>(domains never mixed, see design doc Sec. 1)"),
-    ("Classifier (CNN)", 3.0, 4.15, 3.2, 0.95, DARK["healthy"], "Classifier (CNN)<br>tier: PC"),
-    ("Regressor (LSTM/GRU/TCN)", 6.6, 4.15, 3.6, 0.95, DARK["healthy"], "Regressor (LSTM/GRU/TCN)<br>tier: PC"),
-    ("Model registry", 4.8, 5.65, 7.2, 0.95, DARK["warning"], "Model registry — ai/registry.py<br>(domain, tier, block) → promoted artifact"),
-    ("Raspberry Pi 5", 3.0, 7.1, 3.6, 0.95, "#F472B6", "Raspberry Pi 5<br>distilled + TFLite float16"),
-    ("ESP32", 6.6, 7.1, 3.6, 0.95, "#F472B6", "ESP32<br>distilled + TFLite int8"),
-    ("Dashboard — IA tab", 4.8, 8.55, 7.0, 0.95, "#2563EB", "Dashboard — IA tab<br>classifier/regressor panels + status badges"),
-    ("ESP32 watchdog", 10.9, 1.0, 2.7, 0.85, DARK["unknown"], "ESP32 watchdog<br>hard thresholds, no ML"),
-    ("GatewayAgent — RPi5", 10.9, 3.3, 2.7, 0.85, DARK["unknown"], "GatewayAgent — RPi5<br>hysteresis + debounce"),
-    ("ServerAgent — PC", 10.9, 5.65, 2.7, 0.85, DARK["unknown"], "ServerAgent — PC<br>alert history + confidence drift"),
+    ("DC motor + PMSM", 5.0, 1.0, 3.6, 1.05, DARK["primary"], "DC motor + PMSM<br>physics · fault injection"),
+    ("VSC + DPC network", 8.8, 1.0, 3.6, 1.05, DARK["training"], "VSC + DPC network<br>physics + trained network"),
+    ("DC-DC converters", 12.6, 1.0, 3.6, 1.05, DARK["primary"], "DC-DC converters<br>averaged buck · DAB selector"),
+    ("PLECS Plant Studio", 16.4, 1.0, 3.6, 1.05, DARK["training"], "PLECS Plant Studio<br>RPC sweeps → surrogate"),
+    ("Common data layer", 6.9, 2.6, 7.4, 0.95, DARK["text_muted"], "Common data layer — Scenario · windowing · dataset<br>(domains never mixed, design doc Sec. 1)"),
+    ("Gymnasium environments", 14.5, 2.6, 7.4, 0.95, DARK["text_muted"], "Gymnasium environments — SPADE/*-v0<br>DcMotor · Vsc · Buck · Pmsm · BuckSurrogate"),
+    ("Classifier (CNN)", 5.0, 4.15, 3.6, 0.95, DARK["healthy"], "Classifier (CNN)<br>dc_motor · 5 classes · PC"),
+    ("Regressor (LSTM/TCN)", 8.8, 4.15, 3.6, 0.95, DARK["healthy"], "Regressor (LSTM/TCN)<br>vsc_dpc · PC"),
+    ("Tuning Studio", 12.6, 4.15, 3.6, 0.95, DARK["healthy"], "Tuning Studio<br>PSO · Bayesian · NSGA-II"),
+    ("RL Lab", 16.4, 4.15, 3.6, 0.95, DARK["healthy"], "RL Lab<br>DQN · DDPG vs classical"),
+    ("Model registry", 6.9, 5.65, 7.4, 0.95, DARK["warning"], "Model registry — ai/registry.py<br>(domain, tier, block) → promoted artifact"),
+    ("Experiment runs & jobs", 14.5, 5.65, 7.4, 0.95, DARK["warning"], "Experiment runs & jobs — worker + run store<br>results stay candidates (approval gate)"),
+    ("Raspberry Pi 5", 5.0, 7.1, 3.6, 0.95, _EDGE, "Raspberry Pi 5<br>distilled + TFLite float16"),
+    ("ESP32", 8.8, 7.1, 3.6, 0.95, _EDGE, "ESP32<br>distilled + TFLite int8"),
+    ("Dashboard — Engineering Workbench", 10.7, 8.55, 15.0, 0.95, _UI, "Dashboard — SPADE Engineering Workbench<br>simulation · design & control · intelligence · operations"),
+    ("ESP32 watchdog", 1.45, 1.0, 2.7, 0.85, DARK["unknown"], "ESP32 watchdog<br>hard thresholds, no ML"),
+    ("GatewayAgent — RPi5", 1.45, 3.3, 2.7, 0.85, DARK["unknown"], "GatewayAgent — RPi5<br>hysteresis + debounce"),
+    ("ServerAgent — PC", 1.45, 5.65, 2.7, 0.85, DARK["unknown"], "ServerAgent — PC<br>alert history + drift"),
 ]
 #: Self-enforcing instead of relying on a separate test to catch drift: every AppTest run of the
 #: landing page executes this at import/script-run time, so a mismatch surfaces immediately as
-#: `at.exception` rather than silently leaving a diagram box whose click has nowhere to go (or a
-#: selectbox entry no box ever points at).
+#: `at.exception` rather than silently leaving a diagram box whose click has nowhere to go.
 assert {row[0] for row in _DIAGRAM_LAYOUT} == set(_DIAGRAM_COMPONENT_DETAILS), (
     f"diagram/detail key mismatch: {({row[0] for row in _DIAGRAM_LAYOUT} ^ set(_DIAGRAM_COMPONENT_DETAILS))}"
 )
@@ -200,47 +239,57 @@ def _build_system_diagram_figure() -> go.Figure:
     """Pure figure construction (no `st.*` calls) -- separated from _render_system_diagram so it
     can be unit-tested directly (tests/test_dashboard_landing.py) without a Streamlit script
     context. A block diagram of the whole platform (not just the AI layer): both macro-phases'
-    physics/plants, the config-driven IA layer (docs/design_ai_layer_transversal.md), the model
-    registry, edge-tier distillation, and the monitoring agents, laid out top-to-bottom the same
-    way data actually flows. Plotly shapes/annotations/traces, not a new dependency
+    physics/plants plus the DC-DC and PLECS plants, the config-driven IA layer
+    (docs/design_ai_layer_transversal.md), the model registry, edge-tier distillation, the design &
+    control lane (environments, tuning, RL, jobs) and the monitoring agents, laid out bottom-to-top
+    the same way data actually flows. Plotly shapes/annotations/traces, not a new dependency
     (st.graphviz_chart would need the `graphviz` package AND the system `dot` binary neither of
     which this project already depends on; a JS-based Mermaid embed would need loading a script
     from a CDN at runtime, which this offline-capable research tool avoids elsewhere too).
 
     Each box is clickable (_diagram_click_target's invisible marker grid) -- clicking one selects
-    it in the detail panel below, same as picking it from the selectbox; both write to the same
-    session_state key, so either path stays in sync with the other."""
+    it in the detail panel below (session_state["diagram_component_detail"])."""
     fig = go.Figure()
 
     for _key, cx, cy, w, h, color, display_text in _DIAGRAM_LAYOUT:
         _diagram_box(fig, cx, cy, w, h, display_text, color)
         _diagram_click_target(fig, cx, cy, w, h, _key)
 
-    # Data/artifact flow (solid).
-    _diagram_arrow(fig, 2.3, 1.55, 4.0, 2.1)
-    _diagram_arrow(fig, 7.3, 1.55, 5.6, 2.1)
-    _diagram_arrow(fig, 4.0, 3.1, 3.0, 3.65)
-    _diagram_arrow(fig, 5.6, 3.1, 6.6, 3.65)
-    _diagram_arrow(fig, 3.0, 4.65, 4.0, 5.15)
-    _diagram_arrow(fig, 6.6, 4.65, 5.6, 5.15)
-    _diagram_arrow(fig, 4.0, 6.15, 3.0, 6.6)
-    _diagram_arrow(fig, 5.6, 6.15, 6.6, 6.6)
-    _diagram_arrow(fig, 4.8, 6.15, 4.8, 8.05)
+    # Data/artifact flow (solid). AI lane: plants → common data layer → classifier/regressor →
+    # registry → edge tiers and the dashboard. Design & control lane: plants → Gymnasium
+    # environments → RL Lab → jobs/runs → dashboard. The Tuning Studio has no incoming arrow on
+    # purpose: it simulates the native DC-motor bench directly, not an environment, and a line from
+    # the DC-motor box would cut across the data layer (its detail text says so).
+    _diagram_arrow(fig, 5.0, 1.525, 6.0, 2.125)
+    _diagram_arrow(fig, 8.8, 1.525, 7.8, 2.125)
+    _diagram_arrow(fig, 10.2, 1.525, 11.2, 2.125)
+    _diagram_arrow(fig, 12.6, 1.525, 12.6, 2.125)
+    _diagram_arrow(fig, 16.4, 1.525, 16.4, 2.125)
+    _diagram_arrow(fig, 6.0, 3.075, 5.0, 3.675)
+    _diagram_arrow(fig, 7.8, 3.075, 8.8, 3.675)
+    _diagram_arrow(fig, 16.4, 3.075, 16.4, 3.675)
+    _diagram_arrow(fig, 5.0, 4.625, 6.0, 5.175)
+    _diagram_arrow(fig, 8.8, 4.625, 7.8, 5.175)
+    _diagram_arrow(fig, 12.6, 4.625, 12.6, 5.175)
+    _diagram_arrow(fig, 16.4, 4.625, 16.4, 5.175)
+    _diagram_arrow(fig, 6.0, 6.125, 5.0, 6.625)
+    _diagram_arrow(fig, 7.8, 6.125, 8.8, 6.625)
+    _diagram_arrow(fig, 6.9, 6.125, 6.9, 8.075)
+    _diagram_arrow(fig, 14.5, 6.125, 14.5, 8.075)
 
     # Monitoring flow (dashed) -- domain telemetry into the tier-appropriate rule agent, alerts
     # escalating PC-ward, and the aggregated status reaching the dashboard as a badge. Enters the
-    # column from the common data layer (both domains' own telemetry, simplified to one entry
-    # point) rather than from box 1/2 directly -- a straight line from either of those would cut
-    # across the OTHER domain's box, since both sit in the same row as the watchdog.
-    _diagram_arrow(fig, 7.5, 2.125, 10.9, 1.425, dash=True)
-    _diagram_arrow(fig, 10.9, 1.425, 10.9, 2.875, dash=True)
-    _diagram_arrow(fig, 10.9, 3.725, 10.9, 5.225, dash=True)
-    _diagram_arrow(fig, 10.9, 6.075, 8.3, 8.55, dash=True)
+    # left-hand column from the common data layer (both domains' own telemetry, simplified to one
+    # entry point), which sits right next to it.
+    _diagram_arrow(fig, 3.2, 2.6, 2.8, 1.0, dash=True)
+    _diagram_arrow(fig, 1.45, 1.425, 1.45, 2.875, dash=True)
+    _diagram_arrow(fig, 1.45, 3.725, 1.45, 5.225, dash=True)
+    _diagram_arrow(fig, 1.45, 6.075, 3.2, 8.55, dash=True)
 
     fig.update_layout(
-        height=560, margin=dict(l=10, r=10, t=10, b=10),
+        height=600, margin=dict(l=10, r=10, t=10, b=10),
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-        xaxis=dict(visible=False, range=[0, 12.6], fixedrange=True),
+        xaxis=dict(visible=False, range=[0, 18.4], fixedrange=True),
         yaxis=dict(visible=False, range=[0, 9.3], scaleanchor="x", scaleratio=1, fixedrange=True),
         showlegend=False,
         # NOT dragmode=False -- fixedrange=True on both axes above already makes pan/zoom
@@ -283,7 +332,7 @@ def render_system_diagram():
             st.session_state["_diagram_last_clicked"] = clicked_key
             st.session_state["diagram_component_detail"] = clicked_key
 
-    st.caption("Solid arrows: data/artifact flow (simulation → common data layer → classifier/regressor → registry → edge distillation → dashboard). Dashed arrows: the monitoring layer (Sec. 4.3) — domain telemetry into a tier-appropriate rule agent, escalating toward the PC tier, surfaced as a dashboard badge. Click a box above for its own detail.")
+    st.caption("Solid arrows: data/artifact flow, in two lanes -- AI (simulation → common data layer → classifier/regressor → registry → edge distillation → dashboard) and design & control (plants → Gymnasium environments → RL Lab / Tuning Studio → experiment runs → dashboard). Dashed arrows: the monitoring layer (Sec. 4.3) — domain telemetry into a tier-appropriate rule agent, escalating toward the PC tier, surfaced as a dashboard badge. Click a box above for its own detail.")
 
     selected = st.session_state.get("diagram_component_detail")
     if selected is None:
