@@ -18,9 +18,19 @@ def env_ids() -> list[str]:
     return list(registry.ENVIRONMENTS)
 
 
-@functools.lru_cache(maxsize=None)
 def contract(env_id: str) -> dict:
-    """{..describe..} or {"error": message}. Cached: the contract depends only on the code."""
+    """{..describe..}, {"unavailable": why} for an environment that cannot run here (e.g. an FMU
+    not built), or {"error": message}."""
+    ok, reason = registry.availability(env_id)
+    if not ok:
+        spec = registry.ENVIRONMENTS[env_id]
+        return {"env_id": env_id, "display_name": spec.display_name, "source": spec.source, "version": spec.version, "unavailable": reason, "note": spec.note}
+    return _contract(env_id)
+
+
+@functools.lru_cache(maxsize=None)
+def _contract(env_id: str) -> dict:
+    """Cached: the contract of an available environment depends only on the code."""
     try:
         return registry.describe(env_id)
     except Exception as exc:

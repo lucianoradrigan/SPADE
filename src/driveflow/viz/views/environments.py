@@ -53,6 +53,10 @@ def table_rows(contracts: list[dict], planned: list[dict]) -> list[dict]:
         if "error" in c:
             rows.append({"Environment ID": c["env_id"], "Plant": "—", "Status": f"Error: {c['error']}"})
             continue
+        if "unavailable" in c:
+            rows.append({"Environment ID": c["env_id"], "Plant": c["display_name"], "Version": f"v{c['version']}", "Source": c["source"],
+                         "Status": f"Not available: {c['unavailable']}"})
+            continue
         rows.append({"Environment ID": c["env_id"], "Plant": c["display_name"], "Version": f"v{c['version']}", "Source": c["source"],
                      "Status": "Registered" if c["registered"] else "Not registered",
                      "Observation": observation_text(c), "Action": action_text(c), "Default reward": reward_text(c),
@@ -83,6 +87,8 @@ def _details(c: dict) -> None:
                        f"reference policy: {c['baseline_controller']} · plant profile {c['plant_profile_id']}")
             st.markdown("**Episode end** — terminated: " + "; ".join(t for t in c["terminations"] if "truncated" not in t) + ". Truncated: horizon reached.")
             st.caption("Actions outside the bounds are clipped; info['action_applied'] and info['action_clipped'] show what reached the plant. A non-finite action is rejected.")
+            if c.get("note"):
+                st.info(c["note"], icon=":material/info:")
             if c.get("surrogate"):
                 st.warning(f"**Surrogate, not the plant.** Fitted to SPADE's own averaged buck (not to PLECS); run {c['surrogate']['run']}. {surrogate_text(c)}. "
                            "Outside that range every step reports info['out_of_domain'] (Surrogate outside validated operating range).", icon=":material/model_training:")
@@ -123,7 +129,7 @@ def _details(c: dict) -> None:
 def render() -> None:
     ids = ea.env_ids()
     contracts = [ea.contract(e) for e in ids]
-    n_ok = sum(1 for c in contracts if "error" not in c and c["registered"])
+    n_ok = sum(1 for c in contracts if "error" not in c and "unavailable" not in c and c["registered"])
     page_header("Workspace / Environments", "Environments",
                 "Gymnasium environments over SPADE's simulated plants: the contract each one exposes to Python algorithms "
                 "(observation, action, reward, limits, episode end). Values are read from the registered environments, not typed by hand.",
@@ -135,6 +141,8 @@ def render() -> None:
     for c in contracts:
         if "error" in c:
             render_state(ComponentView("error", f"{c['env_id']} could not be instantiated", c["error"]))
+        elif "unavailable" in c:
+            render_state(ComponentView("empty", f"{c['env_id']} is not available here", c["unavailable"]))
         else:
             _details(c)
     st.caption("Planned environments are listed for orientation only: they are not registered and offer no snippet until their task lands.")

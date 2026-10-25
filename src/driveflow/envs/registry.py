@@ -40,6 +40,10 @@ class EnvSpec:
     terminations: tuple
     baseline_controller: str
     defaults: dict = dataclasses.field(default_factory=dict)
+    #: "module:function" returning (available, reason); None = always available (native plants)
+    availability: str | None = None
+    #: shown on the Environments page next to the contract
+    note: str | None = None
 
 
 ENVIRONMENTS = {
@@ -68,6 +72,16 @@ ENVIRONMENTS = {
                 ("Continuous-action RL (DDPG, SAC, PPO)", "FOC DqCurrentController (reference policy)"),
                 ("|i_s| > 1.25 × I_LIM (500 A)", "non-finite state", "horizon reached → truncated"),
                 "control.classical.pmsm_foc.DqCurrentController", {"current_ref_a": 200.0, "strategy": "mtpa", "duration_s": 0.03}),
+        # Round PLECS/OM, B4 (decisions G1/G2): only BuckAveraged, B3 verdict GO.
+        EnvSpec("SPADE/OmBuck-v0", "driveflow.envs.fmu_env:OmBuckEnv", "openmodelica:BuckAveraged",
+                "Buck converter (averaged, OpenModelica FMU) — voltage regulation", 0, "SIMULATED · OPENMODELICA",
+                ("Continuous-action RL (DDPG, SAC, PPO)", "DQN after discretizing the duty cycle", "PI cascade (reference policy)"),
+                ("|i_L| > 2 × i_max (30 A)", "non-finite state", "FMU solver failure (never a success; reward −solver_failure_penalty)", "horizon reached → truncated"),
+                "control.classical.buck_pi.BuckVoltageController", {"vout_ref_v": 24.0, "load_resistance_ohm": 6.0, "duration_s": 0.02},
+                availability="driveflow.envs.fmu_env:availability",
+                note=("Replicates the native averaged buck (SPADE/Buck-v0) through the OpenModelica FMU BuckAveraged: it validates the FMU "
+                      "integration and adds no other physics (B3 criterion 4: 1.7e-6 / 2.1e-6 NRMS on v_out / i_L). The load R is an FMU "
+                      "parameter, set at reset; no load step inside an episode.")),
     )
 }
 
@@ -93,6 +107,22 @@ def register_dynamic(env_id: str, profile_id: str, surrogate_dir: str) -> EnvSpe
     return spec
 
 
+def availability(env_id: str) -> tuple[bool, str]:
+    """(True, "") for environments that can run here; else (False, why) -- e.g. an FMU-backed
+    environment without fmpy or without its built FMU."""
+    spec = ENVIRONMENTS[env_id]
+    if spec.availability is None:
+        return True, ""
+    import importlib
+
+    module, func = spec.availability.split(":")
+    try:
+        ok, reason = getattr(importlib.import_module(module), func)()
+    except Exception as exc:
+        return False, f"{type(exc).__name__}: {exc}"
+    return (True, "") if ok else (False, reason)
+
+
 def register_all() -> list[str]:
     """Registers every ID in ENVIRONMENTS that is not registered yet, plus the published PLECS
     surrogates (envs.surrogate_plecs.published); returns the IDs."""
@@ -102,6 +132,10 @@ def register_all() -> list[str]:
         if env_id not in ENVIRONMENTS or ENVIRONMENTS[env_id].defaults.get("surrogate_path") != rec["surrogate_dir"]:
             register_dynamic(env_id, rec["profile_id"], rec["surrogate_dir"])
     for spec in ENVIRONMENTS.values():
+        if spec.availability is not None and not availability(spec.env_id)[0]:
+            if spec.env_id in gym.registry:  # e.g. the FMU was removed since the last call
+                del gym.registry[spec.env_id]
+            continue
         if spec.env_id not in gym.registry:
             gym.register(id=spec.env_id, entry_point=spec.entry_point, kwargs=dict(spec.defaults), disable_env_checker=False)
     return list(ENVIRONMENTS)
@@ -113,6 +147,9 @@ def is_registered(env_id: str) -> bool:
 
 def make(env_id: str, **kwargs) -> gym.Env:
     register_all()
+    ok, reason = availability(env_id) if env_id in ENVIRONMENTS else (True, "")
+    if not ok:
+        raise RuntimeError(f"{env_id} is not available here: {reason}")
     return gym.make(env_id, **kwargs)
 
 
@@ -134,7 +171,7 @@ def describe(env_id: str) -> dict:
             "tau_s": md["tau_s"], "horizon_steps": u.n_steps, "limits": md["limits"],
             "reward_terms": [{**t.to_dict(), "formula": rw.TERM_KINDS[t.kind][1]} for t in u.reward_terms],
             "terminations": spec.terminations, "compatible_algorithms": spec.compatible_algorithms,
-            "baseline_controller": spec.baseline_controller, "defaults": dict(spec.defaults),
+            "baseline_controller": spec.baseline_controller, "defaults": dict(spec.defaults), "note": spec.note,
             **({"surrogate": {"family": md["surrogate_family"], "run": md["surrogate_run"], "validity_domain": md["validity_domain"], "fit_error": md["fit_error"]}}
                if "surrogate_family" in md else {}),
         }

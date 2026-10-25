@@ -34,7 +34,8 @@ def test_table_rows_from_real_contracts():
 
 
 def test_snippets_only_for_registered_ids():
-    assert all(ea.snippet(e) for e in ea.env_ids())
+    # an FMU-backed environment without its built FMU is listed as not available, with no snippet (B4)
+    assert all(ea.snippet(e) for e in ea.env_ids() if registry.availability(e)[0])
     assert ea.snippet("SPADE/Pmsm-v0") and ea.snippet("PLECS plant environments") is None
 
 
@@ -44,7 +45,7 @@ def test_page_renders_both_environments_and_planned_rows():
     assert set(registry.ENVIRONMENTS) <= set(df["Environment ID"])
     assert set(registry.PLANNED) <= set(df["Environment ID"])
     codes = [c.value for c in at.code]
-    assert len(codes) == len(registry.ENVIRONMENTS) and all('gym.make("SPADE/' in c for c in codes)
+    assert len(codes) == sum(registry.availability(e)[0] for e in registry.ENVIRONMENTS) and all('gym.make("SPADE/' in c for c in codes)
     assert not any("PLECS" in c for c in codes)
 
 

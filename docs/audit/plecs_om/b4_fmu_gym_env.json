@@ -1,0 +1,104 @@
+{
+  "command": "python experiments/report_b4_fmu_env.py ",
+  "host": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "python": "3.12.13",
+  "fmu": {
+    "model": "SPADE.BuckAveraged",
+    "sha256": "48d52b6ac081cd7aab19da6576e7a8d20941597b22db9f617c9c70d97e1d6320",
+    "path": "/home/seven/post_doc/plataform_proposed/SPADE-dev/data/fmu/BuckAveraged.fmu"
+  },
+  "check_env": "passed",
+  "cases": {
+    "nominal 24 V / 6 ohm": {
+      "options": null,
+      "open_loop_native_pi_actions": {
+        "nrms_v_out": 5.964637168737268e-06,
+        "nrms_i_L": 1.1381004007045086e-05,
+        "criterion_4_limit": 0.01,
+        "episode_end": {
+          "terminated": false,
+          "truncated": true,
+          "termination": null,
+          "n_steps": 1000
+        }
+      },
+      "pi_closed_loop_on_fmu": {
+        "final_v_out_v": 24.000071891018184,
+        "episode_end": {
+          "terminated": false,
+          "truncated": true,
+          "termination": null,
+          "n_steps": 1000
+        }
+      },
+      "native_final_v_out_v": 24.000071863089076,
+      "step_wall_ms": {
+        "p50": 0.025029992684721947,
+        "p99": 0.043852042872458696
+      }
+    },
+    "12 V / 20 ohm": {
+      "options": {
+        "vout_ref_v": 12.0,
+        "load_resistance_ohm": 20.0
+      },
+      "open_loop_native_pi_actions": {
+        "nrms_v_out": 6.500765075815288e-06,
+        "nrms_i_L": 6.306480311849611e-06,
+        "criterion_4_limit": 0.01,
+        "episode_end": {
+          "terminated": false,
+          "truncated": true,
+          "termination": null,
+          "n_steps": 1000
+        }
+      },
+      "pi_closed_loop_on_fmu": {
+        "final_v_out_v": 11.99997274695962,
+        "episode_end": {
+          "terminated": false,
+          "truncated": true,
+          "termination": null,
+          "n_steps": 1000
+        }
+      },
+      "native_final_v_out_v": 11.999972732251265,
+      "step_wall_ms": {
+        "p50": 0.024925044272094965,
+        "p99": 0.04364251974038779
+      }
+    },
+    "36 V / 3 ohm": {
+      "options": {
+        "vout_ref_v": 36.0,
+        "load_resistance_ohm": 3.0
+      },
+      "open_loop_native_pi_actions": {
+        "nrms_v_out": 1.0836120776666389e-05,
+        "nrms_i_L": 2.967378873540621e-05,
+        "criterion_4_limit": 0.01,
+        "episode_end": {
+          "terminated": false,
+          "truncated": true,
+          "termination": null,
+          "n_steps": 1000
+        }
+      },
+      "pi_closed_loop_on_fmu": {
+        "final_v_out_v": 36.00006676021131,
+        "episode_end": {
+          "terminated": false,
+          "truncated": true,
+          "termination": null,
+          "n_steps": 1000
+        }
+      },
+      "native_final_v_out_v": 36.00006673084007,
+      "step_wall_ms": {
+        "p50": 0.02494995715096593,
+        "p99": 0.04657367127947509
+      }
+    }
+  },
+  "reset_reproducible_bit_for_bit": true
+}

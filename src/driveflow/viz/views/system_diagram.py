@@ -115,6 +115,8 @@ _DIAGRAM_COMPONENT_DETAILS = {
         "`envs/registry.py` registers `SPADE/DcMotor-v0`, `SPADE/Vsc-v0`, `SPADE/Buck-v0`, `SPADE/Pmsm-v0` "
         "(native plants) and `SPADE/BuckSurrogate-v0`. The packaged surrogate is fitted to SPADE's own "
         "averaged buck, not to PLECS: it validates the surrogate mechanics, not fidelity to any PLECS circuit. "
+        "`SPADE/OmBuck-v0` runs the OpenModelica FMU BuckAveraged and replicates the native buck (it validates the "
+        "FMU integration); it is registered only when fmpy and the built FMU are present. "
         "Observation, action, reward and limits of each one are on the Environments page."
     ),
     "Classifier (CNN)": (
