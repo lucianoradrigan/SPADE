@@ -375,8 +375,8 @@ Evidence lives in `docs/audit/plecs_om/`. Each `.md` there gives the command tha
 | B4 `SPADE/OmBuck-v0` | Executed | `b4_fmu_gym_env.md` |
 | B5 Plant Studio "OpenModelica FMU" engine | Executed (AppTests + screenshots) | `tests/fmu/test_plant_studio_fmu.py`, `docs/screenshots/plecs_om/` |
 | B6 RL Lab / Tuning Studio on `SPADE/OmBuck-v0` | Executed (jobs through the worker) | `b6_rl_on_fmu.md` |
-| B7 weekly FMU CI | Job added. **Dispatch not executed: `gh` is not installed or authenticated** | `b7_fmu_ci.md` |
-| B8 FMU distribution | **Stopped at the licence review**: no workflow, no Release; `fetch` disabled | `b8_license_review.md`, `docs/guides/BUILD_FMUS_LOCALLY.md` |
+| B7 weekly FMU CI | Job added and dispatched once: [run 40225897904](https://github.com/lucianoradrigan/SPADE/actions/runs/40225897904), `fmu` and `slow-and-reports` green (18 passed, 2 xfailed S-15; same B3 verdicts on the CI build) | `b7_fmu_ci.md` |
+| B8 FMU distribution | Licence review settled from the OpenModelica 1.27.1 source (user option b): redistribution permitted with the notices in `licenses/fmu/`. `fmu-release.yml` (draft release, GO FMUs only), `python -m driveflow.fmu fetch`, Plant Studio download job. Draft release: see `b8_license_review.md` §5 | `b8_license_review.md`, `docs/guides/BUILD_FMUS_LOCALLY.md` |
 | Windows / macOS FMUs | Not executed (Linux x86_64 builds only) | — |
 
 ### 11.2 B3 verdicts (pre-registered, unchanged)
@@ -421,9 +421,14 @@ AI-N24 was not used.
 
 ### 11.6 B8
 
-Stopped by the licence review. The FMUs carry no licence notices. The f2c-LAPACK and MINPACK sources compiled into them have no licence header, and the OpenModelica developers state that part of the runtime's third-party code is LGPL without naming it.
-
-**No Release exists, not even a draft.** Users build the FMUs locally (`docs/guides/BUILD_FMUS_LOCALLY.md`). The options are in `b8_license_review.md` §4.
+- **First pass:** stopped by the licence review.
+- **Second pass (user option b):** the OpenModelica 1.27.1 tree and its 3rdParty submodule identify every component compiled into the FMUs, and all are permissive with notices:
+  - MINPACK (with its acknowledgement);
+  - CLAPACK 3.2.1 / libf2c;
+  - SUNDIALS, FMI, MSL C and the runtime under BSD New.
+  - The only LGPL runtime file (`libcsv.c`) is not in the FMUs.
+- **Notices:** `licenses/fmu/`.
+- **Release:** `fmu-release.yml` builds, re-runs B3 and creates a **draft** release with GO FMUs only (BuckAveraged; DcMotorAveraged excluded by G2). Publishing it needs the user's confirmation.
 
 ### 11.7 Screenshots
 
