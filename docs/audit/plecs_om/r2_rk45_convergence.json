@@ -1,0 +1,88 @@
+{
+  "command": "python experiments/report_s16_discretization_sensitivity.py rk45_convergence --workers 8",
+  "host": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "python": "3.12.13",
+  "stage": "rk45_convergence",
+  "decision": "user, 2026-10-25: R2 reference = RK45 (option a)",
+  "reference": "rk45, rtol = atol = 1e-9",
+  "finer": "rk45, rtol = atol = 1e-11",
+  "tolerance": 0.0001,
+  "worst_nrms_rk45_vs_finer": 6.371868377920224e-06,
+  "converged": true,
+  "normalisation": "RMS(diff over the segment) / range of the 1e-11 solution over the whole run",
+  "cases": {
+    "startup|healthy": {
+      "rk45_1e-9_vs_1e-11": {
+        "i_a": 9.610124158548562e-07,
+        "omega": 2.8635244130651477e-08,
+        "torque": 9.61012415853654e-07
+      },
+      "euler_x1000_vs_rk45_1e-11": {
+        "i_a": 7.475553402943133e-07,
+        "omega": 1.4292516306096438e-07,
+        "torque": 7.47555340293933e-07
+      }
+    },
+    "startup|outer_race": {
+      "rk45_1e-9_vs_1e-11": {
+        "i_a": 4.101582525390924e-06,
+        "omega": 1.8973491922180052e-07,
+        "torque": 4.101582525391194e-06
+      },
+      "euler_x1000_vs_rk45_1e-11": {
+        "i_a": 6.86078168106155e-06,
+        "omega": 5.193733246906065e-07,
+        "torque": 6.860781681061115e-06
+      }
+    },
+    "steady_state|healthy": {
+      "rk45_1e-9_vs_1e-11": {
+        "i_a": 7.750564980330594e-15,
+        "omega": 5.582145516189239e-16,
+        "torque": 7.750445630819508e-15
+      },
+      "euler_x1000_vs_rk45_1e-11": {
+        "i_a": 1.9063523314521255e-10,
+        "omega": 1.9170578992552344e-13,
+        "torque": 1.9063523112152774e-10
+      }
+    },
+    "steady_state|outer_race": {
+      "rk45_1e-9_vs_1e-11": {
+        "i_a": 5.286313413445814e-06,
+        "omega": 2.025839405035084e-07,
+        "torque": 5.286313413446503e-06
+      },
+      "euler_x1000_vs_rk45_1e-11": {
+        "i_a": 8.394135203861073e-06,
+        "omega": 3.2439223907084354e-07,
+        "torque": 8.394135203860751e-06
+      }
+    },
+    "load_step|healthy": {
+      "rk45_1e-9_vs_1e-11": {
+        "i_a": 1.2054786824587004e-06,
+        "omega": 2.888311563602054e-08,
+        "torque": 1.2054786824593075e-06
+      },
+      "euler_x1000_vs_rk45_1e-11": {
+        "i_a": 0.0002447129310093817,
+        "omega": 7.473403599379524e-06,
+        "torque": 0.0002447129310093807
+      }
+    },
+    "load_step|outer_race": {
+      "rk45_1e-9_vs_1e-11": {
+        "i_a": 6.371868377920224e-06,
+        "omega": 2.4493258032986544e-07,
+        "torque": 6.371868377919678e-06
+      },
+      "euler_x1000_vs_rk45_1e-11": {
+        "i_a": 0.00021924811636108425,
+        "omega": 7.431619319112531e-06,
+        "torque": 0.0002192481163610844
+      }
+    }
+  },
+  "total_wall_s": 182.6
+}

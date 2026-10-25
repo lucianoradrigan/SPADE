@@ -62,6 +62,9 @@ CONV_SCENARIOS = {
     "load_step": (1.5, True, (0.9, 1.5)),
 }
 CONV_SPEED = 150.0
+#: Decision of the user (2026-10-25, R2 option a): the reference is RK45 (rtol = atol = 1e-9). Its
+#: convergence (G7) is shown against the same RK45 at 1e-11 in every scenario and fault case.
+RK45_TIGHT, RK45_TIGHT_TOL = "rk45_tol1e-11", 1e-11
 CONV_FAULTS = (None, "outer_race")
 
 
@@ -74,6 +77,8 @@ def _conv_job(job):
 
     scen, fault, integ = job
     duration, load_step, _seg = CONV_SCENARIOS[scen]
+    if integ == RK45_TIGHT:  # same solver, 100x tighter tolerance (this process only)
+        runner.DC_RK45_TOL = RK45_TIGHT_TOL
     original_load = runner.PolynomialStaticLoad
     if load_step:
         # The production plant has no load-step input. The validation benches' LoadTorqueStep is
@@ -83,7 +88,7 @@ def _conv_job(job):
 
         runner.PolynomialStaticLoad = lambda load_parameter: LoadTorqueStep(load_parameter=load_parameter, step_nm=LOAD_STEP_NM, t_step_s=LOAD_STEP_T_S)
     sc = Scenario(scenario_id=f"r2conv_{scen}_{fault}_{integ}", fault_type=fault, seed=0, duration_s=duration, omega_ref_rad_s=CONV_SPEED,
-                  **INTEGRATIONS[integ])
+                  **(INTEGRATIONS["rk45"] if integ == RK45_TIGHT else INTEGRATIONS[integ]))
     t0 = time.time()
     try:
         recs = run_scenario(sc)
@@ -158,6 +163,38 @@ def _conv_md(r: dict) -> str:
     return "\n".join(lines)
 
 
+def rk45_convergence(args) -> dict:
+    jobs = [(s, f, i) for s in CONV_SCENARIOS if s != "steady_state" for f in CONV_FAULTS for i in ("rk45", RK45_TIGHT, "euler_x1000")]
+    with mp.get_context("spawn").Pool(args.workers, maxtasksperchild=1) as pool:
+        results = pool.map(_conv_job, jobs, chunksize=1)
+    sims = {(s, f, i): arr for (s, f, i), arr, _w in results}
+    cases = {}
+    for scen, (_d, _ls, (t0, t1)) in CONV_SCENARIOS.items():
+        src = "startup" if scen == "steady_state" else scen
+        for fault in CONV_FAULTS:
+            fine, ref = sims[(src, fault, RK45_TIGHT)], sims[(src, fault, "rk45")]
+            m = (fine["t"] > t0) & (fine["t"] <= t1)
+            cases[f"{scen}|{fault or 'healthy'}"] = {
+                "rk45_1e-9_vs_1e-11": {SIGNAL_NAMES[s]: _nrms(ref[s][m], fine[s][m], float(np.ptp(fine[s]))) for s in SIGNALS},
+                "euler_x1000_vs_rk45_1e-11": {SIGNAL_NAMES[s]: _nrms(sims[(src, fault, "euler_x1000")][s][m], fine[s][m], float(np.ptp(fine[s]))) for s in SIGNALS}}
+    worst = max(v for c in cases.values() for v in c["rk45_1e-9_vs_1e-11"].values())
+    return {"stage": "rk45_convergence", "decision": "user, 2026-10-25: R2 reference = RK45 (option a)", "reference": "rk45, rtol = atol = 1e-9",
+            "finer": "rk45, rtol = atol = 1e-11", "tolerance": CONVERGENCE_TOL, "worst_nrms_rk45_vs_finer": worst, "converged": worst < CONVERGENCE_TOL,
+            "normalisation": "RMS(diff over the segment) / range of the 1e-11 solution over the whole run", "cases": cases}
+
+
+def _rk45_md(r: dict) -> str:
+    L = ["## R2.1 (continued) Convergence of the RK45 reference — decision of 2026-10-25 (option a)", "",
+         f"Reference: {r['reference']}. Shown converged against {r['finer']} (G7); Euler × 1000 is listed for comparison.", "",
+         "| Scenario | Fault | RK45 1e-9 vs 1e-11: i_a / omega / torque | Euler × 1000 vs RK45 1e-11: i_a / omega / torque |", "|---|---|---|---|"]
+    for case, c in r["cases"].items():
+        a, b = c["rk45_1e-9_vs_1e-11"], c["euler_x1000_vs_rk45_1e-11"]
+        L.append(f"| {case.split('|')[0]} | {case.split('|')[1]} | {a['i_a']:.1e} / {a['omega']:.1e} / {a['torque']:.1e} | {b['i_a']:.1e} / {b['omega']:.1e} / {b['torque']:.1e} |")
+    L += ["", f"Worst RK45 (1e-9) vs RK45 (1e-11): {r['worst_nrms_rk45_vs_finer']:.1e} (< {r['tolerance']:g}: {'yes' if r['converged'] else 'NO'}). "
+          + ("**The RK45 reference is converged; R2 continues with it.**" if r["converged"] else "**Not converged: R2 stops.**"), ""]
+    return "\n".join(L)
+
+
 def _offset_job(job):
     import warnings
 
@@ -187,7 +224,7 @@ def load_step_offset(args) -> dict:
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("stage", choices=("convergence", "load_step_offset", "sensitivity"))
+    ap.add_argument("stage", choices=("convergence", "rk45_convergence", "load_step_offset", "sensitivity"))
     ap.add_argument("--out", type=Path, default=OUT_DEFAULT)
     ap.add_argument("--workers", type=int, default=max(1, min(8, (mp.cpu_count() or 2) - 1)))
     ap.add_argument("--speeds", default="100,150,200")
@@ -205,6 +242,11 @@ def main(argv=None):
         (args.out / "r2_convergence.json").write_text(json.dumps(r, indent=2) + "\n")
         (args.out / "r2_convergence.md").write_text(_conv_md(r))
         print(_conv_md(r))
+    elif args.stage == "rk45_convergence":
+        r = {**meta, **rk45_convergence(args)}
+        r["total_wall_s"] = round(time.time() - t0, 1)
+        (args.out / "r2_rk45_convergence.json").write_text(json.dumps(r, indent=2) + "\n")
+        print(_rk45_md(r))
     elif args.stage == "load_step_offset":
         r = {**meta, **load_step_offset(args)}
         (args.out / "r2_load_step_offset.json").write_text(json.dumps(r, indent=2) + "\n")

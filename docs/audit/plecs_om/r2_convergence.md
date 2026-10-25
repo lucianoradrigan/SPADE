@@ -51,3 +51,22 @@ Speed reference 150 rad/s, PI controller, seed 0. Load step: 4 N·m at 1 s (vali
 ## Status
 
 **R2 stops at R2.1, as the round's instructions require when the reference does not converge.** The rule (coarsest Euler within 1e-4 of the finest in all three scenarios) is not met because of S-17, not because the plant fails to converge. No diagnosis metric was computed and the pre-registration was not written. Options are put to the user; none is taken.
+
+## Continuation, 2026-10-25 (user decision: option a, RK45 reference)
+
+Command: `python experiments/report_s16_discretization_sensitivity.py rk45_convergence --workers 8` → `r2_rk45_convergence.json`.
+
+
+Reference: rk45, rtol = atol = 1e-9. Shown converged against rk45, rtol = atol = 1e-11 (G7); Euler × 1000 is listed for comparison.
+
+| Scenario | Fault | RK45 1e-9 vs 1e-11: i_a / omega / torque | Euler × 1000 vs RK45 1e-11: i_a / omega / torque |
+|---|---|---|---|
+| startup | healthy | 9.6e-07 / 2.9e-08 / 9.6e-07 | 7.5e-07 / 1.4e-07 / 7.5e-07 |
+| startup | outer_race | 4.1e-06 / 1.9e-07 / 4.1e-06 | 6.9e-06 / 5.2e-07 / 6.9e-06 |
+| steady_state | healthy | 7.8e-15 / 5.6e-16 / 7.8e-15 | 1.9e-10 / 1.9e-13 / 1.9e-10 |
+| steady_state | outer_race | 5.3e-06 / 2.0e-07 / 5.3e-06 | 8.4e-06 / 3.2e-07 / 8.4e-06 |
+| load_step | healthy | 1.2e-06 / 2.9e-08 / 1.2e-06 | 2.4e-04 / 7.5e-06 / 2.4e-04 |
+| load_step | outer_race | 6.4e-06 / 2.4e-07 / 6.4e-06 | 2.2e-04 / 7.4e-06 / 2.2e-04 |
+
+Worst RK45 (1e-9) vs RK45 (1e-11): 6.4e-06 (< 0.0001: yes). **The RK45 reference is converged; R2 continues with it.**
+
