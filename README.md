@@ -453,6 +453,14 @@ package set emulated on Linux, not run on a Mac.**
   pinned OpenModelica 1.27.1). `python -m driveflow.fmu fetch` downloads prebuilt Linux x86_64 FMUs
   (SHA-256 checked) once a release is published; the first one, `fmu-v1`, is still a draft. See
   `docs/guides/BUILD_FMUS_LOCALLY.md`; licence notices in `licenses/fmu/`.
+- **FMUs from PLECS or other tools** (Plant Studio → Use as a Gymnasium plant → engine *PLECS FMU*):
+  upload the `.fmu` (FMI 2.0 or 3.0). A **Model Exchange** export (PLECS Coder) runs without PLECS:
+  SPADE integrates it with RK4 and locates switching events, which is how switching circuits run
+  (the OpenModelica switching buck that aborts in Co-Simulation runs this way). A Co-Simulation export
+  from PLECS needs PLECS installed and licensed on the same computer. Every FMU passes the 13-check
+  verification before it becomes an environment; one without a native counterpart is labelled
+  "no native comparison". No PLECS-exported FMU has been run yet
+  ([evidence](docs/audit/plecs_om/p1_fmu_me_fmi3.md)).
 
 ### Assisted setup with an AI coding assistant
 
@@ -494,7 +502,7 @@ Run the tests:
 pytest                       # everything
 pytest -m "not slow"         # what CI runs per commit
 pytest -m simulation         # or: control, ai, compat, slow
-pytest -m fmu                # OpenModelica FMU tests (need the fmu extra and built FMUs; skipped otherwise)
+pytest -m fmu                # FMU tests (need the fmu extra and built FMUs, incl. the Model Exchange variants; skipped otherwise)
 ```
 
 Validation and audit reports: [docs/VALIDATION_SUMMARY.md](docs/VALIDATION_SUMMARY.md) (start
@@ -531,8 +539,9 @@ src/driveflow/
   jobs/           durable job queue (SQLite) + worker process: sweeps, tuning, RL, classifier training
   runs/           run store, experiment specs, plant profiles, run comparison
   optim/          PSO, Bayesian optimisation (GP), NSGA-II and the tuning objectives
-  integrations/   PLECS Standalone RPC client and batch sweeps; fmu/ (FmuAdapter over fmpy, Plant
-                  Studio FMU profiles, verification and publication)
+  integrations/   PLECS Standalone RPC client and batch sweeps; fmu/ (FmuAdapter over fmpy: FMI 2.0/3.0,
+                  Co-Simulation and Model Exchange; Plant Studio FMU profiles, uploads, verification
+                  and publication)
   fmu/            python -m driveflow.fmu fetch -- prebuilt FMUs from a GitHub Release (SHA-256 checked)
   agents/         simulation-based anomaly agents: shared detect_anomaly + per-domain hypotheses,
                   DTW/Euclidean/Mahalanobis metrics, TTL simulation cache, feature-importance
@@ -550,7 +559,7 @@ experiments/      standalone scripts: train/promote/export models, fine-tune/eva
                   network, generate diagnosis datasets, calibrate the vibration module;
                   run_stability_battery.py / report_classifier_evaluation.py regenerate docs/audit/
 scripts/          smoke_test.py -- cross-platform installation check; fmu/ -- build the OpenModelica FMUs
-                  in the pinned Docker image, assemble release assets
+                  (and their Model Exchange variants) in the pinned Docker image, assemble release assets
 modelica/         SPADE's Modelica models (averaged/switching buck and DC motor) exported as FMUs
 licenses/fmu/     third-party notices that go with redistributed FMUs
 tests/            pytest suite; simulation/, control/, ai/, compat/ hold the categorised
