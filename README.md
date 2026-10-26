@@ -15,7 +15,9 @@ output of a real simulation, run fresh each time you click Generate.
 > one-axis calibration that does not generalise per bearing. See
 > [`AUDIT_ANSWERS.md`](AUDIT_ANSWERS.md) (Q01–Q30) and
 > [`CHANGELOG_IMPLEMENTATION.md`](CHANGELOG_IMPLEMENTATION.md) for the audit of the AI layer and
-> what was changed.
+> what was changed. External circuit plants (PLECS, OpenModelica FMUs), their GO/NO-GO verdicts
+> and the DC-plant discretization study (S-16/S-18) are summarised in
+> [`docs/VALIDATION_SUMMARY.md`](docs/VALIDATION_SUMMARY.md) §11.
 
 **Demo video:** [SPADE on YouTube](https://www.youtube.com/watch?v=qoHtqhicAgY)
 
@@ -47,14 +49,14 @@ with native navigation; the five original macro-phases map onto its sections:
 |---|---|---|
 | Workspace · **Overview** | landing | Real workspace checks, engineering workflow, this session's runs, motor status (UNKNOWN until monitored), clickable system diagram |
 | Workspace · **Experiment Runs** | -- | Durable job queue and run history. Long jobs (sweeps, tuning, RL, classifier training) run in a separate worker process; every run keeps its configuration hash, seed, versions, logs and a reproducible command |
-| Workspace · **Environments** | -- | Gymnasium environments over SPADE's plants (`SPADE/DcMotor-v0`, `SPADE/Vsc-v0`, `SPADE/Buck-v0`, `SPADE/BuckSurrogate-v0`, `SPADE/Pmsm-v0`): observation, action, reward, limits |
+| Workspace · **Environments** | -- | Gymnasium environments over SPADE's plants (`SPADE/DcMotor-v0`, `SPADE/Vsc-v0`, `SPADE/Buck-v0`, `SPADE/BuckSurrogate-v0`, `SPADE/Pmsm-v0`, and `SPADE/OmBuck-v0` on the OpenModelica FMU of the averaged buck when the FMU is built): observation, action, reward, limits. An FMU environment that cannot run here is listed as not available, with the reason |
 | Simulation · **DC Motor** | A | PI or MPC, bearing-fault injection (MCSA + synthetic vibration), KPIs, time signals, spectrum (FFT) with simulator-computed BPFO/BPFI markers, AI suggestion, operating envelope, provenance + export; Advanced Flow mode |
 | Simulation · **PMSM / FOC** | A | FOC/MTPA control-law demo -- explicitly *no diagnosis* |
 | Simulation · **VSC / DPC** | B | Trained DPC network tracking, complex plane, dataset-upload evaluator |
 | Simulation · **DC-DC Converters** | -- | Averaged synchronous buck under a PI cascade; DAB modulation selector (its simulation needs PLECS) |
-| Simulation · **PLECS Plant Studio** | -- | Datasets from PLECS Standalone RPC sweeps (needs a local PLECS licence), surrogate plants fitted to them, comparison with SPADE's native buck. Researchers with PLECS: [PLECS researcher kit](docs/guides/PLECS_RESEARCHER_KIT.md) |
-| Design & Control · **Tuning Studio** | -- | PSO / Bayesian / NSGA-II tuning of the DC-motor PI speed loop on a tuning grid, compared with the baseline on a separate evaluation grid. Results are candidates |
-| Design & Control · **RL Lab** | -- | DQN / DDPG on SPADE's environments, benchmarked against the classical controllers on the same grid. Policies are candidates |
+| Simulation · **PLECS Plant Studio** | -- | Datasets from PLECS Standalone RPC sweeps (needs a local PLECS licence), surrogate plants fitted to them, comparison with SPADE's native buck. **Use as a Gymnasium plant** with the *OpenModelica FMU* engine: six stages (goal, engine, circuit, signals, Gym behavior, validate & publish), a 13-check verification job, and publication as `SPADE/Fmu<Profile>-v0`; FMUs with a NO-GO feasibility verdict cannot be published. Researchers with PLECS: [PLECS researcher kit](docs/guides/PLECS_RESEARCHER_KIT.md) |
+| Design & Control · **Tuning Studio** | -- | PSO / Bayesian / NSGA-II tuning of the DC-motor PI speed loop, and PSO / Bayesian tuning of the buck PI on any available buck environment (native, surrogate or OpenModelica FMU), on a tuning grid compared with the baseline on a separate evaluation grid. Systems are listed by capability. Results are candidates |
+| Design & Control · **RL Lab** | -- | DQN / DDPG on SPADE's environments (listed by capability, including `SPADE/OmBuck-v0`), benchmarked against the classical controllers on the same grid. Policies are candidates |
 | Intelligence · **AI Diagnostics** | IA | **Evaluate a model**: the promoted classifier, or any other classifier on this machine, on a sample run (same options as the simulation pages) or an uploaded file. **Train a model**: a classifier over several fault classes and a custom simulated grid -- see below |
 | Intelligence · **Transfer Learning** | TL | 4-step gated wizard (Data → Setup → Validate → Promote) starting from the promoted model, any other model on this machine or an imported Keras model; full or feature transfer -- see below |
 | Intelligence · **Model Registry** | IA | Every run on disk: status from evidence, lineage, gate, artifacts with SHA-256, edge-export lifecycle, rollback |
@@ -447,8 +449,9 @@ package set emulated on Linux, not run on a Mac.**
 - Light and dark themes are both native (app menu ⋮ → Settings → Theme). The app follows the OS
   preference.
 - **OpenModelica FMU plants** (`SPADE/OmBuck-v0`, Plant Studio → Use as a Gymnasium plant) need the
-  `fmu` extra and the FMUs: `pip install -e ".[fmu]"`, then `python -m driveflow.fmu fetch` (prebuilt,
-  Linux x86_64, SHA-256 checked) or `scripts/fmu/build_fmus.sh` (Docker). See
+  `fmu` extra and the FMUs: `pip install -e ".[fmu]"`, then `scripts/fmu/build_fmus.sh` (Docker,
+  pinned OpenModelica 1.27.1). `python -m driveflow.fmu fetch` downloads prebuilt Linux x86_64 FMUs
+  (SHA-256 checked) once a release is published; the first one, `fmu-v1`, is still a draft. See
   `docs/guides/BUILD_FMUS_LOCALLY.md`; licence notices in `licenses/fmu/`.
 
 ### Assisted setup with an AI coding assistant
@@ -491,6 +494,7 @@ Run the tests:
 pytest                       # everything
 pytest -m "not slow"         # what CI runs per commit
 pytest -m simulation         # or: control, ai, compat, slow
+pytest -m fmu                # OpenModelica FMU tests (need the fmu extra and built FMUs; skipped otherwise)
 ```
 
 Validation and audit reports: [docs/VALIDATION_SUMMARY.md](docs/VALIDATION_SUMMARY.md) (start
@@ -522,11 +526,14 @@ src/driveflow/
                   custom_training.py (AI Diagnostics -> Train a model)
     transfer/     transfer-learning stack: registry-backed loader, data merger, 5 fine-tune
                   strategies (full / feature transfer), third-party model import, promotion validator
-  envs/           Gymnasium environments over the native plants and the buck surrogate
+  envs/           Gymnasium environments over the native plants, the buck surrogate and OpenModelica
+                  FMUs (fmu_env.py: FmuGymEnv, SPADE/OmBuck-v0, plants published from Plant Studio)
   jobs/           durable job queue (SQLite) + worker process: sweeps, tuning, RL, classifier training
   runs/           run store, experiment specs, plant profiles, run comparison
   optim/          PSO, Bayesian optimisation (GP), NSGA-II and the tuning objectives
-  integrations/   PLECS Standalone RPC client and batch sweeps
+  integrations/   PLECS Standalone RPC client and batch sweeps; fmu/ (FmuAdapter over fmpy, Plant
+                  Studio FMU profiles, verification and publication)
+  fmu/            python -m driveflow.fmu fetch -- prebuilt FMUs from a GitHub Release (SHA-256 checked)
   agents/         simulation-based anomaly agents: shared detect_anomaly + per-domain hypotheses,
                   DTW/Euclidean/Mahalanobis metrics, TTL simulation cache, feature-importance
                   explainer
@@ -542,7 +549,10 @@ src/driveflow/
 experiments/      standalone scripts: train/promote/export models, fine-tune/evaluate the DPC
                   network, generate diagnosis datasets, calibrate the vibration module;
                   run_stability_battery.py / report_classifier_evaluation.py regenerate docs/audit/
-scripts/          smoke_test.py -- cross-platform installation check
+scripts/          smoke_test.py -- cross-platform installation check; fmu/ -- build the OpenModelica FMUs
+                  in the pinned Docker image, assemble release assets
+modelica/         SPADE's Modelica models (averaged/switching buck and DC motor) exported as FMUs
+licenses/fmu/     third-party notices that go with redistributed FMUs
 tests/            pytest suite; simulation/, control/, ai/, compat/ hold the categorised
                   validation tests (markers: simulation, control, ai, compat, slow)
 constraints/      macos-intel.txt -- dependency pins for Intel Macs
