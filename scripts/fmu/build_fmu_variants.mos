@@ -1,0 +1,11 @@
+// Builds FMI 2.0 Model Exchange variants of SPADE's bucks to exercise the adapter's Model Exchange path
+// (task P1: PLECS 5.0 exports Model Exchange FMUs, standalone with PLECS Coder). Output: data/fmu/variants/.
+// Same pinned OpenModelica image as build_fmus.mos. OpenModelica 1.27.1 does not export FMI 3.0
+// ("Unknown FMU version 3.0. Only version 1.0 & 2.0 are supported"); the FMI 3.0 path is tested with the
+// Modelica Association's Reference FMUs instead (scripts/fmu/fetch_reference_fmus.py).
+loadModel(Modelica, {"4.1.0"}); getErrorString();
+loadFile("modelica/SPADE/package.mo"); getErrorString();
+cd("data/fmu/variants"); getErrorString();
+buildModelFMU(SPADE.BuckAveraged, version="2.0", fmuType="me", fileNamePrefix="BuckAveraged_fmi2_me", platforms={"static"}); getErrorString();
+buildModelFMU(SPADE.BuckSwitching, version="2.0", fmuType="me", fileNamePrefix="BuckSwitching_fmi2_me", platforms={"static"}); getErrorString();
+

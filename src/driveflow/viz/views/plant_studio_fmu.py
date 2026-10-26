@@ -1,12 +1,14 @@
-"""PLECS Plant Studio → Create Plant → "Use as Gym plant" with the engine "OpenModelica FMU"
-(task B5; spec Sec. 3.4 six stages, 3.8 state machine, 3.17 blocking rules).
+"""PLECS Plant Studio → Create Plant → "Use as Gym plant" with an FMU engine: "OpenModelica FMU"
+(task B5) or "PLECS FMU" (task P1: FMI 2.0/3.0, Co-Simulation or Model Exchange, uploaded)
+(spec Sec. 3.4 six stages, 3.8 state machine, 3.17 blocking rules).
 
 Stages: Goal → Engine → Circuit → Signals → Gym behavior → Validate & publish, with the fixed
 "Environment readiness" column. The FMUs listed are the ones built in data/fmu/ (or
 $SPADE_FMU_DIR); a model whose B3 verdict is NO-GO is shown with its verdict and a link to the
 report and can never be published. Verification runs as a persistent job; "Publish to
 Environments" is enabled only by a passing verification for the current FMU hash and
-configuration. The PLECS Co-Simulation FMU engine is listed as not supported in this version.
+configuration. An FMU from another tool (e.g. PLECS) has no B3 verdict: it is publishable only
+through a passing verification and is labelled as not compared with a native plant.
 """
 
 from __future__ import annotations
@@ -53,11 +55,18 @@ def _goal() -> None:
 
 
 def _engine() -> None:
-    engine = st.radio("Engine", ["OpenModelica FMU", "PLECS Co-Simulation FMU"], key="fmu_engine", horizontal=True)
-    if engine != "OpenModelica FMU":
-        st.info("Not supported in this version: a PLECS Co-Simulation FMU needs PLECS 5.0 with its runtime and licence on this computer. "
-                "Use the OpenModelica FMU engine, or the dataset route with PLECS RPC.", icon=":material/block:")
-        return
+    engine = st.radio("Engine", ["OpenModelica FMU", "PLECS FMU"], key="fmu_engine", horizontal=True)
+    if engine == "PLECS FMU":
+        with st.container(border=True):
+            st.markdown("**Prepare a PLECS FMU** (PLECS 5.0 or later; this computer does not need PLECS for a Model Exchange FMU)")
+            st.caption("1. In PLECS, put the plant in an atomic subsystem; its inports are the actions, its outports the observations. "
+                       "2. Export it as an FMU (FMI 2.0 or 3.0) for this platform. "
+                       "3. Upload the .fmu in 3. Circuit; stage 6 verifies it before it can be published.")
+            st.caption("• **Model Exchange** (needs a PLECS Coder licence to export): runs standalone, no PLECS at runtime; SPADE integrates it "
+                       "(RK4 with event location) — recommended for Gym.  \n• **Co-Simulation**: " + fa.PLECS_CS_RUNTIME
+                       + "  \n• Gate (discrete) inputs: FMI 3.0 is recommended by Plexim; SPADE enters Event Mode when a discrete input changes (Model Exchange).")
+            st.caption("SPADE has been verified with OpenModelica FMUs (FMI 2.0 Co-Simulation and Model Exchange). No PLECS-exported FMU has been run yet: "
+                       "the verification of stage 6 is the evidence for each one.")
     if st.button("Test capabilities", key="fmu_test_engine", icon=":material/fact_check:"):
         st.session_state["fmu_engine_report"] = fa.engine_report()
     rep = st.session_state.get("fmu_engine_report") or fa.engine_report()
@@ -80,9 +89,18 @@ def _engine() -> None:
 
 
 def _circuit() -> None:
+    up = st.file_uploader("Upload an FMU (e.g. exported from PLECS or OpenModelica)", type=["fmu"], key="fmu_upload")
+    if up is not None and st.button("Add uploaded FMU", key="fmu_upload_add", icon=":material/upload_file:"):
+        try:
+            path = fa.upload_fmu(up.getvalue(), up.name)
+        except ValueError as exc:
+            st.error(f"Not added: {exc}", icon=":material/error:")
+        else:
+            st.success(f"Added `{path.name}`. It is listed below; import it to create a profile.", icon=":material/check_circle:")
     rows = fa.candidates()
     if not rows:
-        st.info(f"No FMU found in `{fa.engine_report()['fmu_dir']}`. Build them with scripts/fmu/build_fmus.sh (docs/guides/BUILD_FMUS_LOCALLY.md).", icon=":material/info:")
+        st.info(f"No FMU found in `{fa.engine_report()['fmu_dir']}` or the uploads. Build them with scripts/fmu/build_fmus.sh (docs/guides/BUILD_FMUS_LOCALLY.md), "
+                "or upload one.", icon=":material/info:")
         return
     st.dataframe(fa.candidates_table(rows), hide_index=True, width="stretch")
     for r in rows:
@@ -182,8 +200,15 @@ def _gym(p) -> None:
         c1, c2 = st.columns(2)
         tau_us = c1.number_input("Controller sample time Ts (µs)", 1.0, 1e6, float(g["tau_s"] * 1e6), key=f"fmu_tau_{k}")
         dur_ms = c2.number_input("Episode duration (ms)", 0.001, 1e6, float(g["duration_s"] * 1e3), key=f"fmu_dur_{k}")
-        st.caption("Zero-order hold: the action is held for Ts; one doStep per action. The agent sees obs(t), decides action(t), the FMU advances to t + Ts. "
-                   "The FMU's internal solver step (CVODE, adaptive) is not the control step.")
+        st.caption("Zero-order hold: the action is held for Ts; one step per action. The agent sees obs(t), decides action(t), the FMU advances to t + Ts. "
+                   "The FMU's internal solver step (Co-Simulation) or SPADE's RK4 substep (Model Exchange) is not the control step.")
+        offered = p.parameters.get("interfaces") or ["CoSimulation"]
+        opts = ["auto"] + [i for i, n in (("cs", "CoSimulation"), ("me", "ModelExchange")) if n in offered]
+        c1, c2 = st.columns(2)
+        iface = c1.selectbox("FMU interface", opts, index=opts.index(g.get("interface", "auto")) if g.get("interface", "auto") in opts else 0, key=f"fmu_iface_{k}",
+                             format_func={"auto": "Auto (Co-Simulation if offered)", "cs": "Co-Simulation (the FMU's own solver)", "me": "Model Exchange (SPADE's RK4)"}.get)
+        me_sub = c2.number_input("Model Exchange substeps per Ts", 1, 1000, int(g.get("me_substeps", 10)), key=f"fmu_mesub_{k}",
+                                 disabled="ModelExchange" not in offered, help="RK4 substeps; switching instants are located by bisection regardless.")
     with t[1]:
         st.caption("reset(seed) re-instantiates the FMU and sets these parameters at initialization (fixed initial conditions).")
         params = {}
@@ -208,7 +233,8 @@ def _gym(p) -> None:
         st.code("# Example API contract; the environment exists only after Publish\nobs, info = env.reset(seed=42)\nobs, reward, terminated, truncated, info = env.step(action)\nenv.close()",
                 language="python")
     if st.button("Validate definition", key="fmu_save_gym", type="primary", icon=":material/rule:"):
-        cfg = {"tau_s": tau_us * 1e-6, "duration_s": dur_ms * 1e-3, "parameters": params, "reward_terms": new_terms, "action_out_of_range": policy}
+        cfg = {"tau_s": tau_us * 1e-6, "duration_s": dur_ms * 1e-3, "parameters": params, "reward_terms": new_terms, "action_out_of_range": policy,
+               "interface": iface, "me_substeps": int(me_sub)}
         try:
             fa.save_gym(p, cfg)
         except ValueError as exc:

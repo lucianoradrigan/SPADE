@@ -45,6 +45,8 @@ B3_LINK = "docs/audit/plecs_om/b3_om_fmu_spike.md"
 REFERENCE_ONLY = {"DcMotorAveraged": "Reference use only (see B3 post-hoc analysis)"}
 #: B3 criterion 6 for averaged models
 LATENCY_P50_LIMIT_MS = 0.5
+#: B3 criterion 6 for switching models (models with event indicators): "GO for evaluation only"
+LATENCY_P50_LIMIT_SWITCHING_MS = 20.0
 #: B3 criterion 4
 NATIVE_NRMS_LIMIT = 0.01
 READINESS_ITEMS = ("Engine", "Circuit", "Action mapping", "Observation mapping", "Gym dynamics", "Validation", "Publishability")
@@ -77,17 +79,54 @@ def b3_verdicts(path: Path = B3_REPORT) -> dict:
             for name, m in d.get("models", {}).items()}
 
 
+def uploads_dir() -> Path:
+    """FMUs uploaded in Plant Studio (e.g. exported from PLECS): <workspace>/fmu_uploads (git-ignored)."""
+    from driveflow.runs.store import workspace_root
+
+    return workspace_root() / "fmu_uploads"
+
+
+def save_upload(data: bytes, filename: str) -> Path:
+    """Stores an uploaded .fmu after checking it is an FMU archive. Returns its path."""
+    import io
+    import zipfile
+
+    name = Path(filename).name
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,80}\.fmu", name):
+        raise ValueError("FMU file name: letters, digits, '.', '_' or '-', ending in .fmu")
+    try:
+        with zipfile.ZipFile(io.BytesIO(data)) as z:
+            if "modelDescription.xml" not in z.namelist():
+                raise ValueError("not an FMU: no modelDescription.xml in the archive")
+    except zipfile.BadZipFile:
+        raise ValueError("not an FMU: the file is not a zip archive") from None
+    d = uploads_dir()
+    d.mkdir(parents=True, exist_ok=True)
+    path = d / name
+    path.write_bytes(data)
+    return path
+
+
+PLECS_CS_RUNTIME = ("PLECS Co-Simulation FMUs are tool-coupling: PLECS must be installed on this computer, with a licence at runtime "
+                    "and the FMU Co-Simulation endpoint enabled. A Model Exchange export (PLECS Coder) runs standalone.")
+
+
 def candidates() -> list[dict]:
-    """FMUs on disk with what SPADE can do with each. Never raises."""
-    from driveflow.integrations.fmu.adapter import FmuError, inspect_fmu
+    """FMUs on disk (data/fmu or $SPADE_FMU_DIR, and Plant Studio uploads) with what SPADE can do
+    with each. SPADE's own models carry their B3 GO/NO-GO verdict; any other FMU (e.g. exported from
+    PLECS) has none and becomes publishable only through a passing verification. Never raises."""
+    from driveflow.integrations.fmu.adapter import FmuError, inspect_fmu, supported
 
     eng = engine_report()
     verdicts = b3_verdicts()
     out = []
-    d = fmu_dir()
-    for path in sorted(d.glob("*.fmu")) if d.is_dir() else []:
+    paths = []
+    for d in (fmu_dir(), uploads_dir()):
+        if d.is_dir():
+            paths += sorted(d.glob("*.fmu"))
+    for path in paths:
         row = {"name": path.stem, "path": str(path), "sha256": None, "platforms": [], "b3": verdicts.get(path.stem), "status": None, "reason": "",
-               "publishable": False, "note": REFERENCE_ONLY.get(path.stem)}
+               "publishable": False, "note": REFERENCE_ONLY.get(path.stem), "source": "upload" if path.parent == uploads_dir() else "build"}
         if not eng["fmpy"]:
             row.update(status="Not supported", reason=eng["message"])
             out.append(row)
@@ -100,14 +139,18 @@ def candidates() -> list[dict]:
             continue
         row.update(sha256=info.sha256, platforms=list(info.platforms), model_name=info.model_name, inputs=[v.name for v in info.inputs],
                    outputs=[{"name": v.name, "unit": v.unit} for v in info.outputs],
-                   parameters=[{"name": v.name, "unit": v.unit, "start": v.start} for v in info.parameters])
+                   parameters=[{"name": v.name, "unit": v.unit, "start": v.start} for v in info.parameters if v.type in ("Real", "Float64", "Float32")],
+                   fmi_version=info.fmi_version, interfaces=list(info.fmu_types), generation_tool=info.generation_tool, is_plecs=info.is_plecs,
+                   switching=info.n_event_indicators > 0)
         b3 = row["b3"]
-        if eng["platform"] not in info.platforms:
-            row.update(status="Not supported", reason=f"binaries for {info.platforms or 'no platform'}, not {eng['platform']}")
-        elif info.fmi_version != "2.0" or info.fmu_type != "CoSimulation":
-            row.update(status="Not supported", reason=f"FMI {info.fmi_version} {info.fmu_type}; an FMI 2.0 Co-Simulation FMU is required")
+        ok, why = supported(info)
+        if not ok:
+            row.update(status="Not supported", reason=why)
         elif b3 is None:
-            row.update(status="Needs attention", reason="no B3 GO/NO-GO verdict for this model: not publishable")
+            note = PLECS_CS_RUNTIME if info.is_plecs and info.fmu_types == ("CoSimulation",) else ""
+            row.update(status="Ready to map", publishable=True,
+                       reason=f"external FMU ({info.generation_tool or 'unknown tool'}): no B3 verdict and no native plant to compare with; "
+                              "publishable after a passing verification" + (f". {note}" if note else ""))
         elif b3["verdict"] != "GO":
             row.update(status="Not publishable", reason=f"B3 verdict {b3['verdict']} (failed criteria {b3['failed_criteria']}); see {B3_LINK}")
         else:
@@ -138,7 +181,7 @@ def new_profile(profile_id: str, display_name: str, fmu_name: str, root=None):
     check_profile_id(profile_id)
     cand = next((c for c in candidates() if c["name"] == fmu_name), None)
     if cand is None:
-        raise ValueError(f"No FMU named {fmu_name!r} in {fmu_dir()}")
+        raise ValueError(f"No FMU named {fmu_name!r} in {fmu_dir()} or the uploads")
     if cand["sha256"] is None:
         raise ValueError(f"{fmu_name}: {cand['reason']}")
     store = _store(root)
@@ -152,7 +195,9 @@ def new_profile(profile_id: str, display_name: str, fmu_name: str, root=None):
                      capabilities=EnvironmentCapability(diagnostic_messages=("Not verified yet.",)),
                      parameters={"model": fmu_name, "fmu_path": cand["path"], "platforms": cand["platforms"], "b3": cand["b3"], "candidate_status": cand["status"],
                                  "candidate_reason": cand["reason"], "fmu_inputs": cand.get("inputs", []), "fmu_outputs": cand.get("outputs", []),
-                                 "fmu_parameters": cand.get("parameters", []), "mapping": None, "gym": None, "verification": None, "published_env_id": None})
+                                 "fmu_parameters": cand.get("parameters", []), "mapping": None, "gym": None, "verification": None, "published_env_id": None,
+                                 "external": cand["b3"] is None, "fmi_version": cand.get("fmi_version"), "interfaces": cand.get("interfaces", []),
+                                 "generation_tool": cand.get("generation_tool"), "is_plecs": cand.get("is_plecs", False), "switching": cand.get("switching", False)})
     return store.save_profile(p)
 
 
@@ -242,6 +287,15 @@ def validate_gym(p, gym_cfg: dict) -> list[str]:
         errs.append(f"Reward: {exc}")
     if gym_cfg.get("action_out_of_range", "clip") not in ("clip", "reject"):
         errs.append("Safety: out-of-range actions must be 'clip' or 'reject'")
+    iface = gym_cfg.get("interface", "auto")
+    offered = p.parameters.get("interfaces") or ["CoSimulation"]
+    if iface not in ("auto", "cs", "me"):
+        errs.append("Control timing: FMU interface must be auto, cs or me")
+    elif iface != "auto" and {"cs": "CoSimulation", "me": "ModelExchange"}[iface] not in offered:
+        errs.append(f"Control timing: the FMU does not offer {iface.upper()} (it offers {offered})")
+    sub = gym_cfg.get("me_substeps", 10)
+    if not (isinstance(sub, int) and not isinstance(sub, bool) and 1 <= sub <= 1000):
+        errs.append("Control timing: Model Exchange substeps must be an int in [1, 1000]")
     return errs
 
 
@@ -287,7 +341,7 @@ def publish_blockers(p) -> list[str]:
     b3 = p.parameters.get("b3") or {}
     if p.status == "unsupported":
         out.append(f"Not supported: {p.parameters.get('candidate_reason')}")
-    if b3.get("verdict") != "GO":
+    if not p.parameters.get("external") and b3.get("verdict") != "GO":
         out.append(f"B3 verdict {b3.get('verdict') or 'missing'} for {p.parameters['model']}: not publishable (see {B3_LINK})")
     if p.parameters["model"] in REFERENCE_ONLY:
         out.append(REFERENCE_ONLY[p.parameters["model"]])
@@ -304,12 +358,17 @@ def readiness(p) -> dict:
     eng = engine_report()
     r = {}
     r["Engine"] = ("Validated", f"fmpy {eng['fmpy_version']} on {eng['platform']}") if eng["fmpy"] else ("Not supported", eng["message"])
+    if p is not None and eng["fmpy"] and p.parameters.get("is_plecs") and p.parameters.get("interfaces") == ["CoSimulation"]:
+        r["Engine"] = ("Needs attention", PLECS_CS_RUNTIME)
     if p is None:
         return {**r, **{k: ("Not configured", "") for k in READINESS_ITEMS[1:]}}
     if p.status == "unsupported":
         r["Circuit"] = ("Not supported", p.parameters.get("candidate_reason", ""))
     elif current_file_hash(p) != p.file_hash:
         r["Circuit"] = ("Needs attention", "Stale — the FMU file changed since import. Revalidate.")
+    elif p.parameters.get("external"):
+        tool = p.parameters.get("generation_tool") or "unknown tool"
+        r["Circuit"] = ("Validated", f"external FMU · {tool} · FMI {p.parameters.get('fmi_version')} · SHA-256 {p.file_hash[:12]}… · no native comparison")
     elif (p.parameters.get("b3") or {}).get("verdict") != "GO":
         r["Circuit"] = ("Needs attention", f"B3 verdict {(p.parameters.get('b3') or {}).get('verdict') or 'missing'}: not publishable")
     else:
@@ -395,8 +454,14 @@ def verify(p, log=print) -> dict:
     sha = current_file_hash(p)
     add(1, "Circuit file and hash match", sha == p.file_hash, f"SHA-256 now {sha and sha[:12]}…, profile {p.file_hash[:12]}…")
     eng = engine_report()
-    plat_ok = eng["fmpy"] and eng["platform"] in p.parameters["platforms"]
-    add(2, "Backend capability supports interactive stepping", plat_ok, eng["message"] if not eng["fmpy"] else f"{eng['platform']} in {p.parameters['platforms']}")
+    plat = None
+    if eng["fmpy"]:
+        from driveflow.integrations.fmu.adapter import platform_for
+
+        plat = platform_for(p.parameters.get("fmi_version") or "2.0")
+    plat_ok = eng["fmpy"] and plat in p.parameters["platforms"]
+    add(2, "Backend capability supports interactive stepping", plat_ok, eng["message"] if not eng["fmpy"] else
+        f"{plat} in {p.parameters['platforms']} (FMI {p.parameters.get('fmi_version') or '2.0'}, offers {p.parameters.get('interfaces') or ['CoSimulation']})")
     if not (sha == p.file_hash and plat_ok) or not p.parameters.get("mapping") or not p.parameters.get("gym"):
         for i, n in ((3, "FMU instance initializes and closes correctly"), (4, "Reset can be repeated and state is well defined"), (5, "Observation and action spaces validate"),
                      (6, "Action changes affect the designated FMU input"), (7, "A multi-step episode advances simulated time monotonically"),
@@ -412,7 +477,9 @@ def verify(p, log=print) -> dict:
         env = MappedFmuEnv(spec)
         env.reset(seed=0)
         env.close()
-        add(3, "FMU instance initializes and closes correctly", True, f"{env.fmu_info.model_name}, FMI {env.fmu_info.fmi_version} {env.fmu_info.fmu_type}")
+        add(3, "FMU instance initializes and closes correctly", True, f"{env.fmu_info.model_name}, FMI {env.fmu_info.fmi_version} {env.adapter.interface}"
+            + (f", RK4 × {env.adapter.me_substeps} substeps per step with event location" if env.adapter.interface == "ModelExchange" else "")
+            + f" ({env.fmu_info.generation_tool or 'unknown tool'})")
     except Exception as exc:
         add(3, "FMU instance initializes and closes correctly", False, f"{type(exc).__name__}: {exc}")
         return _summary(p, checks, t_start)
@@ -460,14 +527,18 @@ def verify(p, log=print) -> dict:
         *_, info = env.step(np.array([hi + (hi - lo)]))
         if g.get("action_out_of_range", "clip") == "clip" and not info.get("action_clipped"):
             bad.append("out-of-range action not clipped")
-        orig = env.adapter._slave.doStep
+        # inject the failure where the FMU's numerics run: doStep (Co-Simulation) or the derivative
+        # evaluation SPADE's integrator calls (Model Exchange)
+        slave = env.adapter._slave
+        target = "doStep" if env.adapter.interface == "CoSimulation" else ("getContinuousStateDerivatives" if env.adapter.fmi3 else "getDerivatives")
+        orig = getattr(slave, target)
 
-        def _fail(**_kw):
+        def _fail(*_a, **_kw):
             raise RuntimeError("injected solver failure (verification)")
 
-        env.adapter._slave.doStep = _fail
+        setattr(slave, target, _fail)
         _, r, term, trunc, info = env.step(np.array([mid]))
-        env.adapter._slave.doStep = orig
+        setattr(slave, target, orig)
         if not (term and not trunc and info.get("termination") == "solver_failure" and r < 0):
             bad.append("solver failure not reported as termination with a penalty")
         add(10, "Termination, truncation, invalid action and solver-error handling are tested", not bad,
@@ -479,7 +550,9 @@ def verify(p, log=print) -> dict:
             env.step(np.array([mid]))
             wall.append(time.perf_counter() - t0)
         p50, p99 = float(np.percentile(wall, 50) * 1e3), float(np.percentile(wall, 99) * 1e3)
-        add(12, "Performance benchmark", p50 <= LATENCY_P50_LIMIT_MS, f"wall time per step p50 {p50:.3f} ms, p99 {p99:.3f} ms over {len(wall)} steps (B3 criterion 6: p50 ≤ {LATENCY_P50_LIMIT_MS} ms)")
+        limit = LATENCY_P50_LIMIT_SWITCHING_MS if p.parameters.get("switching") else LATENCY_P50_LIMIT_MS
+        add(12, "Performance benchmark", p50 <= limit, f"wall time per step p50 {p50:.3f} ms, p99 {p99:.3f} ms over {len(wall)} steps, {env.adapter.interface} "
+            f"(B3 criterion 6: p50 ≤ {limit} ms for {'a switching' if p.parameters.get('switching') else 'an averaged'} model)")
         native = _native_counterpart(p)
         if native is not None:
             native.reset()

@@ -114,7 +114,7 @@ class FmuGymEnv(gym.Env):
     mapping: FmuMapping
 
     def __init__(self, duration_s: float, reward_terms=None, action_out_of_range: str = "clip", solver_failure_penalty: float = 100.0,
-                 slave_factory=None, fmu_path: str | None = None):
+                 slave_factory=None, fmu_path: str | None = None, interface: str = "auto", me_substeps: int = 10):
         from driveflow.integrations.fmu.adapter import FmuAdapter
 
         if not (math.isfinite(duration_s) and duration_s > 0):
@@ -132,7 +132,7 @@ class FmuGymEnv(gym.Env):
         self.reward_terms = rw.parse_terms(reward_terms)
         self.action_space = spaces.Box(m.action_low, m.action_high, shape=(1,), dtype=np.float64)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(len(m.observations),), dtype=np.float32)
-        self.adapter = FmuAdapter(slave_factory)
+        self.adapter = FmuAdapter(slave_factory, interface=interface, me_substeps=int(me_substeps))
         path = Path(fmu_path) if fmu_path else fmu_dir() / m.fmu_file
         self.fmu_info = self.adapter.load(path)
         self._k = 0
@@ -343,12 +343,14 @@ class MappedFmuEnv(FmuGymEnv):
         self.scales = {o["output"]: float(o["scale"]) for o in m["observations"]}
         self.reference, self.safety = ref, m.get("safety")
         super().__init__(float(duration_s if duration_s is not None else g["duration_s"]), reward_terms if reward_terms is not None else g.get("reward_terms"),
-                         g.get("action_out_of_range", "clip"), float(g.get("solver_failure_penalty", 100.0)), slave_factory, spec["fmu_path"])
+                         g.get("action_out_of_range", "clip"), float(g.get("solver_failure_penalty", 100.0)), slave_factory, spec["fmu_path"],
+                         g.get("interface", "auto"), int(g.get("me_substeps", 10)))
         self.metadata = {**MappedFmuEnv.metadata, "plant_profile_id": spec["plant_profile_id"], "tau_s": self.tau,
                          "observation_names": tuple(s.name for s in obs), "observation_units": tuple(s.unit for s in obs),
                          "observation_scales": tuple(self.scales[s.scale] for s in obs), "action_names": (a["name"],), "action_units": (a["unit"],),
                          "limits": ({"safety_output": self.safety["output"], "rated": self.safety["rated"], "terminate_at": 2 * self.safety["rated"]} if self.safety else {}),
-                         "fmu": {"model": self.fmu_info.model_name, "sha256": self.fmu_info.sha256, "path": self.fmu_info.path}}
+                         "fmu": {"model": self.fmu_info.model_name, "sha256": self.fmu_info.sha256, "path": self.fmu_info.path,
+                                 "fmi_version": self.fmu_info.fmi_version, "interface": self.adapter.interface, "generation_tool": self.fmu_info.generation_tool}}
 
     def _episode(self, options: dict):
         params = dict(self.spec_dict["gym"].get("parameters", {}))

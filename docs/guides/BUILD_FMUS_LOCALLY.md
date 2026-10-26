@@ -37,6 +37,14 @@ SPADE_DATA_DIR=../SPADE/data scripts/fmu/build_fmus.sh
 
 Nothing under `data/` is committed.
 
+### Model Exchange variants (optional, P1)
+
+```bash
+mkdir -p data/fmu/variants && scripts/fmu/om.sh scripts/fmu/build_fmu_variants.mos
+```
+
+This builds `BuckAveraged_fmi2_me.fmu` and `BuckSwitching_fmi2_me.fmu` in `data/fmu/variants/`. It exercises the Model Exchange path, which is how a PLECS Model Exchange export runs. The switching buck aborts in Co-Simulation (S-15) and runs in Model Exchange.
+
 ## Check
 
 ```bash

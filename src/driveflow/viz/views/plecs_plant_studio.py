@@ -76,7 +76,7 @@ def _goal_cards() -> str | None:
     with c1, st.container(border=True):
         st.markdown("**Use as a Gymnasium plant**")
         st.caption("Recommended for closed-loop RL · Train or evaluate a controller that steps the plant at each control interval. "
-                   "Engine in this version: an OpenModelica FMI 2.0 Co-Simulation FMU, verified before publishing.")
+                   "Engine: an FMU from OpenModelica or PLECS (FMI 2.0/3.0, Co-Simulation or Model Exchange), verified before publishing.")
         if st.button("Continue", key="plecs_goal_gym", width="stretch"):
             st.session_state["plecs_goal"] = "gym"
         st.caption(f":material/info: PLECS RPC does not provide stepping: {NOT_AVAILABLE_GYM}")
@@ -338,7 +338,8 @@ def _diagnostics() -> None:
 
         eng = fa.engine_report()
         st.caption(f"OpenModelica FMU (FMI 2.0 Co-Simulation): fmpy {eng['fmpy_version']} on {eng['platform']}." if eng["fmpy"] else eng["message"])
-        st.caption("PLECS Co-Simulation FMU: not supported in this version.")
+        st.caption("PLECS FMU: supported through upload (FMI 2.0/3.0; Model Exchange runs standalone, Co-Simulation needs PLECS and a licence at runtime). "
+                   "No PLECS-exported FMU has been run here yet.")
     with sections[2], st.container(border=True):
         st.markdown("**Step capability**")
         st.caption(f"PLECS RPC: not supported. {NOT_AVAILABLE_GYM} OpenModelica FMU: shown only by a passing verification (Create Plant → Use as a Gymnasium plant).")
@@ -362,8 +363,8 @@ def _diagnostics() -> None:
 
 def render() -> None:
     page_header("Simulation / PLECS Plant Studio", "PLECS Plant Studio",
-                "Create an environment from a circuit. In this version: simulation datasets from PLECS Standalone RPC sweeps, and "
-                "Gymnasium plants from verified OpenModelica Co-Simulation FMUs. PLECS FMUs are not supported yet.",
+                "Create an environment from a circuit: simulation datasets from PLECS Standalone RPC sweeps, and "
+                "Gymnasium plants from verified FMUs exported by OpenModelica or PLECS (FMI 2.0/3.0, Co-Simulation or Model Exchange).",
                 [source_badge_html("SIMULATED · PLECS", "Results are PLECS simulations, not hardware"),
                  source_badge_html("SIMULATED · OPENMODELICA", "Gymnasium plants from OpenModelica FMUs, not hardware")])
     t_plants, t_create, t_compare, t_diag = st.tabs(["My Plants", "Create Plant", "Compare with SPADE", "Connection & Diagnostics"])

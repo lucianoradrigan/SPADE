@@ -31,7 +31,9 @@ def candidates() -> list[dict]:
 
 
 def candidates_table(rows: list[dict]) -> pd.DataFrame:
-    return pd.DataFrame([{"FMU": r["name"], "Status": r["status"], "B3 verdict": (r.get("b3") or {}).get("verdict") or "—",
+    return pd.DataFrame([{"FMU": r["name"], "Status": r["status"], "Tool": ("PLECS" if r.get("is_plecs") else (r.get("generation_tool") or "—").split(" ")[0]),
+                          "FMI": r.get("fmi_version") or "—", "Interfaces": ", ".join({"CoSimulation": "CS", "ModelExchange": "ME"}.get(i, i) for i in r.get("interfaces") or []) or "—",
+                          "B3 verdict": (r.get("b3") or {}).get("verdict") or ("— (external)" if r.get("sha256") else "—"),
                           "Platforms": ", ".join(r.get("platforms") or []) or "—", "SHA-256": (r.get("sha256") or "")[:12] or "—",
                           "Why": r["reason"] + (f" · {r['note']}" if r.get("note") else "")} for r in rows])
 
@@ -67,7 +69,15 @@ def default_gym(p) -> dict:
     params = {q["name"]: q["start"] for q in p.parameters["fmu_parameters"] if q.get("start") is not None}
     return {"tau_s": 2e-5 if p.parameters["model"].startswith("Buck") else 1e-4, "duration_s": 0.02, "parameters": params,
             "reward_terms": [{"kind": "tracking", "weight": 1.0}, {"kind": "overcurrent", "weight": 10.0, "threshold": 0.8}, {"kind": "action_rate", "weight": 0.01}],
-            "action_out_of_range": "clip"}
+            "action_out_of_range": "clip", "interface": "auto", "me_substeps": 10}
+
+
+def upload_fmu(data: bytes, filename: str):
+    """Stores an FMU uploaded in Plant Studio (e.g. exported from PLECS). Raises ValueError."""
+    return gp.save_upload(data, filename)
+
+
+PLECS_CS_RUNTIME = gp.PLECS_CS_RUNTIME
 
 
 def save_gym(p, gym_cfg: dict):

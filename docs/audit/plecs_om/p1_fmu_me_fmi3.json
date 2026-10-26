@@ -1,0 +1,108 @@
+{
+  "command": "python experiments/report_p1_fmu_me_fmi3.py ",
+  "host": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "python": "3.12.13",
+  "averaged": {
+    "co_simulation": {
+      "fmi_version": "2.0",
+      "interface": "CoSimulation",
+      "steps": 500,
+      "error": null,
+      "events": 0,
+      "p50_ms": 0.002569984644651413,
+      "p99_ms": 0.004070495488122105,
+      "wall_s": 0.01,
+      "generation_tool": "OpenModelica Compiler OpenModelica 1.27.1",
+      "sha256": "48d52b6ac081cd7aab19da6576e7a8d20941597b22db9f617c9c70d97e1d6320",
+      "nrms_vs_native": 2.85795224087153e-06
+    },
+    "model_exchange_rk4_x1": {
+      "fmi_version": "2.0",
+      "interface": "ModelExchange",
+      "steps": 500,
+      "error": null,
+      "events": 0,
+      "p50_ms": 0.04404003266245127,
+      "p99_ms": 0.0641407759394496,
+      "wall_s": 0.03,
+      "generation_tool": "OpenModelica Compiler OpenModelica 1.27.1",
+      "sha256": "cb5479284f8d39daf6a3ad39f5360a3814495961aa54e5b7bddde5408f7ba484",
+      "nrms_vs_native": 5.069643820488715e-07
+    },
+    "model_exchange_rk4_x10": {
+      "fmi_version": "2.0",
+      "interface": "ModelExchange",
+      "steps": 500,
+      "error": null,
+      "events": 0,
+      "p50_ms": 0.3848084597848356,
+      "p99_ms": 0.4870604805182665,
+      "wall_s": 0.23,
+      "generation_tool": "OpenModelica Compiler OpenModelica 1.27.1",
+      "sha256": "cb5479284f8d39daf6a3ad39f5360a3814495961aa54e5b7bddde5408f7ba484",
+      "nrms_vs_native": 5.03372371749848e-11
+    }
+  },
+  "switching": {
+    "co_simulation": {
+      "fmi_version": "2.0",
+      "interface": "CoSimulation",
+      "steps": 24,
+      "error": "[solver] doStep at t = 0.00048 s failed: fmi2DoStep failed with status 4 (fatal).",
+      "events": 0,
+      "p50_ms": 0.04987895954400301,
+      "p99_ms": 0.06779062561690806,
+      "wall_s": 0.0,
+      "generation_tool": "OpenModelica Compiler OpenModelica 1.27.1",
+      "sha256": "6883e29d8a8da41048ce3084ca2aad213c4d5ebb27d3a230d545928d72190f7b"
+    },
+    "model_exchange_rk4_x4": {
+      "fmi_version": "2.0",
+      "interface": "ModelExchange",
+      "steps": 500,
+      "error": null,
+      "events": 1450,
+      "p50_ms": 1.2139644240960479,
+      "p99_ms": 2.8281969146337356,
+      "wall_s": 0.68,
+      "generation_tool": "OpenModelica Compiler OpenModelica 1.27.1",
+      "sha256": "897a10215785a8d5696f59e943382154936cacbcf87f9f2830be028be34df9c4",
+      "v_out_end": 23.742798630315267
+    },
+    "model_exchange_rk4_x10": {
+      "fmi_version": "2.0",
+      "interface": "ModelExchange",
+      "steps": 500,
+      "error": null,
+      "events": 1450,
+      "p50_ms": 1.5226129908114672,
+      "p99_ms": 2.9521262494381517,
+      "wall_s": 0.82,
+      "generation_tool": "OpenModelica Compiler OpenModelica 1.27.1",
+      "sha256": "897a10215785a8d5696f59e943382154936cacbcf87f9f2830be028be34df9c4",
+      "v_out_end": 23.74112167677514
+    },
+    "model_exchange_rk4_x40": {
+      "fmi_version": "2.0",
+      "interface": "ModelExchange",
+      "steps": 500,
+      "error": null,
+      "events": 1451,
+      "p50_ms": 3.4279399551451206,
+      "p99_ms": 4.571516434662044,
+      "wall_s": 1.79,
+      "generation_tool": "OpenModelica Compiler OpenModelica 1.27.1",
+      "sha256": "897a10215785a8d5696f59e943382154936cacbcf87f9f2830be028be34df9c4",
+      "v_out_end": 23.74102180818255
+    },
+    "convergence": {
+      "max_abs_diff_x4_vs_x40_V": 0.0028298328008347085,
+      "max_abs_diff_x10_vs_x40_V": 0.004025352979308394,
+      "native_averaged_v_out_end": 23.75288776805024
+    }
+  },
+  "fmi3": {
+    "status": "code path unit-tested with test doubles (tests/fmu/test_fmu_me_fmi3.py); no real FMI 3.0 binary executed",
+    "why": "OpenModelica 1.27.1 does not export FMI 3.0; executing the Modelica Association Reference FMUs (BSD-2, v0.0.42) was not permitted in this session"
+  }
+}

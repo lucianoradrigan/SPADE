@@ -423,11 +423,21 @@ AI-N24 was not used.
 |---|---|---|---|---|
 | Start sweep | Yes (test double only) | — | No | Not implemented (there is no FMU sweep route) |
 | Fit surrogate | With a valid dataset (A1, test double) | Not available | n/a | Not implemented |
-| Run step test | No | Not available (no PLECS FMU) | No | **Yes**: stage 6 "Run verification" job, 13 checks |
-| Publish Gym environment | No | Not available | Yes (A1) | **Yes, for a verified B3-GO FMU only** (BuckAveraged). NO-GO models are blocked |
-| Train agent | No | Not available | Yes | **Yes**: `SPADE/OmBuck-v0` in RL Lab (B6), by capability |
+| Run step test | No | **Implemented (P1), not run with PLECS**: an uploaded PLECS FMU (FMI 2.0/3.0, CS or ME) goes through the same 13-check job | No | **Yes**: stage 6 "Run verification" job, 13 checks |
+| Publish Gym environment | No | **Implemented (P1), not run with PLECS**: after a passing verification, labelled "no native comparison" | Yes (A1) | **Yes, for a verified B3-GO FMU only** (BuckAveraged). NO-GO models are blocked |
+| Train agent | No | Through the published environment (P1), not run with PLECS | Yes | **Yes**: `SPADE/OmBuck-v0` in RL Lab (B6), by capability |
 | Tune a controller | — | — | Yes (buck PI) | **Yes**: buck PI on `SPADE/OmBuck-v0` (B6) |
 | Compare with native SPADE | Yes, with aligned signals | Not available | Yes, own label | **Yes**: B4 report and verification check 4b (B3 criterion 4) |
+
+### 11.5b P1 (2026-10-26): PLECS FMUs as Gym plants — implemented, not run with PLECS
+
+- **`FmuAdapter`:** now drives FMI 2.0 and 3.0 in Co-Simulation and Model Exchange. In Model Exchange SPADE integrates with RK4, locates switching events by bisection and enters Event Mode on discrete inputs.
+- **Plant Studio:** offers a "PLECS FMU" engine (upload, export guidance, interface choice).
+- **Evidence (`p1_fmu_me_fmi3.md`):**
+  - the averaged buck in Model Exchange matches the native buck to 5e-11;
+  - **the switching buck, which aborts in Co-Simulation (S-15), runs in Model Exchange and converges.**
+- **FMI 3.0:** unit-tested with test doubles only. OpenModelica 1.27.1 does not export it, and running the Modelica Association Reference FMUs needs the user's permission.
+- **No PLECS here:** no PLECS-exported FMU has been run, so the reviewer's request (PLECS circuits as Gym environments) is implemented end to end but not demonstrated with PLECS.
 
 ### 11.6 B8
 

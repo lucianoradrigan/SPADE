@@ -70,6 +70,9 @@ jobs:
       - name: Build the FMUs (pinned OpenModelica image)
         run: bash scripts/fmu/build_fmus.sh
 
+      - name: Build the Model Exchange variants (P1)
+        run: mkdir -p data/fmu/variants && bash scripts/fmu/om.sh scripts/fmu/build_fmu_variants.mos
+
       - name: FMU tests
         env:
           TF_CPP_MIN_LOG_LEVEL: "2"
