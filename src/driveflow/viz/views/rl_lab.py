@@ -81,7 +81,7 @@ def _training(env_id: str, algo: str, levels, terms) -> None:
         st.info("No simulation has been executed for this configuration.", icon=":material/info:")
         return
     run = next(r for r in rs if r.run_id == st.selectbox("Training run", [r.run_id for r in rs], key="rl_run",
-                                                          format_func=lambda i: f"{i} · {next(f'{r.metrics.get('algorithm')} on {r.metrics.get('env_id')}' for r in rs if r.run_id == i)}"))
+                                                          format_func=lambda i: f"{i} · {next(str(r.metrics.get('algorithm')) + ' on ' + str(r.metrics.get('env_id')) for r in rs if r.run_id == i)}"))
     st.session_state["rl_selected_run"] = run.run_id
     h = ra.history(run)
     if h is None:
