@@ -1,0 +1,30 @@
+{
+  "created_utc": "2026-10-26T02:50:41+00:00",
+  "git_commit": "5eb8fef88bec633356dd14e6fd5daef8e58f3c96",
+  "git_dirty": true,
+  "git_note": null,
+  "python": "3.12.13",
+  "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "machine": "x86_64",
+  "packages": {
+    "numpy": "2.5.4",
+    "pandas": "3.0.6",
+    "scipy": "1.18.1",
+    "scikit-learn": "1.9.1",
+    "tensorflow": "2.21.0",
+    "keras": "3.15.1",
+    "streamlit": "1.66.0",
+    "plotly": "7.1.0"
+  },
+  "seed": {
+    "seed": 42,
+    "python_numpy_tf_seeded": true,
+    "deterministic_ops": false
+  },
+  "epochs": 30,
+  "batch_size": 32,
+  "dataset_path": "data/diagnosis_grid_dataset_rk45.parquet",
+  "dataset_sha256": "e7c255ff2053ebd843e6e4d5289d3c9f1add3ad8a7dd36a9639ffa37aa4e0db7",
+  "distill": true,
+  "cap_per_class": 3000
+}

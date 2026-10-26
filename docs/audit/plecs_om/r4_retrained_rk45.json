@@ -1,0 +1,431 @@
+{
+  "command": "python experiments/report_r4_retrained_rk45.py --r2-cache <scratch>/r2_sims.parquet --candidates PC=configs/classifiers/pc_server_5class_w2048/2026-10-25_run01 RPi5=configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-10-25_run01 ESP32=configs/classifiers/esp32_dscnn/2026-10-25_run01",
+  "host": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "python": "3.12.13",
+  "models": {
+    "PC": {
+      "promoted_euler": {
+        "run": "configs/classifiers/pc_server_5class_w2048/2026-10-20_run01",
+        "dataset": "data/diagnosis_grid_dataset_5class.parquet",
+        "dataset_sha256": "31eb5a0e2f92a0e862e7b0ce0a071f942c18d8156f981fd48fdd54d6cb47ff07",
+        "distilled_from": null,
+        "classes": [
+          "ball",
+          "cage",
+          "inner_race",
+          "normal",
+          "outer_race"
+        ],
+        "recorded_test": {
+          "test_accuracy": 0.9033333333333333,
+          "test_macro_f1": 0.9033800199717128,
+          "n_test": 600
+        },
+        "calibration": {
+          "temperature": 0.7543210883831803,
+          "abstain_below": 0.5248885103012569
+        },
+        "r2_simulations": {
+          "startup_NAT": {
+            "accuracy": 0.575,
+            "macro_f1": 0.5815774606819384,
+            "abstention": 0.5583333333333333,
+            "n": 120
+          },
+          "startup_REF": {
+            "accuracy": 0.6,
+            "macro_f1": 0.6112269984917044,
+            "abstention": 0.55,
+            "n": 120
+          },
+          "steady_state_NAT": {
+            "accuracy": 0.9888888888888889,
+            "macro_f1": 0.9888803088803089,
+            "abstention": 0.03518518518518519,
+            "n": 540
+          },
+          "steady_state_REF": {
+            "accuracy": 0.9944444444444445,
+            "macro_f1": 0.994443372564152,
+            "abstention": 0.03333333333333333,
+            "n": 540
+          }
+        },
+        "evaluation_conditions_euler_cache": {
+          "nominal_steady_state": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          },
+          "startup_transient": {
+            "accuracy": 0.6,
+            "macro_f1": 0.6333333333333332,
+            "n": 40
+          },
+          "speed_100_rad_s": {
+            "accuracy": 0.9625,
+            "macro_f1": 0.962167487684729,
+            "n": 80
+          },
+          "speed_200_rad_s": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          },
+          "severity_x0.5": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          },
+          "severity_x2": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          },
+          "noise_20pct": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          },
+          "noise_100pct": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          },
+          "plant_drift_psi-10pct_J+50pct": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          },
+          "unseen_speed_115_rad_s": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          },
+          "unseen_speed_190_rad_s": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          },
+          "extrapolated_speed_250_rad_s": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          },
+          "unseen_severity_x0.6": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          }
+        }
+      },
+      "candidate_rk45": {
+        "run": "configs/classifiers/pc_server_5class_w2048/2026-10-25_run01",
+        "dataset": "data/diagnosis_grid_dataset_5class_rk45.parquet",
+        "dataset_sha256": "b246a943b918d3f5cc22f7efce26865005a4f3b3d29de4518647140cd8e4fdb7",
+        "distilled_from": null,
+        "classes": [
+          "ball",
+          "cage",
+          "inner_race",
+          "normal",
+          "outer_race"
+        ],
+        "recorded_test": {
+          "test_accuracy": 0.89,
+          "test_macro_f1": 0.8898609973131417,
+          "n_test": 600
+        },
+        "calibration": {
+          "temperature": 1.077766358114725,
+          "abstain_below": 0.4926702351189889
+        },
+        "r2_simulations": {
+          "startup_NAT": {
+            "accuracy": 0.5333333333333333,
+            "macro_f1": 0.5357411049526194,
+            "abstention": 0.6,
+            "n": 120
+          },
+          "startup_REF": {
+            "accuracy": 0.575,
+            "macro_f1": 0.576342909256726,
+            "abstention": 0.5916666666666667,
+            "n": 120
+          },
+          "steady_state_NAT": {
+            "accuracy": 0.9851851851851852,
+            "macro_f1": 0.9851725692133162,
+            "abstention": 0.03333333333333333,
+            "n": 540
+          },
+          "steady_state_REF": {
+            "accuracy": 0.9851851851851852,
+            "macro_f1": 0.9851814879384273,
+            "abstention": 0.03333333333333333,
+            "n": 540
+          }
+        },
+        "evaluation_conditions_euler_cache": {
+          "nominal_steady_state": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          },
+          "startup_transient": {
+            "accuracy": 0.5,
+            "macro_f1": 0.45468409586056646,
+            "n": 40
+          },
+          "speed_100_rad_s": {
+            "accuracy": 0.9625,
+            "macro_f1": 0.962167487684729,
+            "n": 80
+          },
+          "speed_200_rad_s": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          },
+          "severity_x0.5": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          },
+          "severity_x2": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          },
+          "noise_20pct": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          },
+          "noise_100pct": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          },
+          "plant_drift_psi-10pct_J+50pct": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          },
+          "unseen_speed_115_rad_s": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          },
+          "unseen_speed_190_rad_s": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          },
+          "extrapolated_speed_250_rad_s": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          },
+          "unseen_severity_x0.6": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "n": 80
+          }
+        }
+      }
+    },
+    "RPi5": {
+      "promoted_euler": {
+        "run": "configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-10-20_run01",
+        "dataset": "data/diagnosis_grid_dataset_5class.parquet",
+        "dataset_sha256": "31eb5a0e2f92a0e862e7b0ce0a071f942c18d8156f981fd48fdd54d6cb47ff07",
+        "distilled_from": "configs/classifiers/pc_server_5class_w2048/2026-10-20_run01",
+        "classes": [
+          "ball",
+          "cage",
+          "inner_race",
+          "normal",
+          "outer_race"
+        ],
+        "recorded_test": {
+          "test_accuracy": 0.9016666666666666,
+          "test_macro_f1": 0.9020231360191282,
+          "n_test": 600
+        },
+        "calibration": {
+          "temperature": 0.6741679828013936,
+          "abstain_below": 0.507596870208783
+        },
+        "r2_simulations": {
+          "startup_NAT": {
+            "accuracy": 0.5083333333333333,
+            "macro_f1": 0.50903710425489,
+            "abstention": 0.575,
+            "n": 120
+          },
+          "startup_REF": {
+            "accuracy": 0.5333333333333333,
+            "macro_f1": 0.5283710093435121,
+            "abstention": 0.5416666666666666,
+            "n": 120
+          },
+          "steady_state_NAT": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "abstention": 0.04814814814814815,
+            "n": 540
+          },
+          "steady_state_REF": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "abstention": 0.044444444444444446,
+            "n": 540
+          }
+        }
+      },
+      "candidate_rk45": {
+        "run": "configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-10-25_run01",
+        "dataset": "data/diagnosis_grid_dataset_5class_rk45.parquet",
+        "dataset_sha256": "b246a943b918d3f5cc22f7efce26865005a4f3b3d29de4518647140cd8e4fdb7",
+        "distilled_from": "configs/classifiers/pc_server_5class_w2048/2026-10-25_run01",
+        "classes": [
+          "ball",
+          "cage",
+          "inner_race",
+          "normal",
+          "outer_race"
+        ],
+        "recorded_test": {
+          "test_accuracy": 0.87,
+          "test_macro_f1": 0.871356461618413,
+          "n_test": 600
+        },
+        "calibration": {
+          "temperature": 0.8202018546709784,
+          "abstain_below": 0.5129009372264003
+        },
+        "r2_simulations": {
+          "startup_NAT": {
+            "accuracy": 0.525,
+            "macro_f1": 0.5292520144687327,
+            "abstention": 0.5416666666666666,
+            "n": 120
+          },
+          "startup_REF": {
+            "accuracy": 0.5166666666666667,
+            "macro_f1": 0.5201043021631258,
+            "abstention": 0.5416666666666666,
+            "n": 120
+          },
+          "steady_state_NAT": {
+            "accuracy": 0.987037037037037,
+            "macro_f1": 0.987023408500869,
+            "abstention": 0.03148148148148148,
+            "n": 540
+          },
+          "steady_state_REF": {
+            "accuracy": 0.987037037037037,
+            "macro_f1": 0.9870292136705799,
+            "abstention": 0.02962962962962963,
+            "n": 540
+          }
+        }
+      }
+    },
+    "ESP32": {
+      "promoted_euler": {
+        "run": "configs/classifiers/esp32_dscnn/2026-10-18_run01",
+        "dataset": "data/diagnosis_grid_dataset.parquet",
+        "dataset_sha256": "428cbb91268e8a4611fff3c5dcaec53b18c1f50399092b3b63d24ee66cb34f77",
+        "distilled_from": "dc_motor/pc/classifier",
+        "classes": [
+          "inner_race",
+          "normal",
+          "outer_race"
+        ],
+        "recorded_test": {
+          "test_accuracy": 0.9011494252873563,
+          "test_macro_f1": 0.9015816381586473,
+          "n_test": 870
+        },
+        "calibration": {
+          "temperature": 0.9053306125731545,
+          "abstain_below": 0.7341930848661137
+        },
+        "r2_simulations": {
+          "startup_NAT": {
+            "accuracy": 0.7006172839506173,
+            "macro_f1": 0.70071244134476,
+            "abstention": 0.37222222222222223,
+            "n": 324
+          },
+          "startup_REF": {
+            "accuracy": 0.7098765432098766,
+            "macro_f1": 0.7105246801515278,
+            "abstention": 0.37592592592592594,
+            "n": 324
+          },
+          "steady_state_NAT": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "abstention": 0.17307692307692307,
+            "n": 1404
+          },
+          "steady_state_REF": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "abstention": 0.1764957264957265,
+            "n": 1404
+          }
+        }
+      },
+      "candidate_rk45": {
+        "run": "configs/classifiers/esp32_dscnn/2026-10-25_run01",
+        "dataset": "data/diagnosis_grid_dataset_rk45.parquet",
+        "dataset_sha256": "e7c255ff2053ebd843e6e4d5289d3c9f1add3ad8a7dd36a9639ffa37aa4e0db7",
+        "distilled_from": "configs/classifiers/pc_server/2026-10-25_run01",
+        "classes": [
+          "inner_race",
+          "normal",
+          "outer_race"
+        ],
+        "recorded_test": {
+          "test_accuracy": 0.9045977011494253,
+          "test_macro_f1": 0.9051581547472892,
+          "n_test": 870
+        },
+        "calibration": {
+          "temperature": 1.0016299964108601,
+          "abstain_below": 0.7383446441182034
+        },
+        "r2_simulations": {
+          "startup_NAT": {
+            "accuracy": 0.7098765432098766,
+            "macro_f1": 0.7057705962130402,
+            "abstention": 0.4685185185185185,
+            "n": 324
+          },
+          "startup_REF": {
+            "accuracy": 0.7098765432098766,
+            "macro_f1": 0.7058075316395747,
+            "abstention": 0.4685185185185185,
+            "n": 324
+          },
+          "steady_state_NAT": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "abstention": 0.197008547008547,
+            "n": 1404
+          },
+          "steady_state_REF": {
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "abstention": 0.19829059829059828,
+            "n": 1404
+          }
+        }
+      }
+    }
+  }
+}

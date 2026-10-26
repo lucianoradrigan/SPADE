@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "candidate-rk45",
+      "severity": "medium",
+      "date": "2026-10-25",
+      "summary": "Candidate (PC 5-class) retrained on the RK45-integrated dataset (R3/R4, after S-16/S-18), same recipe as the promoted run. Not promoted; the registry is unchanged.",
+      "evidence": "docs/audit/plecs_om/r4_retrained_rk45.md, docs/audit/plecs_om/r3_datasets_rk45.md"
+    },
+    {
+      "id": "sim-only",
+      "severity": "medium",
+      "date": "2026-10-25",
+      "summary": "Trained and evaluated on simulated data only (speed x severity x noise x plant-drift grid, DC plant integrated with RK45); no real-machine validation exists.",
+      "evidence": "docs/audit/plecs_om/r4_retrained_rk45.md"
+    },
+    {
+      "id": "A2-synthetic-ball-cage",
+      "severity": "high",
+      "summary": "ball/cage: synthetic-only, uncalibrated amplitude. The ball and cage classes were trained on simulated faults whose mechanical amplitude (CALIBRATED_MECHANICAL_SEVERITY in datagen/scenario.py) is a placeholder: KAt has no clean single-defect code for these faults, so it cannot be calibrated without real data.",
+      "evidence": "docs/AI_TECHNICAL_AUDIT.md Sec. 8.4-8.5",
+      "date": "2026-10-25"
+    }
+  ]
+}

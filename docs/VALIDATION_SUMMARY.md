@@ -400,14 +400,18 @@ Evidence lives in `docs/audit/plecs_om/`. Each `.md` there gives the command tha
   - The Euler generator first reproduces the stored datasets: plant channels bit-identical, vibration within 5e-15.
   - The new files are `data/diagnosis_grid_dataset_5class_rk45.parquet` and `data/diagnosis_grid_dataset_rk45.parquet`. The originals are kept.
   - Per run, the current differs by a median of 0.5–0.8 % NRMS. The operating point changes in 4 of 525 runs.
-- **Not retrained, nothing promoted.** Retraining needs a decision. Evidence: `r2_s16_sensitivity.md`.
+- **Retrained (R4, user decision 2026-10-25), candidates only:**
+  - Runs: `pc_server_5class_w2048/2026-10-25_run01`, `rpi5_resnet1d_se_5class_w2048/2026-10-25_run01`, `esp32_dscnn/2026-10-25_run01`, and the 3-class teacher `pc_server/2026-10-25_run01`.
+  - **No improvement on either plant.** PC start-up is slightly worse (0.500 vs 0.600 on the evaluation report's start-up condition); one training seed each.
+  - Nothing promoted.
+- Evidence: `r2_s16_sensitivity.md`, `r3_datasets_rk45.md`, `r4_retrained_rk45.md`.
 
 ### 11.4 New findings
 
 | ID | Severity | Summary | Status |
 |---|---|---|---|
 | S-17 | Low | `sim/solvers.EulerSolver(nsteps > 1)` evaluates f at t_end + k·h/n (inherited from GEM); latent for the production plants | Open; strict xfail |
-| S-18 | Medium | S-16 changes fault-band amplitudes (up to 16.5 %, noisy runs, harmonics) and start-up decisions (agreement 0.92–0.97) | Open; datasets regenerated with RK45 (R3), not retrained |
+| S-18 | Medium | S-16 changes fault-band amplitudes (up to 16.5 %, noisy runs, harmonics) and start-up decisions (agreement 0.92–0.97) | Open; datasets regenerated with RK45 (R3); retrained candidates (R4) do not improve |
 | S-19 | Info | 15 % (5-class) / 7 % (3-class) of training runs do not hold the speed reference (one-quadrant converter vs fault ripple), with both integrations | Documented |
 
 AI-N24 was not used.
