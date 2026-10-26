@@ -301,9 +301,9 @@ def test_reference_fmi3_co_simulation_step_smaller_than_the_fixed_internal_step_
 
 @pytest.mark.fmu
 def test_reference_bouncing_ball_state_events_match_fmpy_cvode():
+    p = _ref("3.0", "BouncingBall")  # skips first when fmpy or the FMU is missing
     import fmpy
 
-    p = _ref("3.0", "BouncingBall")
     ref = fmpy.simulate_fmu(str(p), fmi_type="ModelExchange", stop_time=3.0, output_interval=0.01, solver="CVode",
                             relative_tolerance=1e-8, output=["h"], record_events=False)
     y, _info, st = _drive(p, 300, 0.01, "me", "h")
