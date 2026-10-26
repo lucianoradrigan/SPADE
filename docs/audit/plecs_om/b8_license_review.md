@@ -129,3 +129,11 @@ curl -sSL https://www.netlib.org/clapack/clapack.tgz   # SHA-256 6dc4c382164b…
 - **Note:** `fetch` against GitHub works only after the release is published; a draft is not publicly downloadable.
 
 **Publishing the draft needs the user's confirmation.**
+
+## 7. Published (2026-10-26, at the user's request)
+
+- **Command:** `gh release edit fmu-v1 --draft=false --latest`. Release: https://github.com/lucianoradrigan/SPADE/releases/tag/fmu-v1, the latest published release.
+- **Model check before publishing:** `modelica/SPADE/package.mo` on `dev` still has SHA-256 `ec5e4545…`, the one in `fmu_manifest.json`, so `fetch` installs the FMU without a model-version warning.
+- **Check after publishing:** `python -m driveflow.fmu fetch --dest <scratch>`, with no tag, resolves the latest release `fmu-v1`:
+  - it installed `BuckAveraged.fmu`, SHA-256 `013dacb29c5a…`, B3 GO;
+  - `SPADE/OmBuck-v0` on that file, under the native PI's actions, matches `SPADE/Buck-v0` to 6.0e-6 NRMS on v_out.

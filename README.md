@@ -449,9 +449,10 @@ package set emulated on Linux, not run on a Mac.**
 - Light and dark themes are both native (app menu ⋮ → Settings → Theme). The app follows the OS
   preference.
 - **OpenModelica FMU plants** (`SPADE/OmBuck-v0`, Plant Studio → Use as a Gymnasium plant) need the
-  `fmu` extra and the FMUs: `pip install -e ".[fmu]"`, then `scripts/fmu/build_fmus.sh` (Docker,
-  pinned OpenModelica 1.27.1). `python -m driveflow.fmu fetch` downloads prebuilt Linux x86_64 FMUs
-  (SHA-256 checked) once a release is published; the first one, `fmu-v1`, is still a draft. See
+  `fmu` extra and the FMUs: `pip install -e ".[fmu]"`, then `python -m driveflow.fmu fetch` (prebuilt
+  Linux x86_64 FMUs from the published release
+  [`fmu-v1`](https://github.com/lucianoradrigan/SPADE/releases/tag/fmu-v1), SHA-256 checked) or
+  `scripts/fmu/build_fmus.sh` (Docker, pinned OpenModelica 1.27.1) on any other platform. See
   `docs/guides/BUILD_FMUS_LOCALLY.md`; licence notices in `licenses/fmu/`.
 - **FMUs from PLECS or other tools** (Plant Studio → Use as a Gymnasium plant → engine *PLECS FMU*):
   upload the `.fmu` (FMI 2.0 or 3.0). A **Model Exchange** export (PLECS Coder) runs without PLECS:
