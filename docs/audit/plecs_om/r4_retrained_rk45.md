@@ -63,3 +63,5 @@ ESP32: accuracy and macro-F1 over its own 3 classes.
 - The discretization effect of S-16/S-18 is real in the signals, but it does not make the Euler-trained models worse on the more accurate plant.
 
 **Recommendation (decision for the user):** keep the promoted models. If the RK45 data should become the training standard, compare several seeds per dataset before any promotion.
+
+**Decision (user, 2026-10-26):** keep the promoted models. The candidates above are not promoted.

@@ -404,6 +404,7 @@ Evidence lives in `docs/audit/plecs_om/`. Each `.md` there gives the command tha
   - Runs: `pc_server_5class_w2048/2026-10-25_run01`, `rpi5_resnet1d_se_5class_w2048/2026-10-25_run01`, `esp32_dscnn/2026-10-25_run01`, and the 3-class teacher `pc_server/2026-10-25_run01`.
   - **No improvement on either plant.** PC start-up is slightly worse (0.500 vs 0.600 on the evaluation report's start-up condition); one training seed each.
   - Nothing promoted.
+- **User decision (2026-10-26): keep the promoted models** (trained on the Euler datasets). The RK45 candidates and datasets stay as evidence only.
 - Evidence: `r2_s16_sensitivity.md`, `r3_datasets_rk45.md`, `r4_retrained_rk45.md`.
 
 ### 11.4 New findings
@@ -411,7 +412,7 @@ Evidence lives in `docs/audit/plecs_om/`. Each `.md` there gives the command tha
 | ID | Severity | Summary | Status |
 |---|---|---|---|
 | S-17 | Low | `sim/solvers.EulerSolver(nsteps > 1)` evaluates f at t_end + k·h/n (inherited from GEM); latent for the production plants | Open; strict xfail |
-| S-18 | Medium | S-16 changes fault-band amplitudes (up to 16.5 %, noisy runs, harmonics) and start-up decisions (agreement 0.92–0.97) | Open; datasets regenerated with RK45 (R3); retrained candidates (R4) do not improve |
+| S-18 | Medium | S-16 changes fault-band amplitudes (up to 16.5 %, noisy runs, harmonics) and start-up decisions (agreement 0.92–0.97) | Documented; datasets regenerated with RK45 (R3); retrained candidates (R4) do not improve; promoted models kept (user, 2026-10-26) |
 | S-19 | Info | 15 % (5-class) / 7 % (3-class) of training runs do not hold the speed reference (one-quadrant converter vs fault ripple), with both integrations | Documented |
 
 AI-N24 was not used.
