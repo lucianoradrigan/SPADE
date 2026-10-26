@@ -9,8 +9,8 @@
       "steps": 500,
       "error": null,
       "events": 0,
-      "p50_ms": 0.002569984644651413,
-      "p99_ms": 0.004070495488122105,
+      "p50_ms": 0.0025300541892647743,
+      "p99_ms": 0.005219051381573073,
       "wall_s": 0.01,
       "generation_tool": "OpenModelica Compiler OpenModelica 1.27.1",
       "sha256": "48d52b6ac081cd7aab19da6576e7a8d20941597b22db9f617c9c70d97e1d6320",
@@ -22,8 +22,8 @@
       "steps": 500,
       "error": null,
       "events": 0,
-      "p50_ms": 0.04404003266245127,
-      "p99_ms": 0.0641407759394496,
+      "p50_ms": 0.04385004285722971,
+      "p99_ms": 0.0857698207255452,
       "wall_s": 0.03,
       "generation_tool": "OpenModelica Compiler OpenModelica 1.27.1",
       "sha256": "cb5479284f8d39daf6a3ad39f5360a3814495961aa54e5b7bddde5408f7ba484",
@@ -35,9 +35,9 @@
       "steps": 500,
       "error": null,
       "events": 0,
-      "p50_ms": 0.3848084597848356,
-      "p99_ms": 0.4870604805182665,
-      "wall_s": 0.23,
+      "p50_ms": 0.39414846105501056,
+      "p99_ms": 0.5521852604579179,
+      "wall_s": 0.24,
       "generation_tool": "OpenModelica Compiler OpenModelica 1.27.1",
       "sha256": "cb5479284f8d39daf6a3ad39f5360a3814495961aa54e5b7bddde5408f7ba484",
       "nrms_vs_native": 5.03372371749848e-11
@@ -50,8 +50,8 @@
       "steps": 24,
       "error": "[solver] doStep at t = 0.00048 s failed: fmi2DoStep failed with status 4 (fatal).",
       "events": 0,
-      "p50_ms": 0.04987895954400301,
-      "p99_ms": 0.06779062561690806,
+      "p50_ms": 0.048479996621608734,
+      "p99_ms": 0.07223684340715406,
       "wall_s": 0.0,
       "generation_tool": "OpenModelica Compiler OpenModelica 1.27.1",
       "sha256": "6883e29d8a8da41048ce3084ca2aad213c4d5ebb27d3a230d545928d72190f7b"
@@ -62,9 +62,9 @@
       "steps": 500,
       "error": null,
       "events": 1450,
-      "p50_ms": 1.2139644240960479,
-      "p99_ms": 2.8281969146337356,
-      "wall_s": 0.68,
+      "p50_ms": 1.2228990090079606,
+      "p99_ms": 2.8297529835253954,
+      "wall_s": 0.69,
       "generation_tool": "OpenModelica Compiler OpenModelica 1.27.1",
       "sha256": "897a10215785a8d5696f59e943382154936cacbcf87f9f2830be028be34df9c4",
       "v_out_end": 23.742798630315267
@@ -75,9 +75,9 @@
       "steps": 500,
       "error": null,
       "events": 1450,
-      "p50_ms": 1.5226129908114672,
-      "p99_ms": 2.9521262494381517,
-      "wall_s": 0.82,
+      "p50_ms": 1.5215384773910046,
+      "p99_ms": 2.9686605336610223,
+      "wall_s": 0.83,
       "generation_tool": "OpenModelica Compiler OpenModelica 1.27.1",
       "sha256": "897a10215785a8d5696f59e943382154936cacbcf87f9f2830be028be34df9c4",
       "v_out_end": 23.74112167677514
@@ -88,9 +88,9 @@
       "steps": 500,
       "error": null,
       "events": 1451,
-      "p50_ms": 3.4279399551451206,
-      "p99_ms": 4.571516434662044,
-      "wall_s": 1.79,
+      "p50_ms": 3.4745794837363064,
+      "p99_ms": 4.698828035034239,
+      "wall_s": 1.81,
       "generation_tool": "OpenModelica Compiler OpenModelica 1.27.1",
       "sha256": "897a10215785a8d5696f59e943382154936cacbcf87f9f2830be028be34df9c4",
       "v_out_end": 23.74102180818255
@@ -101,8 +101,151 @@
       "native_averaged_v_out_end": 23.75288776805024
     }
   },
-  "fmi3": {
-    "status": "code path unit-tested with test doubles (tests/fmu/test_fmu_me_fmi3.py); no real FMI 3.0 binary executed",
-    "why": "OpenModelica 1.27.1 does not export FMI 3.0; executing the Modelica Association Reference FMUs (BSD-2, v0.0.42) was not permitted in this session"
+  "reference_fmus": {
+    "source": [
+      "Modelica Association Reference FMUs v0.0.42",
+      "https://github.com/modelica/Reference-FMUs/releases/download/v0.0.42/Reference-FMUs.zip",
+      "SHA-256 b6b4a195b9c0f6bdd3459cd949cbb35fc21ee2049d6dab4cb7a3ba7da63b1e97",
+      "Licence: BSD-2-Clause (LICENSE.txt)"
+    ],
+    "cases": [
+      {
+        "fmu": "3.0/Dahlquist",
+        "interface": "ModelExchange",
+        "check": "x vs exp(-t), dt 0.1",
+        "max_abs_error": 3.091349398687271e-11
+      },
+      {
+        "fmu": "3.0/Dahlquist",
+        "interface": "CoSimulation",
+        "check": "x vs the FMU's own explicit Euler 0.9^n (its CS solver)",
+        "max_abs_error": 1.1102230246251565e-16
+      },
+      {
+        "fmu": "3.0/Stair",
+        "interface": "ModelExchange",
+        "check": "counter at t = 1..8 s (time events)",
+        "values": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "expected": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      {
+        "fmu": "3.0/Stair",
+        "interface": "CoSimulation",
+        "check": "counter at t = 1..8 s (time events)",
+        "values": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "expected": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      {
+        "fmu": "2.0/Dahlquist",
+        "interface": "ModelExchange",
+        "check": "x vs exp(-t), dt 0.1",
+        "max_abs_error": 3.091349398687271e-11
+      },
+      {
+        "fmu": "2.0/Dahlquist",
+        "interface": "CoSimulation",
+        "check": "x vs the FMU's own explicit Euler 0.9^n (its CS solver)",
+        "max_abs_error": 1.1102230246251565e-16
+      },
+      {
+        "fmu": "2.0/Stair",
+        "interface": "ModelExchange",
+        "check": "counter at t = 1..8 s (time events)",
+        "values": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "expected": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      {
+        "fmu": "2.0/Stair",
+        "interface": "CoSimulation",
+        "check": "counter at t = 1..8 s (time events)",
+        "values": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "expected": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      {
+        "fmu": "3.0/Dahlquist",
+        "interface": "CoSimulation",
+        "check": "dt 0.01 < fixedInternalStepSize 0.1",
+        "message": "[solver] doStep from t = 0 s stopped at 0 s instead of 0.01 s; the FMU declares fixedInternalStepSize = 0.1 s: use a communication step that is a multiple of it"
+      },
+      {
+        "fmu": "3.0/BouncingBall",
+        "interface": "ModelExchange",
+        "check": "h vs fmpy CVode (rtol 1e-8), 3 s, state events",
+        "max_abs_error": 9.960952023987685e-08,
+        "events": 11
+      }
+    ]
   }
 }

@@ -436,7 +436,11 @@ AI-N24 was not used.
 - **Evidence (`p1_fmu_me_fmi3.md`):**
   - the averaged buck in Model Exchange matches the native buck to 5e-11;
   - **the switching buck, which aborts in Co-Simulation (S-15), runs in Model Exchange and converges.**
-- **FMI 3.0:** unit-tested with test doubles only. OpenModelica 1.27.1 does not export it, and running the Modelica Association Reference FMUs needs the user's permission.
+- **FMI 3.0 (and 2.0) with real binaries, run with the user's permission (Modelica Association Reference FMUs v0.0.42):**
+  - Dahlquist in Model Exchange is within 3.1e-11 of exp(−t);
+  - the Stair time events are exact;
+  - BouncingBall's state events agree with fmpy's CVode to 1.0e-7 m.
+  - A communication step below an FMU's fixedInternalStepSize is now explained and refused.
 - **No PLECS here:** no PLECS-exported FMU has been run, so the reviewer's request (PLECS circuits as Gym environments) is implemented end to end but not demonstrated with PLECS.
 
 ### 11.6 B8

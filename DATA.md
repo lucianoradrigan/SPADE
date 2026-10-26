@@ -78,3 +78,14 @@ license, to reproduce the pieces of this repo that depend on them.
   - Before any FMU is attached to a release (task B8), the license files actually inside the built FMUs are listed and checked per component. If a component's licence does not permit redistribution, B8 stops and reports it.
   - Sources: the runtime header above; OpenModelica forum, "licensing of runtime" (https://openmodelica.org/forum/default-topic/24-licensing-of-runtime.html) and "binary executable or fmu to commercial use" (https://www.openmodelica.org/forum/default-topic/2666-binary-executable-or-fmu-to-commercial-use.html). Those forum answers come from the OpenModelica developers but are not a legal opinion.
 - **fmpy 0.3.32** (extra `[fmu]`, decision D3): BSD 2-Clause.
+
+## Modelica Association Reference FMUs (task P1b, 2026-10-26)
+
+- **Source:** https://github.com/modelica/Reference-FMUs, release v0.0.42.
+  - Asset: `Reference-FMUs.zip`, SHA-256 `b6b4a195b9c0f6bdd3459cd949cbb35fc21ee2049d6dab4cb7a3ba7da63b1e97`, pinned in `scripts/fmu/fetch_reference_fmus.py`.
+  - Extracted to `data/fmu/reference/` (`2.0/` and `3.0/` Dahlquist, Stair; `3.0/` BouncingBall, VanDerPol, Feedthrough). **Not committed.**
+- **Licence:** BSD-2-Clause, Modelica Association Project "FMI" (the `LICENSE.txt` of the archive is kept next to the FMUs).
+- **What depends on it:**
+  - the FMI 3.0 / FMI 2.0 tests of `FmuAdapter` (`tests/fmu/test_fmu_me_fmi3.py`, marker `fmu`, skipped when the files are missing);
+  - `experiments/report_p1_fmu_me_fmi3.py`.
+- They contain third-party binaries. They were executed with the user's permission (2026-10-26).

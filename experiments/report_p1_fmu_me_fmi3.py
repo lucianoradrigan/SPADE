@@ -6,9 +6,10 @@ the interfaces a PLECS 5.0 export can produce, measured on OpenModelica builds o
    (sim/buck_system, exact ZOH) and against the Co-Simulation build: duty 0.5, 500 steps of 20 us.
 2. BuckSwitching, FMI 2.0 Model Exchange with event location, 4 / 10 / 40 substeps: does it run
    (the Co-Simulation build aborts in CVODE, S-15), convergence in the substep count, latency.
-3. FMI 3.0: the code path is unit-tested with test doubles; no real FMI 3.0 binary was executed
-   (OpenModelica 1.27.1 does not export FMI 3.0; running the Modelica Association Reference FMUs
-   needs the user's permission, see the report).
+3. FMI 3.0 (and FMI 2.0) with real binaries: the Modelica Association Reference FMUs v0.0.42
+   (BSD-2; scripts/fmu/fetch_reference_fmus.py, SHA-256 pinned), run with the user's permission
+   (2026-10-26): Dahlquist against exp(-t), Stair (time events), BouncingBall (state events) against
+   fmpy's own CVode simulation. OpenModelica 1.27.1 does not export FMI 3.0.
 
 Usage: python experiments/report_p1_fmu_me_fmi3.py [--out docs/audit/plecs_om]
 """
@@ -52,6 +53,56 @@ def run(path, interface, substeps, n=500, duty=0.5):
                          "sha256": info.sha256}
 
 
+def _drive(path, n, dt, interface, out, sub=10):
+    from driveflow.integrations.fmu.adapter import FmuAdapter
+
+    a = FmuAdapter(interface=interface, me_substeps=sub)
+    info = a.load(path)
+    a.reset()
+    y = []
+    for k in range(n):
+        a.do_step(k * dt, dt)
+        y.append(a.get_outputs(check_range=False)[out])
+    st = a.stats()
+    a.close()
+    return np.array(y), info, st
+
+
+def reference_fmus() -> dict:
+    import fmpy
+
+    from driveflow.integrations.fmu.adapter import FmuError
+
+    R = FMU_DIR / "reference"
+    src = (R / "SOURCE.txt").read_text().strip().splitlines() if (R / "SOURCE.txt").exists() else ["not fetched"]
+    out = {"source": src, "cases": []}
+    t = np.arange(1, 101) * 0.1
+    for v in ("3.0", "2.0"):
+        y, info, st = _drive(R / v / "Dahlquist.fmu", 100, 0.1, "me", "x")
+        out["cases"].append({"fmu": f"{v}/Dahlquist", "interface": st["interface"], "check": "x vs exp(-t), dt 0.1", "max_abs_error": float(np.max(np.abs(y - np.exp(-t))))})
+        y, info, st = _drive(R / v / "Dahlquist.fmu", 100, 0.1, "cs", "x")
+        out["cases"].append({"fmu": f"{v}/Dahlquist", "interface": st["interface"], "check": "x vs the FMU's own explicit Euler 0.9^n (its CS solver)",
+                             "max_abs_error": float(np.max(np.abs(y - 0.9 ** np.arange(1, 101))))})
+        for iface, dt, n in (("me", 0.1, 85), ("cs", 0.2, 42)):
+            y, info, st = _drive(R / v / "Stair.fmu", n, dt, iface, "counter")
+            k = int(round(1 / dt))
+            out["cases"].append({"fmu": f"{v}/Stair", "interface": st["interface"], "check": "counter at t = 1..8 s (time events)",
+                                 "values": [int(c) for c in y[k - 1::k]][:8], "expected": [2, 3, 4, 5, 6, 7, 8, 9]})
+    try:
+        _drive(R / "3.0" / "Dahlquist.fmu", 3, 0.01, "cs", "x")
+        msg = "no error"
+    except FmuError as exc:
+        msg = str(exc)
+    out["cases"].append({"fmu": "3.0/Dahlquist", "interface": "CoSimulation", "check": "dt 0.01 < fixedInternalStepSize 0.1", "message": msg})
+    p = R / "3.0" / "BouncingBall.fmu"
+    ref = fmpy.simulate_fmu(str(p), fmi_type="ModelExchange", stop_time=3.0, output_interval=0.01, solver="CVode", relative_tolerance=1e-8, output=["h"], record_events=False)
+    y, info, st = _drive(p, 300, 0.01, "me", "h")
+    r = np.interp(np.arange(1, 301) * 0.01, ref["time"], ref["h"])
+    out["cases"].append({"fmu": "3.0/BouncingBall", "interface": "ModelExchange", "check": "h vs fmpy CVode (rtol 1e-8), 3 s, state events",
+                         "max_abs_error": float(np.max(np.abs(y - r))), "events": st["events"]})
+    return out
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", type=Path, default=REPO / "docs" / "audit" / "plecs_om")
@@ -79,8 +130,7 @@ def main(argv=None):
         res["switching"]["convergence"] = {"max_abs_diff_x4_vs_x40_V": float(np.max(np.abs(ys[4] - ys[40]))),
                                            "max_abs_diff_x10_vs_x40_V": float(np.max(np.abs(ys[10] - ys[40]))),
                                            "native_averaged_v_out_end": float(vn[-1])}
-    res["fmi3"] = {"status": "code path unit-tested with test doubles (tests/fmu/test_fmu_me_fmi3.py); no real FMI 3.0 binary executed",
-                   "why": "OpenModelica 1.27.1 does not export FMI 3.0; executing the Modelica Association Reference FMUs (BSD-2, v0.0.42) was not permitted in this session"}
+    res["reference_fmus"] = reference_fmus()
     (args.out / "p1_fmu_me_fmi3.json").write_text(json.dumps(res, indent=2, default=float) + "\n")
     md = _md(res)
     (args.out / "p1_fmu_me_fmi3.md").write_text(md)
@@ -112,7 +162,15 @@ def _md(r):
     L += ["", "**Reading.** Model Exchange with SPADE's RK4 reproduces the averaged buck to 5e-11, and it **runs the switching buck that aborts in "
           "Co-Simulation (S-15)**, converging in the substep count. That is the interface in which a PLECS circuit with real switching would arrive. "
           "B3's pre-registered verdicts are not changed by this (they were measured on the Co-Simulation builds).", "",
-          f"## 3. FMI 3.0", "", f"{r['fmi3']['status']}. Not executed with a real binary: {r['fmi3']['why']}.", ""]
+          "## 3. FMI 3.0 and 2.0 with real binaries: Modelica Association Reference FMUs", "",
+          "Source: " + " · ".join(r["reference_fmus"]["source"]) + ". Run with the user's permission (2026-10-26); OpenModelica 1.27.1 does not export FMI 3.0.", "",
+          "| FMU | Interface | Check | Result |", "|---|---|---|---|"]
+    for c in r["reference_fmus"]["cases"]:
+        res = (f"max error {c['max_abs_error']:.1e}" + (f", {c['events']} events" if "events" in c else "")) if "max_abs_error" in c else \
+              (f"{c['values']} (expected {c['expected']})" if "values" in c else c["message"])
+        L.append(f"| {c['fmu']} | {c['interface']} | {c['check']} | {res} |")
+    L += ["", "The Co-Simulation error of Dahlquist against exp(-t) (1.9e-2) is the FMU's own explicit Euler: SPADE reproduces 0.9^n to 1e-16. "
+          "A communication step below an FMU's fixedInternalStepSize now fails with that explanation, and Plant Studio refuses such a Ts in Co-Simulation.", ""]
     return "\n".join(L)
 
 

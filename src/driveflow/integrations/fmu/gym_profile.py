@@ -141,7 +141,7 @@ def candidates() -> list[dict]:
                    outputs=[{"name": v.name, "unit": v.unit} for v in info.outputs],
                    parameters=[{"name": v.name, "unit": v.unit, "start": v.start} for v in info.parameters if v.type in ("Real", "Float64", "Float32")],
                    fmi_version=info.fmi_version, interfaces=list(info.fmu_types), generation_tool=info.generation_tool, is_plecs=info.is_plecs,
-                   switching=info.n_event_indicators > 0)
+                   switching=info.n_event_indicators > 0, fixed_internal_step=info.fixed_internal_step)
         b3 = row["b3"]
         ok, why = supported(info)
         if not ok:
@@ -197,7 +197,8 @@ def new_profile(profile_id: str, display_name: str, fmu_name: str, root=None):
                                  "candidate_reason": cand["reason"], "fmu_inputs": cand.get("inputs", []), "fmu_outputs": cand.get("outputs", []),
                                  "fmu_parameters": cand.get("parameters", []), "mapping": None, "gym": None, "verification": None, "published_env_id": None,
                                  "external": cand["b3"] is None, "fmi_version": cand.get("fmi_version"), "interfaces": cand.get("interfaces", []),
-                                 "generation_tool": cand.get("generation_tool"), "is_plecs": cand.get("is_plecs", False), "switching": cand.get("switching", False)})
+                                 "generation_tool": cand.get("generation_tool"), "is_plecs": cand.get("is_plecs", False), "switching": cand.get("switching", False),
+                                 "fixed_internal_step": cand.get("fixed_internal_step")})
     return store.save_profile(p)
 
 
@@ -293,6 +294,10 @@ def validate_gym(p, gym_cfg: dict) -> list[str]:
         errs.append("Control timing: FMU interface must be auto, cs or me")
     elif iface != "auto" and {"cs": "CoSimulation", "me": "ModelExchange"}[iface] not in offered:
         errs.append(f"Control timing: the FMU does not offer {iface.upper()} (it offers {offered})")
+    fixed = p.parameters.get("fixed_internal_step")
+    uses_cs = iface == "cs" or (iface == "auto" and "CoSimulation" in offered)
+    if fixed and uses_cs and isinstance(tau, (int, float)) and tau > 0 and abs(tau / fixed - round(tau / fixed)) > 1e-9 * max(1.0, tau / fixed):
+        errs.append(f"Control timing: in Co-Simulation this FMU steps internally every {fixed:g} s (fixedInternalStepSize); Ts must be a multiple of it, or use Model Exchange")
     sub = gym_cfg.get("me_substeps", 10)
     if not (isinstance(sub, int) and not isinstance(sub, bool) and 1 <= sub <= 1000):
         errs.append("Control timing: Model Exchange substeps must be an int in [1, 1000]")

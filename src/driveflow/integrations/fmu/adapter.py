@@ -85,6 +85,8 @@ class FmuInfo:
     n_states: int = 0
     n_event_indicators: int = 0
     needs_completed_integrator_step: bool = True
+    #: Co-Simulation only: fixedInternalStepSize declared by the FMU (s); the communication step must be a multiple
+    fixed_internal_step: float | None = None
 
     def by_causality(self, causality: str) -> list[Variable]:
         return [v for v in self.variables if v.causality == causality]
@@ -145,7 +147,8 @@ def inspect_fmu(path) -> FmuInfo:
     return FmuInfo(str(p), hashlib.sha256(p.read_bytes()).hexdigest(), md.modelName, md.guid, md.fmiVersion, types[0] if types else "unknown", platforms, variables,
                    fmu_types=types, generation_tool=getattr(md, "generationTool", None), n_states=int(md.numberOfContinuousStates or 0),
                    n_event_indicators=int(md.numberOfEventIndicators or 0),
-                   needs_completed_integrator_step=bool(getattr(me, "needsCompletedIntegratorStep", True)) if me is not None else True)
+                   needs_completed_integrator_step=bool(getattr(me, "needsCompletedIntegratorStep", True)) if me is not None else True,
+                   fixed_internal_step=_num(getattr(md.coSimulation, "fixedInternalStepSize", None)) if md.coSimulation is not None else None)
 
 
 def current_platform() -> str:
@@ -362,7 +365,13 @@ class FmuAdapter:
                 status = 0
             elif self.fmi3:
                 _event, terminate, _early, last = self._slave.doStep(currentCommunicationPoint=t, communicationStepSize=dt)
-                status = 0 if not terminate and abs(last - (t + dt)) <= 1e-12 * max(1.0, abs(t + dt)) else 3
+                if terminate:
+                    raise FmuError("solver", f"the FMU requested termination at t = {last:g} s")
+                if abs(last - (t + dt)) > 1e-12 * max(1.0, abs(t + dt)):
+                    fixed = self.info.fixed_internal_step
+                    raise FmuError("solver", f"doStep from t = {t:g} s stopped at {last:g} s instead of {t + dt:g} s"
+                                   + (f"; the FMU declares fixedInternalStepSize = {fixed:g} s: use a communication step that is a multiple of it" if fixed else ""))
+                status = 0
             else:
                 status = self._slave.doStep(currentCommunicationPoint=t, communicationStepSize=dt)
         except FmuError:

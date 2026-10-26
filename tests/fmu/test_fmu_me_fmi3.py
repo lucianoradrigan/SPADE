@@ -242,3 +242,70 @@ def test_plant_studio_offers_the_plecs_fmu_engine_with_its_requirements():
     assert "Model Exchange" in text and "PLECS must be installed" in text and "No PLECS-exported FMU has been run yet" in text
     at.radio(key="fmu_stage").set_value("3. Circuit").run()
     assert not at.exception and at.get("file_uploader")
+
+
+# --------------------------------------------------------------------------- real FMI 3.0 / 2.0 binaries:
+# Modelica Association Reference FMUs v0.0.42 (BSD-2), scripts/fmu/fetch_reference_fmus.py -> data/fmu/reference/
+REF = Path(os.environ.get("SPADE_FMU_DIR", ROOT / "data" / "fmu")) / "reference"
+
+
+def _ref(version, name):
+    pytest.importorskip("fmpy")
+    p = REF / version / f"{name}.fmu"
+    if not p.exists():
+        pytest.skip(f"{p} not fetched (python scripts/fmu/fetch_reference_fmus.py)")
+    return p
+
+
+def _drive(path, n, dt, interface, out, sub=10):
+    a = fa.FmuAdapter(interface=interface, me_substeps=sub)
+    info = a.load(path)
+    a.reset()
+    y = []
+    for k in range(n):
+        a.do_step(k * dt, dt)
+        y.append(a.get_outputs(check_range=False)[out])
+    st = a.stats()
+    a.close()
+    return np.array(y), info, st
+
+
+@pytest.mark.fmu
+@pytest.mark.parametrize("version", ["3.0", "2.0"])
+def test_reference_dahlquist_model_exchange_matches_the_exact_solution(version):
+    y, info, st = _drive(_ref(version, "Dahlquist"), 100, 0.1, "me", "x")
+    assert info.fmi_version == version and st["interface"] == "ModelExchange"
+    assert np.max(np.abs(y - np.exp(-np.arange(1, 101) * 0.1))) < 1e-9          # measured 3.1e-11
+
+
+@pytest.mark.fmu
+@pytest.mark.parametrize("version", ["3.0", "2.0"])
+def test_reference_dahlquist_co_simulation_is_the_fmus_own_explicit_euler(version):
+    y, _info, st = _drive(_ref(version, "Dahlquist"), 100, 0.1, "cs", "x")
+    assert st["interface"] == "CoSimulation" and np.max(np.abs(y - 0.9 ** np.arange(1, 101))) < 1e-12
+
+
+@pytest.mark.fmu
+@pytest.mark.parametrize("version, interface, dt, n", [("3.0", "me", 0.1, 85), ("3.0", "cs", 0.2, 42), ("2.0", "me", 0.1, 85), ("2.0", "cs", 0.2, 42)])
+def test_reference_stair_time_events(version, interface, dt, n):
+    y, _info, _st = _drive(_ref(version, "Stair"), n, dt, interface, "counter")
+    per_second = int(round(1 / dt))
+    assert [int(c) for c in y[per_second - 1::per_second]][:8] == [2, 3, 4, 5, 6, 7, 8, 9]
+
+
+@pytest.mark.fmu
+def test_reference_fmi3_co_simulation_step_smaller_than_the_fixed_internal_step_is_explained():
+    with pytest.raises(fa.FmuError, match="fixedInternalStepSize = 0.1"):
+        _drive(_ref("3.0", "Dahlquist"), 3, 0.01, "cs", "x")
+
+
+@pytest.mark.fmu
+def test_reference_bouncing_ball_state_events_match_fmpy_cvode():
+    import fmpy
+
+    p = _ref("3.0", "BouncingBall")
+    ref = fmpy.simulate_fmu(str(p), fmi_type="ModelExchange", stop_time=3.0, output_interval=0.01, solver="CVode",
+                            relative_tolerance=1e-8, output=["h"], record_events=False)
+    y, _info, st = _drive(p, 300, 0.01, "me", "h")
+    r = np.interp(np.arange(1, 301) * 0.01, ref["time"], ref["h"])
+    assert np.max(np.abs(y - r)) < 1e-6 and st["events"] >= 10                  # measured 1.0e-7 m, 11 events

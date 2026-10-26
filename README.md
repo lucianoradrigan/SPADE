@@ -459,8 +459,9 @@ package set emulated on Linux, not run on a Mac.**
   (the OpenModelica switching buck that aborts in Co-Simulation runs this way). A Co-Simulation export
   from PLECS needs PLECS installed and licensed on the same computer. Every FMU passes the 13-check
   verification before it becomes an environment; one without a native counterpart is labelled
-  "no native comparison". No PLECS-exported FMU has been run yet
-  ([evidence](docs/audit/plecs_om/p1_fmu_me_fmi3.md)).
+  "no native comparison". The FMI 2.0/3.0 Co-Simulation and Model Exchange paths are verified with
+  the Modelica Association Reference FMUs (`python scripts/fmu/fetch_reference_fmus.py`); no
+  PLECS-exported FMU has been run yet ([evidence](docs/audit/plecs_om/p1_fmu_me_fmi3.md)).
 
 ### Assisted setup with an AI coding assistant
 
