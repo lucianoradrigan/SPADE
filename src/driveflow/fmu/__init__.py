@@ -10,6 +10,8 @@ FMUs of a GitHub Release built by .github/workflows/fmu-release.yml, with the st
 - If the release was built from another ``modelica/SPADE/package.mo`` than this checkout's, the FMU
   is not installed ("FMU built from a different model version") unless ``--allow-mismatch`` is
   given; that choice is recorded in ``fetch_log.json`` next to the FMUs.
+- An entry may name a CPU ``machine`` (x86_64, arm64): it is installed only on that CPU, so the
+  macOS FMU compiled on arm64 is not installed on an Intel Mac (X1).
 - No FMU for this platform: the message says so and points to the local build
   (docs/guides/BUILD_FMUS_LOCALLY.md).
 
@@ -45,6 +47,12 @@ def fmi_platform() -> str:
     machine = _platform.machine().lower()
     bits = "64" if machine in ("x86_64", "amd64", "arm64", "aarch64") or machine.endswith("64") else "32"
     return f"{system}{bits}"
+
+
+def machine() -> str:
+    """This CPU as release manifests name it: x86_64 or arm64."""
+    m = _platform.machine().lower()
+    return {"amd64": "x86_64", "aarch64": "arm64"}.get(m, m)
 
 
 def fmu_dir() -> Path:
@@ -100,10 +108,11 @@ def fetch(release: str | None = None, model: str | None = None, allow_mismatch: 
         except json.JSONDecodeError as exc:
             raise FetchError(f"fmu_manifest.json of {tag} is not valid JSON: {exc}") from None
         plat = fmi_platform()
-        entries = [e for e in manifest.get("fmus", []) if e["platform"] == plat and (model is None or e["model"] == model)]
+        cpu = machine()
+        entries = [e for e in manifest.get("fmus", []) if e["platform"] == plat and e.get("machine", cpu) == cpu and (model is None or e["model"] == model)]
         if not entries:
-            have = sorted({f"{e['model']} ({e['platform']})" for e in manifest.get("fmus", [])})
-            raise FetchError(f"release {tag} has no prebuilt FMU{' ' + model if model else ''} for this platform ({plat}); it has {have or 'none'}. "
+            have = sorted({f"{e['model']} ({e['platform']}{', ' + e['machine'] if e.get('machine') else ''})" for e in manifest.get("fmus", [])})
+            raise FetchError(f"release {tag} has no prebuilt FMU{' ' + model if model else ''} for this platform ({plat}, {cpu}); it has {have or 'none'}. "
                              f"Build it locally: {GUIDE}")
         local_mo = sha256_file(MODEL_SOURCE) if MODEL_SOURCE.exists() else None
         mismatch = manifest.get("source_mo_sha256") != local_mo
@@ -124,7 +133,8 @@ def fetch(release: str | None = None, model: str | None = None, allow_mismatch: 
             shutil.move(str(tmp_fmu), target)
             if mismatch:
                 log(f"WARNING: {MISMATCH}: {e['model']} installed because --allow-mismatch was given (recorded in fetch_log.json).")
-            log(f"installed {target} (SHA-256 {got[:12]}…, B3 verdict {e.get('b3_verdict')}, release {tag})")
+            log(f"installed {target} (SHA-256 {got[:12]}…, B3 verdict {e.get('b3_verdict')}{' — ' + e['b3_note'] if e.get('b3_note') else ''}, "
+                f"{e.get('interface', 'CoSimulation')}, release {tag})")
             records.append({"model": e["model"], "file": e["file"], "status": "installed", "sha256": got})
         _append_log(dest, {"at": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"), "release": tag, "platform": plat,
                            "allow_mismatch": allow_mismatch, "mo_mismatch": mismatch, "records": records})

@@ -1,6 +1,6 @@
 # Third-party notices for SPADE's OpenModelica FMUs
 
-These texts go with every FMU that SPADE redistributes (the GitHub Release built by `.github/workflows/fmu-release.yml`). The FMUs are built with OpenModelica 1.27.1 (MSL 4.1.0+maint.om, CVODE). An exported FMU carries no licence file of its own, so the notices are attached here. The review behind this list is `docs/audit/plecs_om/b8_license_review.md`.
+These texts go with every FMU that SPADE redistributes (the GitHub Release built by `.github/workflows/fmu-release.yml`). The FMUs are built with OpenModelica 1.27.1 (MSL 4.1.0+maint.om, CVODE). The Windows and macOS FMUs (X1) are the Model Exchange build of the same model compiled from the FMU's C sources on that OS, without CVODE. An exported FMU carries no licence file of its own, so the notices are attached here. The review behind this list is `docs/audit/plecs_om/b8_license_review.md`.
 
 | Component (where in the FMU) | Licence | File |
 |---|---|---|
@@ -14,6 +14,8 @@ These texts go with every FMU that SPADE redistributes (the GitHub Release built
 | libf2c support routines (same subset) | AT&T / Lucent / Bellcore permission notice | `LIBF2C_NOTICE.txt` |
 | MINPACK via cminpack (OpenModelica `3rdParty/CMinpack`; compiled into the binary) | Minpack Copyright Notice (1999), University of Chicago | `MINPACK_COPYRIGHT.txt` |
 | `sources/util/libcsv.h` (header only; libcsv code is not compiled into the FMU) | LGPL-2.1 (libcsv) | `LGPL-2.1.txt` |
+| Windows FMU only (X1, compiled with MinGW-w64 GCC and `--static-runtime`): libgcc | GPL-3.0 with the GCC Runtime Library Exception (no notice required for the compiled output) | — |
+| Windows FMU only: mingw-w64 winpthreads, linked statically into the DLL | MIT-style (mingw-w64 project) and BSD-style (Lockless Inc.) | `MINGW_W64_WINPTHREADS_COPYING.txt` |
 | `sources/config.guess`, `config.sub` (build scripts, not linked) | GPL-3.0 with the Autoconf exception (text inside each file) | — |
 
 **Acknowledgement required by MINPACK:** This product includes software developed by the University of Chicago, as Operator of Argonne National Laboratory.
