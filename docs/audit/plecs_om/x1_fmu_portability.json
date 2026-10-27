@@ -1,0 +1,490 @@
+{
+  "ci_run": "https://github.com/lucianoradrigan/spade/actions/runs/40442231526",
+  "commit_workflow": ".github/workflows/fmu-portability.yml",
+  "windows_dll_imports": "KERNEL32.dll + api-ms-win-crt-* (Universal CRT) only, both FMUs (CI log, objdump -p)",
+  "runs": {
+    "Linux": {
+      "command": "python experiments/report_x1_fmu_portability.py --buck-me out/BuckAveraged_me.fmu --switching-me out/BuckSwitching_me.fmu --out out/x1_Linux.json",
+      "os": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+      "machine": "x86_64",
+      "cpu": "AMD EPYC 7763 64-Core Processor",
+      "python": "3.12.15",
+      "fmpy": "0.3.32",
+      "fmi2_platform": "linux64",
+      "fmi3_platform": "x86_64-linux",
+      "buck_me": {
+        "sha256": "52f5719d9d5eacf33a91a43f047d17f8308e8970de511786974986eefc38bf37",
+        "platforms": [
+          "linux64"
+        ]
+      },
+      "reference_fmus": [
+        {
+          "fmu": "3.0/Dahlquist",
+          "interface": "ME",
+          "check": "vs exp(-t)",
+          "value": 3.091349398687271e-11,
+          "status": "pass"
+        },
+        {
+          "fmu": "3.0/Dahlquist",
+          "interface": "CS",
+          "check": "vs its own explicit Euler",
+          "value": 1.1102230246251565e-16,
+          "status": "pass"
+        },
+        {
+          "fmu": "3.0/Stair",
+          "interface": "ME",
+          "check": "time events",
+          "value": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "status": "pass"
+        },
+        {
+          "fmu": "3.0/BouncingBall",
+          "interface": "ME",
+          "check": "state events vs fmpy CVode",
+          "value": 9.960952023987685e-08,
+          "status": "pass"
+        },
+        {
+          "fmu": "2.0/Dahlquist",
+          "interface": "ME",
+          "check": "vs exp(-t)",
+          "value": 3.091349398687271e-11,
+          "status": "pass"
+        },
+        {
+          "fmu": "2.0/Dahlquist",
+          "interface": "CS",
+          "check": "vs its own explicit Euler",
+          "value": 1.1102230246251565e-16,
+          "status": "pass"
+        },
+        {
+          "fmu": "2.0/Stair",
+          "interface": "ME",
+          "check": "time events",
+          "value": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "status": "pass"
+        }
+      ],
+      "b3_buck_averaged_me": {
+        "criteria": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true,
+          "6": false,
+          "7": true
+        },
+        "nrms_vs_native": {
+          "v_out": 3.20845944340623e-11,
+          "i_L": 5.552111467604517e-11
+        },
+        "time_rel_err": 2.212657494868376e-16,
+        "p50_ms": 0.8398625000154425,
+        "episode_failures": 0,
+        "verdict": "NO-GO",
+        "failed_criteria": [
+          "6"
+        ],
+        "functional_ok": true,
+        "info_rk4_x1_not_a_criterion": {
+          "p50_ms": 0.09646000000884669,
+          "nrms_vs_native": {
+            "v_out": 3.225247537892439e-07,
+            "i_L": 5.582298653289485e-07
+          }
+        }
+      },
+      "buck_switching_me": {
+        "x4": {
+          "steps": 500,
+          "error": null,
+          "p50_ms": 2.6057120000473333,
+          "v_out_end": 23.742798630315267,
+          "wall_s": 1.45
+        },
+        "x40": {
+          "steps": 500,
+          "error": null,
+          "p50_ms": 7.422958000063318,
+          "v_out_end": 23.74102180818255,
+          "wall_s": 3.83
+        },
+        "max_abs_diff_x4_vs_x40_V": 0.0028298328008347085
+      }
+    },
+    "Windows": {
+      "command": "python experiments/report_x1_fmu_portability.py --buck-me out/BuckAveraged_me.fmu --switching-me out/BuckSwitching_me.fmu --out out/x1_Windows.json",
+      "os": "Windows-2025Server-10.0.26100-SP0",
+      "machine": "AMD64",
+      "cpu": "AMD64 Family 25 Model 1 Stepping 1, AuthenticAMD",
+      "python": "3.12.10",
+      "fmpy": "0.3.32",
+      "fmi2_platform": "win64",
+      "fmi3_platform": "x86_64-windows",
+      "buck_me": {
+        "sha256": "a23c3eae9864f6a3ef8accb296b77bfd4152277422cd0e86c63d1833abed82a6",
+        "platforms": [
+          "win64"
+        ]
+      },
+      "reference_fmus": [
+        {
+          "fmu": "3.0/Dahlquist",
+          "interface": "ME",
+          "check": "vs exp(-t)",
+          "value": 3.091349398687271e-11,
+          "status": "pass"
+        },
+        {
+          "fmu": "3.0/Dahlquist",
+          "interface": "CS",
+          "check": "vs its own explicit Euler",
+          "value": 1.1102230246251565e-16,
+          "status": "pass"
+        },
+        {
+          "fmu": "3.0/Stair",
+          "interface": "ME",
+          "check": "time events",
+          "value": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "status": "pass"
+        },
+        {
+          "fmu": "3.0/BouncingBall",
+          "interface": "ME",
+          "check": "state events vs fmpy CVode",
+          "value": 9.960952023987685e-08,
+          "status": "pass"
+        },
+        {
+          "fmu": "2.0/Dahlquist",
+          "interface": "ME",
+          "check": "vs exp(-t)",
+          "value": 3.091349398687271e-11,
+          "status": "pass"
+        },
+        {
+          "fmu": "2.0/Dahlquist",
+          "interface": "CS",
+          "check": "vs its own explicit Euler",
+          "value": 1.1102230246251565e-16,
+          "status": "pass"
+        },
+        {
+          "fmu": "2.0/Stair",
+          "interface": "ME",
+          "check": "time events",
+          "value": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "status": "pass"
+        }
+      ],
+      "b3_buck_averaged_me": {
+        "criteria": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true,
+          "6": false,
+          "7": true
+        },
+        "nrms_vs_native": {
+          "v_out": 3.20845944340623e-11,
+          "i_L": 5.552111467604517e-11
+        },
+        "time_rel_err": 2.212657494868376e-16,
+        "p50_ms": 0.7191499999805728,
+        "episode_failures": 0,
+        "verdict": "NO-GO",
+        "failed_criteria": [
+          "6"
+        ],
+        "functional_ok": true,
+        "info_rk4_x1_not_a_criterion": {
+          "p50_ms": 0.08189999999785869,
+          "nrms_vs_native": {
+            "v_out": 3.225247537892439e-07,
+            "i_L": 5.582298653289485e-07
+          }
+        }
+      },
+      "buck_switching_me": {
+        "x4": {
+          "steps": 500,
+          "error": null,
+          "p50_ms": 2.2252000000548833,
+          "v_out_end": 23.742798630315267,
+          "wall_s": 1.3
+        },
+        "x40": {
+          "steps": 500,
+          "error": null,
+          "p50_ms": 6.5330999999559936,
+          "v_out_end": 23.74102180818255,
+          "wall_s": 3.41
+        },
+        "max_abs_diff_x4_vs_x40_V": 0.0028298328008347085
+      }
+    },
+    "macOS": {
+      "command": "python experiments/report_x1_fmu_portability.py --buck-me out/BuckAveraged_me.fmu --switching-me out/BuckSwitching_me.fmu --out out/x1_macOS.json",
+      "os": "macOS-26.6.2-arm64-arm-64bit",
+      "machine": "arm64",
+      "cpu": "Apple M1 (Virtual)",
+      "python": "3.12.10",
+      "fmpy": "0.3.32",
+      "fmi2_platform": "darwin64",
+      "fmi3_platform": "aarch64-darwin",
+      "buck_me": {
+        "sha256": "a573d14517f9979b7a85cb60c5cf63ac10d6aeff68e14dbc7f4b9aa3a13270e6",
+        "platforms": [
+          "darwin64"
+        ]
+      },
+      "reference_fmus": [
+        {
+          "fmu": "3.0/Dahlquist",
+          "interface": "ME",
+          "check": "vs exp(-t)",
+          "value": 3.091349398687271e-11,
+          "status": "pass"
+        },
+        {
+          "fmu": "3.0/Dahlquist",
+          "interface": "CS",
+          "check": "vs its own explicit Euler",
+          "value": 1.1102230246251565e-16,
+          "status": "pass"
+        },
+        {
+          "fmu": "3.0/Stair",
+          "interface": "ME",
+          "check": "time events",
+          "value": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "status": "pass"
+        },
+        {
+          "fmu": "3.0/BouncingBall",
+          "interface": "ME",
+          "check": "state events vs fmpy CVode",
+          "value": 9.960953863835404e-08,
+          "status": "pass"
+        },
+        {
+          "fmu": "2.0/Dahlquist",
+          "status": "skipped",
+          "reason": "binaries for ['aarch64-darwin', 'aarch64-linux', 'linux64', 'win32', 'win64'], not darwin64: Not supported on this machine"
+        },
+        {
+          "fmu": "2.0/Stair",
+          "status": "skipped",
+          "reason": "binaries for ['aarch64-darwin', 'aarch64-linux', 'linux64', 'win32', 'win64'], not darwin64: Not supported on this machine"
+        }
+      ],
+      "b3_buck_averaged_me": {
+        "criteria": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true,
+          "6": true,
+          "7": true
+        },
+        "nrms_vs_native": {
+          "v_out": 3.208459443405675e-11,
+          "i_L": 5.552111467604517e-11
+        },
+        "time_rel_err": 2.212657494868376e-16,
+        "p50_ms": 0.3806464999911441,
+        "episode_failures": 0,
+        "verdict": "GO",
+        "failed_criteria": [],
+        "functional_ok": true,
+        "info_rk4_x1_not_a_criterion": {
+          "p50_ms": 0.04074999998238127,
+          "nrms_vs_native": {
+            "v_out": 3.225247537892439e-07,
+            "i_L": 5.582298653289485e-07
+          }
+        }
+      },
+      "buck_switching_me": {
+        "x4": {
+          "steps": 500,
+          "error": null,
+          "p50_ms": 1.4507705000141868,
+          "v_out_end": 23.742798630315267,
+          "wall_s": 0.86
+        },
+        "x40": {
+          "steps": 500,
+          "error": null,
+          "p50_ms": 4.034562000015285,
+          "v_out_end": 23.74102180818255,
+          "wall_s": 2.16
+        },
+        "max_abs_diff_x4_vs_x40_V": 0.0028298328008347085
+      }
+    },
+    "Linux (local, Ryzen 5 5600X)": {
+      "command": "python experiments/report_x1_fmu_portability.py --buck-me data/fmu/variants/BuckAveraged_fmi2_me.fmu --out /tmp/claude-1000/-home-seven-post-doc-plataform-proposed-SPADE/26dfc226-ee95-52ad-99cf-577532231fc8/scratchpad/x1_local.json",
+      "os": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+      "machine": "x86_64",
+      "cpu": "AMD Ryzen 5 5600X 6-Core Processor",
+      "python": "3.12.13",
+      "fmpy": "0.3.32",
+      "fmi2_platform": "linux64",
+      "fmi3_platform": "x86_64-linux",
+      "buck_me": {
+        "sha256": "cb5479284f8d39daf6a3ad39f5360a3814495961aa54e5b7bddde5408f7ba484",
+        "platforms": [
+          "linux64"
+        ]
+      },
+      "reference_fmus": [
+        {
+          "fmu": "3.0/Dahlquist",
+          "interface": "ME",
+          "check": "vs exp(-t)",
+          "value": 3.091349398687271e-11,
+          "status": "pass"
+        },
+        {
+          "fmu": "3.0/Dahlquist",
+          "interface": "CS",
+          "check": "vs its own explicit Euler",
+          "value": 1.1102230246251565e-16,
+          "status": "pass"
+        },
+        {
+          "fmu": "3.0/Stair",
+          "interface": "ME",
+          "check": "time events",
+          "value": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "status": "pass"
+        },
+        {
+          "fmu": "3.0/BouncingBall",
+          "interface": "ME",
+          "check": "state events vs fmpy CVode",
+          "value": 9.960952023987685e-08,
+          "status": "pass"
+        },
+        {
+          "fmu": "2.0/Dahlquist",
+          "interface": "ME",
+          "check": "vs exp(-t)",
+          "value": 3.091349398687271e-11,
+          "status": "pass"
+        },
+        {
+          "fmu": "2.0/Dahlquist",
+          "interface": "CS",
+          "check": "vs its own explicit Euler",
+          "value": 1.1102230246251565e-16,
+          "status": "pass"
+        },
+        {
+          "fmu": "2.0/Stair",
+          "interface": "ME",
+          "check": "time events",
+          "value": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "status": "pass"
+        }
+      ],
+      "b3_buck_averaged_me": {
+        "criteria": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true,
+          "6": true,
+          "7": true
+        },
+        "nrms_vs_native": {
+          "v_out": 3.20845944340623e-11,
+          "i_L": 5.552111467604517e-11
+        },
+        "time_rel_err": 2.212657494868376e-16,
+        "p50_ms": 0.38802355993539095,
+        "episode_failures": 0,
+        "verdict": "GO",
+        "failed_criteria": [],
+        "functional_ok": true,
+        "info_rk4_x1_not_a_criterion": {
+          "p50_ms": 0.04387996159493923,
+          "nrms_vs_native": {
+            "v_out": 3.225247537892439e-07,
+            "i_L": 5.582298653289485e-07
+          }
+        }
+      }
+    }
+  }
+}
