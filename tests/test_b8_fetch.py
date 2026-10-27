@@ -195,3 +195,14 @@ def test_release_bundle_adds_fmus_compiled_on_other_oses(tmp_path):
     assert "functional criteria failed" in man["not_attached"]["BuckAveraged-win64"]
     r, _ = bundle("--extra", "BuckAveraged", str(tmp_path / "macOS.fmu"), str(tmp_path / "Windows.json"))
     assert r.returncode != 0 and "measured on win64" in r.stderr
+
+
+def test_a_windows_crlf_checkout_is_the_same_model_version(release, tmp_path, monkeypatch):
+    """W1: git on Windows checks package.mo out with CRLF; fetch must not call that another version."""
+    release()
+    crlf = tmp_path / "package.mo"
+    lf_sha = fmu.sha256_file(fmu.MODEL_SOURCE)
+    crlf.write_bytes(fmu.MODEL_SOURCE.read_bytes().replace(b"\n", b"\r\n"))
+    monkeypatch.setattr(fmu, "MODEL_SOURCE", crlf)
+    assert fmu.sha256_file(crlf) != lf_sha and fmu.model_source_sha256() == lf_sha
+    assert fmu.fetch(release=TAG)[0]["status"] == "installed"

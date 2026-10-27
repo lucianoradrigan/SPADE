@@ -67,6 +67,15 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
+def model_source_sha256(path: Path | None = None) -> str | None:
+    """SHA-256 of the .mo with LF line endings, as the release build (Linux) hashes it: a Windows git
+    checkout converts the file to CRLF, which is the same model version."""
+    path = Path(path) if path is not None else MODEL_SOURCE
+    if not path.exists():
+        return None
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
 def release_base_url(tag: str, repo: str = DEFAULT_REPO) -> str:
     """$SPADE_FMU_RELEASE_URL/<tag> when set (tests, mirrors), else the GitHub Release download URL."""
     override = os.environ.get("SPADE_FMU_RELEASE_URL")
@@ -114,7 +123,7 @@ def fetch(release: str | None = None, model: str | None = None, allow_mismatch: 
             have = sorted({f"{e['model']} ({e['platform']}{', ' + e['machine'] if e.get('machine') else ''})" for e in manifest.get("fmus", [])})
             raise FetchError(f"release {tag} has no prebuilt FMU{' ' + model if model else ''} for this platform ({plat}, {cpu}); it has {have or 'none'}. "
                              f"Build it locally: {GUIDE}")
-        local_mo = sha256_file(MODEL_SOURCE) if MODEL_SOURCE.exists() else None
+        local_mo = model_source_sha256()
         mismatch = manifest.get("source_mo_sha256") != local_mo
         records = []
         for e in entries:
