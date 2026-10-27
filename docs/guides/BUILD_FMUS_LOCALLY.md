@@ -1,15 +1,16 @@
 # OpenModelica FMUs: download or build locally
 
-## Download (Linux x86_64)
+## Download (Linux x86_64, Windows x86_64, macOS Apple Silicon)
 
 ```bash
 pip install -e ".[fmu]"
-python -m driveflow.fmu fetch     # latest published release; or: --release fmu-v1 --model BuckAveraged
+python -m driveflow.fmu fetch     # latest published release; or: --release fmu-v2 --model BuckAveraged
 ```
 
 - `fetch` checks each FMU's SHA-256.
 - An FMU built from another version of `modelica/SPADE/package.mo` is not installed unless you pass `--allow-mismatch`; that choice is recorded in `data/fmu/fetch_log.json`.
 - The same download is in Plant Studio → Use as a Gymnasium plant → 2. Engine → "Download prebuilt FMUs", which runs it as a job.
+- `fmu-v2` has BuckAveraged for Linux (Co-Simulation, built in the pinned container) and for Windows and macOS arm64 (Model Exchange, compiled from the FMU's C sources on that OS by `fmu-release.yml`; `docs/audit/plecs_om/x1_fmu_portability.md`). The Windows one records B3 NO-GO on criterion 6 only (per-step latency on the CI runner, 0.73 ms > 0.5 ms); its numerical criteria pass. `fetch` installs only the FMU of this OS and CPU (no arm64 binary on an Intel Mac).
 - Releases carry only FMUs with a B3 GO verdict on their own build, with the licence texts of everything compiled into them (`licenses/fmu/`; review in `docs/audit/plecs_om/b8_license_review.md`).
 
 ## Build locally
@@ -20,7 +21,7 @@ For any other platform, or to rebuild from your own model version.
 
 - Docker, able to pull `openmodelica/openmodelica:v1.27.1-minimal`. The image is pinned by digest in `scripts/fmu/OPENMODELICA_VERSION`. The first run also installs the Modelica Standard Library 4.1.0+maint.om into `data/fmu/openmodelica_home/`.
 - Python with SPADE and the `fmu` extra: `pip install -e ".[fmu]"`. This installs fmpy, used to load the FMUs.
-- Linux x86_64. That is the platform the build has been run on. Windows and macOS were not tried.
+- Linux x86_64 for the container build. On Windows and macOS, compile the Model Exchange variant from its C sources instead: `python scripts/fmu/compile_fmu_from_source.py data/fmu/variants/BuckAveraged_fmi2_me.fmu out.fmu` (CMake and a C compiler; on Windows MinGW-w64 with `--static-runtime --generator "MinGW Makefiles"`).
 
 ## Build
 

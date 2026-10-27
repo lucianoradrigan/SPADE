@@ -285,6 +285,16 @@ CPU. Pick your operating system below and run the commands **in order**, one blo
 step says what you should see. If a step fails, look for the message in that system's
 troubleshooting table, which is in the full guide linked at the end of each section.
 
+**Windows without git or Python: double-click installer.** Download `SPADE-Setup-<version>.exe`
+from the latest `app-v*` release on the [Releases page](https://github.com/lucianoradrigan/SPADE/releases),
+double-click it and follow the wizard (no administrator rights; it installs for your user in
+`%LOCALAPPDATA%\SPADE`, about 2 GB). It carries its own Python, every dependency, SPADE and the
+Windows OpenModelica FMUs. The installer is not code-signed, so Windows may say "Windows protected your
+PC": **More info → Run anyway**. Then open **SPADE** from the Start menu: a console window starts it
+and the browser opens at http://localhost:8501; closing that window stops SPADE. Built and checked on
+a GitHub Windows runner by `.github/workflows/windows-installer.yml` (`packaging/windows/`); not yet
+tried on a clean Windows machine.
+
 <details open><summary><b>Linux (Ubuntu 22.04 / 24.04 / 26.04)</b></summary>
 
 1. **Install the system tools** (Terminal):
@@ -450,8 +460,10 @@ package set emulated on Linux, not run on a Mac.**
   preference.
 - **OpenModelica FMU plants** (`SPADE/OmBuck-v0`, Plant Studio → Use as a Gymnasium plant) need the
   `fmu` extra and the FMUs: `pip install -e ".[fmu]"`, then `python -m driveflow.fmu fetch` (prebuilt
-  Linux x86_64 FMUs from the published release
-  [`fmu-v1`](https://github.com/lucianoradrigan/SPADE/releases/tag/fmu-v1), SHA-256 checked) or
+  FMUs from the published release
+  [`fmu-v2`](https://github.com/lucianoradrigan/SPADE/releases/tag/fmu-v2), SHA-256 checked: Linux
+  x86_64, Windows x86_64 and macOS Apple Silicon; the Windows and macOS ones are compiled from the
+  FMU's C sources on that OS, [evidence](docs/audit/plecs_om/x1_fmu_portability.md)) or
   `scripts/fmu/build_fmus.sh` (Docker, pinned OpenModelica 1.27.1) on any other platform. See
   `docs/guides/BUILD_FMUS_LOCALLY.md`; licence notices in `licenses/fmu/`.
 - **FMUs from PLECS or other tools** (Plant Studio → Use as a Gymnasium plant → engine *PLECS FMU*):
