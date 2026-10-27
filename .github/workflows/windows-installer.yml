@@ -1,0 +1,81 @@
+name: windows installer
+
+# W1 (2026-10-27): SPADE-Setup-<version>.exe, a double-click per-user installer for colleagues who
+# do not use git or Python: embedded CPython + dependencies (viz, fmu, TensorFlow) + the SPADE
+# source tree + the win64 OpenModelica FMUs (packaging/windows/build_installer.py, Inno Setup 6).
+# The installer is then installed silently on the runner and checked (smoke test, the app answers
+# on :8501, the FMU environment runs). With a release tag, a DRAFT release is created; publishing it
+# is the maintainer's decision.
+on:
+  workflow_dispatch:
+    inputs:
+      fmu_release:
+        description: "FMU release to bundle"
+        default: "fmu-v2"
+      release_tag:
+        description: "Draft release tag for the installer (app-v*); empty = artifact only"
+        default: ""
+  push:
+    branches: ["feat/W1-*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Inno Setup 6
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "C:\Program Files (x86)\Inno Setup 6\ISCC.exe")) { choco install innosetup -y --no-progress }
+      - name: Build the installer
+        run: python packaging/windows/build_installer.py --stage "$RUNNER_TEMP/stage" --out dist --fmu-release "${{ github.event.inputs.fmu_release || 'fmu-v2' }}"
+      - name: Install it silently (per user, as a colleague would)
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem dist\SPADE-Setup-*.exe | Select-Object -First 1
+          Start-Process -Wait -FilePath $exe.FullName -ArgumentList "/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART","/CURRENTUSER","/DIR=$env:LOCALAPPDATA\SPADE","/LOG=install.log"
+          Get-Content install.log -Tail 5
+          if (-not (Test-Path "$env:LOCALAPPDATA\SPADE\python\python.exe")) { throw "not installed" }
+      - name: Check the installed copy
+        shell: pwsh
+        run: |
+          $app = "$env:LOCALAPPDATA\SPADE"
+          $py = "$app\python\python.exe"
+          Set-Location "$app\SPADE"
+          $env:PATH = "C:\Windows\System32;C:\Windows"   # nothing from the runner's Python on PATH
+          & $py -c "import sys, driveflow, tensorflow, streamlit, fmpy; print(sys.executable, driveflow.__file__, tensorflow.__version__)"
+          if ($LASTEXITCODE) { throw "imports failed" }
+          & $py scripts\smoke_test.py
+          if ($LASTEXITCODE) { throw "smoke test failed" }
+          & $py -c "from driveflow.envs.registry import make; e = make('SPADE/OmBuck-v0'); o, _ = e.reset(seed=0); [e.step(e.action_space.sample()) for _ in range(50)]; print('OmBuck-v0 ok', e.unwrapped.adapter.interface)"
+          if ($LASTEXITCODE) { throw "OmBuck-v0 failed" }
+          $p = Start-Process -PassThru -FilePath $py -ArgumentList "-m","streamlit","run","src\driveflow\viz\app.py","--server.headless","true","--server.port","8501"
+          $ok = $false
+          foreach ($i in 1..60) { Start-Sleep 2; try { if ((Invoke-WebRequest -UseBasicParsing http://localhost:8501/_stcore/health).Content -eq "ok") { $ok = $true; break } } catch {} }
+          Stop-Process -Id $p.Id -Force
+          if (-not $ok) { throw "the app did not answer on :8501" }
+          Write-Output "app answered on :8501"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: spade-windows-installer
+          path: |
+            dist/*.exe
+          retention-days: 30
+      - name: Draft release
+        if: ${{ github.event.inputs.release_tag != '' && github.event.inputs.release_tag != null }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.inputs.release_tag }}
+        run: |
+          gh release create "$TAG" --repo "${{ github.repository }}" --draft --target "${{ github.sha }}" \
+            --title "SPADE for Windows ($TAG)" --notes-file packaging/windows/RELEASE_NOTES.md dist/SPADE-Setup-*.exe
