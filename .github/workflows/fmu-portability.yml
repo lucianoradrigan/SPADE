@@ -61,7 +61,8 @@ jobs:
           for m in BuckAveraged BuckSwitching; do
             if [ "$RUNNER_OS" = "Windows" ]; then
               gcc --version | head -1
-              python scripts/fmu/compile_fmu_from_source.py data/fmu/variants/${m}_fmi2_me.fmu out/${m}_me.fmu --drop-existing-binaries --runtime-deps all --generator "MinGW Makefiles"
+              python scripts/fmu/compile_fmu_from_source.py data/fmu/variants/${m}_fmi2_me.fmu out/${m}_me.fmu --drop-existing-binaries --static-runtime --generator "MinGW Makefiles"
+              unzip -o -q out/${m}_me.fmu "binaries/win64/*" -d out/dll_${m} && objdump -p out/dll_${m}/binaries/win64/*.dll | grep "DLL Name"
             else
               python scripts/fmu/compile_fmu_from_source.py data/fmu/variants/${m}_fmi2_me.fmu out/${m}_me.fmu --drop-existing-binaries
             fi

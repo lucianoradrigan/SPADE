@@ -7,7 +7,11 @@ and the host C compiler, standard library only. Model Exchange FMUs need no CVOD
 them); a Co-Simulation FMU built with CVODE would need SUNDIALS on the host, so it is refused unless
 --allow-cvode is given.
 
-Usage: python scripts/fmu/compile_fmu_from_source.py IN.fmu OUT.fmu [--generator "MinGW Makefiles"] [--drop-existing-binaries]
+On Windows with MinGW, --static-runtime links libgcc and libwinpthread into the DLL, so the FMU needs
+only Windows system DLLs. (OpenModelica's RUNTIME_DEPENDENCIES_LEVEL=all fails there: CMake cannot
+resolve the api-ms-/ext-ms- API-set DLLs it walks into.)
+
+Usage: python scripts/fmu/compile_fmu_from_source.py IN.fmu OUT.fmu [--generator "MinGW Makefiles"] [--static-runtime] [--drop-existing-binaries]
 """
 
 from __future__ import annotations
@@ -37,7 +41,9 @@ def main(argv=None) -> int:
     ap.add_argument("--drop-existing-binaries", action="store_true", help="remove the binaries already in the FMU (tests)")
     ap.add_argument("--runtime-deps", choices=("none", "modelica", "all"), default="none",
                     help="OpenModelica's RUNTIME_DEPENDENCIES_LEVEL: 'all' also copies system runtime libraries into the FMU "
-                         "(Windows/MinGW: libgcc, libwinpthread), so it runs on a machine without the compiler")
+                         "(fails on Windows/MinGW; use --static-runtime there)")
+    ap.add_argument("--static-runtime", action="store_true",
+                    help="Windows/MinGW: link libgcc and libwinpthread statically, so the FMU runs on a machine without the compiler (ignored elsewhere)")
     args = ap.parse_args(argv)
     with tempfile.TemporaryDirectory(prefix="spade_fmu_src_") as tmp:
         root = Path(tmp) / "fmu"
@@ -58,6 +64,8 @@ def main(argv=None) -> int:
         build = Path(tmp) / "build"
         cfg = ["cmake", "-S", str(root / "sources"), "-B", str(build), "-DCMAKE_BUILD_TYPE=Release",
                f"-DNEED_CVODE={'ON' if cosim_cvode else 'OFF'}", f"-DRUNTIME_DEPENDENCIES_LEVEL={args.runtime_deps}"]
+        if args.static_runtime and platform.system() == "Windows":
+            cfg += ["-DCMAKE_SHARED_LINKER_FLAGS=-static -static-libgcc"]
         if args.generator:
             cfg += ["-G", args.generator]
         for cmd in (cfg, ["cmake", "--build", str(build), "--config", "Release", "--parallel"], ["cmake", "--install", str(build), "--config", "Release"]):
