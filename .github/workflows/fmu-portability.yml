@@ -1,0 +1,77 @@
+name: fmu portability (Windows, macOS, Linux)
+
+# X1 (2026-10-26): do SPADE's OpenModelica FMUs work on Windows and macOS? The pinned OpenModelica
+# build (Docker) produces Linux binaries only. OpenModelica FMUs ship their C sources with a
+# CMakeLists.txt, so the Model Exchange variants are compiled on each OS with its own compiler
+# (scripts/fmu/compile_fmu_from_source.py) and checked there with B3's pre-registered criteria
+# (experiments/report_x1_fmu_portability.py), plus the Modelica Association Reference FMUs.
+on:
+  workflow_dispatch:
+  push:
+    branches: ["feat/X1-*"]
+  schedule:
+    - cron: "30 5 * * 1"   # Mondays 05:30 UTC, after validation-scheduled
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build the Model Exchange variants (pinned OpenModelica image)
+        run: mkdir -p data/fmu/variants && bash scripts/fmu/om.sh scripts/fmu/build_fmu_variants.mos
+      - name: Fetch the Reference FMUs (SHA-256 pinned)
+        run: python scripts/fmu/fetch_reference_fmus.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fmu-sources
+          path: |
+            data/fmu/variants/*.fmu
+            data/fmu/reference/
+
+  portability:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install package (fmu extra)
+        run: pip install -e ".[fmu]"
+      - uses: actions/download-artifact@v4
+        with:
+          name: fmu-sources
+          path: data/fmu
+      - name: Compile the Model Exchange FMUs from their C sources on this OS
+        run: |
+          mkdir -p out
+          for m in BuckAveraged BuckSwitching; do
+            if [ "$RUNNER_OS" = "Windows" ]; then
+              gcc --version | head -1
+              python scripts/fmu/compile_fmu_from_source.py data/fmu/variants/${m}_fmi2_me.fmu out/${m}_me.fmu --drop-existing-binaries --runtime-deps all --generator "MinGW Makefiles"
+            else
+              python scripts/fmu/compile_fmu_from_source.py data/fmu/variants/${m}_fmi2_me.fmu out/${m}_me.fmu --drop-existing-binaries
+            fi
+          done
+      - name: B3 GO/NO-GO and Reference FMUs on this OS
+        env:
+          TF_CPP_MIN_LOG_LEVEL: "2"
+        run: python experiments/report_x1_fmu_portability.py --buck-me out/BuckAveraged_me.fmu --switching-me out/BuckSwitching_me.fmu --out out/x1_${{ runner.os }}.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmu-portability-${{ runner.os }}
+          path: out/
