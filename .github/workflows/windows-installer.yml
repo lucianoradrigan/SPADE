@@ -1,6 +1,6 @@
 name: windows installer
 
-# W1 (2026-10-27): SPADE-Setup-<version>.exe, a double-click per-user installer for colleagues who
+# W1 (2026-10-27): SPADE-Setup-<version>-<commit>.exe, a double-click per-user installer for colleagues who
 # do not use git or Python: embedded CPython + dependencies (viz, fmu, TensorFlow) + the SPADE
 # source tree + the win64 OpenModelica FMUs (packaging/windows/build_installer.py, Inno Setup 6).
 # The installer is then installed silently on the runner and checked (smoke test, the app answers
@@ -77,5 +77,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.event.inputs.release_tag }}
         run: |
+          SHORT=$(git rev-parse --short=7 HEAD)
+          { echo "Built from commit [\`$SHORT\`](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) (\`${{ github.sha }}\`)."; echo; cat packaging/windows/RELEASE_NOTES.md; } > notes.md
           gh release create "$TAG" --repo "${{ github.repository }}" --draft --target "${{ github.sha }}" \
-            --title "SPADE for Windows ($TAG)" --notes-file packaging/windows/RELEASE_NOTES.md dist/SPADE-Setup-*.exe
+            --title "SPADE for Windows $TAG (commit $SHORT)" --notes-file notes.md dist/SPADE-Setup-*.exe

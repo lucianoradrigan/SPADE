@@ -11,6 +11,9 @@
 #ifndef APPVERSION
   #define APPVERSION "0.1.0"
 #endif
+#ifndef COMMIT
+  #define COMMIT "unknown"
+#endif
 #ifndef OUTDIR
   #define OUTDIR "."
 #endif
@@ -18,7 +21,8 @@
 [Setup]
 AppId={{6C0F6A52-3B1E-4C55-9E0B-5B1D2D8A7E11}
 AppName=SPADE
-AppVersion={#APPVERSION}
+AppVersion={#APPVERSION} (commit {#COMMIT})
+VersionInfoVersion={#APPVERSION}
 AppPublisher=SPADE project
 AppPublisherURL=https://github.com/lucianoradrigan/SPADE
 DefaultDirName={localappdata}\SPADE
@@ -29,13 +33,13 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0
 OutputDir={#OUTDIR}
-OutputBaseFilename=SPADE-Setup-{#APPVERSION}
+OutputBaseFilename=SPADE-Setup-{#APPVERSION}-{#COMMIT}
 Compression=lzma2/ultra64
 SolidCompression=yes
 LZMAUseSeparateProcess=yes
 WizardStyle=modern
 LicenseFile={#STAGE}\SPADE\LICENSE
-UninstallDisplayName=SPADE {#APPVERSION}
+UninstallDisplayName=SPADE {#APPVERSION} (commit {#COMMIT})
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Shortcuts:"

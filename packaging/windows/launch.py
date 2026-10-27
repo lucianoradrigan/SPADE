@@ -33,6 +33,13 @@ def main() -> int:
         webbrowser.open(f"http://localhost:{PORT}")
         return 0
     env = dict(os.environ, PYTHONUTF8="1", TF_CPP_MIN_LOG_LEVEL="2")
+    try:
+        import json
+
+        b = json.loads((REPO / "packaging" / "windows" / "BUILD_INFO.json").read_text())
+        print(f"SPADE {b['version']} (commit {b['commit'][:7]})")
+    except Exception:
+        pass
     print("SPADE is starting. The browser opens at http://localhost:8501 in a few seconds.")
     print("Keep this window open while you use SPADE; close it to stop SPADE.\n")
     worker = subprocess.Popen([sys.executable, "-m", "driveflow.jobs.worker", "serve"], cwd=REPO, env=env)

@@ -285,7 +285,7 @@ CPU. Pick your operating system below and run the commands **in order**, one blo
 step says what you should see. If a step fails, look for the message in that system's
 troubleshooting table, which is in the full guide linked at the end of each section.
 
-**Windows without git or Python: double-click installer.** Download `SPADE-Setup-<version>.exe`
+**Windows without git or Python: double-click installer.** Download `SPADE-Setup-<version>-<commit>.exe` (the commit it was built from is in its name)
 from the latest `app-v*` release on the [Releases page](https://github.com/lucianoradrigan/SPADE/releases),
 double-click it and follow the wizard (no administrator rights; it installs for your user in
 `%LOCALAPPDATA%\SPADE`, about 2 GB). It carries its own Python, every dependency, SPADE and the

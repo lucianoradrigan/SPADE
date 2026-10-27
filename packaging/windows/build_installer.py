@@ -1,4 +1,5 @@
-"""Builds SPADE's double-click Windows installer (SPADE-Setup-<version>.exe). Runs on Windows with
+"""Builds SPADE's double-click Windows installer (SPADE-Setup-<version>-<commit>.exe: the 7-character
+commit it was built from is in the file name, the installed program's name and BUILD_INFO.json). Runs on Windows with
 the Python that the installer will embed (same minor version) and Inno Setup 6
 (.github/workflows/windows-installer.yml).
 
@@ -128,7 +129,7 @@ def main(argv=None) -> int:
     (args.stage / "SPADE" / "packaging" / "windows" / "BUILD_INFO.json").write_text(json.dumps(info, indent=2) + "\n")
     print(json.dumps({k: v for k, v in info.items() if k != "packages"}, indent=2))
     args.out.mkdir(parents=True, exist_ok=True)
-    run([args.iscc, f"/DSTAGE={args.stage.resolve()}", f"/DAPPVERSION={version}", f"/DOUTDIR={args.out.resolve()}",
+    run([args.iscc, f"/DSTAGE={args.stage.resolve()}", f"/DAPPVERSION={version}", f"/DCOMMIT={info['commit'][:7]}", f"/DOUTDIR={args.out.resolve()}",
          str(args.stage / "SPADE" / "packaging" / "windows" / "spade.iss")])
     return 0
 
