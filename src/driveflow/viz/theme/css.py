@@ -60,6 +60,28 @@ _CSS = """
 .spade-flow-node span { font-size: 0.76rem; opacity: 0.72; }
 .spade-flow-arrow { align-self: center; opacity: 0.55; }
 
+.spade-groupflow { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: stretch; margin: 0.2rem 0 0.9rem 0; }
+.spade-groupflow-node { --tone: %(primary)s; flex: 1 1 10rem; display: flex; gap: 0.6rem; align-items: center; padding: 0.6rem 0.75rem; border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--tone) 45%%, transparent); background: linear-gradient(135deg, color-mix(in srgb, var(--tone) 16%%, transparent), transparent 75%%); }
+.spade-groupflow-num { flex: 0 0 auto; width: 2.1rem; height: 2.1rem; border-radius: 10px; display: grid; place-items: center; font-weight: 800; font-size: 0.85rem;
+  border: 2px solid var(--tone); background: color-mix(in srgb, var(--tone) 18%%, transparent); font-variant-numeric: tabular-nums; }
+.spade-groupflow-node b { display: block; font-size: 0.92rem; }
+.spade-groupflow-node span { font-size: 0.75rem; opacity: 0.72; }
+.spade-groupflow-arrow { align-self: center; font-size: 1.1rem; opacity: 0.5; }
+@media (max-width: 900px) { .spade-groupflow-arrow { display: none; } }
+
+.spade-group { --tone: %(primary)s; position: relative; border-radius: 10px; padding: 0.85rem 0.95rem 0.8rem 1.1rem; margin-bottom: 0.25rem; overflow: hidden;
+  background: linear-gradient(120deg, color-mix(in srgb, var(--tone) 18%%, transparent), color-mix(in srgb, var(--tone) 3%%, transparent) 70%%); }
+.spade-group::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--tone); }
+.spade-group-top { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.spade-group-num { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.1em; padding: 0.1rem 0.45rem; border-radius: 6px; border: 1px solid var(--tone); font-variant-numeric: tabular-nums; }
+.spade-group-title { font-size: 1.15rem; font-weight: 700; flex: 1 1 auto; }
+.spade-group-count { font-size: 0.72rem; font-weight: 650; letter-spacing: 0.04em; padding: 0.15rem 0.55rem; border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--tone) 60%%, transparent); background: color-mix(in srgb, var(--tone) 12%%, transparent); white-space: nowrap; }
+.spade-group-about { font-size: 0.86rem; opacity: 0.8; margin-top: 0.4rem; line-height: 1.45; }
+.spade-tool-desc { font-size: 0.78rem; opacity: 0.72; line-height: 1.4; margin: -0.35rem 0 0.35rem 0.15rem; padding-left: 0.6rem;
+  border-left: 2px solid color-mix(in srgb, var(--tone, %(primary)s) 55%%, transparent); }
+
 .spade-split { display: flex; height: 0.7rem; border-radius: 999px; overflow: hidden; margin: 0.35rem 0; }
 
 :where(.spade-root) a:focus-visible, :where(.spade-root) [tabindex]:focus-visible { outline: 3px solid %(primary)s; outline-offset: 2px; }

@@ -56,6 +56,16 @@ SERIES = {
     "candidate": "#38BDF8",
 }
 
+#: Identity accent of each sidebar tool group (overview "Tool groups"). Taken from SERIES, not from
+#: the status tokens, so a group's colour never reads as a health state; it tints borders and
+#: markers only, never body text.
+GROUP_ACCENT = {
+    "Simulation": SERIES["electrical"],
+    "Design & Control": SERIES["secondary"],
+    "Intelligence": SERIES["vibration"],
+    "Operations": SERIES["mechanical"],
+}
+
 #: status -> (label, glyph, token). Glyphs are plain Unicode so they render without icon fonts.
 STATUS_META = {
     "healthy": ("HEALTHY", "●", "healthy"),

@@ -102,7 +102,7 @@ tasks:
     why: "Any RL library that speaks Gymnasium can train against the same physics SPADE's pages simulate."
     assumptions: "The environment's observation, action and reward contract fits the task."
     limitations: "Environments only: training algorithms are not part of this version."
-    page: "pages/environments.py"
+    page: "pages/rl_lab.py"
     accepts: [simulated]
 
   # ---------------------------------------------------------------- maintenance

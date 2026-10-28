@@ -22,7 +22,6 @@ PAGES = {
     "Workspace": [
         ("pages/overview.py", "Overview", ":material/home:"),
         ("pages/experiment_runs.py", "Experiment Runs", ":material/work_history:"),
-        ("pages/environments.py", "Environments", ":material/sports_esports:"),
     ],
     "Simulation": [
         ("pages/dc_motor.py", "DC Motor", ":material/electric_bolt:"),

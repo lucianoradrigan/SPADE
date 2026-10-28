@@ -117,7 +117,7 @@ _DIAGRAM_COMPONENT_DETAILS = {
         "averaged buck, not to PLECS: it validates the surrogate mechanics, not fidelity to any PLECS circuit. "
         "`SPADE/OmBuck-v0` runs the OpenModelica FMU BuckAveraged and replicates the native buck (it validates the "
         "FMU integration); it is registered only when fmpy and the built FMU are present. "
-        "Observation, action, reward and limits of each one are on the Environments page."
+        "Observation, action, reward and limits of each one are shown in RL Lab (Environment tab)."
     ),
     "Classifier (CNN)": (
         "`models/classifiers/builder.py` -- Conv1D+SE blocks, config-driven. `dc_motor` only. Promoted PC tier: "

@@ -5,14 +5,18 @@ this session's own run log, and the motor thumbnail is derived from this session
 state (UNKNOWN until a monitoring pass has run). The mockup's illustrative numbers (98.4% data
 integrity, 72,480 samples, ...) are deliberately not reproduced."""
 
+from html import escape
+
 import streamlit as st
 
 from driveflow.monitoring.motor_status import derive_motor_view
+from driveflow.viz.app import PAGES
 from driveflow.viz.adapters.session import run_log, server_agent
 from driveflow.viz.adapters.workspace import workspace_status
 from driveflow.viz.components.metric_cards import check_list, kpi_row
 from driveflow.viz.components.motor_status import render_motor_status
 from driveflow.viz.components.page_header import badge_html, page_header, source_badge_html
+from driveflow.viz.theme.tokens import GROUP_ACCENT
 from driveflow.viz.views.system_diagram import render_system_diagram
 
 _WORKFLOW = [
@@ -21,6 +25,36 @@ _WORKFLOW = [
     ("pages/transfer_learning.py", "3 · Adapt", "gated transfer learning"),
     ("pages/model_registry.py", "4 · Validate & deploy", "registry, lineage, edge export"),
     ("pages/monitoring.py", "5 · Monitor", "agent consensus (simulated)"),
+]
+
+
+#: Tool groups shown at the bottom of the overview, in the sidebar's order:
+#: (section, what the section is for, [(page, tool, what the tool does)]).
+_GROUPS = [
+    ("Simulation",
+     "Physics-based models of the drives and converters. Every signal used elsewhere in SPADE starts here: "
+     "configure a plant, run it under a controller, inject conditions and inspect the waveforms.",
+     [("pages/dc_motor.py", "DC Motor", "PI/MPC speed control of a DC motor with bearing-fault injection, electrical and vibration signals, and the AI suggestion next to the injected condition."),
+      ("pages/pmsm.py", "PMSM / FOC", "Field-oriented control of a salient PMSM in the dq frame, comparing MTPA with i_d = 0 at equal current. Control demo only, no diagnosis."),
+      ("pages/vsc_dpc.py", "VSC / DPC", "Direct power control of a voltage source converter by a trained network tracking a rotating reference, shown in the complex plane."),
+      ("pages/dcdc_converters.py", "DC-DC Converters", "Averaged synchronous buck under an average-current-mode PI cascade, plus the DAB modulation selector and phase-shift diagram."),
+      ("pages/plecs_plant_studio.py", "PLECS Plant Studio", "Builds new plants from circuits: PLECS RPC sweeps for datasets and verified FMUs (OpenModelica or PLECS) as Gymnasium plants.")]),
+    ("Design & Control",
+     "Controller design on top of the simulated plants. Tools here propose candidate controllers and benchmark them "
+     "against the classical baseline; nothing replaces the default controller automatically.",
+     [("pages/tuning_studio.py", "Tuning Studio", "Optimizes controller parameters on simulated scenarios and compares the candidate with the baseline on a separate evaluation grid."),
+      ("pages/rl_lab.py", "RL Lab", "Defines environment and reward, trains DQN or DDPG agents as jobs and benchmarks the policies against the classical controllers.")]),
+    ("Intelligence",
+     "Data-driven models trained on simulated data: fault classification and forecasting, safe adaptation to new "
+     "conditions, and the registry that records which model is promoted and why.",
+     [("pages/ai_diagnostics.py", "AI Diagnostics", "Runs the promoted classifier/forecaster of a domain on a simulated sample or an uploaded file, or trains a new classifier on a custom grid."),
+      ("pages/transfer_learning.py", "Transfer Learning", "Guided fine-tuning of a promoted model with dataset checks, an independent test set and a fail-closed promotion gate with human approval."),
+      ("pages/model_registry.py", "Model Registry", "Every trained run on disk with its promotion status, lineage, validation gate and edge-export evidence.")]),
+    ("Operations",
+     "Supervision of the running system. Monitoring agents turn telemetry into alerts and a consensus status; "
+     "in this repository the telemetry is simulated.",
+     [("pages/monitoring.py", "Monitoring", "Status derived from all active alerts, with each agent's contribution to the consensus visible and auditable."),
+      ("pages/alert_history.py", "Alert History", "Every alert event, resolution and acknowledgement recorded in this session, in arrival order.")]),
 ]
 
 
@@ -84,3 +118,35 @@ def render() -> None:
     st.markdown("##### System diagram")
     render_system_diagram()
     st.caption("Concept renders in the design package are illustrative; this page shows only values computed from this repository.")
+
+    st.divider()
+    _render_tool_groups()
+
+
+def _render_tool_groups() -> None:
+    """The four working sections of the sidebar: a flow strip, then one card per group with what the
+    group is for and a link + one-line description per tool. Colours come from GROUP_ACCENT."""
+    icons = {path: icon for items in PAGES.values() for path, _, icon in items}
+    st.markdown("##### Tool groups")
+    st.caption("SPADE's tools are organised in four groups that follow the engineering workflow, from physics to supervision.")
+    nodes = []
+    for i, (section, _, tools) in enumerate(_GROUPS, 1):
+        if i > 1:
+            nodes.append('<div class="spade-groupflow-arrow" aria-hidden="true">→</div>')
+        n = len(tools)
+        nodes.append(f'<div class="spade-groupflow-node" style="--tone:{GROUP_ACCENT[section]}"><div class="spade-groupflow-num">{i:02d}</div>'
+                     f'<div><b>{escape(section)}</b><span>{n} tool{"s" if n != 1 else ""}</span></div></div>')
+    st.html(f'<div class="spade-root spade-groupflow">{"".join(nodes)}</div>')
+
+    for row in (list(enumerate(_GROUPS[:2], 1)), list(enumerate(_GROUPS[2:], 3))):
+        for col, (i, (section, about, tools)) in zip(st.columns(2, gap="medium"), row):
+            tone = GROUP_ACCENT[section]
+            with col, st.container(border=True):
+                n = len(tools)
+                st.html(f'<div class="spade-root spade-group" style="--tone:{tone}"><div class="spade-group-top">'
+                        f'<span class="spade-group-num">{i:02d}</span><span class="spade-group-title">{escape(section)}</span>'
+                        f'<span class="spade-group-count">{n} TOOL{"S" if n != 1 else ""}</span></div>'
+                        f'<div class="spade-group-about">{escape(about)}</div></div>')
+                for page, tool, desc in tools:
+                    st.page_link(page, label=f"**{tool}**", icon=icons.get(page))
+                    st.html(f'<div class="spade-root spade-tool-desc" style="--tone:{tone}">{escape(desc)}</div>')

@@ -285,6 +285,11 @@ CPU. Pick your operating system below and run the commands **in order**, one blo
 step says what you should see. If a step fails, look for the message in that system's
 troubleshooting table, which is in the full guide linked at the end of each section.
 
+**Detailed illustrated guide (PDF, Spanish):** [docs/SPADE_Guia_Instalacion.pdf](docs/SPADE_Guia_Instalacion.pdf)
+covers every installation route per operating system for readers who have never used a terminal:
+which route to pick, each prerequisite (what it is for and how to get it), the steps with what you
+should see after each one, daily use, updating, uninstalling and a troubleshooting table.
+
 **Windows without git or Python: double-click installer.** Download `SPADE-Setup-<version>-<commit>.exe` (the commit it was built from is in its name)
 from the latest `app-v*` release on the [Releases page](https://github.com/lucianoradrigan/SPADE/releases),
 double-click it and follow the wizard (no administrator rights; it installs for your user in

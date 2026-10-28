@@ -275,7 +275,7 @@ def _validate(p) -> None:
         st.caption(f":material/block: {b}")
     if p.status == "published" and not blockers:
         env_id = p.parameters["published_env_id"]
-        st.success(f"Published as `{env_id}` (Workspace → Environments). Simulated, not hardware.", icon=":material/check_circle:")
+        st.success(f"Published as `{env_id}` (available in RL Lab and Tuning Studio). Simulated, not hardware.", icon=":material/check_circle:")
         st.code(fa.snippet(env_id), language="python")
     elif st.button("Publish to Environments", key="fmu_publish", disabled=bool(blockers), icon=":material/publish:"):
         try:
