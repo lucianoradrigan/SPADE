@@ -7,6 +7,7 @@ from streamlit.testing.v1 import AppTest
 
 from driveflow.viz.adapters import dcdc_adapter as da
 from driveflow.viz.adapters import jobs_adapter as ja
+from tests.streamlit_compat import chart_key
 
 APP = str(Path(__file__).resolve().parents[1] / "src" / "driveflow" / "viz" / "app.py")
 
@@ -20,7 +21,7 @@ def _page() -> AppTest:
 
 
 def _buck_charts(at):
-    return [c for c in at.get("plotly_chart") if str(c.key).startswith("buck_")]
+    return [c for c in at.get("plotly_chart") if str(chart_key(c)).startswith("buck_")]
 
 
 def test_empty_state_before_generate_and_tabs():

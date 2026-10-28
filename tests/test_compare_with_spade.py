@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from streamlit.testing.v1 import AppTest
+from tests.streamlit_compat import chart_keys
 
 APP_PATH = str(Path(__file__).resolve().parents[1] / "src" / "driveflow" / "viz" / "app.py")
 
@@ -30,7 +31,7 @@ def test_inside_domain_comparison_with_the_mlp():
     at.button(key="cmp_run").click().run()
     assert not at.exception
     assert "mlp: v_out RMSE" in _text(at) and "Surrogate outside validated operating range" not in _text(at)
-    assert {c.key for c in at.get("plotly_chart")} >= {"cmp_v_out", "cmp_i_l"}
+    assert chart_keys(at) >= {"cmp_v_out", "cmp_i_l"}
 
 
 def test_out_of_domain_is_warned_and_grid_lists_every_condition():

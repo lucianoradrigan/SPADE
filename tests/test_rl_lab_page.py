@@ -8,6 +8,7 @@ from streamlit.testing.v1 import AppTest
 from driveflow.jobs.worker import Worker
 from driveflow.runs.store import workspace_root
 from driveflow.viz.adapters import rl_adapter as ra
+from tests.streamlit_compat import chart_keys
 
 APP_PATH = str(Path(__file__).resolve().parents[1] / "src" / "driveflow" / "viz" / "app.py")
 
@@ -50,7 +51,7 @@ def test_training_job_end_to_end_and_blocked_default():
     Worker(workspace_root()).serve(once=True, poll_s=0.05)
     at.button(key="rl_refresh").click().run()
     assert not at.exception
-    keys = {c.key for c in at.get("plotly_chart")}
+    keys = chart_keys(at)
     run_id = ra.runs()[0].run_id
     assert {f"rl_reward_{run_id}", f"rl_loss_{run_id}", f"rl_viol_{run_id}", f"rl_pb_fig_{run_id}"} <= keys
     bench = next(d.value for d in at.dataframe if "Median tracking RMSE (V)" in getattr(d.value, "columns", []))

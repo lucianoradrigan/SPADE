@@ -10,6 +10,7 @@ import pytest
 from streamlit.testing.v1 import AppTest
 
 import driveflow.viz.adapters.ai_adapter as da_ai
+from tests.streamlit_compat import chart_keys
 
 APP_PATH = str(Path(__file__).resolve().parents[1] / "src" / "driveflow" / "viz" / "app.py")
 
@@ -64,7 +65,7 @@ def test_below_threshold_state(monkeypatch, tmp_path):
     text = _text(at)
     assert "Below threshold." in text and "AI SUGGESTION — REQUIRES VERIFICATION" in " ".join(str(h.body) for h in at.get("html"))
     assert "behaviour differs from learned healthy dynamics — not a fault class" in text  # the caption explains what a high residual means
-    assert any(c.key == "ia_residual_dc_motor" for c in at.get("plotly_chart"))
+    assert "ia_residual_dc_motor" in chart_keys(at)
 
 
 def test_above_threshold_state(monkeypatch, tmp_path):

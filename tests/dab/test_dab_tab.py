@@ -7,6 +7,7 @@ import pytest
 from streamlit.testing.v1 import AppTest
 
 from driveflow.viz.adapters import dab_adapter as dab
+from tests.streamlit_compat import chart_keys
 
 APP_PATH = str(Path(__file__).resolve().parents[2] / "src" / "driveflow" / "viz" / "app.py")
 
@@ -30,7 +31,7 @@ def test_dab_tab_shows_the_diagram_and_empty_states():
     assert not at.exception and [t.label for t in at.tabs][:2] == ["Buck", "DAB"]
     at.selectbox(key="dab_strategy").set_value("SPS").run()
     assert at.slider(key="dab_d1").disabled and at.slider(key="dab_d2").disabled
-    assert any(c.key == "dab_phase_diagram" for c in at.get("plotly_chart"))
+    assert "dab_phase_diagram" in chart_keys(at)
     text = " ".join(e.value for kind in ("info", "caption", "markdown") for e in at.get(kind))
     assert "No simulation has been executed for this configuration." in text and "not a simulation" in text
     assert at.button(key="dab_compare").disabled
