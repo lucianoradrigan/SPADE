@@ -84,8 +84,9 @@ def _review() -> None:
         if not rs:
             st.info("No simulation has been executed for this configuration.", icon=":material/info:")
             return
-        run = next(r for r in rs if r.run_id == st.selectbox("Tuning run", [r.run_id for r in rs], key="tun_run",
-                                                               format_func=lambda i: f"{i} · {next(r.metrics.get('method') for r in rs if r.run_id == i)}"))
+        selected_run = st.selectbox("Tuning run", [r.run_id for r in rs], key="tun_run",
+                                    format_func=lambda i: f"{i} · {next(r.metrics.get('method') for r in rs if r.run_id == i)}")
+        run = next(r for r in rs if r.run_id == selected_run)
         rep, hist = ta.report(run), ta.history(run)
         if rep is None or hist is None:
             st.warning(f"Run {run.run_id} ended as {run.status} without a tuning report. {run.failure_reason or ''}", icon=":material/error:")

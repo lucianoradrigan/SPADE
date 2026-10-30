@@ -34,6 +34,24 @@ def test_empty_state_and_fixed_grids():
     assert not ob.grids_overlap() and ob.REUSED_WARNING not in text
 
 
+def test_review_can_select_an_older_run(monkeypatch):
+    from types import SimpleNamespace
+
+    runs = [SimpleNamespace(run_id=name, metrics={"method": "pso"},
+                            status="candidate", failure_reason=None)
+            for name in ("newer", "older")]
+    monkeypatch.setattr(ta, "runs", lambda: runs)
+    monkeypatch.setattr(ta, "report", lambda run: None)
+    monkeypatch.setattr(ta, "history", lambda run: None)
+    at = AppTest.from_string("from driveflow.viz.views.tuning_studio import _review\n_review()")
+    at.run()
+    assert not at.exception
+    at.selectbox(key="tun_run").set_value("older").run()
+    assert not at.exception
+    assert len(at.selectbox) == 1
+    assert at.selectbox(key="tun_run").value == "older"
+
+
 @pytest.mark.parametrize("method", ["pso", "nsga2"])
 def test_tuning_job_end_to_end(method):
     at = _open()
