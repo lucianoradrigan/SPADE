@@ -661,18 +661,19 @@ SPADE was created by the authors below. **If you use SPADE in your work, please 
 
 | Author | Affiliation | Contact |
 |---|---|---|
-| **Luciano Radrigan** | Electrical Engineering Department, Universidad de Concepcion, Chile | <lradrigan@udec.cl> · [LinkedIn](https://www.linkedin.com/in/lucianoradrigan) · [Google Scholar](https://scholar.google.com/citations?user=ynRKFTIAAAAJ&hl=es&oi=ao) |
-| **Anibal S. Morales** | Electrical Engineering Department, Universidad de Concepcion, Chile | <animorales@udec.cl> |
-| **Felipe Ruiz** | Energy Transition Center, University San Sebastian, Santiago, Chile | <felipe.ruiz@uss.cl> |
-| **Jose Rodriguez** | Centro de Transicion Energetica (CTE), Facultad de Ingenieria, Universidad San Sebastian, Chile | <jose.rodriguezp@uss.cl> |
+| **Luciano Radrigan, PhD** | Electrical Engineering Department, Universidad de Concepcion, Chile | <lradrigan@udec.cl> · [LinkedIn](https://www.linkedin.com/in/lucianoradrigan) · [Google Scholar](https://scholar.google.com/citations?user=ynRKFTIAAAAJ&hl=es&oi=ao) |
+| **Anibal S. Morales, PhD** | Electrical Engineering Department, Universidad de Concepcion, Chile | <animorales@udec.cl> |
+| **Felipe Ruiz, PhD** | Energy Transition Center, Faculty of Engineering, Universidad San Sebastian, Santiago, Chile | <felipe.ruiz@uss.cl> |
+| **Jose Rodriguez, PhD** | Energy Transition Center, Faculty of Engineering, Universidad San Sebastian, Santiago, Chile | <jose.rodriguezp@uss.cl> |
+| **Hugues Renaudineau, PhD** | Energy Transition Center, Faculty of Engineering, Universidad San Sebastian, Valdivia, Chile | |
 
 ```text
-L. Radrigan, A. S. Morales, F. Ruiz, and J. Rodriguez, "SPADE: Simulation Platform for Analysis, Diagnosis & Electric drives," version 0.1.0, 2026. [Online]. Available: https://github.com/lucianoradrigan/SPADE
+L. Radrigan, A. S. Morales, F. Ruiz, J. Rodriguez, and H. Renaudineau, "SPADE: Simulation Platform for Analysis, Diagnosis & Electric drives," version 0.1.0, 2026. [Online]. Available: https://github.com/lucianoradrigan/SPADE
 ```
 
 ```bibtex
 @misc{spade2026,
-  author = {Radrigan, Luciano and Morales, Anibal S. and Ruiz, Felipe and Rodriguez, Jose},
+  author = {Radrigan, Luciano and Morales, Anibal S. and Ruiz, Felipe and Rodriguez, Jose and Renaudineau, Hugues},
   title  = {{SPADE}: Simulation Platform for Analysis, Diagnosis \& Electric drives},
   year   = {2026},
   note   = {Version 0.1.0},
