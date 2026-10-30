@@ -46,7 +46,6 @@ DOMAIN_LABELS = {"dc_motor": "DC motor (dc_motor)", "vsc_dpc": "VSC / DPC (vsc_d
 TIER = "pc"
 CANDIDATES = {"dc_motor": CANDIDATE_CHANNELS, "vsc_dpc": VSC_DPC_CANDIDATE_CHANNELS}
 DC_DEFAULT_OMEGA_REF = 300.0  # GEM nominal speed, same default as the DC Motor page
-EDGE_TIERS = {"rpi5": "Raspberry Pi 5 (TFLite FP16)", "esp32": "ESP32 (TFLite INT8)"}
 MAX_UPLOAD_MB = 50
 _PALETTE = ["#38BDF8", "#F59E0B", "#A78BFA", "#F472B6", "#22C55E", "#94A3B8"]
 
@@ -151,30 +150,6 @@ def _upload_help(domain: str) -> None:
         c1, c2 = st.columns(2)
         c1.download_button("Example (CSV)", tpl.to_csv(index=False), file_name=f"ia_{domain}_example.csv", key=f"ia_template_csv_{domain}")
         c2.download_button("Example (JSON)", tpl.to_json(orient="records", indent=2), file_name=f"ia_{domain}_example.json", key=f"ia_template_json_{domain}")
-
-
-def _edge_downloads(domain: str) -> None:
-    with st.expander("Edge artifacts (Raspberry Pi 5 / ESP32)", expanded=False):
-        st.caption("Fixed, already-trained artifacts — not re-generated from the sample-run controls. Export only: running on real hardware is NOT verified (see Model Registry).")
-        found = False
-        for block in ("classifier", "regressor"):
-            for tier, label in EDGE_TIERS.items():
-                try:
-                    run_dir = resolve(domain, tier, block)
-                except RegistryError:
-                    continue
-                tfl = run_dir / "model.tflite"
-                if not tfl.exists():
-                    st.caption(f"{block.capitalize()} — {label}: promoted, not exported.")
-                    continue
-                found = True
-                m = run_metrics(run_dir)
-                head = f"macro-F1 {m['test_macro_f1']:.3f}" if m.get("test_macro_f1") is not None else (f"RMSE {m['test_rmse']:.3f} (normalized)" if m.get("test_rmse") is not None else "no test metric")
-                data = tfl.read_bytes()
-                st.download_button(f"{block.capitalize()} — {label}", data, file_name=f"{domain}_{tier}_{block}.tflite", key=f"ia_edge_dl_{domain}_{tier}_{block}")
-                st.caption(f"{len(data) / 1024:.1f} KB · sha256 {hashlib.sha256(data).hexdigest()[:12]} · {head} · {run_dir.parent.name}/{run_dir.name}")
-        if not found:
-            st.caption(f"Nothing exported for {DOMAIN_LABELS[domain]} at the rpi5/esp32 tiers.")
 
 
 def _last_window(df: pd.DataFrame, channels: list, n: int):
@@ -412,7 +387,7 @@ def _evaluate(domain: str) -> None:
                             getattr(st, level)(text)
                         source_rows = {"Data origin": f"Uploaded file: {uploaded.name}", "SHA-256": hashlib.sha256(raw).hexdigest(), "Validation": "inference contract (channels only)"}
                         data_key = f"file:{source_rows['SHA-256']}"
-        _edge_downloads(domain)
+        st.caption("To run a model on an ESP32, a Raspberry Pi 5 or a TI C2000, open **Edge Deployment**.")
 
     with view:
         if df is None:

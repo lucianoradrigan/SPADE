@@ -13,20 +13,37 @@ from driveflow.monitoring.motor_status import derive_motor_view
 from driveflow.viz.app import PAGES
 from driveflow.viz.adapters.session import run_log, server_agent
 from driveflow.viz.adapters.workspace import workspace_status
+from driveflow.viz.components.board_card import board_cards
+from driveflow.viz.components.citation import render_citation
 from driveflow.viz.components.metric_cards import check_list, kpi_row
 from driveflow.viz.components.motor_status import render_motor_status
 from driveflow.viz.components.page_header import badge_html, page_header, source_badge_html
-from driveflow.viz.theme.tokens import GROUP_ACCENT
+from driveflow.viz.theme.tokens import GROUP_ACCENT, SERIES
 from driveflow.viz.views.system_diagram import render_system_diagram
 
 _WORKFLOW = [
-    ("pages/dc_motor.py", "1 · Configure & simulate", "DC motor / PMSM / VSC physics"),
+    ("pages/dc_motor.py", "1 · Simulate", "DC motor / PMSM / VSC physics"),
     ("pages/ai_diagnostics.py", "2 · Diagnose", "promoted classifier / forecaster"),
     ("pages/transfer_learning.py", "3 · Adapt", "gated transfer learning"),
-    ("pages/model_registry.py", "4 · Validate & deploy", "registry, lineage, edge export"),
-    ("pages/monitoring.py", "5 · Monitor", "agent consensus (simulated)"),
+    ("pages/model_registry.py", "4 · Validate", "registry, lineage, promotion"),
+    ("pages/edge_deployment.py", "5 · Deploy", "ESP32, Raspberry Pi, C2000"),
+    ("pages/monitoring.py", "6 · Monitor", "agent consensus (simulated)"),
 ]
 
+
+_EDGE_NOTES = {
+    "esp32": ".tflite int8 for a sensor node. Exported, not run on a board.",
+    "rpi5": ".tflite float16 for a gateway, in Python or C++. Exported, not run on a board.",
+    "c2000": "Generated C next to the control code. Measured on a real F28379D, with simulated windows.",
+}
+
+#: The platform's video guides, in viewing order: (YouTube id, title, what it covers, accent).
+VIDEO_GUIDES = [
+    ("mP82vIYR_RQ", "Platform overview", "An engineering workbench for simulation, control & AI", SERIES["reference"]),
+    ("t5ri_OAHDnQ", "Simulation", "Configure parameters, run experiments & analyze results", GROUP_ACCENT["Simulation"]),
+    ("6XH58EuwGEs", "Design & Control", "Controller tuning, optimization & reinforcement learning", GROUP_ACCENT["Design & Control"]),
+    ("S4xAtLYSiMQ", "Intelligence", "AI diagnostics, parameter sensitivity & model registry", GROUP_ACCENT["Intelligence"]),
+]
 
 #: Tool groups shown at the bottom of the overview, in the sidebar's order:
 #: (section, what the section is for, [(page, tool, what the tool does)]).
@@ -48,6 +65,7 @@ _GROUPS = [
      "Data-driven models trained on simulated data: fault classification and forecasting, safe adaptation to new "
      "conditions, and the registry that records which model is promoted and why.",
      [("pages/ai_diagnostics.py", "AI Diagnostics", "Runs the promoted classifier/forecaster of a domain on a simulated sample or an uploaded file, or trains a new classifier on a custom grid."),
+      ("pages/edge_deployment.py", "Edge Deployment", "Takes a model to an ESP32, a Raspberry Pi 5 or a TI C2000, with export, ready-to-copy inference code and a tutorial per board."),
       ("pages/transfer_learning.py", "Transfer Learning", "Guided fine-tuning of a promoted model with dataset checks, an independent test set and a fail-closed promotion gate with human approval."),
       ("pages/model_registry.py", "Model Registry", "Every trained run on disk with its promotion status, lineage, validation gate and edge-export evidence.")]),
     ("Operations",
@@ -83,6 +101,12 @@ def render() -> None:
             st.page_link(page, label=label)
             st.caption(sub)
 
+    with st.container(border=True):
+        st.markdown("##### Deploy a model to edge hardware")
+        st.caption("From a trained model to code running on the board, with ready-to-copy inference code and a tutorial for each one.")
+        board_cards(_EDGE_NOTES)
+        st.page_link("pages/edge_deployment.py", label="Open Edge Deployment", icon=":material/developer_board:")
+
     left, mid, right = st.columns([1.1, 1.3, 1], gap="medium")
     with left, st.container(border=True):
         st.markdown("##### Quick launch")
@@ -111,16 +135,31 @@ def render() -> None:
         st.caption(f"{view.status.upper()} — {view.status_reason}.")
         st.page_link("pages/monitoring.py", label="Open monitoring", icon=":material/arrow_forward:")
 
-    with st.expander("Workspace checks", expanded=not all_ok):
-        check_list([(c["name"], "pass" if c["ok"] else "fail", c["detail"]) for c in status["checks"]])
+    st.divider()
+    _render_tool_groups()
+
+    st.divider()
+    _render_video_guides()
 
     st.divider()
     st.markdown("##### System diagram")
     render_system_diagram()
     st.caption("Concept renders in the design package are illustrative; this page shows only values computed from this repository.")
 
+    with st.expander("Workspace checks", expanded=not all_ok):
+        check_list([(c["name"], "pass" if c["ok"] else "fail", c["detail"]) for c in status["checks"]])
+
     st.divider()
-    _render_tool_groups()
+    render_citation()
+
+
+def _render_video_guides() -> None:
+    st.markdown("##### :material/play_circle: Video guides")
+    st.caption("New to SPADE? Start with the platform overview, then watch the guide for the section you need.")
+    for col, (video, title, covers, tone) in zip(st.columns(len(VIDEO_GUIDES), gap="small"), VIDEO_GUIDES):
+        with col:
+            st.html(f'<div class="spade-root spade-video-label" style="--tone:{tone}"><b>{escape(title)}</b><span>{escape(covers)}</span></div>')
+            st.video(f"https://www.youtube.com/watch?v={video}")
 
 
 def _render_tool_groups() -> None:

@@ -11,7 +11,8 @@ output of a real simulation, run fresh each time you click Generate.
 ![SPADE -- Overview page (real screenshot of the running app)](assets/landing.png)
 
 > **Status of the evidence.** Every signal in SPADE is simulated; there is no hardware ingestion.
-> Edge `.tflite` files are exported, not hardware-verified. The vibration model is a coarse,
+> Edge `.tflite` files are exported, not hardware-verified. The C2000 C kits were measured on a
+> real LAUNCHXL-F28379D, replaying simulated windows from flash ([results](docs/audit/c2000/report.md)). The vibration model is a coarse,
 > one-axis calibration that does not generalise per bearing. See
 > [`AUDIT_ANSWERS.md`](AUDIT_ANSWERS.md) (Q01–Q30) and
 > [`CHANGELOG_IMPLEMENTATION.md`](CHANGELOG_IMPLEMENTATION.md) for the audit of the AI layer and
@@ -20,6 +21,17 @@ output of a real simulation, run fresh each time you click Generate.
 > [`docs/VALIDATION_SUMMARY.md`](docs/VALIDATION_SUMMARY.md) §11.
 
 **Demo video:** [SPADE on YouTube](https://www.youtube.com/watch?v=qoHtqhicAgY)
+
+**Using SPADE in your work?** Please [cite its authors](#authors-and-how-to-cite).
+
+## Video guides
+
+Start with the platform overview, then watch the guide for the section you need.
+
+| | |
+|---|---|
+| [![Platform overview](https://img.youtube.com/vi/mP82vIYR_RQ/hqdefault.jpg)](https://www.youtube.com/watch?v=mP82vIYR_RQ)<br>**[Platform overview](https://www.youtube.com/watch?v=mP82vIYR_RQ)**<br>An engineering workbench for simulation, control & AI | [![Simulation tutorial](https://img.youtube.com/vi/t5ri_OAHDnQ/hqdefault.jpg)](https://www.youtube.com/watch?v=t5ri_OAHDnQ)<br>**[Simulation tutorial](https://www.youtube.com/watch?v=t5ri_OAHDnQ)**<br>Configure parameters, run experiments & analyze results |
+| [![Design & Control tutorial](https://img.youtube.com/vi/6XH58EuwGEs/hqdefault.jpg)](https://www.youtube.com/watch?v=6XH58EuwGEs)<br>**[Design & Control tutorial](https://www.youtube.com/watch?v=6XH58EuwGEs)**<br>Controller tuning, optimization & reinforcement learning | [![Intelligence tutorial](https://img.youtube.com/vi/S4xAtLYSiMQ/hqdefault.jpg)](https://www.youtube.com/watch?v=S4xAtLYSiMQ)<br>**[Intelligence tutorial](https://www.youtube.com/watch?v=S4xAtLYSiMQ)**<br>AI diagnostics, parameter sensitivity & model registry |
 
 ## What's inside
 
@@ -59,6 +71,7 @@ with native navigation; the five original macro-phases map onto its sections:
 | Design & Control · **RL Lab** | -- | DQN / DDPG on SPADE's environments (listed by capability, including `SPADE/OmBuck-v0`), benchmarked against the classical controllers on the same grid. Policies are candidates |
 | Intelligence · **AI Diagnostics** | IA | **Evaluate a model**: the promoted classifier, or any other classifier on this machine, on a sample run (same options as the simulation pages) or an uploaded file. **Train a model**: a classifier over several fault classes and a custom simulated grid -- see below |
 | Intelligence · **Transfer Learning** | TL | 4-step gated wizard (Data → Setup → Validate → Promote) starting from the promoted model, any other model on this machine or an imported Keras model; full or feature transfer -- see below |
+| Intelligence · **Edge Deployment** | IA | One tab per board (ESP32, Raspberry Pi 5, TI C2000): scope and limits, model download, C2000 export, inference code generated from the run, and a tutorial |
 | Intelligence · **Model Registry** | IA | Every run on disk: status from evidence, lineage, gate, artifacts with SHA-256, edge-export lifecycle, rollback |
 | Operations · **Monitoring** | LM | SIMULATED monitoring: agent consensus, status from *all* active alerts, motor status, acknowledge |
 | Operations · **Alert History** | LM | Filterable, exportable alert log |
@@ -89,6 +102,7 @@ python experiments/train_model.py --config configs/classifiers/pc_server.yaml --
 - **Classes:** healthy, outer race, inner race, ball and cage.
 - **Data and preprocessing:** trained on an operating-condition grid (7 speeds × 5 severities, sensor noise, plant drift) with 2048-sample (205 ms) windows. It keeps the rpm level as a speed reference and is temperature-calibrated with an abstention threshold.
 - **Synthetic-only classes:** ball and cage have an **uncalibrated amplitude**. The GUI labels those answers.
+- **TI C2000 (LAUNCHXL-F28379D):** an export target, not a training tier. `experiments/export_c2000.py` turns a run into float32 C with its window normalization, because the C28x cannot run TFLite Micro. The 3-class ESP32 classifier and the ESP32 forecaster run within their window; the 5-class classifier does not fit ([AI-N25](docs/AI_TECHNICAL_AUDIT.md)). Export and download the kits from **Edge Deployment**.
 - **ESP32 tier:** it keeps the 3-class `esp32_dscnn/2026-10-18_run01`, because the 5-class int8 export is not usable.
 
 ```bash
@@ -640,6 +654,31 @@ trained but not promoted (docs/VALIDATION_SUMMARY.md §7.2). Retraining or addin
   no "same conditions" under which to compare DPC vs. PI/MPC performance -- see `docs/patch5_alcance_macrofase_B.md`.
 - No large datasets are committed to the repository (see `.gitignore`); the dashboard and
   `datagen/` generate everything on demand.
+
+## Authors and how to cite
+
+SPADE was created by the authors below. **If you use SPADE in your work, please cite them.**
+
+| Author | Affiliation | Contact |
+|---|---|---|
+| **Luciano Radrigan** | Electrical Engineering Department, Universidad de Concepcion, Chile | <lradrigan@udec.cl> · [LinkedIn](https://www.linkedin.com/in/lucianoradrigan) · [Google Scholar](https://scholar.google.com/citations?user=ynRKFTIAAAAJ&hl=es&oi=ao) |
+| **Anibal S. Morales** | Electrical Engineering Department, Universidad de Concepcion, Chile | <animorales@udec.cl> |
+| **Felipe Ruiz** | Energy Transition Center, University San Sebastian, Santiago, Chile | <felipe.ruiz@uss.cl> |
+| **Jose Rodriguez** | Centro de Transicion Energetica (CTE), Facultad de Ingenieria, Universidad San Sebastian, Chile | <jose.rodriguezp@uss.cl> |
+
+```text
+L. Radrigan, A. S. Morales, F. Ruiz, and J. Rodriguez, "SPADE: Simulation Platform for Analysis, Diagnosis & Electric drives," version 0.1.0, 2026. [Online]. Available: https://github.com/lucianoradrigan/SPADE
+```
+
+```bibtex
+@misc{spade2026,
+  author = {Radrigan, Luciano and Morales, Anibal S. and Ruiz, Felipe and Rodriguez, Jose},
+  title  = {{SPADE}: Simulation Platform for Analysis, Diagnosis \& Electric drives},
+  year   = {2026},
+  note   = {Version 0.1.0},
+  url    = {https://github.com/lucianoradrigan/SPADE}
+}
+```
 
 ## Credits
 

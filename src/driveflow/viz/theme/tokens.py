@@ -66,6 +66,14 @@ GROUP_ACCENT = {
     "Operations": SERIES["mechanical"],
 }
 
+#: Identity accent of each edge board (Edge Deployment), from SERIES for the same reason as
+#: GROUP_ACCENT: amber is left out so that no board's colour reads as a warning.
+BOARD_ACCENT = {
+    "esp32": SERIES["electrical"],
+    "rpi5": SERIES["secondary"],
+    "c2000": SERIES["vibration"],
+}
+
 #: status -> (label, glyph, token). Glyphs are plain Unicode so they render without icon fonts.
 STATUS_META = {
     "healthy": ("HEALTHY", "●", "healthy"),

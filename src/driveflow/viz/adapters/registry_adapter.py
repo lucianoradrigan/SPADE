@@ -113,6 +113,17 @@ def list_runs(registry_path: Path = DEFAULT_REGISTRY_PATH) -> list:
     return rows
 
 
+def c2000_summary(kit: dict) -> str:
+    """One line on a C2000 kit, from its manifest and, when measured, the board's own report."""
+    memory = kit["manifest"]["memory"]
+    text = f"Arena {memory['arena_bytes'] / 1024:.1f} KB, weights {memory['weights_bytes'] / 1024:.1f} KB"
+    run = kit["run"]
+    if run is None:
+        return f"{text}. Not measured on the board."
+    budget = "meets" if run["verdicts"]["C5_real_time"] else "MISSES"
+    return f"{text}. Measured on the {run['measured_on']}: {run['worst_latency_ms']:.1f} ms worst latency, {budget} the {run['latency_budget_ms']:.1f} ms window; max error vs. Keras {run['worst_max_abs_err']:.1e}. Simulated windows replayed from flash, no real signal."
+
+
 def class_coverage_warnings(rows: list) -> list[str]:
     """Promoted classifiers with fewer classes than another promoted classifier of the same domain
     (X4, round PLECS/OM: the ESP32 keeps a 3-class model while PC and RPi5 have 5). A fault of a

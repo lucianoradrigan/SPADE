@@ -11,6 +11,7 @@ without a completed sweep behind it.
 from __future__ import annotations
 
 import json
+from html import escape
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -20,11 +21,38 @@ from driveflow.integrations.plecs import batch
 from driveflow.viz.adapters import jobs_adapter as ja
 from driveflow.viz.adapters import plecs_adapter as pa
 from driveflow.viz.components.page_header import badge_html, page_header, provenance_table, source_badge_html
+from driveflow.viz.components.route_flow import route_flow
 from driveflow.viz.theme.plotly import PLOTLY_CONFIG, series_color, style_figure
+from driveflow.viz.theme.tokens import SERIES
 
 NOT_AVAILABLE_GYM = "Interactive stepping is not available with the detected backend."
 LOCAL_RPC = "PLECS RPC is available only when SPADE's backend runs on the same computer."
 _PALETTE = ["#38BDF8", "#F59E0B", "#A78BFA", "#F472B6", "#22C55E", "#94A3B8"]
+
+#: The two working routes, named as in Create Plant's goal cards.
+ROUTES = [
+    {"title": "Generate simulation datasets", "needs": "Needs PLECS Standalone with RPC enabled, on this computer", "tone": SERIES["electrical"], "steps": [
+        ("Your .plecs circuit", "Upload it, or point to it on this computer"),
+        ("Interface manifest", "The ModelVars to vary and the outputs to record"),
+        ("Sweep", "Grid or Latin hypercube, run by PLECS as a job"),
+        ("Inspect results", "Every condition, failed ones included"),
+        ("Dataset (.zip)", "One export per sweep, with its manifest"),
+    ]},
+    {"title": "Use as a Gymnasium plant", "needs": "Needs an .fmu from OpenModelica or PLECS. A Model Exchange FMU runs without PLECS", "tone": SERIES["secondary"], "steps": [
+        ("Your .fmu", "FMI 2.0/3.0, Co-Simulation or Model Exchange"),
+        ("Signals", "Map the FMU's inputs and outputs"),
+        ("Gym behavior", "Timing, reset, reward and safety limits"),
+        ("Verification", "A 13-check job must pass before publishing"),
+        ("Environment", "SPADE/Fmu<Profile>-v0, for RL Lab and Tuning Studio"),
+    ]},
+]
+
+_TAB_GUIDE = [
+    ("Create Plant", "Start here", "Pick a route, add your circuit or FMU, and run it."),
+    ("My Plants", "Then", "Your PLECS circuits: readiness, version and sweep history."),
+    ("Compare with SPADE", "Optional", "Check a surrogate against SPADE's native buck."),
+    ("Connection & Diagnostics", "If PLECS fails", "Test the link to PLECS, which datasets need."),
+]
 
 
 def _url() -> str:
@@ -32,7 +60,18 @@ def _url() -> str:
 
 
 # ----------------------------------------------------------------------------- My Plants
+def _guide() -> None:
+    """What the tool is for: the two routes as a diagram, and which tab does what."""
+    with st.expander("What can I do here?", expanded=True, icon=":material/help:"):
+        st.markdown("Bring a circuit from outside SPADE and turn it into something SPADE can use. There are two routes, and you choose one in **Create Plant**: "
+                    "a **dataset** of simulated results, or a **plant** that a controller can step through during training.")
+        route_flow(ROUTES)
+        cards = "".join(f'<div{" class=is-start" if i == 0 else ""}><em>{escape(when)}</em><b>{escape(tab)}</b><span>{escape(text)}</span></div>' for i, (tab, when, text) in enumerate(_TAB_GUIDE))
+        st.html(f'<div class="spade-root spade-tabguide">{cards}</div>')
+
+
 def _my_plants() -> None:
+    st.caption("Your library of PLECS circuits, and whether each one is ready to use. Add them in **Create Plant**. FMU plants are kept in Create Plant → Use as a Gymnasium plant.")
     search = st.text_input("Search plants", key="plecs_search", placeholder="name or ID")
     rows = pa.profile_rows(search)
     if rows.empty:
@@ -228,6 +267,7 @@ def _sweep_results(p):
 
 
 def _create_plant() -> None:
+    st.caption("Add a new plant: choose a route, and each one guides you through its steps. Circuits appear in **My Plants**; published FMU plants appear in RL Lab and Tuning Studio.")
     goal = _goal_cards()
     if goal == "gym":
         from driveflow.viz.views.plant_studio_fmu import render_gym_route
@@ -363,10 +403,10 @@ def _diagnostics() -> None:
 
 def render() -> None:
     page_header("Simulation / PLECS Plant Studio", "PLECS Plant Studio",
-                "Create an environment from a circuit: simulation datasets from PLECS Standalone RPC sweeps, and "
-                "Gymnasium plants from verified FMUs exported by OpenModelica or PLECS (FMI 2.0/3.0, Co-Simulation or Model Exchange).",
+                "Turn your own circuit into a simulation dataset or a Gymnasium plant.",
                 [source_badge_html("SIMULATED · PLECS", "Results are PLECS simulations, not hardware"),
                  source_badge_html("SIMULATED · OPENMODELICA", "Gymnasium plants from OpenModelica FMUs, not hardware")])
+    _guide()
     t_plants, t_create, t_compare, t_diag = st.tabs(["My Plants", "Create Plant", "Compare with SPADE", "Connection & Diagnostics"])
     with t_plants:
         _my_plants()

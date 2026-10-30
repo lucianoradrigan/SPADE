@@ -36,6 +36,7 @@ PAGES = {
     ],
     "Intelligence": [
         ("pages/ai_diagnostics.py", "AI Diagnostics", ":material/psychology:"),
+        ("pages/edge_deployment.py", "Edge Deployment", ":material/developer_board:"),
         ("pages/transfer_learning.py", "Transfer Learning", ":material/sync_alt:"),
         ("pages/model_registry.py", "Model Registry", ":material/inventory_2:"),
     ],

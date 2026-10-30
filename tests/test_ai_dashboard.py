@@ -29,6 +29,13 @@ def _open():
     return at
 
 
+def _open_edge():
+    at = AppTest.from_file(APP_PATH, default_timeout=120)
+    at.run()
+    at.switch_page("pages/edge_deployment.py").run()
+    return at
+
+
 def _is_registered(domain: str, block: str) -> bool:
     try:
         resolve(domain, "pc", block)
@@ -175,15 +182,15 @@ class TestEdgeDeploymentDownloads:
 
     @pytest.mark.parametrize("domain", ["dc_motor", "vsc_dpc"])
     def test_renders_without_exceptions(self, domain):
-        at = _open()
-        at.selectbox(key="ia_domain").set_value(domain).run()
+        at = _open_edge()
+        at.selectbox(key="edge_domain").set_value(domain).run()
         assert not at.exception
 
     def test_warns_the_downloads_are_fixed_not_derived_from_the_sample_run_sidebar(self):
         """Direct answer to "does the downloaded model depend on the sample-run parameters?" --
         no, it's the fixed promoted artifact regardless of fault type/load resistance/etc.; that
         must be stated in the UI itself, not just known by whoever built it."""
-        at = _open()
+        at = _open_edge()
         assert not at.exception
         caption_texts = " ".join(el.value for el in at.caption).lower()
         assert "not re-generated from the sample-run controls" in caption_texts
@@ -193,8 +200,12 @@ class TestEdgeDeploymentDownloads:
         [(d, t, b) for d in ["dc_motor", "vsc_dpc"] for t in ["rpi5", "esp32"] for b in ["classifier", "regressor"]],
     )
     def test_download_button_matches_real_tflite_availability(self, domain, tier, block):
-        at = _open()
-        at.selectbox(key="ia_domain").set_value(domain).run()
+        at = _open_edge()
+        at.selectbox(key="edge_domain").set_value(domain).run()
+        if {"classifier": "Fault classifier", "regressor": "Forecaster"}[block] not in at.selectbox(key="edge_block").options:
+            assert not _has_tflite(domain, tier, block)
+            return
+        at.selectbox(key="edge_block").set_value(block).run()
         assert not at.exception
 
         button_key = f"ia_edge_dl_{domain}_{tier}_{block}"

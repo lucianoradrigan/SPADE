@@ -2,6 +2,7 @@
 
 import streamlit as st
 
+from driveflow.viz.components.citation import render_citation
 from driveflow.viz.components.page_header import page_header
 
 _STATUS = """
@@ -56,7 +57,7 @@ _LIMITS = """
 
 def render() -> None:
     page_header("Help / Documentation", "How to read SPADE", "Status semantics, data formats, design decisions and the limits of what this workbench demonstrates.", [])
-    t1, t2, t3, t4 = st.tabs(["Status & sources", "Data formats", "Known limitations", "Platform"])
+    t1, t2, t3, t4, t5 = st.tabs(["Status & sources", "Data formats", "Known limitations", "Platform", "Cite SPADE"])
     with t1:
         st.markdown(_STATUS)
         st.markdown(_SOURCES)
@@ -72,3 +73,5 @@ def render() -> None:
             "fail-closed transfer learning, and monitoring agents (rule-based gateway, simulation-based detector, confidence-drift server).\n\n"
             "**Macro-phase map.** A → DC Motor + PMSM · B → VSC / DPC · IA → AI Diagnostics + Model Registry · TL → Transfer Learning · LM → Monitoring + Alert History."
         )
+    with t5:
+        render_citation()

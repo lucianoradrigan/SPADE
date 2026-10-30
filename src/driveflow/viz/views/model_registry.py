@@ -9,8 +9,9 @@ history and requires an explicit confirmation."""
 import pandas as pd
 import streamlit as st
 
+from driveflow.ai.c2000_export import kit_zip
 from driveflow.ai.registry import RegistryError, registry_history, rollback
-from driveflow.viz.adapters.registry_adapter import class_coverage_warnings, list_runs
+from driveflow.viz.adapters.registry_adapter import c2000_summary, class_coverage_warnings, list_runs
 from driveflow.viz.components.artifact_table import artifact_table
 from driveflow.viz.components.metric_cards import check_list, kpi_row
 from driveflow.viz.components.page_header import badge_html, page_header, provenance_table
@@ -24,7 +25,7 @@ def render() -> None:
         "Intelligence / Model registry",
         "Model registry & artifacts",
         "Every trained run on disk, with its promotion status, lineage, validation gate and edge-export evidence.",
-        [badge_html("HARDWARE VERIFICATION: NONE RECORDED", "warning", "▲", "No deployment_evidence.json exists for any run.")],
+        [badge_html("HARDWARE VERIFICATION: NONE RECORDED", "warning", "▲", "No run has real-signal evidence. C2000 kits record their bench measurements on the board.")],
     )
     rows = list_runs()
     ok_rows = [r for r in rows if "error" not in r]
@@ -111,3 +112,8 @@ def _detail(r: dict) -> None:
                 if art.get("flex_ops"):
                     st.warning(f"Contains TF Select (Flex) ops {art['flex_ops']}: needs the Flex delegate — not runnable on TFLite Micro or the plain tflite-runtime/LiteRT interpreter.", icon=":material/warning:")
             st.caption("To record hardware evidence, add deployment_evidence.json to the run directory (see Documentation).")
+            kit = r["deployment"].get("c2000")
+            if kit:
+                st.markdown("**TI C2000 (LAUNCHXL-F28379D)**")
+                st.caption(c2000_summary(kit))
+                st.download_button("Download C2000 kit (.zip)", kit_zip(kit["kit_dir"]), file_name=f"{r['run'].replace('/', '_')}_c2000.zip", key=f"registry_c2000_{r['run']}", icon=":material/download:")

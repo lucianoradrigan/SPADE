@@ -147,3 +147,13 @@ def test_partial_sweep_is_visible_with_counts_and_causes(tmp_path):
     texts = " ".join(str(e.value) for kind in ("markdown", "caption", "info", "warning", "error", "success", "code") for e in at.get(kind))
     assert "condition 3/9 failed" in texts or "failed" in texts
     assert any("Cause" in getattr(d.value, "columns", []) and (d.value["Cause"] == "Solver error / no convergence").sum() == 2 for d in at.dataframe)
+
+
+def test_guide_names_the_routes_of_create_plant():
+    """The diagram sends the user to Create Plant, so its routes must be that tab's goal cards."""
+    from driveflow.viz.views import plecs_plant_studio as studio
+
+    source = Path(studio.__file__).read_text(encoding="utf-8")
+    for route in studio.ROUTES:
+        assert f'st.markdown("**{route["title"]}**")' in source
+

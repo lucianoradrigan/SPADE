@@ -20,7 +20,7 @@ from driveflow.viz.theme.tokens import DARK, LIGHT
 
 ROOT = Path(__file__).resolve().parents[1]
 APP_PATH = str(ROOT / "src" / "driveflow" / "viz" / "app.py")
-PAGES = ["overview", "experiment_runs", "dc_motor", "pmsm", "vsc_dpc", "dcdc_converters", "plecs_plant_studio", "tuning_studio", "rl_lab", "ai_diagnostics", "transfer_learning", "model_registry", "monitoring", "alert_history", "documentation", "algorithm_guide"]
+PAGES = ["overview", "experiment_runs", "dc_motor", "pmsm", "vsc_dpc", "dcdc_converters", "plecs_plant_studio", "tuning_studio", "rl_lab", "ai_diagnostics", "edge_deployment", "transfer_learning", "model_registry", "monitoring", "alert_history", "documentation", "algorithm_guide"]
 #: Spanish UI words that used to appear in the legacy dashboard ("Fase", tab titles) -- the
 #: frontend must be English (guide Sec. 0).
 _SPANISH = re.compile(r"\b(Fase|Corrientes|Envolvente|Plano|Generar|vibración|Evaluar|Monitoreo)\b")
@@ -191,3 +191,36 @@ def test_amplitude_spectrum_recovers_known_sine():
     assert a[np.argmin(abs(f - 870))] == pytest.approx(0.5, rel=1e-3)
     with pytest.raises(ValueError):
         amplitude_spectrum([1.0, np.nan] * 10, fs)
+
+
+def test_every_overview_video_guide_is_embedded_and_in_the_readme():
+    from driveflow.viz.views.overview import VIDEO_GUIDES
+
+    at = AppTest.from_file(APP_PATH, default_timeout=120)
+    at.run()
+    assert not at.exception
+    assert len(VIDEO_GUIDES) == 4
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    for video, *_ in VIDEO_GUIDES:
+        assert f"https://www.youtube.com/watch?v={video}" in readme
+
+
+def test_readme_credits_every_author_and_the_citation_shown_in_the_app():
+    from driveflow.viz.components.citation import AUTHORS, CITATION_BIBTEX, CITATION_TEXT, PROFILES
+
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert CITATION_TEXT in readme and CITATION_BIBTEX in readme
+    assert all(name in readme and mail in readme for name, mail, _ in AUTHORS)
+    assert all(url in readme for links in PROFILES.values() for _, url in links)
+
+
+@pytest.mark.parametrize("page", ["overview", "documentation"])
+def test_the_citation_is_shown_in_the_app(page):
+    from driveflow.viz.components.citation import CITATION_TEXT
+
+    at = AppTest.from_file(APP_PATH, default_timeout=120)
+    at.run()
+    at.switch_page(f"pages/{page}.py").run()
+    assert not at.exception
+    assert CITATION_TEXT in [c.value for c in at.code]
+
