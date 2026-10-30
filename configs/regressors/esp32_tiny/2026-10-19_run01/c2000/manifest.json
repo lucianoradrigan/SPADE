@@ -1,0 +1,41 @@
+{
+  "target": "LAUNCHXL-F28379D",
+  "format": "float32 C (no quantization)",
+  "source_run": "esp32_tiny/2026-10-19_run01",
+  "model_id": "08626a228bca",
+  "weights_sha256": "08626a228bca3e7dfb8025c505833bf13d0577076c23b9650cfcd17312908644",
+  "channels": [
+    "vc_real",
+    "vc_imag",
+    "i_f_real",
+    "i_f_imag"
+  ],
+  "classes": [],
+  "input_shape": [
+    256,
+    4
+  ],
+  "output_shape": [
+    64,
+    4
+  ],
+  "level_scaling": null,
+  "calibration": null,
+  "ood_ported": false,
+  "reference_windows": 6,
+  "memory": {
+    "arena_bytes": 16384,
+    "arena_limit_bytes": 131056,
+    "weights_bytes": 10560,
+    "reference_bytes": 30720,
+    "flash_data_limit_bytes": 327680,
+    "fits": true
+  },
+  "macs_per_inference": 75776,
+  "kernels": [
+    "spade_batchnorm",
+    "spade_conv1d",
+    "spade_dense",
+    "spade_relu"
+  ]
+}

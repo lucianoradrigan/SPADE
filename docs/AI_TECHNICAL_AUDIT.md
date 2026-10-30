@@ -240,6 +240,8 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N21 | High | Negative result (threshold) | **Open** (§10.1): with the steady-state gate (run02), healthy windows at 100 % noise give 58.3 % / 71.2 % false alarms (criterion 3 ≤ 1 %); not promoted |
 | AI-N22 | High | Negative result (last attempt, D2) | **Closed (negative)** (§10.2): the pre-registered noise-aware threshold passes criterion 2 (AUROC 1.000) but fails criterion 3 at 100 % noise (6.7 % false alarms, 23.1 % of healthy windows out of the calibrated noise range). E14 closed, no further attempts |
 | AI-N23 | Medium | Negative result (feasibility) | **Closed (negative)** (§11.1): at most 2 IGBT run-to-failure devices on a comparable protocol (with different failure modes); no validated RUL model is feasible. E11 closed; option 3 (another NASA PCoE dataset) postponed |
+| AI-N24 | Medium | Negative result | **Open** (§12.1): `rpi5_tcn/2026-10-20_run01` is numerically correct on the C2000 but takes 520 ms for a 51.2 ms window |
+| AI-N25 | Medium | Negative result (feasibility) | **Open** (§12.2): the promoted `dc_motor/rpi5` w2048 classifier needs a 448 KB arena; the C2000 has 128 KB for tensors |
 | AI-N19 | Medium | Evaluation limit | **Documented** (§10): simulated healthy current/rpm are constant in steady state, so the residual AUROC (1.000) and the persistence baseline are optimistic |
 | AI-N15 | Medium | Defect (estimator bias) | **Open** (§9.1): the VSC PINN estimates C systematically low, −1.3 % to −9.1 % mean error at 0–5 % noise |
 | AI-N16 | Medium | Defect (uncertainty) | **Open** (§9.2): the PINN's 5–95 % bootstrap interval covers the truth in 52–78 % of noisy runs for C; the GUI says "Coverage not validated" |
@@ -705,3 +707,18 @@ The simulation-based agent and the PC residual detectors both reach run-level AU
   - **Postponed:** option 3, another NASA PCoE dataset (e.g. MOSFET thermal-overstress aging). Not rejected, not done.
 - **Test:** `tests/test_findings_e11.py`.
 
+## 12. C2000 export (round 2026-10-30)
+
+Evidence: [`docs/audit/c2000/report.md`](audit/c2000/report.md), against the criteria in [`criteria.md`](audit/c2000/criteria.md).
+
+### 12.1 AI-N24 — the promoted RPi5 TCN misses real time on the C2000 · **Medium** · Negative result · **Open**
+
+- **Measured:** 520.1 ms worst latency on a LAUNCHXL-F28379D at 200 MHz, against the 51.2 ms window (256 samples at 5 kHz). Criterion C5 fails. Parity holds (max error 1.2e-6).
+- **Scope:** only this run, which is the promoted `vsc_dpc/rpi5/regressor` and is fine on its own tier. The promoted `esp32_tiny` regressor passes at 19.7 ms.
+- **Not attempted:** moving the weights to RAM, or a smaller distillate.
+
+### 12.2 AI-N25 — the promoted w2048 classifier does not fit the C2000 · **Medium** · Negative result (feasibility) · **Open**
+
+- **Measured:** `plan_model` needs a 448 KB arena for `rpi5_resnet1d_se_5class_w2048/2026-10-20_run01`, against 128 KB in the kit's linker map and 204 KB of total RAM. `experiments/export_c2000.py` refuses it.
+- **Consequence:** the C2000 has the same class coverage as the ESP32, 3 classes (AI-N13): a ball or cage fault is answered as one of those 3.
+- **Open option:** a 5-class distillate trained for this memory budget.

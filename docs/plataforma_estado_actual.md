@@ -97,6 +97,10 @@ Plan completo (9 pasos) implementado — ver la nota de estado al final de
   ejecución — no es un `.tflite` 100% builtin, pero es viable en un Raspberry Pi 5 corriendo Linux
   completo.
 - Los `.tflite` reales ya generados están descargables directo desde la pestaña IA del dashboard.
+- **TI C2000 (LAUNCHXL-F28379D):** destino de exportación, no tier de entrenamiento
+  (`experiments/export_c2000.py`). Genera C float32 con la normalización de la ventana, porque el
+  C28x no puede ejecutar TFLite Micro (`CHAR_BIT = 16`). Resultados en placa real, con ventanas
+  simuladas: `docs/audit/c2000/report.md`.
 
 ### 2.4 Agentes de monitoreo basados en reglas
 

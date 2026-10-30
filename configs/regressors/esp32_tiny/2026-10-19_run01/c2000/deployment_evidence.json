@@ -1,0 +1,11 @@
+{
+  "static_compatibility_passed": true,
+  "bench_verified": true,
+  "board": "LAUNCHXL-F28379D",
+  "runtime": "SPADE float32 C kernels, CGT 25.11.1.LTS",
+  "latency_ms_worst": 19.71847,
+  "arena_bytes": 16384,
+  "max_abs_err_vs_keras": 4.76837158203125e-07,
+  "when": "2026-10-30T10:27:40+00:00",
+  "note": "Simulated windows replayed from flash; no ADC or real signal."
+}

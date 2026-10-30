@@ -12,6 +12,9 @@ accuracy. The lifecycle is therefore explicit and each stage needs its own evide
 - Every later stage is "not_verified" unless an optional `deployment_evidence.json` in the run
   directory records it (board, runtime version, latency/RAM/flash, accuracy-after-quantization,
   who/when). No such file exists in this repository today, so no run is shown as hardware-verified.
+
+The C2000 export is a separate artifact of the same run (<run>/c2000/, ai/c2000_export.py), with its
+own evidence file: a measurement on that board says nothing about the run's model.tflite.
 """
 
 from __future__ import annotations
@@ -22,6 +25,7 @@ from pathlib import Path
 
 STAGES = ("exported", "static_compatibility_passed", "bench_verified", "hardware_verified", "production_approved")
 EVIDENCE_FILE = "deployment_evidence.json"
+C2000_DIR = "c2000"
 
 
 def tflite_op_names(path) -> list:
@@ -63,6 +67,19 @@ def _inspect_tflite(path: str, mtime: float) -> dict:
     return {"readable": True, "input_dtypes": ins, "output_dtypes": outs, "quantization": quant, "flex_ops": flex}
 
 
+def c2000_status(run_dir) -> dict | None:
+    """The run's C2000 kit: its manifest, plus hardware_run.json and deployment_evidence.json when
+    scripts/edge_benchmark/c2000_collect.py wrote them. None if the run has no kit."""
+    kit = Path(run_dir) / C2000_DIR
+    if not (kit / "manifest.json").exists():
+        return None
+    status = {"kit_dir": kit, "manifest": json.loads((kit / "manifest.json").read_text()), "evidence": None, "run": None}
+    for key, name in (("evidence", EVIDENCE_FILE), ("run", "hardware_run.json")):
+        if (kit / name).exists():
+            status[key] = json.loads((kit / name).read_text())
+    return status
+
+
 def deployment_status(run_dir) -> dict:
     run_dir = Path(run_dir)
     tflite = run_dir / "model.tflite"
@@ -84,4 +101,4 @@ def deployment_status(run_dir) -> dict:
             if evidence.get(stage):
                 status[stage] = "done"
         info["evidence"] = evidence
-    return {"stages": status, **info}
+    return {"stages": status, **info, "c2000": c2000_status(run_dir)}

@@ -1,0 +1,62 @@
+{
+  "target": "LAUNCHXL-F28379D",
+  "format": "float32 C (no quantization)",
+  "source_run": "esp32_dscnn/2026-10-18_run01",
+  "model_id": "6e2cae5f7b4d",
+  "weights_sha256": "6e2cae5f7b4dc7469ef0fcee21c319185f1bec7f45adddb1a68568e5334e9cf9",
+  "channels": [
+    "acc_x",
+    "acc_y",
+    "acc_z",
+    "current_r",
+    "rpm",
+    "torque_nm"
+  ],
+  "classes": [
+    "inner_race",
+    "normal",
+    "outer_race"
+  ],
+  "input_shape": [
+    512,
+    6
+  ],
+  "output_shape": [
+    3
+  ],
+  "level_scaling": {
+    "rpm": [
+      1432.4,
+      477.5
+    ]
+  },
+  "calibration": {
+    "method": "temperature",
+    "temperature": 0.9053306125731545,
+    "fitted_on": "val",
+    "val_nll_before": 0.2950306251880491,
+    "val_nll_after": 0.29299490423990243,
+    "abstain_below": 0.7341930848661137,
+    "target_coverage": 0.95
+  },
+  "ood_ported": false,
+  "reference_windows": 6,
+  "memory": {
+    "arena_bytes": 49152,
+    "arena_limit_bytes": 131056,
+    "weights_bytes": 1836,
+    "reference_bytes": 73800,
+    "flash_data_limit_bytes": 327680,
+    "fits": true
+  },
+  "macs_per_inference": 168996,
+  "kernels": [
+    "spade_batchnorm",
+    "spade_conv1d",
+    "spade_dense",
+    "spade_depthwise1d",
+    "spade_gap1d",
+    "spade_relu",
+    "spade_softmax"
+  ]
+}

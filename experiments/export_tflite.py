@@ -41,7 +41,7 @@ def _representative_windows(domain: str, block: str, dataset_path: Path, config,
 def main(argv=None) -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--domain", required=True)
-    parser.add_argument("--tier", required=True, choices=["rpi5", "esp32"], help="pc has no TFLite export -- it runs the native keras.Model.")
+    parser.add_argument("--tier", required=True, choices=["rpi5", "esp32"], help="pc has no TFLite export -- it runs the native keras.Model. The C2000 has no TFLite either: see experiments/export_c2000.py.")
     parser.add_argument("--block", required=True, choices=["classifier", "regressor"])
     parser.add_argument("--dataset", type=Path, help="Required for --tier esp32 (int8 calibration data); ignored for rpi5.")
     parser.add_argument("--n-calibration-samples", type=int, default=1000)

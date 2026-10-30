@@ -1,0 +1,67 @@
+{
+  "measured_on": "LAUNCHXL-F28379D",
+  "when": "2026-10-30T10:26:20+00:00",
+  "source_run": "esp32_dscnn/2026-10-18_run01",
+  "model_id": "6e2cae5f7b4d",
+  "sysclk_hz": 200000000,
+  "input": "simulated windows replayed from flash",
+  "worst_max_abs_err": 1.1920928955078125e-07,
+  "worst_latency_ms": 68.51859999999999,
+  "latency_budget_ms": 102.4,
+  "verdicts": {
+    "C2_memory": true,
+    "C3_parity": true,
+    "C4_top1": true,
+    "C5_real_time": true
+  },
+  "windows": [
+    {
+      "window": 0,
+      "cycles": 12974510,
+      "latency_ms": 64.87255,
+      "max_abs_err": 1.1920928955078125e-07,
+      "top": 1,
+      "expected_top": 1
+    },
+    {
+      "window": 1,
+      "cycles": 13697665,
+      "latency_ms": 68.488325,
+      "max_abs_err": 8.009374141693115e-08,
+      "top": 2,
+      "expected_top": 2
+    },
+    {
+      "window": 2,
+      "cycles": 13665897,
+      "latency_ms": 68.32948499999999,
+      "max_abs_err": 3.073364496231079e-08,
+      "top": 0,
+      "expected_top": 0
+    },
+    {
+      "window": 3,
+      "cycles": 12970563,
+      "latency_ms": 64.85281499999999,
+      "max_abs_err": 4.842877388000488e-08,
+      "top": 1,
+      "expected_top": 1
+    },
+    {
+      "window": 4,
+      "cycles": 13703720,
+      "latency_ms": 68.51859999999999,
+      "max_abs_err": 6.402842700481415e-10,
+      "top": 2,
+      "expected_top": 2
+    },
+    {
+      "window": 5,
+      "cycles": 13682731,
+      "latency_ms": 68.413655,
+      "max_abs_err": 6.51925802230835e-09,
+      "top": 0,
+      "expected_top": 0
+    }
+  ]
+}

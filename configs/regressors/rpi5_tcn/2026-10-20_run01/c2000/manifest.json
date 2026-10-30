@@ -1,0 +1,41 @@
+{
+  "target": "LAUNCHXL-F28379D",
+  "format": "float32 C (no quantization)",
+  "source_run": "rpi5_tcn/2026-10-20_run01",
+  "model_id": "a0cff1343cff",
+  "weights_sha256": "a0cff1343cff675ad781411629e7a283d26f74c2aa1e56b33bd02324352f4780",
+  "channels": [
+    "vc_real",
+    "vc_imag",
+    "i_f_real",
+    "i_f_imag"
+  ],
+  "classes": [],
+  "input_shape": [
+    256,
+    4
+  ],
+  "output_shape": [
+    64,
+    4
+  ],
+  "level_scaling": null,
+  "calibration": null,
+  "ood_ported": false,
+  "reference_windows": 6,
+  "memory": {
+    "arena_bytes": 65536,
+    "arena_limit_bytes": 131056,
+    "weights_bytes": 111744,
+    "reference_bytes": 30720,
+    "flash_data_limit_bytes": 327680,
+    "fits": true
+  },
+  "macs_per_inference": 4825088,
+  "kernels": [
+    "spade_batchnorm",
+    "spade_conv1d",
+    "spade_dense",
+    "spade_relu"
+  ]
+}

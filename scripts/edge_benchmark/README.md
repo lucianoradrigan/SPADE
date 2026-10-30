@@ -1,6 +1,6 @@
-# Edge benchmark kit (Raspberry Pi 5, ESP32)
+# Edge benchmark kit (Raspberry Pi 5, ESP32, TI C2000)
 
-> **Not executed on hardware.** Nothing in this folder has run on a Raspberry Pi 5 or an ESP32. The RPi5 script was only run on the PC host with TensorFlow's interpreter as a fallback, to check that it works. The ESP32 sources were not compiled. Treat every number they produce on a PC as a host measurement, never as an edge result.
+> **Not executed on hardware (Raspberry Pi 5, ESP32).** Nothing for those boards has run on a Raspberry Pi 5 or an ESP32. The C2000 kit of section 4 is the exception: it did run on its board. The RPi5 script was only run on the PC host with TensorFlow's interpreter as a fallback, to check that it works. The ESP32 sources were not compiled. Treat every number they produce on a PC as a host measurement, never as an edge result.
 
 This kit is TODO_CLAUDE_CODE.md P3: it is what to run once hardware is available.
 
@@ -51,3 +51,21 @@ cd scripts/edge_benchmark/esp32 && idf.py add-dependency "espressif/esp-tflite-m
 **Before the first build:**
 - **Arena size.** `kArenaSize` is a guess; tune it to `arena_used_bytes()`.
 - **Op list.** Check that the op resolver lists every op of the model. `docs/audit/tflite_parity_report.txt` lists the ops of each export.
+
+## 4. TI C2000 (LAUNCHXL-F28379D)
+
+**This one was executed on the board:** [`docs/audit/c2000/report.md`](../../docs/audit/c2000/report.md).
+
+The C28x has no 8-bit type, so TFLite Micro does not apply. `experiments/export_c2000.py` writes `<run>/c2000/`, a self-contained project that builds without CCS:
+
+```bash
+python -m experiments.export_c2000 --domain dc_motor --tier esp32 --block classifier
+make -C configs/classifiers/esp32_dscnn/2026-10-18_run01/c2000
+python3 scripts/edge_benchmark/c2000_collect.py configs/classifiers/esp32_dscnn/2026-10-18_run01/c2000
+```
+
+The Makefile expects TI's CGT, UniFlash and C2000Ware under `~/ti` and the target file at `~/post_doc/C2000/TMS320F28379D.ccxml`; override `CGT`, `UNIFLASH`, `C2000WARE` or `CCXML` otherwise.
+
+**To use the model in your own firmware:** copy `spade_model.c`, `spade_model.h`, `spade_nn.c`, `spade_nn.h`, add the linker regions of `lnk_spade_f28379d.cmd`, and call `spade_model_run(raw)` with a full window of physical samples in the channel order listed at the top of `spade_model.c`. Then read `spade_model_output()`, and for a classifier `spade_model_decide()`. The window must arrive at the rate the model was trained on: 5 kHz.
+
+Re-exporting a run deletes its previous board evidence, because that evidence no longer describes the kit.
