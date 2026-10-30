@@ -665,7 +665,7 @@ SPADE was created by the authors below. **If you use SPADE in your work, please 
 | **Anibal S. Morales, PhD** | Electrical Engineering Department, Universidad de Concepcion, Chile | <animorales@udec.cl> |
 | **Felipe Ruiz, PhD** | Energy Transition Center, Faculty of Engineering, Universidad San Sebastian, Santiago, Chile | <felipe.ruiz@uss.cl> |
 | **Jose Rodriguez, PhD** | Energy Transition Center, Faculty of Engineering, Universidad San Sebastian, Santiago, Chile | <jose.rodriguezp@uss.cl> |
-| **Hugues Renaudineau, PhD** | Energy Transition Center, Faculty of Engineering, Universidad San Sebastian, Valdivia, Chile | |
+| **Hugues Renaudineau, PhD** | Energy Transition Center, Faculty of Engineering, Universidad San Sebastian, Valdivia, Chile | <hugues.renaudineau@uss.cl> |
 
 ```text
 L. Radrigan, A. S. Morales, F. Ruiz, J. Rodriguez, and H. Renaudineau, "SPADE: Simulation Platform for Analysis, Diagnosis & Electric drives," version 0.1.0, 2026. [Online]. Available: https://github.com/lucianoradrigan/SPADE
