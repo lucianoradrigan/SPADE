@@ -1,0 +1,150 @@
+{
+ "_produced_by": "optim.objectives.evaluate(BASELINE, grid) for the three grids and j_effort on the tuning grid, on commit 78f6bbe (F0.4, before F0.6), cpu_s removed; recorded 2026-11-02 before any F0.6 change",
+ "TUNING_GRID": {
+  "summary": {
+   "J": 25.20494963878825,
+   "mean_overshoot_pct": 15.11623263022841,
+   "mean_settling_ms": 64.80000000000003,
+   "mean_dip_rad_s": 1.804358504279918,
+   "finite": true,
+   "mean_effort_v": 0.047161664957313554,
+   "max_step_peak_i_a": 92.060880262781,
+   "current_constraint_ok": true
+  },
+  "results": [
+   {
+    "condition": "s04_step_2rad_s_at_150",
+    "kind": "step",
+    "finite": true,
+    "effort_v": 0.0923521165622509,
+    "peak_i_a": 92.060880262781,
+    "overshoot_pct": 15.11623263022841,
+    "settling_ms": 64.80000000000003,
+    "rise_ms": 9.299999999999976,
+    "rmse_rad_s": 0.21610413071157897
+   },
+   {
+    "condition": "load_10Nm_at_150",
+    "kind": "load",
+    "finite": true,
+    "effort_v": 0.001971213352376218,
+    "peak_i_a": 115.28256379344865,
+    "dip_rad_s": 1.804358504279918,
+    "final_error_rad_s": 8.056133538048016e-10
+   }
+  ]
+ },
+ "EVALUATION_GRID": {
+  "summary": {
+   "J": 27.829457688832704,
+   "mean_overshoot_pct": 12.580871933391094,
+   "mean_settling_ms": 69.06666666666668,
+   "mean_dip_rad_s": 4.170959544387472,
+   "finite": true,
+   "mean_effort_v": 0.14749918724351452,
+   "max_step_peak_i_a": 168.00000000000003,
+   "current_constraint_ok": false
+  },
+  "results": [
+   {
+    "condition": "step_5rad_s_at_120",
+    "kind": "step",
+    "finite": true,
+    "effort_v": 0.23088029140632438,
+    "peak_i_a": 152.7885659551036,
+    "overshoot_pct": 15.11623093009149,
+    "settling_ms": 64.80000000000003,
+    "rise_ms": 9.299999999999976,
+    "rmse_rad_s": 0.540260363268267
+   },
+   {
+    "condition": "saturating_step_30rad_s_at_100",
+    "kind": "step",
+    "finite": true,
+    "effort_v": 0.2647949826608339,
+    "peak_i_a": 168.00000000000003,
+    "overshoot_pct": 2.3004262175895938,
+    "settling_ms": 64.90000000000002,
+    "rise_ms": 30.799999999999994,
+    "rmse_rad_s": 6.123122899525578
+   },
+   {
+    "condition": "drift_step_2rad_s_at_150",
+    "kind": "step",
+    "finite": true,
+    "effort_v": 0.0922756761265273,
+    "peak_i_a": 98.13133621822665,
+    "overshoot_pct": 20.325958652492204,
+    "settling_ms": 77.50000000000001,
+    "rise_ms": 13.29999999999998,
+    "rmse_rad_s": 0.27677943708667324
+   },
+   {
+    "condition": "drift_load_15Nm_at_200",
+    "kind": "load",
+    "finite": true,
+    "effort_v": 0.002045798780372502,
+    "peak_i_a": 168.00074786267487,
+    "dip_rad_s": 4.170959544387472,
+    "final_error_rad_s": 3.2646191038199106
+   }
+  ]
+ },
+ "EVALUATION_GRID_NOISY": {
+  "summary": {
+   "J": 43.38879097692182,
+   "mean_overshoot_pct": 12.29260162646865,
+   "mean_settling_ms": 219.19999999999996,
+   "mean_dip_rad_s": 4.588094675226586,
+   "finite": true,
+   "mean_effort_v": 1.7326683517933574,
+   "max_step_peak_i_a": 169.5614606561388,
+   "current_constraint_ok": false
+  },
+  "results": [
+   {
+    "condition": "step_5rad_s_at_120_noisy",
+    "kind": "step",
+    "finite": true,
+    "effort_v": 2.2207373805597452,
+    "peak_i_a": 155.06014615897402,
+    "overshoot_pct": 14.787548127086152,
+    "settling_ms": 297.5,
+    "rise_ms": 9.099999999999998,
+    "rmse_rad_s": 0.5402977883736796
+   },
+   {
+    "condition": "saturating_step_30rad_s_at_100_noisy",
+    "kind": "step",
+    "finite": true,
+    "effort_v": 2.1026879305462995,
+    "peak_i_a": 169.5614606561388,
+    "overshoot_pct": 2.223388138698207,
+    "settling_ms": 60.5,
+    "rise_ms": 30.99999999999997,
+    "rmse_rad_s": 6.125641530193546
+   },
+   {
+    "condition": "drift_step_2rad_s_at_150_noisy",
+    "kind": "step",
+    "finite": true,
+    "effort_v": 2.214452118243592,
+    "peak_i_a": 119.78721135632459,
+    "overshoot_pct": 19.86686861362159,
+    "settling_ms": 299.59999999999997,
+    "rise_ms": 13.29999999999998,
+    "rmse_rad_s": 0.28067291146767465
+   },
+   {
+    "condition": "drift_load_15Nm_at_200_noisy",
+    "kind": "load",
+    "finite": true,
+    "effort_v": 0.39279597782379283,
+    "peak_i_a": 169.5359388749386,
+    "dip_rad_s": 4.588094675226586,
+    "final_error_rad_s": 3.7610776163178343
+   }
+  ]
+ },
+ "j_effort_baseline_on_tuning": 4.0
+}

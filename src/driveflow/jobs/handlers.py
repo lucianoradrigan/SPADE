@@ -273,6 +273,15 @@ def _validate_tuning(spec: ExperimentSpec) -> None:
     from driveflow.optim import systems
 
     key = spec.params.get("system", systems.DC_MOTOR)
+    if spec.params.get("motor") is not None:  # F0.6: tune on another DC motor
+        if key != systems.DC_MOTOR:
+            raise SpadeError(ErrorCode.INVALID_SPEC, "params.motor applies only to the DC-motor PI (system dc_motor)")
+        try:
+            motor = ob.motor_from_spec(spec.params["motor"])
+            if spec.params.get("objective", "J") == "J_effort":
+                motor.rated_current_a()
+        except (ValueError, TypeError) as exc:
+            raise SpadeError(ErrorCode.INVALID_SPEC, str(exc)) from None
     if key != systems.DC_MOTOR:
         try:
             system = systems.get(key)
@@ -386,8 +395,8 @@ def controller_tuning(ctx: JobContext) -> HandlerResult:
     n_eval = int(spec.budget["evaluations"])
     seed = int(spec.seed)
     objective = spec.params.get("objective", "J")
-    scalar_f, vector_f, eval_grid, objective_text = ob.OBJECTIVES[objective]
-    score = (lambda summary: summary["J"]) if objective == "J" else ob.j_effort
+    motor = ob.motor_from_spec(spec.params.get("motor"))  # STOCK without params.motor (F0.6)
+    scalar_f, vector_f, eval_grid, objective_text, score = ob.objective_functions(objective, motor)
     conditions = []
 
     def callback(i, x, fx):
@@ -418,14 +427,14 @@ def controller_tuning(ctx: JobContext) -> HandlerResult:
         return HandlerResult(conditions=conditions, metrics={"method": method, "n_evaluations": len(conditions) - 1})
 
     ctx.log(f"{method}: {len(conditions)} evaluations; evaluating baseline and {len(candidates)} candidate(s) on the evaluation grid")
-    base_sum, base_rows = ob.evaluate(ob.BASELINE, eval_grid)
-    base_tune, _ = ob.evaluate(ob.BASELINE, ob.TUNING_GRID)
+    base_sum, base_rows = ob.evaluate(ob.BASELINE, eval_grid, motor)
+    base_tune, _ = ob.evaluate(ob.BASELINE, ob.TUNING_GRID, motor)
     if objective != "J":  # the report's "J" is the chosen objective's value
         base_sum, base_tune = dict(base_sum, J=score(base_sum), J_v1=base_sum["J"]), dict(base_tune, J=score(base_tune), J_v1=base_tune["J"])
     evaluated = []
     for c in candidates[:12]:
-        es, er = ob.evaluate(c["params"], eval_grid)
-        ts, _ = ob.evaluate(c["params"], ob.TUNING_GRID)
+        es, er = ob.evaluate(c["params"], eval_grid, motor)
+        ts, _ = ob.evaluate(c["params"], ob.TUNING_GRID, motor)
         if objective != "J":
             es, ts = dict(es, J=score(es), J_v1=es["J"]), dict(ts, J=score(ts), J_v1=ts["J"])
         evaluated.append({**c, "tuning": ts, "evaluation": es, "evaluation_rows": er})
@@ -437,6 +446,8 @@ def controller_tuning(ctx: JobContext) -> HandlerResult:
               "tuning_grid": [c.name for c in ob.TUNING_GRID], "evaluation_grid": [c.name for c in eval_grid],
               "evaluation_reused_tuning_conditions": ob.grids_overlap(ob.TUNING_GRID, eval_grid), "objective": objective_text, "objective_name": objective,
               "status": "candidate -- no default changed"}
+    if not motor.is_stock:
+        report["motor"] = {**dataclasses.asdict(motor), "note": "base motor of this tuning (F0.6); grids, noise and loads are those of the stock motor"}
     ctx.write_artifact("tuning_report.json", json.dumps(report, default=float).encode())
     best = min(evaluated, key=lambda c: c["tuning"]["J"]) if evaluated else None
     metrics = {"method": method, "n_evaluations": len(conditions), "baseline_J_tuning": base_tune["J"], "baseline_J_evaluation": base_sum["J"],

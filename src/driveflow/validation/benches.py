@@ -55,12 +55,18 @@ class LoadTorqueStep(PolynomialStaticLoad):
 
 def build_dc_system(ode_solver=None, tau: float = TAU, motor_parameter: dict | None = None, load_parameter: dict | None = None,
                     load_step_nm: float = 0.0, load_step_t_s: float = np.inf, converter: str = "one_quadrant",
-                    supply_v: float = DC_SUPPLY_V) -> DcMotorSystem:
+                    supply_v: float = DC_SUPPLY_V, limit_values: dict | None = None, nominal_values: dict | None = None) -> DcMotorSystem:
+    """limit_values / nominal_values (round Assistant, F0.6): the motor's limits and nominal values,
+    as Scenario.dc_limit_overrides / dc_nominal_overrides; None keeps the stock motor's."""
     load = LoadTorqueStep(load_parameter={**DC_LOAD_PARAMETER, **(load_parameter or {})}, step_nm=load_step_nm, t_step_s=load_step_t_s)
     conv = {"one_quadrant": ContOneQuadrantConverter, "four_quadrant": ContFourQuadrantConverter}[converter]()
+    if limit_values is None and nominal_values is None:
+        motor = DcPermanentlyExcitedMotor(motor_parameter=motor_parameter)
+    else:
+        motor = DcPermanentlyExcitedMotor(motor_parameter=motor_parameter, limit_values=limit_values, nominal_values=nominal_values)
     return DcMotorSystem(
         converter=conv,
-        motor=DcPermanentlyExcitedMotor(motor_parameter=motor_parameter),
+        motor=motor,
         load=load,
         supply=IdealVoltageSupply(u_nominal=supply_v),
         ode_solver=ode_solver if ode_solver is not None else EulerSolver(),
@@ -76,14 +82,22 @@ def _dc_record(system, state):
 def run_dc_closed_loop(controller: str = "PI", omega_ref=150.0, duration_s: float = 0.5, ode_solver=None, tau: float = TAU,
                        motor_parameter: dict | None = None, load_parameter: dict | None = None, load_step_nm: float = 0.0,
                        load_step_t_s: float = np.inf, torque_ref_nm: float | None = None, seed: int = 0,
-                       controller_kwargs: dict | None = None, speed_noise_std_rad_s: float = 0.0, noise_seed: int = 0) -> dict:
+                       controller_kwargs: dict | None = None, speed_noise_std_rad_s: float = 0.0, noise_seed: int = 0,
+                       design_motor_parameter: dict | None = None, supply_v: float = DC_SUPPLY_V, limit_values: dict | None = None,
+                       nominal_values: dict | None = None) -> dict:
     """omega_ref: constant (rad/s) or callable t -> rad/s (reference profile).
     speed_noise_std_rad_s: white Gaussian noise (rad/s) added to the speed the CONTROLLER sees (a
     sensor); the recorded omega is the true speed. 0 (default) leaves the loop untouched.
-    The controller is tuned from the NOMINAL plant (motor_parameter=None) when `motor_parameter`
-    perturbs the plant -- i.e. a robustness test (the controller does not know the drift)."""
-    system = build_dc_system(ode_solver, tau, motor_parameter, load_parameter, load_step_nm, load_step_t_s)
-    design_plant = system if motor_parameter is None else build_dc_system(None, tau, None, load_parameter)
+    The controller is tuned from the DESIGN motor (design_motor_parameter; None = the stock motor)
+    when `motor_parameter` differs from it -- i.e. a robustness test (the controller does not know
+    the drift). supply_v / limit_values / nominal_values (round Assistant, F0.6) apply to both
+    the plant and the design plant; their defaults are the stock motor and the 65 V supply."""
+    system = build_dc_system(ode_solver, tau, motor_parameter, load_parameter, load_step_nm, load_step_t_s,
+                             supply_v=supply_v, limit_values=limit_values, nominal_values=nominal_values)
+    if motor_parameter == design_motor_parameter:
+        design_plant = system
+    else:
+        design_plant = build_dc_system(None, tau, design_motor_parameter, load_parameter, supply_v=supply_v, limit_values=limit_values, nominal_values=nominal_values)
     ctrl = _CONTROLLERS[controller](design_plant, **(controller_kwargs or {}))
     system.seed(np.random.SeedSequence(seed))
     state = system.reset()

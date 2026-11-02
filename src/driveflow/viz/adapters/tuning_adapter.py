@@ -45,7 +45,7 @@ def grid_table(grid) -> pd.DataFrame:
     rows = []
     for c in grid:
         what = f"{c.step_rad_s:g} rad/s reference step" if c.kind == "step" else f"{c.load_nm:g} N·m load step"
-        rows.append({"Condition": c.name, "Event": what, "Operating speed (rad/s)": c.omega_rad_s, "Plant": "drift (ψ −10 %, J +50 %)" if c.motor_parameter else "nominal"})
+        rows.append({"Condition": c.name, "Event": what, "Operating speed (rad/s)": c.omega_rad_s, "Plant": "drift (ψ −10 %, J +50 %)" if c.is_drift else "nominal"})
     return pd.DataFrame(rows)
 
 
