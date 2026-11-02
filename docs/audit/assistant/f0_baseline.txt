@@ -1,0 +1,25 @@
+# F0 baseline (round Assistant, task 0), 2026-11-02
+# Commit df1950f (dev = main), clean worktree, Python 3.12.13, fmpy installed, data/ present
+
+## PYTHONPATH=src .venv/bin/python -m pytest -q -rxXsf
+XFAIL tests/fmu/test_om_fmus.py::test_switching_fmus_simulate_10_ms_at_the_pwm_period[BuckSwitching] - S-15 (open): OpenModelica 1.27.1 switching FMUs fail with CVODE (CV_TOO_CLOSE) at the PWM period; outcome depends on the build
+XFAIL tests/fmu/test_om_fmus.py::test_switching_fmus_simulate_10_ms_at_the_pwm_period[DcMotorSwitching] - S-15 (open): OpenModelica 1.27.1 switching FMUs fail with CVODE (CV_TOO_CLOSE) at the PWM period; outcome depends on the build
+XFAIL tests/test_findings_e10.py::test_ai_n15_pinn_capacitance_unbiased_with_noise - AI-N15 (open): the PINN estimates C systematically low; mean error -9 % at 5 % noise
+XFAIL tests/test_findings_e10.py::test_ai_n16_pinn_interval_has_nominal_coverage - AI-N16 (open): the PINN 5-95 % bootstrap interval covers the truth in 52-78 % of noisy runs, not 90 %
+XFAIL tests/test_findings_e14.py::test_ai_n18_gui_detector_flags_most_faulted_windows - AI-N18 (run01, cause addressed in run02 but not adopted: AI-N21): start-up windows inflate the residual threshold; ~50 % of faulted windows flagged at AUROC 1.0
+XFAIL tests/test_findings_e14.py::test_ai_n20_edge_detectors_usable - AI-N20 (open): distilled edge residual detectors flag almost no faulted window
+XFAIL tests/test_findings_e14.py::test_ai_n21_gated_detector_meets_the_false_alarm_criterion - AI-N21 (open): with the steady-state threshold, 58-71 % false alarms on healthy windows at 100 % noise
+XFAIL tests/test_findings_e14.py::test_ai_n22_noise_aware_detector_meets_the_false_alarm_criterion - AI-N22 (closed negative): the pre-registered noise-aware threshold fails criterion 3 at 100 % noise
+XFAIL tests/test_r2_dc_plant_integration.py::test_s17_euler_substeps_evaluate_inside_the_step - S-17: EulerSolver with nsteps > 1 evaluates the right-hand side at t_end + k*h/n instead of inside [t_start, t_end] (inherited from GEM)
+1318 passed, 9 xfailed, 470 warnings in 1154.32s (0:19:14)
+
+## python scripts/smoke_test.py --launch
+[PASS] 1. dependencies import (2.2 s) numpy 2.5.4; scipy 1.18.1; pandas 3.0.6; pyarrow 26.0.0; sklearn 1.9.1; yaml 6.0.3; gymnasium 1.4.0; threadpoolctl 3.7.0; tensorflow 2.21.0; keras 3.15.1; streamlit 1.66.0; plotly 7.1.0
+[PASS] 2. application starts (Overview page renders) (0.7 s) AppTest: no exceptions
+[PASS] 2b. Streamlit server answers its health endpoint (1.4 s) http://127.0.0.1:40461 -> ok
+[PASS] 3. platform modules load (0.0 s) rule sets: ['vsc_dpc']
+[PASS] 4. short simulations (DC+PI, DC+MPC, VSC+DPC, PMSM FOC) (0.5 s) final speed 470.3 rpm, VSC |vc| 50.2 V
+[PASS] 5. inference with a registered model (0.8 s) pc_server_5class_w2048/2026-10-20_run01 -> uncertain (0.28, calibrated)
+6. no exceptions: PASS -- 6/6 checks passed
+
+Note: the first full run's summary line was lost to an output filter; this suite was re-run in a clean worktree of the same commit. Both runs reported no FAILED line.
