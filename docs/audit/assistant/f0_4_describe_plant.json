@@ -1,0 +1,1130 @@
+{
+  "dc_perm_ex_v1": {
+    "plant_config_id": "dc_perm_ex_v1",
+    "title": "Permanently excited DC motor (GEM, Heinzmann PMG 132 parameters), one-quadrant converter",
+    "controllers": [
+      "PI",
+      "MPC"
+    ],
+    "fields": [
+      {
+        "name": "scenario_id",
+        "type": "str",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": false,
+        "importance": "required",
+        "default": null,
+        "default_source": "Scenario field default",
+        "description": "Unique run name; becomes dataset_id and source_file in the export."
+      },
+      {
+        "name": "controller_type",
+        "type": "str",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": true,
+        "importance": "required",
+        "default": "PI",
+        "default_source": "Scenario field default",
+        "description": "Controller of the run; each plant accepts only its own controllers.",
+        "allowed": [
+          "PI",
+          "MPC"
+        ]
+      },
+      {
+        "name": "omega_ref_rad_s",
+        "type": "float",
+        "unit": "rad/s",
+        "convention": "mechanical shaft speed",
+        "range": {},
+        "validated_by_scenario": true,
+        "importance": "important",
+        "default": 150.0,
+        "default_source": "Scenario field default",
+        "description": "Speed reference of the speed PI/MPC. The one-quadrant converter cannot track negative references or brake."
+      },
+      {
+        "name": "fault_type",
+        "type": "str",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": false,
+        "importance": "important",
+        "default": null,
+        "default_source": "Scenario field default",
+        "description": "None (healthy), outer_race, inner_race, ball, cage, or a custom label with fault_order_override."
+      },
+      {
+        "name": "electrical_severity",
+        "type": "float",
+        "unit": "N*m",
+        "convention": "amplitude of the bearing-fault torque ripple (MCSA path)",
+        "range": {
+          "min": 0.0,
+          "min_inclusive": true
+        },
+        "validated_by_scenario": true,
+        "importance": "optional",
+        "default": 8.0,
+        "default_source": "Scenario field default",
+        "description": "Electrical fault severity; only acts when a fault is active."
+      },
+      {
+        "name": "mechanical_severity",
+        "type": "float",
+        "unit": "vibration model units",
+        "convention": "impulse amplitude of the synthetic vibration model (Module B)",
+        "range": {
+          "min": 0.0,
+          "min_inclusive": true
+        },
+        "validated_by_scenario": true,
+        "importance": "optional",
+        "default": null,
+        "default_source": "Scenario field default",
+        "description": "Mechanical fault severity; default is the calibrated value of the fault type."
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": false,
+        "importance": "optional",
+        "default": 0,
+        "default_source": "Scenario field default",
+        "description": "Reproducibility seed (DC: plant randomness, vibration and noise; VSC: the reference's start phase; PMSM and buck: recorded, deterministic runs)."
+      },
+      {
+        "name": "duration_s",
+        "type": "float",
+        "unit": "s",
+        "convention": null,
+        "range": {
+          "min": 0.0,
+          "min_inclusive": false
+        },
+        "validated_by_scenario": true,
+        "importance": "important",
+        "default": 1.0,
+        "default_source": "Scenario field default",
+        "description": "Simulated time of the run."
+      },
+      {
+        "name": "plant_config_id",
+        "type": "str",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": true,
+        "importance": "required",
+        "default": "dc_perm_ex_v1",
+        "default_source": "Scenario field default",
+        "description": "Which plant to simulate."
+      },
+      {
+        "name": "motor_parameter_overrides",
+        "type": "dict",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": true,
+        "importance": "important",
+        "default": null,
+        "default_source": "DcPermanentlyExcitedMotor._default_motor_parameter (GEM, PMG 132)",
+        "description": "Partial override of the DC motor's electrical and mechanical parameters.",
+        "keys": {
+          "r_a": {
+            "unit": "ohm",
+            "convention": "armature circuit resistance (two-terminal, brushes included as given by the datasheet); temperature not stated by GEM: prefer the cold value and say so",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": false
+            },
+            "default": 0.016
+          },
+          "l_a": {
+            "unit": "H",
+            "convention": "armature circuit inductance",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": false
+            },
+            "default": 1.9e-05
+          },
+          "psi_e": {
+            "unit": "V*s/rad",
+            "convention": "flux constant = back-EMF constant Ke in V*s/rad = torque constant Kt in N*m/A (SI)",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": false
+            },
+            "default": 0.165
+          },
+          "j_rotor": {
+            "unit": "kg*m^2",
+            "convention": "rotor inertia only; the load adds j_load = 0.0025",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": false
+            },
+            "default": 0.025
+          }
+        }
+      },
+      {
+        "name": "electrical_noise_pct",
+        "type": "float",
+        "unit": "%",
+        "convention": "white noise on current_r, as % of the run's own standard deviation",
+        "range": {
+          "min": 0.0,
+          "min_inclusive": true
+        },
+        "validated_by_scenario": true,
+        "importance": "optional",
+        "default": 0.0,
+        "default_source": "Scenario field default",
+        "description": "Sensor noise on the current, added after the run."
+      },
+      {
+        "name": "mechanical_noise_pct",
+        "type": "float",
+        "unit": "%",
+        "convention": "white noise on each acceleration axis, as % of that axis's standard deviation",
+        "range": {
+          "min": 0.0,
+          "min_inclusive": true
+        },
+        "validated_by_scenario": true,
+        "importance": "optional",
+        "default": 0.0,
+        "default_source": "Scenario field default",
+        "description": "Sensor noise on the vibration channels, added after the run."
+      },
+      {
+        "name": "torque_ref_nm",
+        "type": "float",
+        "unit": "N*m",
+        "convention": null,
+        "range": {},
+        "validated_by_scenario": true,
+        "importance": "optional",
+        "default": null,
+        "default_source": "Scenario field default",
+        "description": "Torque-control mode (bypasses the speed loop); omega_ref_rad_s is then ignored."
+      },
+      {
+        "name": "fault_order_override",
+        "type": "float",
+        "unit": "multiple of shaft speed",
+        "convention": null,
+        "range": {
+          "min": 0.0,
+          "min_inclusive": false
+        },
+        "validated_by_scenario": true,
+        "importance": "optional",
+        "default": null,
+        "default_source": "Scenario field default",
+        "description": "Characteristic fault frequency as an order; makes fault_type a free label."
+      },
+      {
+        "name": "extra_faults",
+        "type": "list",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": true,
+        "importance": "optional",
+        "default": null,
+        "default_source": "Scenario field default",
+        "description": "Additional simultaneous faults, as (fault_type, order_override) pairs."
+      },
+      {
+        "name": "pi_setpoint_weight",
+        "type": "float",
+        "unit": null,
+        "convention": null,
+        "range": {
+          "min": 0.0,
+          "min_inclusive": true,
+          "max": 1.0,
+          "max_inclusive": true
+        },
+        "validated_by_scenario": true,
+        "importance": "optional",
+        "default": null,
+        "default_source": "PICascadeController default b = 1",
+        "description": "Setpoint weight b of the speed PI's proportional term (PI only)."
+      },
+      {
+        "name": "dc_plant_solver",
+        "type": "str",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": true,
+        "importance": "optional",
+        "default": null,
+        "default_source": "Scenario field default",
+        "description": "Reference integration of the DC plant (studies only; None = one Euler step per period).",
+        "allowed": [
+          "euler",
+          "rk45"
+        ]
+      },
+      {
+        "name": "dc_plant_substeps",
+        "type": "int",
+        "unit": null,
+        "convention": null,
+        "range": {
+          "min": 1,
+          "min_inclusive": true,
+          "max": 10000,
+          "max_inclusive": true
+        },
+        "validated_by_scenario": true,
+        "importance": "optional",
+        "default": null,
+        "default_source": "Scenario field default",
+        "description": "Euler substeps per control period (with dc_plant_solver euler or unset)."
+      },
+      {
+        "name": "load_torque_nm",
+        "type": "float",
+        "unit": "N*m",
+        "convention": "absolute passive load torque (Coulomb-type, opposes rotation), added to the stock friction a = 0.01",
+        "range": {
+          "min": 0.0,
+          "min_inclusive": true
+        },
+        "validated_by_scenario": true,
+        "importance": "important",
+        "default": null,
+        "default_source": "Scenario field default",
+        "description": "Constant load torque; '20 % load' must be converted with the motor's rated torque by the caller."
+      },
+      {
+        "name": "dc_supply_v",
+        "type": "float",
+        "unit": "V",
+        "convention": "DC link of the one-quadrant converter",
+        "range": {
+          "min": 0.0,
+          "min_inclusive": false
+        },
+        "validated_by_scenario": true,
+        "importance": "important",
+        "default": null,
+        "default_source": "runner.build_plant: 65 V (motor rated 60 V)",
+        "description": "Supply voltage."
+      },
+      {
+        "name": "dc_limit_overrides",
+        "type": "dict",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": true,
+        "importance": "important",
+        "default": null,
+        "default_source": "DcPermanentlyExcitedMotor._default_limits; not derived from motor_parameter_overrides",
+        "description": "Motor limits: normalisation and the controllers' current cap (PI 0.8 x i, MPC 0.85 x i). u must not exceed dc_supply_v.",
+        "keys": {
+          "omega": {
+            "unit": "rad/s",
+            "convention": "mechanical speed",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": false
+            },
+            "default": 400
+          },
+          "torque": {
+            "unit": "N*m",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": false
+            },
+            "default": 38.0
+          },
+          "i": {
+            "unit": "A",
+            "convention": "armature current; for a datasheet, the peak (short-time) current, not the continuous one",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": false
+            },
+            "default": 210
+          },
+          "u": {
+            "unit": "V",
+            "convention": "armature voltage",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": false
+            },
+            "default": 60
+          }
+        }
+      },
+      {
+        "name": "dc_nominal_overrides",
+        "type": "dict",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": true,
+        "importance": "optional",
+        "default": null,
+        "default_source": "DcPermanentlyExcitedMotor._default_nominal_values",
+        "description": "Rated values (continuous duty, S1); the tuning's J_effort uses the rated current.",
+        "keys": {
+          "omega": {
+            "unit": "rad/s",
+            "convention": "rated mechanical speed",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": false
+            },
+            "default": 300
+          },
+          "torque": {
+            "unit": "N*m",
+            "convention": "rated (continuous) torque",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": false
+            },
+            "default": 16.0
+          },
+          "i": {
+            "unit": "A",
+            "convention": "rated continuous current (S1)",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": false
+            },
+            "default": 97
+          },
+          "u": {
+            "unit": "V",
+            "convention": "rated armature voltage",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": false
+            },
+            "default": 60
+          }
+        }
+      }
+    ],
+    "not_applicable": [
+      "load_resistance_ohm",
+      "reference_magnitude_v",
+      "reference_omega_rad_s",
+      "pmsm_current_ref_a",
+      "vsc_voltage_limit_v",
+      "vsc_capacitor_scale",
+      "vsc_esr_ohm",
+      "buck_vout_ref_v",
+      "buck_vin_v",
+      "buck_load_step_ohm",
+      "buck_load_step_time_s",
+      "buck_parameter_overrides",
+      "plecs_model_vars",
+      "plecs_time_limit_s",
+      "plecs_output_points",
+      "pmsm_motor_parameters"
+    ],
+    "stock_motor": {
+      "motor_parameter": {
+        "r_a": 0.016,
+        "l_a": 1.9e-05,
+        "psi_e": 0.165,
+        "j_rotor": 0.025
+      },
+      "limits": {
+        "omega": 400,
+        "torque": 38.0,
+        "i": 210,
+        "u": 60
+      },
+      "nominal_values": {
+        "omega": 300,
+        "torque": 16.0,
+        "i": 97,
+        "u": 60
+      },
+      "supply_v": 65.0,
+      "load": {
+        "a": 0.01,
+        "b": 0.05,
+        "c": 0.0,
+        "j_load": 0.0025
+      },
+      "j_total_kg_m2": 0.0275,
+      "control_period_s": 0.0001,
+      "controller_design_check": {
+        "PI": {
+          "controller": "PI",
+          "tau_a_s": 0.0011875,
+          "tau_m_s": 0.01616161616161616,
+          "tau_m_over_tau_a": 13.609782030834662,
+          "current_loop_bandwidth_rad_s": 5000.0,
+          "speed_loop_bandwidth_rad_s": 80.0,
+          "bandwidth_ratio": 62.5,
+          "status": "ok",
+          "reasons": []
+        },
+        "MPC": {
+          "controller": "MPC",
+          "tau_a_s": 0.0011875,
+          "tau_m_s": 0.01616161616161616,
+          "horizon_steps": 20,
+          "horizon_s": 0.002,
+          "horizon_over_tau_a": 1.6842105263157896,
+          "status": "ok",
+          "reasons": []
+        }
+      }
+    }
+  },
+  "pmsm_v1": {
+    "plant_config_id": "pmsm_v1",
+    "title": "Salient PMSM, dq current control near standstill (current-step bench)",
+    "controllers": [
+      "FOC_MTPA",
+      "FOC_naive"
+    ],
+    "fields": [
+      {
+        "name": "scenario_id",
+        "type": "str",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": false,
+        "importance": "required",
+        "default": null,
+        "default_source": "Scenario field default",
+        "description": "Unique run name; becomes dataset_id and source_file in the export."
+      },
+      {
+        "name": "controller_type",
+        "type": "str",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": true,
+        "importance": "required",
+        "default": null,
+        "default_source": "no default for pmsm_v1: must be set",
+        "description": "Controller of the run; each plant accepts only its own controllers.",
+        "allowed": [
+          "FOC_MTPA",
+          "FOC_naive"
+        ]
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": false,
+        "importance": "optional",
+        "default": 0,
+        "default_source": "Scenario field default",
+        "description": "Reproducibility seed (DC: plant randomness, vibration and noise; VSC: the reference's start phase; PMSM and buck: recorded, deterministic runs)."
+      },
+      {
+        "name": "duration_s",
+        "type": "float",
+        "unit": "s",
+        "convention": null,
+        "range": {
+          "min": 0.0,
+          "min_inclusive": false
+        },
+        "validated_by_scenario": true,
+        "importance": "important",
+        "default": 1.0,
+        "default_source": "Scenario field default",
+        "description": "Simulated time of the run."
+      },
+      {
+        "name": "plant_config_id",
+        "type": "str",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": true,
+        "importance": "required",
+        "default": null,
+        "default_source": "no default for pmsm_v1: must be set",
+        "description": "Which plant to simulate."
+      },
+      {
+        "name": "pmsm_current_ref_a",
+        "type": "float",
+        "unit": "A",
+        "convention": "signed stator current magnitude |i_s| (amplitude-invariant dq, peak per phase); sign = sign of i_q",
+        "range": {
+          "min": -400.0,
+          "min_inclusive": true,
+          "max": 400.0,
+          "max_inclusive": true
+        },
+        "validated_by_scenario": true,
+        "importance": "required",
+        "default": null,
+        "default_source": "Scenario field default",
+        "description": "Stator current reference, split into (i_d, i_q) by the policy."
+      },
+      {
+        "name": "pmsm_motor_parameters",
+        "type": "dict",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": true,
+        "importance": "important",
+        "default": null,
+        "default_source": "control/classical/pmsm_foc.MOTOR_PARAMS (GEM PermanentMagnetSynchronousMotor), j_rotor GEM default, u_supply pmsm_foc.U_SUPPLY",
+        "description": "Partial override of the PMSM. MTPA assumes l_q >= l_d.",
+        "keys": {
+          "p": {
+            "unit": null,
+            "convention": "pole PAIRS, not poles",
+            "integer": true,
+            "range": {
+              "min": 1,
+              "min_inclusive": true
+            },
+            "default": 3
+          },
+          "l_d": {
+            "unit": "H",
+            "convention": "d-axis inductance per phase (star equivalent); a line-to-line value is about 2x",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": false
+            },
+            "default": 0.00037
+          },
+          "l_q": {
+            "unit": "H",
+            "convention": "q-axis inductance per phase (star equivalent)",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": false
+            },
+            "default": 0.0012
+          },
+          "r_s": {
+            "unit": "ohm",
+            "convention": "stator resistance per phase (star equivalent) = R_line-line / 2; cold value",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": false
+            },
+            "default": 0.018
+          },
+          "psi_p": {
+            "unit": "V*s",
+            "convention": "permanent-magnet flux linkage, PEAK per phase (torque = 1.5*p*psi_p*i_q with amplitude-invariant dq)",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": false
+            },
+            "default": 0.066
+          },
+          "j_rotor": {
+            "unit": "kg*m^2",
+            "convention": "rotor inertia; the bench adds a 5 kg*m^2 load inertia",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": false
+            },
+            "default": 0.03883
+          },
+          "u_supply": {
+            "unit": "V",
+            "convention": "DC link of the B6 bridge",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": false
+            },
+            "default": 330.0
+          }
+        }
+      }
+    ],
+    "not_applicable": [
+      "omega_ref_rad_s",
+      "fault_type",
+      "electrical_severity",
+      "mechanical_severity",
+      "motor_parameter_overrides",
+      "electrical_noise_pct",
+      "mechanical_noise_pct",
+      "torque_ref_nm",
+      "fault_order_override",
+      "extra_faults",
+      "load_resistance_ohm",
+      "reference_magnitude_v",
+      "reference_omega_rad_s",
+      "pi_setpoint_weight",
+      "vsc_voltage_limit_v",
+      "vsc_capacitor_scale",
+      "vsc_esr_ohm",
+      "buck_vout_ref_v",
+      "buck_vin_v",
+      "buck_load_step_ohm",
+      "buck_load_step_time_s",
+      "buck_parameter_overrides",
+      "plecs_model_vars",
+      "plecs_time_limit_s",
+      "plecs_output_points",
+      "dc_plant_solver",
+      "dc_plant_substeps",
+      "load_torque_nm",
+      "dc_supply_v",
+      "dc_limit_overrides",
+      "dc_nominal_overrides"
+    ]
+  },
+  "vsc_dpc_v1": {
+    "plant_config_id": "vsc_dpc_v1",
+    "title": "Voltage source converter with L-C filter, DPC neural controller",
+    "controllers": [
+      "DPC"
+    ],
+    "fields": [
+      {
+        "name": "scenario_id",
+        "type": "str",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": false,
+        "importance": "required",
+        "default": null,
+        "default_source": "Scenario field default",
+        "description": "Unique run name; becomes dataset_id and source_file in the export."
+      },
+      {
+        "name": "controller_type",
+        "type": "str",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": true,
+        "importance": "required",
+        "default": null,
+        "default_source": "no default for vsc_dpc_v1: must be set",
+        "description": "Controller of the run; each plant accepts only its own controllers.",
+        "allowed": [
+          "DPC"
+        ]
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": false,
+        "importance": "optional",
+        "default": 0,
+        "default_source": "Scenario field default",
+        "description": "Reproducibility seed (DC: plant randomness, vibration and noise; VSC: the reference's start phase; PMSM and buck: recorded, deterministic runs)."
+      },
+      {
+        "name": "duration_s",
+        "type": "float",
+        "unit": "s",
+        "convention": null,
+        "range": {
+          "min": 0.0,
+          "min_inclusive": false
+        },
+        "validated_by_scenario": true,
+        "importance": "important",
+        "default": 1.0,
+        "default_source": "Scenario field default",
+        "description": "Simulated time of the run."
+      },
+      {
+        "name": "plant_config_id",
+        "type": "str",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": true,
+        "importance": "required",
+        "default": null,
+        "default_source": "no default for vsc_dpc_v1: must be set",
+        "description": "Which plant to simulate."
+      },
+      {
+        "name": "load_resistance_ohm",
+        "type": "float",
+        "unit": "ohm",
+        "convention": "resistive load across the output capacitor",
+        "range": {
+          "min": 0.0,
+          "min_inclusive": false
+        },
+        "validated_by_scenario": true,
+        "importance": "important",
+        "default": null,
+        "default_source": "VSC: runner._VSC_R_OHM = 8.0064 (the DPC training load); buck: 6 ohm",
+        "description": "Output load. VSC below R* = 3.37 ohm is open-loop unstable (physics, not rejected)."
+      },
+      {
+        "name": "reference_magnitude_v",
+        "type": "float",
+        "unit": "V",
+        "convention": "magnitude of the rotating voltage reference (complex phasor)",
+        "range": {
+          "min": 0.0,
+          "min_inclusive": true
+        },
+        "validated_by_scenario": true,
+        "importance": "important",
+        "default": null,
+        "default_source": "RotatingReference default, 50 V",
+        "description": "Reference voltage magnitude; the network was trained at 50 V."
+      },
+      {
+        "name": "reference_omega_rad_s",
+        "type": "float",
+        "unit": "rad/s",
+        "convention": "electrical angular frequency of the reference",
+        "range": {},
+        "validated_by_scenario": true,
+        "importance": "optional",
+        "default": null,
+        "default_source": "RotatingReference default, 2*pi*50",
+        "description": "Reference frequency; the network was trained at 50 Hz."
+      },
+      {
+        "name": "vsc_voltage_limit_v",
+        "type": "float",
+        "unit": "V",
+        "convention": "per-axis clamp of the converter voltage command",
+        "range": {
+          "min": 0.0,
+          "min_inclusive": false
+        },
+        "validated_by_scenario": true,
+        "importance": "optional",
+        "default": null,
+        "default_source": "Scenario field default",
+        "description": "Converter voltage limit; 134 V reproduces the original converter (S-09). None: unlimited."
+      },
+      {
+        "name": "vsc_capacitor_scale",
+        "type": "float",
+        "unit": "fraction of 15 uF",
+        "convention": null,
+        "range": {
+          "min": 0.0,
+          "min_inclusive": false
+        },
+        "validated_by_scenario": true,
+        "importance": "optional",
+        "default": null,
+        "default_source": "Scenario field default",
+        "description": "Synthetic capacitor degradation (effective C); synthetic-only fault."
+      },
+      {
+        "name": "vsc_esr_ohm",
+        "type": "float",
+        "unit": "ohm",
+        "convention": null,
+        "range": {
+          "min": 0.0,
+          "min_inclusive": true
+        },
+        "validated_by_scenario": true,
+        "importance": "optional",
+        "default": null,
+        "default_source": "Scenario field default",
+        "description": "Synthetic series ESR of the filter capacitor."
+      }
+    ],
+    "not_applicable": [
+      "omega_ref_rad_s",
+      "fault_type",
+      "electrical_severity",
+      "mechanical_severity",
+      "motor_parameter_overrides",
+      "electrical_noise_pct",
+      "mechanical_noise_pct",
+      "torque_ref_nm",
+      "fault_order_override",
+      "extra_faults",
+      "pi_setpoint_weight",
+      "pmsm_current_ref_a",
+      "buck_vout_ref_v",
+      "buck_vin_v",
+      "buck_load_step_ohm",
+      "buck_load_step_time_s",
+      "buck_parameter_overrides",
+      "plecs_model_vars",
+      "plecs_time_limit_s",
+      "plecs_output_points",
+      "dc_plant_solver",
+      "dc_plant_substeps",
+      "load_torque_nm",
+      "dc_supply_v",
+      "dc_limit_overrides",
+      "dc_nominal_overrides",
+      "pmsm_motor_parameters"
+    ]
+  },
+  "buck_v1": {
+    "plant_config_id": "buck_v1",
+    "title": "Averaged synchronous buck converter, PI cascade",
+    "controllers": [
+      "PI"
+    ],
+    "fields": [
+      {
+        "name": "scenario_id",
+        "type": "str",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": false,
+        "importance": "required",
+        "default": null,
+        "default_source": "Scenario field default",
+        "description": "Unique run name; becomes dataset_id and source_file in the export."
+      },
+      {
+        "name": "controller_type",
+        "type": "str",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": true,
+        "importance": "required",
+        "default": "PI",
+        "default_source": "Scenario field default",
+        "description": "Controller of the run; each plant accepts only its own controllers.",
+        "allowed": [
+          "PI"
+        ]
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": false,
+        "importance": "optional",
+        "default": 0,
+        "default_source": "Scenario field default",
+        "description": "Reproducibility seed (DC: plant randomness, vibration and noise; VSC: the reference's start phase; PMSM and buck: recorded, deterministic runs)."
+      },
+      {
+        "name": "duration_s",
+        "type": "float",
+        "unit": "s",
+        "convention": null,
+        "range": {
+          "min": 0.0,
+          "min_inclusive": false
+        },
+        "validated_by_scenario": true,
+        "importance": "important",
+        "default": 1.0,
+        "default_source": "Scenario field default",
+        "description": "Simulated time of the run."
+      },
+      {
+        "name": "plant_config_id",
+        "type": "str",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": true,
+        "importance": "required",
+        "default": null,
+        "default_source": "no default for buck_v1: must be set",
+        "description": "Which plant to simulate."
+      },
+      {
+        "name": "load_resistance_ohm",
+        "type": "float",
+        "unit": "ohm",
+        "convention": "resistive load across the output capacitor",
+        "range": {
+          "min": 0.0,
+          "min_inclusive": false
+        },
+        "validated_by_scenario": true,
+        "importance": "important",
+        "default": null,
+        "default_source": "VSC: runner._VSC_R_OHM = 8.0064 (the DPC training load); buck: 6 ohm",
+        "description": "Output load. VSC below R* = 3.37 ohm is open-loop unstable (physics, not rejected)."
+      },
+      {
+        "name": "buck_vout_ref_v",
+        "type": "float",
+        "unit": "V",
+        "convention": null,
+        "range": {
+          "min": 0.0,
+          "min_inclusive": true,
+          "max": 48.0,
+          "max_inclusive": false
+        },
+        "validated_by_scenario": true,
+        "importance": "important",
+        "default": null,
+        "default_source": "24 V (runner)",
+        "description": "Output voltage reference.",
+        "range_note": "upper bound is buck_vin_v (48 V by default): a buck cannot step up"
+      },
+      {
+        "name": "buck_vin_v",
+        "type": "float",
+        "unit": "V",
+        "convention": null,
+        "range": {
+          "min": 24.0,
+          "min_inclusive": false
+        },
+        "validated_by_scenario": true,
+        "importance": "important",
+        "default": null,
+        "default_source": "48 V (BuckParams)",
+        "description": "Input voltage.",
+        "range_note": "must exceed buck_vout_ref_v (24 V by default); on its own only > 0 is required"
+      },
+      {
+        "name": "buck_load_step_ohm",
+        "type": "float",
+        "unit": "ohm",
+        "convention": null,
+        "range": {
+          "min": 0.0,
+          "min_inclusive": false
+        },
+        "validated_by_scenario": true,
+        "importance": "optional",
+        "default": null,
+        "default_source": "Scenario field default",
+        "description": "Load after the step; None: no step."
+      },
+      {
+        "name": "buck_load_step_time_s",
+        "type": "float",
+        "unit": "s",
+        "convention": null,
+        "range": {
+          "min": 0.0,
+          "min_inclusive": true
+        },
+        "validated_by_scenario": true,
+        "importance": "optional",
+        "default": null,
+        "default_source": "half of duration_s",
+        "description": "Time of the load step."
+      },
+      {
+        "name": "buck_parameter_overrides",
+        "type": "dict",
+        "unit": null,
+        "convention": null,
+        "range": null,
+        "validated_by_scenario": true,
+        "importance": "optional",
+        "default": null,
+        "default_source": "sim/buck_system.BuckParams",
+        "description": "Partial override of the buck's components.",
+        "keys": {
+          "l_h": {
+            "unit": "H",
+            "convention": "filter inductance",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": false
+            },
+            "default": 0.00022
+          },
+          "c_f": {
+            "unit": "F",
+            "convention": "output capacitance",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": false
+            },
+            "default": 0.00022
+          },
+          "r_l_ohm": {
+            "unit": "ohm",
+            "convention": "inductor series resistance",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": true
+            },
+            "default": 0.05
+          },
+          "i_max_a": {
+            "unit": "A",
+            "convention": "inductor current limit of the controller",
+            "range": {
+              "min": 0.0,
+              "min_inclusive": false
+            },
+            "default": 15.0
+          }
+        }
+      }
+    ],
+    "not_applicable": [
+      "omega_ref_rad_s",
+      "fault_type",
+      "electrical_severity",
+      "mechanical_severity",
+      "motor_parameter_overrides",
+      "electrical_noise_pct",
+      "mechanical_noise_pct",
+      "torque_ref_nm",
+      "fault_order_override",
+      "extra_faults",
+      "reference_magnitude_v",
+      "reference_omega_rad_s",
+      "pi_setpoint_weight",
+      "pmsm_current_ref_a",
+      "vsc_voltage_limit_v",
+      "vsc_capacitor_scale",
+      "vsc_esr_ohm",
+      "plecs_model_vars",
+      "plecs_time_limit_s",
+      "plecs_output_points",
+      "dc_plant_solver",
+      "dc_plant_substeps",
+      "load_torque_nm",
+      "dc_supply_v",
+      "dc_limit_overrides",
+      "dc_nominal_overrides",
+      "pmsm_motor_parameters"
+    ]
+  }
+}
