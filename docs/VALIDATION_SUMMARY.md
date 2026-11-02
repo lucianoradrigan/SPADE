@@ -536,6 +536,6 @@ Same method: one branch per decision from `dev`, green full suite, fast-forward 
 
 | Task | Suite |
 |---|---|
-| D1 | SUITE_D1 |
-| D2 | SUITE_D2 |
-| D3 and closure | SUITE_D3 |
+| D1 | 1430 passed, 9 xfailed |
+| D2 | 1432 passed, 9 xfailed |
+| D3 and closure | 1461 passed, 9 xfailed; smoke `--launch` 6/6 |
