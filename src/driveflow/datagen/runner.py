@@ -141,11 +141,18 @@ def build_plant(scenario: Scenario) -> DcMotorSystem:
         order_override=scenario.fault_order_override,
         extra_faults=extra_electrical,
     )
+    if scenario.dc_supply_v is None and scenario.dc_limit_overrides is None and scenario.dc_nominal_overrides is None:
+        motor = DcPermanentlyExcitedMotor(motor_parameter=scenario.motor_parameter_overrides)
+        supply = IdealVoltageSupply(u_nominal=65.0)  # motor is rated u=60V, see DcPermanentlyExcitedMotor
+    else:  # F0.2: another supply voltage and/or motor limits and nominal values
+        motor = DcPermanentlyExcitedMotor(motor_parameter=scenario.motor_parameter_overrides, nominal_values=scenario.dc_nominal_overrides,
+                                          limit_values=scenario.dc_limit_overrides)
+        supply = IdealVoltageSupply(u_nominal=65.0 if scenario.dc_supply_v is None else scenario.dc_supply_v)
     return DcMotorSystem(
         converter=ContOneQuadrantConverter(),
-        motor=DcPermanentlyExcitedMotor(motor_parameter=scenario.motor_parameter_overrides),
+        motor=motor,
         load=load,
-        supply=IdealVoltageSupply(u_nominal=65.0),  # motor is rated u=60V, see DcPermanentlyExcitedMotor
+        supply=supply,
         ode_solver=dc_ode_solver(scenario),
         tau=TAU,
     )

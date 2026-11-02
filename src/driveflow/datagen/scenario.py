@@ -158,6 +158,18 @@ class Scenario:
             One level per run; a ramp within a run is not modelled. "20 % load" is not a Scenario
             concept: the caller converts it with the motor's rated torque. None (default) leaves
             the stock load untouched, bit for bit.
+        dc_supply_v / dc_limit_overrides / dc_nominal_overrides: dc_perm_ex_v1 only (round
+            Assistant, task F0.2). dc_supply_v is the DC-link voltage of the one-quadrant converter
+            (IdealVoltageSupply; default 65 V). dc_limit_overrides and dc_nominal_overrides
+            override the motor's limits (default omega=400 rad/s, torque=38 N*m, i=210 A, u=60 V)
+            and nominal values (default omega=300, torque=16, i=97, u=60), keys among omega,
+            torque, i, u, merged over the defaults. Limits normalise the state and set the
+            controllers' current cap (PI: 0.8 x i, MPC: 0.85 x i); the simulator does not clip
+            states with them. GEM keeps an explicit i limit as given (it derives u/r_a only for a
+            missing or zero i), and it does NOT derive i from changed motor parameters: with
+            motor_parameter_overrides alone the current limit stays at the stock 210 A. A u limit
+            above dc_supply_v is rejected. None (default) for all three keeps the stock motor and
+            the 65 V supply, bit for bit.
     """
 
     scenario_id: str
@@ -194,6 +206,9 @@ class Scenario:
     dc_plant_solver: str = None
     dc_plant_substeps: int = None
     load_torque_nm: float = None
+    dc_supply_v: float = None
+    dc_limit_overrides: dict = None
+    dc_nominal_overrides: dict = None
 
     _VALID_PAIRS = {("PI", "dc_perm_ex_v1"), ("MPC", "dc_perm_ex_v1"), ("DPC", "vsc_dpc_v1"), ("FOC_MTPA", "pmsm_v1"), ("FOC_naive", "pmsm_v1"),
                     ("PI", "buck_v1")}
@@ -302,7 +317,9 @@ class Scenario:
         self._validate_dc_motor_fields()
 
     #: Fields of round Assistant phase 0 that only the DC motor plant (dc_perm_ex_v1) accepts.
-    _DC_MOTOR_ONLY_FIELDS = ("load_torque_nm",)
+    _DC_MOTOR_ONLY_FIELDS = ("load_torque_nm", "dc_supply_v", "dc_limit_overrides", "dc_nominal_overrides")
+    #: Keys of dc_limit_overrides / dc_nominal_overrides (DcPermanentlyExcitedMotor limits).
+    DC_LIMIT_KEYS = ("omega", "torque", "i", "u")
 
     def _validate_dc_motor_fields(self):
         """Round Assistant, phase 0: optional DC-motor fields. Each must be finite and in range,
@@ -312,9 +329,29 @@ class Scenario:
             return
         if self.plant_config_id != "dc_perm_ex_v1":
             raise ValueError(f"Scenario.{used[0]} applies only to plant_config_id='dc_perm_ex_v1', got {self.plant_config_id!r}")
+
+        def real(value) -> bool:
+            return not isinstance(value, bool) and isinstance(value, numbers.Real) and math.isfinite(value)
+
         value = self.load_torque_nm
-        if value is not None and (isinstance(value, bool) or not isinstance(value, numbers.Real) or not math.isfinite(value) or value < 0):
+        if value is not None and (not real(value) or value < 0):
             raise ValueError(f"Scenario.load_torque_nm must be a finite number >= 0 (N*m), got {value!r}")
+        if self.dc_supply_v is not None and (not real(self.dc_supply_v) or self.dc_supply_v <= 0):
+            raise ValueError(f"Scenario.dc_supply_v must be a finite number > 0 (V), got {self.dc_supply_v!r}")
+        for name in ("dc_limit_overrides", "dc_nominal_overrides"):
+            overrides = getattr(self, name)
+            if overrides is None:
+                continue
+            if not isinstance(overrides, dict):
+                raise ValueError(f"Scenario.{name} must be a dict with keys among {self.DC_LIMIT_KEYS}, got {overrides!r}")
+            for key, v in overrides.items():
+                if key not in self.DC_LIMIT_KEYS:
+                    raise ValueError(f"Scenario.{name}: unknown key {key!r}; expected one of {self.DC_LIMIT_KEYS}")
+                if not real(v) or v <= 0:
+                    raise ValueError(f"Scenario.{name}[{key!r}] must be a finite number > 0, got {v!r}")
+        u_limit = (self.dc_limit_overrides or {}).get("u")
+        if u_limit is not None and self.dc_supply_v is not None and u_limit > self.dc_supply_v:
+            raise ValueError(f"Scenario.dc_limit_overrides['u'] ({u_limit!r} V) must not exceed dc_supply_v ({self.dc_supply_v!r} V)")
 
     #: dc_plant_solver values (see the class docstring); DC_PLANT_MAX_SUBSTEPS bounds the cost.
     DC_PLANT_SOLVERS = ("euler", "rk45")

@@ -1,0 +1,167 @@
+{
+  "command": "python experiments/report_f0_2_dc_supply_limits.py",
+  "simulated": true,
+  "machine": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "python": "3.12.13",
+  "case_b": {
+    "motor_parameter_overrides": {
+      "r_a": 1.6,
+      "l_a": 0.016,
+      "psi_e": 1.146,
+      "j_rotor": 0.05
+    },
+    "dc_supply_v": 220.0,
+    "dc_limit_overrides": {
+      "u": 220.0,
+      "i": 50.0,
+      "omega": 200.0,
+      "torque": 60.0
+    },
+    "dc_nominal_overrides": {
+      "u": 220.0,
+      "i": 25.0,
+      "omega": 157.07963267948966,
+      "torque": 28.65
+    }
+  },
+  "omega_rated_rad_s": 157.07963267948966,
+  "gem_limits": [
+    {
+      "case": "stock",
+      "i_limit_a": 210.0
+    },
+    {
+      "case": "limit_values={'i': 150}",
+      "i_limit_a": 150.0
+    },
+    {
+      "case": "motor_parameter={'r_a': 1.6}",
+      "i_limit_a": 210.0
+    },
+    {
+      "case": "limit_values={'i': 0}",
+      "i_limit_a": 3750.0
+    }
+  ],
+  "design_checks": {
+    "stock": {
+      "pi": {
+        "controller": "PI",
+        "tau_a_s": 0.0011875,
+        "tau_m_s": 0.01616161616161616,
+        "tau_m_over_tau_a": 13.609782030834662,
+        "current_loop_bandwidth_rad_s": 5000.0,
+        "speed_loop_bandwidth_rad_s": 80.0,
+        "bandwidth_ratio": 62.5,
+        "status": "ok",
+        "reasons": []
+      },
+      "mpc": {
+        "controller": "MPC",
+        "tau_a_s": 0.0011875,
+        "tau_m_s": 0.01616161616161616,
+        "horizon_steps": 20,
+        "horizon_s": 0.002,
+        "horizon_over_tau_a": 1.6842105263157896,
+        "status": "ok",
+        "reasons": []
+      }
+    },
+    "case_b": {
+      "pi": {
+        "controller": "PI",
+        "tau_a_s": 0.01,
+        "tau_m_s": 0.0639602350081778,
+        "tau_m_over_tau_a": 6.39602350081778,
+        "current_loop_bandwidth_rad_s": 5000.0,
+        "speed_loop_bandwidth_rad_s": 80.0,
+        "bandwidth_ratio": 62.5,
+        "status": "warning",
+        "reasons": [
+          "tau_m/tau_a = 6.4 < 10: the speed loop is designed assuming an ideal current loop, which needs the electrical time constant to be much smaller than the mechanical one"
+        ]
+      },
+      "mpc": {
+        "controller": "MPC",
+        "tau_a_s": 0.01,
+        "tau_m_s": 0.0639602350081778,
+        "horizon_steps": 20,
+        "horizon_s": 0.002,
+        "horizon_over_tau_a": 0.2,
+        "status": "warning",
+        "reasons": [
+          "the horizon (20 steps = 2 ms) is shorter than tau_a = 10 ms: the QP sees only part of the current response it decides over"
+        ]
+      }
+    },
+    "constructed_l_a_x2": {
+      "pi": {
+        "controller": "PI",
+        "tau_a_s": 0.002375,
+        "tau_m_s": 0.01616161616161616,
+        "tau_m_over_tau_a": 6.804891015417331,
+        "current_loop_bandwidth_rad_s": 5000.0,
+        "speed_loop_bandwidth_rad_s": 80.0,
+        "bandwidth_ratio": 62.5,
+        "status": "warning",
+        "reasons": [
+          "tau_m/tau_a = 6.8 < 10: the speed loop is designed assuming an ideal current loop, which needs the electrical time constant to be much smaller than the mechanical one"
+        ]
+      }
+    }
+  },
+  "runs": [
+    {
+      "controller": "PI",
+      "load_torque_nm": 0.0,
+      "finite": true,
+      "final_speed_rad_s": 157.07963267948966,
+      "steady_error_rad_s": 0.0,
+      "overshoot_pct": 0.3148592009280998,
+      "t_95_s": 0.18960000000000002,
+      "peak_current_a": 39.999999962385004,
+      "steady_current_a": 6.862113118657707,
+      "steady_voltage_v": 190.9926400405474,
+      "voltage_at_supply": false
+    },
+    {
+      "controller": "MPC",
+      "load_torque_nm": 0.0,
+      "finite": true,
+      "final_speed_rad_s": 156.89319869368163,
+      "steady_error_rad_s": 0.18643398580803705,
+      "overshoot_pct": 0.0,
+      "t_95_s": 0.17800000000000002,
+      "peak_current_a": 42.627931653713205,
+      "steady_current_a": 6.853979000596151,
+      "steady_voltage_v": 190.765972103913,
+      "voltage_at_supply": false
+    },
+    {
+      "controller": "PI",
+      "load_torque_nm": 28.65,
+      "finite": true,
+      "final_speed_rad_s": 148.03820525996386,
+      "steady_error_rad_s": 9.041427419533733,
+      "overshoot_pct": 0.0,
+      "t_95_s": null,
+      "peak_current_a": 40.0,
+      "steady_current_a": 31.46763548255877,
+      "steady_voltage_v": 220.0,
+      "voltage_at_supply": true
+    },
+    {
+      "controller": "MPC",
+      "load_torque_nm": 28.65,
+      "finite": true,
+      "final_speed_rad_s": 148.03820525996386,
+      "steady_error_rad_s": 9.041427419525832,
+      "overshoot_pct": 0.0,
+      "t_95_s": null,
+      "peak_current_a": 42.628813206757485,
+      "steady_current_a": 31.467635482551124,
+      "steady_voltage_v": 220.0,
+      "voltage_at_supply": true
+    }
+  ]
+}
