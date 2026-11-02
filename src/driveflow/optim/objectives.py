@@ -131,6 +131,11 @@ class BaseMotor:
             kw["limit_values"] = self.limit_overrides
         if self.nominal_overrides is not None:
             kw["nominal_values"] = self.nominal_overrides
+        from driveflow.datagen.runner import dc_default_load_parameter
+
+        load = dc_default_load_parameter(self.motor_parameter_overrides, self.nominal_overrides)  # 0b D1, same rule as Scenario
+        if load is not None:
+            kw["load_parameter"] = load
         return kw
 
 

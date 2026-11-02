@@ -1,0 +1,62 @@
+{
+  "command": "python experiments/report_0b_1_load_default.py",
+  "simulated": true,
+  "rule_fraction": 0.02,
+  "stock_load": {
+    "a": 0.01,
+    "b": 0.05,
+    "c": 0.0,
+    "j_load": 0.0025
+  },
+  "stock_friction_fraction_of_rated_torque": 0.938125,
+  "case_b_scaled_load": {
+    "a": 0.2865,
+    "b": 0.0018239156478331204,
+    "c": 0.0,
+    "j_load": 0.0025
+  },
+  "case_b_rated_load_before": {
+    "PI": {
+      "controller": "PI",
+      "load_torque_nm": 28.65,
+      "finite": true,
+      "final_speed_rad_s": 148.03820525996386,
+      "steady_error_rad_s": 9.041427419533733,
+      "overshoot_pct": 0.0,
+      "t_95_s": null,
+      "peak_current_a": 40.0,
+      "steady_current_a": 31.46763548255877,
+      "steady_voltage_v": 220.0,
+      "voltage_at_supply": true
+    },
+    "MPC": {
+      "controller": "MPC",
+      "load_torque_nm": 28.65,
+      "finite": true,
+      "final_speed_rad_s": 148.03820525996386,
+      "steady_error_rad_s": 9.041427419525832,
+      "overshoot_pct": 0.0,
+      "t_95_s": null,
+      "peak_current_a": 42.628813206757485,
+      "steady_current_a": 31.467635482551124,
+      "steady_voltage_v": 220.0,
+      "voltage_at_supply": true
+    }
+  },
+  "case_b_rated_load_after": [
+    {
+      "controller": "PI",
+      "final_speed_rad_s": 156.3715559359633,
+      "steady_current_a": 25.49887306087486,
+      "steady_voltage_v": 220.0,
+      "speed_below_rated_pct": 0.45077565528814023
+    },
+    {
+      "controller": "MPC",
+      "final_speed_rad_s": 156.3715559359633,
+      "steady_current_a": 25.498873060867485,
+      "steady_voltage_v": 220.0,
+      "speed_below_rated_pct": 0.4507756552830558
+    }
+  ]
+}

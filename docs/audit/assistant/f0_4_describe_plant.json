@@ -301,7 +301,7 @@
         "name": "load_torque_nm",
         "type": "float",
         "unit": "N*m",
-        "convention": "absolute passive load torque (Coulomb-type, opposes rotation), added to the stock friction a = 0.01",
+        "convention": "absolute passive load torque (Coulomb-type, opposes rotation), added to the default friction constant a (0.01 for the stock motor; 1 % of rated torque for another motor with known ratings)",
         "range": {
           "min": 0.0,
           "min_inclusive": true

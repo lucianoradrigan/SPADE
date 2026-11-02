@@ -52,3 +52,5 @@ Thresholds, declared in the module before any run: τ_m/τ_a ≥ 10; current-loo
 
 - Changing either controller: no ejecutado (out of scope; the check is diagnostic only).
 - A friction model scaled to the motor: no ejecutado; it would change a default (§7 of the round instructions).
+
+> **Later change (2026-11-02, round Assistant 0b, D1):** the default load of a non-stock motor with known ratings is now 2 % of its rated torque at rated speed. The case B rated-load rows above used the stock friction; see [`f0b_1_load_default.md`](f0b_1_load_default.md) for the result with the new default.

@@ -157,7 +157,11 @@ class Scenario:
             standstill. It applies in speed control and with torque_ref_nm (torque control) alike.
             One level per run; a ramp within a run is not modelled. "20 % load" is not a Scenario
             concept: the caller converts it with the motor's rated torque. None (default) leaves
-            the stock load untouched, bit for bit.
+            the default load untouched, bit for bit. Default load (round Assistant 0b, D1): the stock
+            friction (a = 0.01, b = 0.05) for the stock motor; when motor_parameter_overrides is set
+            AND dc_nominal_overrides gives 'torque' and 'omega', a friction scaled to that motor
+            instead, a + b*omega_rated = 2 % of its rated torque (half constant, half viscous;
+            runner.dc_default_load_parameter).
         dc_supply_v / dc_limit_overrides / dc_nominal_overrides: dc_perm_ex_v1 only (round
             Assistant, task F0.2). dc_supply_v is the DC-link voltage of the one-quadrant converter
             (IdealVoltageSupply; default 65 V). dc_limit_overrides and dc_nominal_overrides

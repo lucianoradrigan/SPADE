@@ -38,7 +38,7 @@ Controllers: PI, MPC.
 | `pi_setpoint_weight` | float | — | [0, 1] | — | optional | Setpoint weight b of the speed PI's proportional term (PI only). |
 | `dc_plant_solver` | str | — | — | — | optional | Reference integration of the DC plant (studies only; None = one Euler step per period). Allowed: euler, rk45. |
 | `dc_plant_substeps` | int | — | [1, 10000] | — | optional | Euler substeps per control period (with dc_plant_solver euler or unset). |
-| `load_torque_nm` | float | N*m | [0, ∞) | — | important | Constant load torque; '20 % load' must be converted with the motor's rated torque by the caller. Convention: absolute passive load torque (Coulomb-type, opposes rotation), added to the stock friction a = 0.01. |
+| `load_torque_nm` | float | N*m | [0, ∞) | — | important | Constant load torque; '20 % load' must be converted with the motor's rated torque by the caller. Convention: absolute passive load torque (Coulomb-type, opposes rotation), added to the default friction constant a (0.01 for the stock motor; 1 % of rated torque for another motor with known ratings). |
 | `dc_supply_v` | float | V | (0, ∞) | — | important | Supply voltage. Convention: DC link of the one-quadrant converter. |
 | `dc_limit_overrides` | dict | — | — | — | important | Motor limits: normalisation and the controllers' current cap (PI 0.8 x i, MPC 0.85 x i). u must not exceed dc_supply_v. |
 | ↳ `omega` | float | rad/s | (0, ∞) | 400 | | mechanical speed |

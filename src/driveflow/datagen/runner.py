@@ -120,6 +120,32 @@ def _load_module_b_calibration():
     return _FALLBACK_MODES, _FALLBACK_BACKGROUND_GAIN
 
 
+#: Load of the stock DC motor (dc_perm_ex_v1): PolynomialStaticLoad a (N*m), b (N*m*s/rad), c, j_load.
+STOCK_DC_LOAD_PARAMETER = dict(a=0.01, b=0.05, c=0.0, j_load=0.0025)
+#: Friction of any other DC motor at its rated speed, as a fraction of its rated torque, half
+#: constant (a) and half viscous (b*omega) -- user decision 2026-11-02 (round Assistant 0b, D1). The
+#: stock load is 94 % of the stock rated torque at rated speed; scaling that would leave other motors
+#: unable to carry rated load.
+SCALED_FRICTION_FRACTION = 0.02
+
+
+def scaled_dc_load_parameter(rated_torque_nm: float, rated_omega_rad_s: float) -> dict:
+    """Default load of a non-stock DC motor: a + b*omega_rated = 2 % of the rated torque."""
+    half = 0.5 * SCALED_FRICTION_FRACTION * float(rated_torque_nm)
+    return dict(a=half, b=half / float(rated_omega_rad_s), c=0.0, j_load=STOCK_DC_LOAD_PARAMETER["j_load"])
+
+
+def dc_default_load_parameter(motor_parameter_overrides: dict | None, nominal_overrides: dict | None) -> dict | None:
+    """The default load of dc_perm_ex_v1 for this motor, or None for the stock load (callers then
+    keep their original code path). Scaled only when the motor parameters are changed AND its rated
+    torque and speed are known (dc_nominal_overrides 'torque' and 'omega'); otherwise the stock load
+    stays, as before 2026-11-02."""
+    nominal = nominal_overrides or {}
+    if not motor_parameter_overrides or "torque" not in nominal or "omega" not in nominal:
+        return None
+    return scaled_dc_load_parameter(nominal["torque"], nominal["omega"])
+
+
 def build_plant(scenario: Scenario) -> DcMotorSystem:
     """Builds the SCMLSystem for scenario.plant_config_id. Macro-fase A only defines one plant
     (a DC permanently-excited motor); more plant configs (Macro-fase B's VSC+LC, other motor
@@ -128,10 +154,13 @@ def build_plant(scenario: Scenario) -> DcMotorSystem:
     if scenario.plant_config_id != "dc_perm_ex_v1":
         raise NotImplementedError(f"Unknown plant_config_id {scenario.plant_config_id!r}")
 
-    if scenario.load_torque_nm is None:
+    scaled = dc_default_load_parameter(scenario.motor_parameter_overrides, scenario.dc_nominal_overrides)
+    if scaled is None and scenario.load_torque_nm is None:
         base_load = PolynomialStaticLoad(load_parameter=dict(a=0.01, b=0.05, c=0.0, j_load=0.0025))
-    else:  # F0.1: the passive load torque joins the constant (Coulomb) term a
+    elif scaled is None:  # F0.1: the passive load torque joins the constant (Coulomb) term a
         base_load = PolynomialStaticLoad(load_parameter=dict(a=0.01 + scenario.load_torque_nm, b=0.05, c=0.0, j_load=0.0025))
+    else:  # 0b D1: another motor with known ratings gets a friction scaled to it
+        base_load = PolynomialStaticLoad(load_parameter={**scaled, "a": scaled["a"] + (scenario.load_torque_nm or 0.0)})
     extra_electrical = [(ft, scenario.electrical_severity, oo) for ft, oo in (scenario.extra_faults or [])]
     load = BearingFaultLoad(
         base_load,
