@@ -174,6 +174,14 @@ class Scenario:
             motor_parameter_overrides alone the current limit stays at the stock 210 A. A u limit
             above dc_supply_v is rejected. None (default) for all three keeps the stock motor and
             the 65 V supply, bit for bit.
+        plant_config_id="dc_pmg132_v1" (round Assistant 0b, D3, user decision 2026-11-02): the same
+            DC-motor plant, controllers (PI, MPC), fault and vibration paths as dc_perm_ex_v1, with the
+            motor of the Perm-Motor PMG 132 datasheet at 60 V (S-20): r_a 16 mOhm, l_a 0.019 mH,
+            J 0.025 kg*m^2, psi_e 0.181 V*s/rad (P/(omega*I)); rated 110 A, 20 N*m, 2870 min^-1, 60 V;
+            limits 200 A and 38 N*m (short time, S2 10 min). Default load: 2 % of the rated torque at
+            rated speed (D1). Every dc_perm_ex_v1-only field above also applies to it; overrides are
+            merged over the datasheet values. Not used by the diagnosis datasets, the Gym
+            environments or the GUI.
         pmsm_motor_parameters: pmsm_v1 only (round Assistant, task F0.3) -- partial override of the
             PMSM merged over control/classical/pmsm_foc.MOTOR_PARAMS: p (pole pairs, int >= 1), l_d,
             l_q (H, dq inductances per phase), r_s (ohm, stator resistance per phase), psi_p (V*s,
@@ -223,7 +231,7 @@ class Scenario:
     dc_nominal_overrides: dict = None
     pmsm_motor_parameters: dict = None
 
-    _VALID_PAIRS = {("PI", "dc_perm_ex_v1"), ("MPC", "dc_perm_ex_v1"), ("DPC", "vsc_dpc_v1"), ("FOC_MTPA", "pmsm_v1"), ("FOC_naive", "pmsm_v1"),
+    _VALID_PAIRS = {("PI", "dc_perm_ex_v1"), ("MPC", "dc_perm_ex_v1"), ("PI", "dc_pmg132_v1"), ("MPC", "dc_pmg132_v1"), ("DPC", "vsc_dpc_v1"), ("FOC_MTPA", "pmsm_v1"), ("FOC_naive", "pmsm_v1"),
                     ("PI", "buck_v1")}
     _BUCK_PARAMETERS = ("l_h", "c_f", "r_l_ohm", "i_max_a")
     #: |i_s| limit of the PMSM (control/classical/pmsm_foc.py I_LIM).
@@ -358,7 +366,9 @@ class Scenario:
             warnings.warn(f"Scenario.pmsm_motor_parameters: l_d ({merged['l_d']:g} H) > l_q ({merged['l_q']:g} H). The MTPA policy assumes l_q >= l_d "
                           "(salient interior-magnet machine) and may not be meaningful for this motor.", UserWarning, stacklevel=3)
 
-    #: Fields of round Assistant phase 0 that only the DC motor plant (dc_perm_ex_v1) accepts.
+    #: The DC motor plants: GEM's port (dc_perm_ex_v1) and the PMG 132 datasheet motor (dc_pmg132_v1, round Assistant 0b D3).
+    DC_PLANTS = ("dc_perm_ex_v1", "dc_pmg132_v1")
+    #: Fields of round Assistant phase 0 that only the DC motor plants accept.
     _DC_MOTOR_ONLY_FIELDS = ("load_torque_nm", "dc_supply_v", "dc_limit_overrides", "dc_nominal_overrides")
     #: Keys of dc_limit_overrides / dc_nominal_overrides (DcPermanentlyExcitedMotor limits).
     DC_LIMIT_KEYS = ("omega", "torque", "i", "u")
@@ -369,8 +379,8 @@ class Scenario:
         used = [name for name in self._DC_MOTOR_ONLY_FIELDS if getattr(self, name) is not None]
         if not used:
             return
-        if self.plant_config_id != "dc_perm_ex_v1":
-            raise ValueError(f"Scenario.{used[0]} applies only to plant_config_id='dc_perm_ex_v1', got {self.plant_config_id!r}")
+        if self.plant_config_id not in self.DC_PLANTS:
+            raise ValueError(f"Scenario.{used[0]} applies only to plant_config_id='dc_perm_ex_v1' or 'dc_pmg132_v1' (the DC motor plants), got {self.plant_config_id!r}")
 
         def real(value) -> bool:
             return not isinstance(value, bool) and isinstance(value, numbers.Real) and math.isfinite(value)
@@ -403,8 +413,8 @@ class Scenario:
         solver, n = self.dc_plant_solver, self.dc_plant_substeps
         if solver is None and n is None:
             return
-        if self.plant_config_id != "dc_perm_ex_v1":
-            raise ValueError("Scenario.dc_plant_solver / dc_plant_substeps apply only to plant_config_id='dc_perm_ex_v1'")
+        if self.plant_config_id not in self.DC_PLANTS:
+            raise ValueError("Scenario.dc_plant_solver / dc_plant_substeps apply only to plant_config_id='dc_perm_ex_v1' or 'dc_pmg132_v1' (the DC motor plants)")
         if solver is not None and solver not in self.DC_PLANT_SOLVERS:
             raise ValueError(f"Scenario.dc_plant_solver must be one of {self.DC_PLANT_SOLVERS}, got {solver!r}")
         if n is not None:

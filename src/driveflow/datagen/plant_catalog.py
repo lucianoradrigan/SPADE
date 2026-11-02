@@ -22,7 +22,7 @@ import yaml
 from driveflow.datagen.scenario import Scenario
 
 CATALOG_PATH = Path(__file__).resolve().parents[3] / "configs" / "plant_catalog.yaml"
-NATIVE_PLANTS = ("dc_perm_ex_v1", "pmsm_v1", "vsc_dpc_v1", "buck_v1")
+NATIVE_PLANTS = ("dc_perm_ex_v1", "dc_pmg132_v1", "pmsm_v1", "vsc_dpc_v1", "buck_v1")
 
 
 @lru_cache(maxsize=1)
@@ -35,8 +35,13 @@ def _type_name(field: dataclasses.Field) -> str:
     return field.type if isinstance(field.type, str) else getattr(field.type, "__name__", str(field.type))
 
 
-def _key_defaults(field_name: str) -> dict:
+def _key_defaults(field_name: str, plant_config_id: str = "dc_perm_ex_v1") -> dict:
     """Defaults of the keys of a dict field, read from the code (never from the YAML)."""
+    if plant_config_id == "dc_pmg132_v1" and field_name in ("motor_parameter_overrides", "dc_limit_overrides", "dc_nominal_overrides"):
+        from driveflow.datagen import runner
+
+        return dict({"motor_parameter_overrides": runner.PMG132_MOTOR_PARAMETER, "dc_limit_overrides": runner.PMG132_LIMITS,
+                     "dc_nominal_overrides": runner.PMG132_NOMINAL_VALUES}[field_name])
     if field_name == "motor_parameter_overrides":
         from driveflow.sim import DcPermanentlyExcitedMotor
 
@@ -61,11 +66,11 @@ def _key_defaults(field_name: str) -> dict:
     return {}
 
 
-def _dc_stock() -> dict:
+def _dc_stock(plant_config_id: str = "dc_perm_ex_v1") -> dict:
     from driveflow.control.design_check import controller_design_check, mpc_design_check
     from driveflow.datagen.runner import build_plant
 
-    plant = build_plant(Scenario("describe_plant"))
+    plant = build_plant(Scenario("describe_plant", plant_config_id=plant_config_id))
     motor, load = plant.electrical_motor, plant.mechanical_load
     mp, j_total = dict(motor.motor_parameter), float(load.j_total)
     return {
@@ -103,10 +108,10 @@ def describe_plant(plant_config_id: str) -> dict:
         if "range_note" in meta:
             entry["range_note"] = meta["range_note"]
         if "keys" in meta:
-            defaults = _key_defaults(f.name)
+            defaults = _key_defaults(f.name, plant_config_id)
             entry["keys"] = {k: {**v, "default": defaults.get(k)} for k, v in meta["keys"].items()}
         fields_out.append(entry)
     out = {"plant_config_id": plant_config_id, **catalog["plants"][plant_config_id], "fields": fields_out, "not_applicable": not_applicable}
-    if plant_config_id == "dc_perm_ex_v1":
-        out["stock_motor"] = _dc_stock()
+    if plant_config_id in Scenario.DC_PLANTS:
+        out["stock_motor"] = _dc_stock(plant_config_id)  # the plant's default motor
     return out

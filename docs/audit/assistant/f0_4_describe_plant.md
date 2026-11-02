@@ -57,6 +57,53 @@ Not applicable here: `load_resistance_ohm`, `reference_magnitude_v`, `reference_
 
 **Design check:** PI **ok** (τ_a 1.19 ms, τ_m 16.2 ms, τ_m/τ_a 13.6, bandwidth ratio 62.5); MPC **ok** (horizon/τ_a 1.68).
 
+## `dc_pmg132_v1` — Permanently excited DC motor with the Perm-Motor PMG 132 datasheet values at 60 V (S-20), one-quadrant converter
+
+Controllers: PI, MPC.
+
+| Field | Type | Unit | Range | Default | Importance | Convention / description |
+|---|---|---|---|---|---|---|
+| `scenario_id` | str | — | — | — | required | Unique run name; becomes dataset_id and source_file in the export. |
+| `controller_type` | str | — | — | PI | required | Controller of the run; each plant accepts only its own controllers. Allowed: PI, MPC. |
+| `omega_ref_rad_s` | float | rad/s | any finite | 150.0 | important | Speed reference of the speed PI/MPC. The one-quadrant converter cannot track negative references or brake. Convention: mechanical shaft speed. |
+| `fault_type` | str | — | — | — | important | None (healthy), outer_race, inner_race, ball, cage, or a custom label with fault_order_override. |
+| `electrical_severity` | float | N*m | [0, ∞) | 8.0 | optional | Electrical fault severity; only acts when a fault is active. Convention: amplitude of the bearing-fault torque ripple (MCSA path). |
+| `mechanical_severity` | float | vibration model units | [0, ∞) | — | optional | Mechanical fault severity; default is the calibrated value of the fault type. Convention: impulse amplitude of the synthetic vibration model (Module B). |
+| `seed` | int | — | — | 0 | optional | Reproducibility seed (DC: plant randomness, vibration and noise; VSC: the reference's start phase; PMSM and buck: recorded, deterministic runs). |
+| `duration_s` | float | s | (0, ∞) | 1.0 | important | Simulated time of the run. |
+| `plant_config_id` | str | — | — | — | required | Which plant to simulate. |
+| `motor_parameter_overrides` | dict | — | — | — | important | Partial override of the DC motor's electrical and mechanical parameters. |
+| ↳ `r_a` | float | ohm | (0, ∞) | 0.016 | | armature circuit resistance (two-terminal, brushes included as given by the datasheet); temperature not stated by GEM: prefer the cold value and say so |
+| ↳ `l_a` | float | H | (0, ∞) | 1.9e-05 | | armature circuit inductance |
+| ↳ `psi_e` | float | V*s/rad | (0, ∞) | 0.181 | | flux constant = back-EMF constant Ke in V*s/rad = torque constant Kt in N*m/A (SI) |
+| ↳ `j_rotor` | float | kg*m^2 | (0, ∞) | 0.025 | | rotor inertia only; the load adds j_load = 0.0025 |
+| `electrical_noise_pct` | float | % | [0, ∞) | 0.0 | optional | Sensor noise on the current, added after the run. Convention: white noise on current_r, as % of the run's own standard deviation. |
+| `mechanical_noise_pct` | float | % | [0, ∞) | 0.0 | optional | Sensor noise on the vibration channels, added after the run. Convention: white noise on each acceleration axis, as % of that axis's standard deviation. |
+| `torque_ref_nm` | float | N*m | any finite | — | optional | Torque-control mode (bypasses the speed loop); omega_ref_rad_s is then ignored. |
+| `fault_order_override` | float | multiple of shaft speed | (0, ∞) | — | optional | Characteristic fault frequency as an order; makes fault_type a free label. |
+| `extra_faults` | list | — | — | — | optional | Additional simultaneous faults, as (fault_type, order_override) pairs. |
+| `pi_setpoint_weight` | float | — | [0, 1] | — | optional | Setpoint weight b of the speed PI's proportional term (PI only). |
+| `dc_plant_solver` | str | — | — | — | optional | Reference integration of the DC plant (studies only; None = one Euler step per period). Allowed: euler, rk45. |
+| `dc_plant_substeps` | int | — | [1, 10000] | — | optional | Euler substeps per control period (with dc_plant_solver euler or unset). |
+| `load_torque_nm` | float | N*m | [0, ∞) | — | important | Constant load torque; '20 % load' must be converted with the motor's rated torque by the caller. Convention: absolute passive load torque (Coulomb-type, opposes rotation), added to the default friction constant a (0.01 for the stock motor; 1 % of rated torque for another motor with known ratings). |
+| `dc_supply_v` | float | V | (0, ∞) | — | important | Supply voltage. Convention: DC link of the one-quadrant converter. |
+| `dc_limit_overrides` | dict | — | — | — | important | Motor limits: normalisation and the controllers' current cap (PI 0.8 x i, MPC 0.85 x i). u must not exceed dc_supply_v. |
+| ↳ `omega` | float | rad/s | (0, ∞) | 400.0 | | mechanical speed |
+| ↳ `torque` | float | N*m | (0, ∞) | 38.0 | | — |
+| ↳ `i` | float | A | (0, ∞) | 200.0 | | armature current; for a datasheet, the peak (short-time) current, not the continuous one |
+| ↳ `u` | float | V | (0, ∞) | 60.0 | | armature voltage |
+| `dc_nominal_overrides` | dict | — | — | — | optional | Rated values (continuous duty, S1); the tuning's J_effort uses the rated current. |
+| ↳ `omega` | float | rad/s | (0, ∞) | 300.54569719342356 | | rated mechanical speed |
+| ↳ `torque` | float | N*m | (0, ∞) | 20.0 | | rated (continuous) torque |
+| ↳ `i` | float | A | (0, ∞) | 110.0 | | rated continuous current (S1) |
+| ↳ `u` | float | V | (0, ∞) | 60.0 | | rated armature voltage |
+
+Not applicable here: `load_resistance_ohm`, `reference_magnitude_v`, `reference_omega_rad_s`, `pmsm_current_ref_a`, `vsc_voltage_limit_v`, `vsc_capacitor_scale`, `vsc_esr_ohm`, `buck_vout_ref_v`, `buck_vin_v`, `buck_load_step_ohm`, `buck_load_step_time_s`, `buck_parameter_overrides`, `plecs_model_vars`, `plecs_time_limit_s`, `plecs_output_points`, `pmsm_motor_parameters`.
+
+**Stock motor:** parameters {'r_a': 0.016, 'l_a': 1.9e-05, 'psi_e': 0.181, 'j_rotor': 0.025}; limits {'omega': 400.0, 'torque': 38.0, 'i': 200.0, 'u': 60.0}; nominal {'omega': 300.54569719342356, 'torque': 20.0, 'i': 110.0, 'u': 60.0}; supply 65 V; load {'a': 0.2, 'b': 0.0006654562080497367, 'c': 0.0, 'j_load': 0.0025}; j_total 0.0275 kg·m²; control period 0.0001 s.
+
+**Design check:** PI **ok** (τ_a 1.19 ms, τ_m 13.4 ms, τ_m/τ_a 11.3, bandwidth ratio 62.5); MPC **ok** (horizon/τ_a 1.68).
+
 ## `pmsm_v1` — Salient PMSM, dq current control near standstill (current-step bench)
 
 Controllers: FOC_MTPA, FOC_naive.

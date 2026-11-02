@@ -17,46 +17,47 @@
 version: 1
 plants:
   dc_perm_ex_v1: {title: "Permanently excited DC motor (GEM, Heinzmann PMG 132 parameters), one-quadrant converter", controllers: [PI, MPC]}
+  dc_pmg132_v1: {title: "Permanently excited DC motor with the Perm-Motor PMG 132 datasheet values at 60 V (S-20), one-quadrant converter", controllers: [PI, MPC]}
   pmsm_v1: {title: "Salient PMSM, dq current control near standstill (current-step bench)", controllers: [FOC_MTPA, FOC_naive]}
   vsc_dpc_v1: {title: "Voltage source converter with L-C filter, DPC neural controller", controllers: [DPC]}
   buck_v1: {title: "Averaged synchronous buck converter, PI cascade", controllers: [PI]}
 
 fields:
   scenario_id:
-    applies_to: [dc_perm_ex_v1, pmsm_v1, vsc_dpc_v1, buck_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1, pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: null
     importance: required
     validated: false
     range: null
     description: "Unique run name; becomes dataset_id and source_file in the export."
   controller_type:
-    applies_to: [dc_perm_ex_v1, pmsm_v1, vsc_dpc_v1, buck_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1, pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: null
     importance: required
     range: null
-    allowed_per_plant: {dc_perm_ex_v1: [PI, MPC], pmsm_v1: [FOC_MTPA, FOC_naive], vsc_dpc_v1: [DPC], buck_v1: [PI]}
+    allowed_per_plant: {dc_perm_ex_v1: [PI, MPC], dc_pmg132_v1: [PI, MPC], pmsm_v1: [FOC_MTPA, FOC_naive], vsc_dpc_v1: [DPC], buck_v1: [PI]}
     description: "Controller of the run; each plant accepts only its own controllers."
   plant_config_id:
-    applies_to: [dc_perm_ex_v1, pmsm_v1, vsc_dpc_v1, buck_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1, pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: null
     importance: required
     range: null
     description: "Which plant to simulate."
   seed:
-    applies_to: [dc_perm_ex_v1, pmsm_v1, vsc_dpc_v1, buck_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1, pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: null
     importance: optional
     validated: false
     range: null
     description: "Reproducibility seed (DC: plant randomness, vibration and noise; VSC: the reference's start phase; PMSM and buck: recorded, deterministic runs)."
   duration_s:
-    applies_to: [dc_perm_ex_v1, pmsm_v1, vsc_dpc_v1, buck_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1, pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: s
     importance: important
     range: {min: 0.0, min_inclusive: false}
     description: "Simulated time of the run."
   omega_ref_rad_s:
-    applies_to: [dc_perm_ex_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1]
     not_applicable: [pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: rad/s
     convention: "mechanical shaft speed"
@@ -64,7 +65,7 @@ fields:
     range: {}
     description: "Speed reference of the speed PI/MPC. The one-quadrant converter cannot track negative references or brake."
   fault_type:
-    applies_to: [dc_perm_ex_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1]
     not_applicable: [pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: null
     importance: important
@@ -72,7 +73,7 @@ fields:
     range: null
     description: "None (healthy), outer_race, inner_race, ball, cage, or a custom label with fault_order_override."
   electrical_severity:
-    applies_to: [dc_perm_ex_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1]
     not_applicable: [pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: N*m
     convention: "amplitude of the bearing-fault torque ripple (MCSA path)"
@@ -80,7 +81,7 @@ fields:
     range: {min: 0.0, min_inclusive: true}
     description: "Electrical fault severity; only acts when a fault is active."
   mechanical_severity:
-    applies_to: [dc_perm_ex_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1]
     not_applicable: [pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: "vibration model units"
     convention: "impulse amplitude of the synthetic vibration model (Module B)"
@@ -88,12 +89,12 @@ fields:
     range: {min: 0.0, min_inclusive: true}
     description: "Mechanical fault severity; default is the calibrated value of the fault type."
   motor_parameter_overrides:
-    applies_to: [dc_perm_ex_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1]
     not_applicable: [pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: null
     importance: important
     range: null
-    default_source: "DcPermanentlyExcitedMotor._default_motor_parameter (GEM, PMG 132)"
+    default_source: "dc_perm_ex_v1: DcPermanentlyExcitedMotor._default_motor_parameter (GEM); dc_pmg132_v1: runner.PMG132_MOTOR_PARAMETER (datasheet)"
     description: "Partial override of the DC motor's electrical and mechanical parameters."
     keys:
       r_a: {unit: ohm, convention: "armature circuit resistance (two-terminal, brushes included as given by the datasheet); temperature not stated by GEM: prefer the cold value and say so", range: {min: 0.0, min_inclusive: false}}
@@ -101,7 +102,7 @@ fields:
       psi_e: {unit: V*s/rad, convention: "flux constant = back-EMF constant Ke in V*s/rad = torque constant Kt in N*m/A (SI)", range: {min: 0.0, min_inclusive: false}}
       j_rotor: {unit: kg*m^2, convention: "rotor inertia only; the load adds j_load = 0.0025", range: {min: 0.0, min_inclusive: false}}
   electrical_noise_pct:
-    applies_to: [dc_perm_ex_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1]
     not_applicable: [pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: "%"
     convention: "white noise on current_r, as % of the run's own standard deviation"
@@ -109,7 +110,7 @@ fields:
     range: {min: 0.0, min_inclusive: true}
     description: "Sensor noise on the current, added after the run."
   mechanical_noise_pct:
-    applies_to: [dc_perm_ex_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1]
     not_applicable: [pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: "%"
     convention: "white noise on each acceleration axis, as % of that axis's standard deviation"
@@ -117,21 +118,21 @@ fields:
     range: {min: 0.0, min_inclusive: true}
     description: "Sensor noise on the vibration channels, added after the run."
   torque_ref_nm:
-    applies_to: [dc_perm_ex_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1]
     not_applicable: [pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: N*m
     importance: optional
     range: {}
     description: "Torque-control mode (bypasses the speed loop); omega_ref_rad_s is then ignored."
   fault_order_override:
-    applies_to: [dc_perm_ex_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1]
     not_applicable: [pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: "multiple of shaft speed"
     importance: optional
     range: {min: 0.0, min_inclusive: false}
     description: "Characteristic fault frequency as an order; makes fault_type a free label."
   extra_faults:
-    applies_to: [dc_perm_ex_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1]
     not_applicable: [pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: null
     importance: optional
@@ -139,7 +140,7 @@ fields:
     description: "Additional simultaneous faults, as (fault_type, order_override) pairs."
   load_resistance_ohm:
     applies_to: [vsc_dpc_v1, buck_v1]
-    not_applicable: [dc_perm_ex_v1, pmsm_v1]
+    not_applicable: [dc_perm_ex_v1, dc_pmg132_v1, pmsm_v1]
     unit: ohm
     convention: "resistive load across the output capacitor"
     importance: important
@@ -148,7 +149,7 @@ fields:
     description: "Output load. VSC below R* = 3.37 ohm is open-loop unstable (physics, not rejected)."
   reference_magnitude_v:
     applies_to: [vsc_dpc_v1]
-    not_applicable: [dc_perm_ex_v1, pmsm_v1, buck_v1]
+    not_applicable: [dc_perm_ex_v1, dc_pmg132_v1, pmsm_v1, buck_v1]
     unit: V
     convention: "magnitude of the rotating voltage reference (complex phasor)"
     importance: important
@@ -157,7 +158,7 @@ fields:
     description: "Reference voltage magnitude; the network was trained at 50 V."
   reference_omega_rad_s:
     applies_to: [vsc_dpc_v1]
-    not_applicable: [dc_perm_ex_v1, pmsm_v1, buck_v1]
+    not_applicable: [dc_perm_ex_v1, dc_pmg132_v1, pmsm_v1, buck_v1]
     unit: rad/s
     convention: "electrical angular frequency of the reference"
     importance: optional
@@ -165,7 +166,7 @@ fields:
     default_source: "RotatingReference default, 2*pi*50"
     description: "Reference frequency; the network was trained at 50 Hz."
   pi_setpoint_weight:
-    applies_to: [dc_perm_ex_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1]
     not_applicable: [pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: null
     importance: optional
@@ -174,7 +175,7 @@ fields:
     description: "Setpoint weight b of the speed PI's proportional term (PI only)."
   pmsm_current_ref_a:
     applies_to: [pmsm_v1]
-    not_applicable: [dc_perm_ex_v1, vsc_dpc_v1, buck_v1]
+    not_applicable: [dc_perm_ex_v1, dc_pmg132_v1, vsc_dpc_v1, buck_v1]
     unit: A
     convention: "signed stator current magnitude |i_s| (amplitude-invariant dq, peak per phase); sign = sign of i_q"
     importance: required
@@ -182,7 +183,7 @@ fields:
     description: "Stator current reference, split into (i_d, i_q) by the policy."
   vsc_voltage_limit_v:
     applies_to: [vsc_dpc_v1]
-    not_applicable: [dc_perm_ex_v1, pmsm_v1, buck_v1]
+    not_applicable: [dc_perm_ex_v1, dc_pmg132_v1, pmsm_v1, buck_v1]
     unit: V
     convention: "per-axis clamp of the converter voltage command"
     importance: optional
@@ -190,21 +191,21 @@ fields:
     description: "Converter voltage limit; 134 V reproduces the original converter (S-09). None: unlimited."
   vsc_capacitor_scale:
     applies_to: [vsc_dpc_v1]
-    not_applicable: [dc_perm_ex_v1, pmsm_v1, buck_v1]
+    not_applicable: [dc_perm_ex_v1, dc_pmg132_v1, pmsm_v1, buck_v1]
     unit: "fraction of 15 uF"
     importance: optional
     range: {min: 0.0, min_inclusive: false}
     description: "Synthetic capacitor degradation (effective C); synthetic-only fault."
   vsc_esr_ohm:
     applies_to: [vsc_dpc_v1]
-    not_applicable: [dc_perm_ex_v1, pmsm_v1, buck_v1]
+    not_applicable: [dc_perm_ex_v1, dc_pmg132_v1, pmsm_v1, buck_v1]
     unit: ohm
     importance: optional
     range: {min: 0.0, min_inclusive: true}
     description: "Synthetic series ESR of the filter capacitor."
   buck_vout_ref_v:
     applies_to: [buck_v1]
-    not_applicable: [dc_perm_ex_v1, pmsm_v1, vsc_dpc_v1]
+    not_applicable: [dc_perm_ex_v1, dc_pmg132_v1, pmsm_v1, vsc_dpc_v1]
     unit: V
     importance: important
     range: {min: 0.0, min_inclusive: true, max: 48.0, max_inclusive: false}
@@ -213,7 +214,7 @@ fields:
     description: "Output voltage reference."
   buck_vin_v:
     applies_to: [buck_v1]
-    not_applicable: [dc_perm_ex_v1, pmsm_v1, vsc_dpc_v1]
+    not_applicable: [dc_perm_ex_v1, dc_pmg132_v1, pmsm_v1, vsc_dpc_v1]
     unit: V
     importance: important
     range: {min: 24.0, min_inclusive: false}
@@ -222,14 +223,14 @@ fields:
     description: "Input voltage."
   buck_load_step_ohm:
     applies_to: [buck_v1]
-    not_applicable: [dc_perm_ex_v1, pmsm_v1, vsc_dpc_v1]
+    not_applicable: [dc_perm_ex_v1, dc_pmg132_v1, pmsm_v1, vsc_dpc_v1]
     unit: ohm
     importance: optional
     range: {min: 0.0, min_inclusive: false}
     description: "Load after the step; None: no step."
   buck_load_step_time_s:
     applies_to: [buck_v1]
-    not_applicable: [dc_perm_ex_v1, pmsm_v1, vsc_dpc_v1]
+    not_applicable: [dc_perm_ex_v1, dc_pmg132_v1, pmsm_v1, vsc_dpc_v1]
     unit: s
     importance: optional
     range: {min: 0.0, min_inclusive: true}
@@ -237,7 +238,7 @@ fields:
     description: "Time of the load step."
   buck_parameter_overrides:
     applies_to: [buck_v1]
-    not_applicable: [dc_perm_ex_v1, pmsm_v1, vsc_dpc_v1]
+    not_applicable: [dc_perm_ex_v1, dc_pmg132_v1, pmsm_v1, vsc_dpc_v1]
     unit: null
     importance: optional
     range: null
@@ -249,24 +250,24 @@ fields:
       r_l_ohm: {unit: ohm, convention: "inductor series resistance", range: {min: 0.0, min_inclusive: true}}
       i_max_a: {unit: A, convention: "inductor current limit of the controller", range: {min: 0.0, min_inclusive: false}}
   plecs_model_vars:
-    not_applicable: [dc_perm_ex_v1, pmsm_v1, vsc_dpc_v1, buck_v1]
+    not_applicable: [dc_perm_ex_v1, dc_pmg132_v1, pmsm_v1, vsc_dpc_v1, buck_v1]
     description: "PLECS plants only ('plecs:<profile_id>')."
   plecs_time_limit_s:
-    not_applicable: [dc_perm_ex_v1, pmsm_v1, vsc_dpc_v1, buck_v1]
+    not_applicable: [dc_perm_ex_v1, dc_pmg132_v1, pmsm_v1, vsc_dpc_v1, buck_v1]
     description: "PLECS plants only."
   plecs_output_points:
-    not_applicable: [dc_perm_ex_v1, pmsm_v1, vsc_dpc_v1, buck_v1]
+    not_applicable: [dc_perm_ex_v1, dc_pmg132_v1, pmsm_v1, vsc_dpc_v1, buck_v1]
     description: "PLECS plants only."
   dc_plant_solver:
-    applies_to: [dc_perm_ex_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1]
     not_applicable: [pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: null
     importance: optional
     range: null
-    allowed_per_plant: {dc_perm_ex_v1: [euler, rk45]}
+    allowed_per_plant: {dc_perm_ex_v1: [euler, rk45], dc_pmg132_v1: [euler, rk45]}
     description: "Reference integration of the DC plant (studies only; None = one Euler step per period)."
   dc_plant_substeps:
-    applies_to: [dc_perm_ex_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1]
     not_applicable: [pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: null
     importance: optional
@@ -274,7 +275,7 @@ fields:
     range: {min: 1, min_inclusive: true, max: 10000, max_inclusive: true}
     description: "Euler substeps per control period (with dc_plant_solver euler or unset)."
   load_torque_nm:
-    applies_to: [dc_perm_ex_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1]
     not_applicable: [pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: N*m
     convention: "absolute passive load torque (Coulomb-type, opposes rotation), added to the default friction constant a (0.01 for the stock motor; 1 % of rated torque for another motor with known ratings)"
@@ -282,7 +283,7 @@ fields:
     range: {min: 0.0, min_inclusive: true}
     description: "Constant load torque; '20 % load' must be converted with the motor's rated torque by the caller."
   dc_supply_v:
-    applies_to: [dc_perm_ex_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1]
     not_applicable: [pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: V
     convention: "DC link of the one-quadrant converter"
@@ -291,12 +292,12 @@ fields:
     default_source: "runner.build_plant: 65 V (motor rated 60 V)"
     description: "Supply voltage."
   dc_limit_overrides:
-    applies_to: [dc_perm_ex_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1]
     not_applicable: [pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: null
     importance: important
     range: null
-    default_source: "DcPermanentlyExcitedMotor._default_limits; not derived from motor_parameter_overrides"
+    default_source: "dc_perm_ex_v1: DcPermanentlyExcitedMotor._default_limits, not derived from motor_parameter_overrides; dc_pmg132_v1: runner.PMG132_LIMITS"
     description: "Motor limits: normalisation and the controllers' current cap (PI 0.8 x i, MPC 0.85 x i). u must not exceed dc_supply_v."
     keys:
       omega: {unit: rad/s, convention: "mechanical speed", range: {min: 0.0, min_inclusive: false}}
@@ -304,12 +305,12 @@ fields:
       i: {unit: A, convention: "armature current; for a datasheet, the peak (short-time) current, not the continuous one", range: {min: 0.0, min_inclusive: false}}
       u: {unit: V, convention: "armature voltage", range: {min: 0.0, min_inclusive: false}}
   dc_nominal_overrides:
-    applies_to: [dc_perm_ex_v1]
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1]
     not_applicable: [pmsm_v1, vsc_dpc_v1, buck_v1]
     unit: null
     importance: optional
     range: null
-    default_source: "DcPermanentlyExcitedMotor._default_nominal_values"
+    default_source: "dc_perm_ex_v1: DcPermanentlyExcitedMotor._default_nominal_values; dc_pmg132_v1: runner.PMG132_NOMINAL_VALUES"
     description: "Rated values (continuous duty, S1); the tuning's J_effort uses the rated current."
     keys:
       omega: {unit: rad/s, convention: "rated mechanical speed", range: {min: 0.0, min_inclusive: false}}
@@ -318,7 +319,7 @@ fields:
       u: {unit: V, convention: "rated armature voltage", range: {min: 0.0, min_inclusive: false}}
   pmsm_motor_parameters:
     applies_to: [pmsm_v1]
-    not_applicable: [dc_perm_ex_v1, vsc_dpc_v1, buck_v1]
+    not_applicable: [dc_perm_ex_v1, dc_pmg132_v1, vsc_dpc_v1, buck_v1]
     unit: null
     importance: important
     range: null

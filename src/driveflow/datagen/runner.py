@@ -146,13 +146,37 @@ def dc_default_load_parameter(motor_parameter_overrides: dict | None, nominal_ov
     return scaled_dc_load_parameter(nominal["torque"], nominal["omega"])
 
 
+#: dc_pmg132_v1 (round Assistant 0b, D3): the Perm-Motor PMG 132 datasheet at 60 V
+#: (docs/audit/assistant/f0_7_s20_pmg132.md). psi_e from P/(omega*I) = 5970 W / (300.5 rad/s * 110 A).
+#: The datasheet gives no speed limit: GEM's 400 rad/s is kept.
+PMG132_MOTOR_PARAMETER = dict(r_a=16e-3, l_a=19e-6, psi_e=0.181, j_rotor=0.025)
+PMG132_NOMINAL_VALUES = dict(omega=2870 * 2 * np.pi / 60, torque=20.0, i=110.0, u=60.0)
+PMG132_LIMITS = dict(omega=400.0, torque=38.0, i=200.0, u=60.0)
+
+
+def _build_pmg132_plant(scenario: Scenario):
+    """Motor, load parameter and supply of dc_pmg132_v1, with the Scenario's overrides merged in."""
+    nominal = {**PMG132_NOMINAL_VALUES, **(scenario.dc_nominal_overrides or {})}
+    motor = DcPermanentlyExcitedMotor(motor_parameter={**PMG132_MOTOR_PARAMETER, **(scenario.motor_parameter_overrides or {})},
+                                      nominal_values=nominal, limit_values={**PMG132_LIMITS, **(scenario.dc_limit_overrides or {})})
+    load = scaled_dc_load_parameter(nominal["torque"], nominal["omega"])
+    load["a"] += scenario.load_torque_nm or 0.0
+    return motor, load, IdealVoltageSupply(u_nominal=65.0 if scenario.dc_supply_v is None else scenario.dc_supply_v)
+
+
 def build_plant(scenario: Scenario) -> DcMotorSystem:
-    """Builds the SCMLSystem for scenario.plant_config_id. Macro-fase A only defines one plant
-    (a DC permanently-excited motor); more plant configs (Macro-fase B's VSC+LC, other motor
-    types) would extend this dispatch, not replace it.
+    """Builds the SCMLSystem for scenario.plant_config_id: the DC permanently-excited motor of GEM
+    (dc_perm_ex_v1) or of the PMG 132 datasheet (dc_pmg132_v1). The other plants have their own
+    runners below.
     """
-    if scenario.plant_config_id != "dc_perm_ex_v1":
+    if scenario.plant_config_id not in ("dc_perm_ex_v1", "dc_pmg132_v1"):
         raise NotImplementedError(f"Unknown plant_config_id {scenario.plant_config_id!r}")
+    if scenario.plant_config_id == "dc_pmg132_v1":
+        motor, load_parameter, supply = _build_pmg132_plant(scenario)
+        extra_electrical = [(ft, scenario.electrical_severity, oo) for ft, oo in (scenario.extra_faults or [])]
+        load = BearingFaultLoad(PolynomialStaticLoad(load_parameter=load_parameter), fault_type=scenario.fault_type, geometry=KAT_DATACENTER_6203_GEOMETRY,
+                                severity=scenario.electrical_severity, order_override=scenario.fault_order_override, extra_faults=extra_electrical)
+        return DcMotorSystem(converter=ContOneQuadrantConverter(), motor=motor, load=load, supply=supply, ode_solver=dc_ode_solver(scenario), tau=TAU)
 
     scaled = dc_default_load_parameter(scenario.motor_parameter_overrides, scenario.dc_nominal_overrides)
     if scaled is None and scenario.load_torque_nm is None:
@@ -534,6 +558,7 @@ def _run_buck_scenario(scenario: Scenario) -> list:
 
 _SCENARIO_RUNNERS = {
     "dc_perm_ex_v1": _run_dc_motor_scenario,
+    "dc_pmg132_v1": _run_dc_motor_scenario,
     "vsc_dpc_v1": _run_vsc_scenario,
     "pmsm_v1": _run_pmsm_scenario,
     "buck_v1": _run_buck_scenario,
