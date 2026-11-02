@@ -544,6 +544,11 @@ here) · [simulation stability](docs/SIMULATION_STABILITY_REPORT.md) ·
 [AI technical audit](docs/AI_TECHNICAL_AUDIT.md) ·
 [demo validation scenarios](docs/DEMO_VALIDATION_SCENARIOS.md).
 
+**Assistant (planning only).** A conversational assistant that would configure simulations from a
+description or a motor datasheet is being planned in [`docs/assistant/`](docs/assistant/) (in
+Spanish). **It does not exist yet:** SPADE has no assistant and uses no language model. Phase 0
+only adds optional simulator fields that it will need.
+
 `dev` (`pytest`) and `viz` (`streamlit`, `plotly`) are both needed to run the full test suite --
 some tests drive the dashboard itself via `streamlit.testing.v1.AppTest`, so `viz` isn't only a
 dashboard-runtime dependency. `pip install -e ".[dev]"` alone will fail to even collect those
