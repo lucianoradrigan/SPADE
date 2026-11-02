@@ -475,7 +475,7 @@ Instructions: the user's round document `INSTRUCCIONES_CLAUDE_CODE_2026-11-02.md
 | F0.4 `describe_plant()` | 1418 passed, 9 xfailed |
 | F0.5 simulation cost | 1418 passed, 9 xfailed |
 | F0.6 tuning on another motor | 1426 passed, 9 xfailed |
-| F0.7 S-20 and closure | SUITE_F07 |
+| F0.7 S-20 and closure | 1426 passed, 9 xfailed; smoke `--launch` 6/6 |
 
 No xfail was added; the inventory (`docs/audit/expansion/xfail_inventory.md`) is unchanged and `tests/test_xfail_inventory.py` passes.
 
