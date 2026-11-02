@@ -20,7 +20,10 @@ SCHEMA_VERSION = 1
 
 #: Provenance labels (spec Sec. 0, principle 2). "LIVE" is deliberately absent: nothing in SPADE
 #: reads hardware telemetry, and a reachable PLECS RPC server is a tool, not a signal source.
-ORIGINS = ("SIMULATED", "SIMULATED · PLECS", "SIMULATED · SURROGATE", "SIMULATED · OPENMODELICA", "EXTERNAL FILE", "MEASURED · EXTERNAL DATASET")
+# "SIMULATED · AI-PLANNED" (round Assistant, phase 1): a native simulation whose conditions were planned
+# in a conversation with the local assistant and launched after the user's confirmation.
+ORIGINS = ("SIMULATED", "SIMULATED · PLECS", "SIMULATED · SURROGATE", "SIMULATED · OPENMODELICA", "EXTERNAL FILE", "MEASURED · EXTERNAL DATASET",
+           "SIMULATED · AI-PLANNED")
 
 PROFILE_KINDS = ("native", "plecs_rpc_batch", "plecs_fmu_co_sim", "om_fmu_co_sim", "surrogate")
 PROFILE_STATUSES = ("draft", "imported", "mapped", "specified", "verifying", "validated", "published", "failed", "unsupported", "stale", "disconnected")

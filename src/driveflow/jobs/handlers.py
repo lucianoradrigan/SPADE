@@ -138,7 +138,10 @@ def scenario_sweep(ctx: JobContext) -> HandlerResult:
             conditions.append({"index": i, "condition": cond, "status": "failed", "error": f"{type(exc).__name__}: {exc}", "seconds": round(time.perf_counter() - t0, 3)})
             ctx.log(f"condition {i + 1}/{n} failed: {type(exc).__name__}: {exc}")
     ctx.progress(sum(c["status"] != "skipped" for c in conditions), n, "finished")
-    return HandlerResult(conditions=conditions, metrics={"n_conditions": n, "n_ok": sum(c["status"] == "ok" for c in conditions)})
+    # Runs planned by the assistant carry params.origin = "SIMULATED · AI-PLANNED"; any other value
+    # (or none) keeps the plain SIMULATED label, as before.
+    origin = ctx.spec.params.get("origin") if ctx.spec.params.get("origin") == "SIMULATED · AI-PLANNED" else "SIMULATED"
+    return HandlerResult(conditions=conditions, metrics={"n_conditions": n, "n_ok": sum(c["status"] == "ok" for c in conditions)}, origin=origin)
 
 
 # --------------------------------------------------------------------------- plecs_sweep

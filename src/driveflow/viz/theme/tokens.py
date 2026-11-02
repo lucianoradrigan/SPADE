@@ -127,6 +127,8 @@ SOURCE_META = {
     "MEASURED · EXTERNAL DATASET": ("MEASURED · EXTERNAL DATASET", "primary"),
     # Round PLECS/OM, decision D5: data and environments produced by OpenModelica FMUs.
     "SIMULATED · OPENMODELICA": ("SIMULATED · OPENMODELICA", "primary"),
+    # Round Assistant, phase 1: native simulations planned in a chat with the local assistant.
+    "SIMULATED · AI-PLANNED": ("SIMULATED · AI-PLANNED", "primary"),
 }
 
 

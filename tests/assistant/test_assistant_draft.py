@@ -78,7 +78,7 @@ def test_invented_numbers_are_refused_and_the_patch_is_atomic():
     ({"op": "set", "field": "omega_ref_rad_s", "value": 100, "unit": "rad/s", "origin": "derived"}, "computed by SPADE"),
     ({"op": "set", "field": "omega_ref_rad_s", "value": 100, "unit": "rad/s", "origin": "datasheet"}, "phase 2"),
     ({"op": "set", "field": "omega_ref_rad_s", "value": 100, "unit": "rad/s", "origin": "suggested"}, "suggest_value"),
-    ({"op": "set", "field": "omega_ref_rad_s", "value": 100, "unit": "rad/s", "origin": "default"}, "describe_plant"),
+    ({"op": "set", "field": "omega_ref_rad_s", "value": 100, "unit": "rad/s", "origin": "default"}, "the default of"),
     ({"op": "assume", "field": "omega_ref_rad_s", "value": 100, "unit": "rad/s"}, "reason"),
     ({"op": "set", "field": "fault_type", "value": "outer_race"}, "phase 4"),
     ({"op": "set", "field": "pmsm_current_ref_a", "value": 5, "unit": "A"}, "does not apply"),
@@ -96,14 +96,21 @@ def test_refusals(op, message):
     assert not r["ok"] and message in r["errors"][0]["error"], r["errors"]
 
 
-def test_suggested_default_and_assumed_values_need_their_tool_result():
-    led = ledger("motor DC", tools=[("suggest_value", {"field": "duration_s", "value": 2.0, "rule": "time to settle"}), ("describe_plant", {"supply_v": 65.0})])
+def test_suggested_default_and_assumed_values_need_their_backing():
+    led = ledger("motor DC", tools=[("suggest_value", {"field": "duration_s", "value": 2.0, "unit": "s", "rule": "time to settle"}),
+                                    ("describe_plant", {"range": {"max": 400.0}, "supply_v": 65.0})])
     d = dc_draft(led)
     assert d.patch([{"op": "set", "field": "duration_s", "value": 2.0, "unit": "s", "origin": "suggested"}], led)["ok"]
     assert d.base["duration_s"].source == "tool suggest_value (call c_suggest_value)"
-    assert d.patch([{"op": "set", "field": "dc_supply_v", "value": 65.0, "unit": "V", "origin": "default"}], led)["ok"]
-    # 65 V is in describe_plant, not in suggest_value: as "suggested" it is refused.
-    assert not d.patch([{"op": "set", "field": "dc_supply_v", "value": 65.0, "unit": "V", "origin": "suggested"}], led)["ok"]
+    # A suggestion for another field does not back this one.
+    r = d.patch([{"op": "set", "field": "omega_ref_rad_s", "value": 2.0, "unit": "rad/s", "origin": "suggested"}], led)
+    assert not r["ok"] and "no suggest_value result for omega_ref_rad_s" in r["errors"][0]["error"]
+    # "default" must be the field's own default, not any number of describe_plant (a range bound, say).
+    assert d.patch([{"op": "set", "field": "duration_s", "value": 1.0, "unit": "s", "origin": "default"}], led)["ok"]
+    r = d.patch([{"op": "set", "field": "omega_ref_rad_s", "value": 400.0, "unit": "rad/s", "origin": "default"}], led)
+    assert not r["ok"] and "the default of omega_ref_rad_s" in r["errors"][0]["error"]
+    r = d.patch([{"op": "set", "field": "dc_supply_v", "value": 65.0, "unit": "V", "origin": "default"}], led)
+    assert not r["ok"] and "use_defaults" in r["errors"][0]["error"]  # its Scenario default is None (65 V is applied by the plant)
     r = d.patch([{"op": "assume", "field": "omega_ref_rad_s", "value": 65.0, "unit": "rad/s", "reason": "x"}], led)
     assert r["ok"] and d.assumptions == [{"field": "omega_ref_rad_s", "value": 65.0, "unit": "rad/s", "reason": "x"}]
 

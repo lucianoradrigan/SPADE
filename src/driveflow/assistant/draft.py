@@ -9,9 +9,9 @@ recorded in a ``Ledger``:
 
 - origin ``user``: the user wrote that quantity (``numbers.extract_quantities``, compared in SI with
   ``numbers.same``); an ambiguous number ("1.500") never counts;
-- origin ``suggested``: it is in a ``suggest_value`` result;
-- origin ``default``: it is in a ``describe_plant`` result, or the draft read it itself
-  (``use_defaults``);
+- origin ``suggested``: a ``suggest_value`` result for THAT field returned this value;
+- origin ``default``: it equals the field's own default on this plant (read from the code by
+  ``describe_plant``); ``use_defaults`` reads it without the model sending any number;
 - origin ``assumed``: it is in some tool result, and the patch says why it is assumed;
 - origin ``derived``: only SPADE derives (a percentage of the rated torque, the values of a range
   with the user's step); a patch cannot send a derived number;
@@ -40,8 +40,6 @@ from driveflow.datagen.scenario import Scenario
 
 ORIGINS = ("user", "derived", "suggested", "default", "assumed", "datasheet")
 PATCH_ORIGINS = ("user", "suggested", "default", "assumed")  # what a patch may declare in phase 1
-#: tool results that back each origin (any tool backs "assumed").
-ORIGIN_TOOLS = {"suggested": ("suggest_value",), "default": ("describe_plant", "suggest_value")}
 PHASE4_FIELDS = ("fault_type", "electrical_severity", "mechanical_severity", "fault_order_override", "extra_faults")
 GENERATED_FIELDS = ("scenario_id", "plant_config_id", "controller_type")
 #: preset = the machine (dict-field keys and supply); base = the operating point of every run.
@@ -71,6 +69,7 @@ class Evidence:
     tool: str | None = None
     quantities: list = field(default_factory=list)  # user: list[nb.Quantity]
     numbers: list = field(default_factory=list)  # tool: list[float] (SI, as the tool returned them)
+    result: object = None  # tool: the result itself (suggest_value results are matched by field)
 
 
 class Ledger:
@@ -83,7 +82,7 @@ class Ledger:
         self.items.append(Evidence("user", f"user message {seq}", quantities=nb.extract_quantities(text)))
 
     def add_tool_result(self, tool: str, call_id: str, result) -> None:
-        self.items.append(Evidence("tool", f"tool {tool} (call {call_id})", tool=tool, numbers=nb.numbers_in(result)))
+        self.items.append(Evidence("tool", f"tool {tool} (call {call_id})", tool=tool, numbers=nb.numbers_in(result), result=result))
 
     def user_quantity(self, value: float, unit: str | None, field_unit: str | None, *, fraction_field: bool = False) -> str | None:
         """Source of a user quantity equal to value[unit] in the field's unit, or None."""
@@ -108,6 +107,14 @@ class Ledger:
                         return f"{ev.source}: '{q.text}'"
                 except nb.UnitError:
                     continue
+        return None
+
+    def suggestion(self, path: str, si_value: float) -> str | None:
+        """Source of a suggest_value result for this field with this value (in the field's SI unit)."""
+        for ev in reversed(self.items):
+            r = ev.result
+            if ev.tool == "suggest_value" and isinstance(r, dict) and r.get("field") == path and _is_number(r.get("value")) and nb.same(float(r["value"]), si_value):
+                return ev.source
         return None
 
     def tool_number(self, si_value: float, tools: tuple | None) -> str | None:
@@ -365,10 +372,20 @@ class Draft:
         if percent_of_rated:
             raise PatchError("a load percentage must come from the user")
         si = nb.to_si(value, unit, field_unit) if unit not in (None, "%") else (value / 100.0 if unit == "%" else value)
-        src = ledger.tool_number(si, ORIGIN_TOOLS.get(origin)) or ledger.tool_number(float(value), ORIGIN_TOOLS.get(origin))
+        if origin == "default":
+            d = meta["default"]
+            if not _is_number(d) or not nb.same(float(d), si):
+                raise PatchError(f"{path} = {value} {unit or ''}: the default of {path} on {self.plant} is {d!r} ({meta['default_source']}); "
+                                 "to keep a default use the operation use_defaults".replace("  ", " "))
+            return Value(value, unit, "default", f"describe_plant({self.plant}): {meta['default_source']}")
+        if origin == "suggested":
+            src = ledger.suggestion(path, si)
+            if src is None:
+                raise PatchError(f"{path} = {value} {unit or ''} (suggested): no suggest_value result for {path} gave this value".replace("  ", " "))
+            return Value(value, unit, "suggested", src, reason)
+        src = ledger.tool_number(si, None) or ledger.tool_number(float(value), None)
         if src is None:
-            tools = ORIGIN_TOOLS.get(origin, ("any tool",))
-            raise PatchError(f"{path} = {value} {unit or ''} ({origin}): no result of {list(tools)} contains this number".replace("  ", " "))
+            raise PatchError(f"{path} = {value} {unit or ''} (assumed): no tool result contains this number".replace("  ", " "))
         return Value(value, unit, origin, src, reason)
 
     def _range_values(self, path: str, rng: dict, unit: str | None, origin: str, ledger: Ledger) -> list:

@@ -1,0 +1,298 @@
+{
+  "command": "python experiments/report_f1_5_config_tools.py",
+  "llm": "none (scripted tool calls)",
+  "request": "Simula el motor DC de stock con PI a 50 y 100 rad/s, 0.5 s cada una, sin carga extra.",
+  "proposal": {
+    "proposal": "show this to the user and ask for confirmation; do not launch before their yes",
+    "plant": "dc_perm_ex_v1",
+    "controller_type": "PI",
+    "experiments": [
+      {
+        "scenario_id": "assistant_000",
+        "controller_type": "PI",
+        "duration_s": 0.5,
+        "omega_ref_rad_s": 50.0
+      },
+      {
+        "scenario_id": "assistant_001",
+        "controller_type": "PI",
+        "duration_s": 0.5,
+        "omega_ref_rad_s": 100.0
+      }
+    ],
+    "derived": [],
+    "assumptions": [],
+    "defaults_used": [],
+    "important_left_at_default": [
+      {
+        "field": "motor_parameter_overrides",
+        "unit": null,
+        "default": {
+          "r_a": 0.016,
+          "l_a": 1.9e-05,
+          "psi_e": 0.165,
+          "j_rotor": 0.025
+        },
+        "default_source": "dc_perm_ex_v1: DcPermanentlyExcitedMotor._default_motor_parameter (GEM); dc_pmg132_v1: runner.PMG132_MOTOR_PARAMETER (datasheet)"
+      },
+      {
+        "field": "load_torque_nm",
+        "unit": "N*m",
+        "default": null,
+        "default_source": "Scenario field default"
+      },
+      {
+        "field": "dc_supply_v",
+        "unit": "V",
+        "default": null,
+        "default_source": "runner.build_plant: 65 V (motor rated 60 V)"
+      },
+      {
+        "field": "dc_limit_overrides",
+        "unit": null,
+        "default": {
+          "omega": 400,
+          "torque": 38.0,
+          "i": 210,
+          "u": 60
+        },
+        "default_source": "dc_perm_ex_v1: DcPermanentlyExcitedMotor._default_limits, not derived from motor_parameter_overrides; dc_pmg132_v1: runner.PMG132_LIMITS"
+      }
+    ],
+    "cost": {
+      "sim_seconds": 1.0,
+      "est_cpu_s": 3.1624,
+      "cpu_s_per_sim_s": 3.1624,
+      "basis": "configs/sim_cost.yaml dc_perm_ex_v1/PI, measured 2026-11-02T14:33:54-03:00 on one machine"
+    },
+    "draft_hash": "673445691431dcbcc46f26c780d6f293a430ec88e759881dfd5232dce63bf290",
+    "origin": "results will be SIMULATED"
+  },
+  "job": {
+    "job_id": "job-20261102T223053-a679f01c",
+    "experiment_id": "exp-20261102T223053-11583aed",
+    "n_conditions": 2,
+    "note": "queued; a SPADE worker runs it (Experiment Runs page or `python -m driveflow.jobs.worker`)"
+  },
+  "status": {
+    "job_id": "job-20261102T223053-a679f01c",
+    "state": "completed",
+    "progress": {
+      "done": 2,
+      "total": 2,
+      "phase": "finished"
+    },
+    "run_id": "run-20261102T223053-6c0131b7",
+    "run_status": "completed",
+    "conditions_ok": 2,
+    "conditions_failed": []
+  },
+  "summary": {
+    "origin": "SIMULATED · AI-PLANNED",
+    "run_id": "run-20261102T223053-6c0131b7",
+    "run_status": "completed",
+    "rows": [
+      {
+        "index": 0,
+        "status": "ok",
+        "condition": {
+          "controller_type": "PI",
+          "duration_s": 0.5,
+          "omega_ref_rad_s": 50.0,
+          "plant_config_id": "dc_perm_ex_v1",
+          "scenario_id": "assistant_000"
+        },
+        "kpis": {
+          "final_speed_rad_s": 50.0,
+          "steady_current_a": 15.212121,
+          "peak_current_a": 168.0,
+          "peak_voltage_v": 15.96,
+          "steady_torque_nm": 2.51,
+          "speed_reference_rad_s": 50.0,
+          "speed_step": {
+            "rise_time_s": 0.0418,
+            "settling_time_s": 0.0552,
+            "overshoot_pct": 1.502613,
+            "steady_state_error": 0.0,
+            "rmse": 9.24495,
+            "max_abs_error": 50.0,
+            "finite": true,
+            "units": "times s, errors rad/s, overshoot % of the step"
+          }
+        }
+      },
+      {
+        "index": 1,
+        "status": "ok",
+        "condition": {
+          "controller_type": "PI",
+          "duration_s": 0.5,
+          "omega_ref_rad_s": 100.0,
+          "plant_config_id": "dc_perm_ex_v1",
+          "scenario_id": "assistant_001"
+        },
+        "kpis": {
+          "final_speed_rad_s": 100.0,
+          "steady_current_a": 30.363636,
+          "peak_current_a": 168.0,
+          "peak_voltage_v": 18.029894,
+          "steady_torque_nm": 5.01,
+          "speed_reference_rad_s": 100.0,
+          "speed_step": {
+            "rise_time_s": 0.0874,
+            "settling_time_s": 0.11,
+            "overshoot_pct": 0.48671,
+            "steady_state_error": 0.0,
+            "rmse": 26.398024,
+            "max_abs_error": 100.0,
+            "finite": true,
+            "units": "times s, errors rad/s, overshoot % of the step"
+          }
+        }
+      }
+    ],
+    "note": "every number here is SIMULATED and computed by SPADE (validation.step_metrics); report them as they are, with units"
+  },
+  "audit_trace_problems": [],
+  "recommend_plant": [
+    {
+      "description": "motor DC de imanes permanentes de 220 V",
+      "matches": [
+        {
+          "plant": "dc_perm_ex_v1",
+          "title": "Permanently excited DC motor (GEM, Heinzmann PMG 132 parameters), one-quadrant converter",
+          "controllers": [
+            "PI",
+            "MPC"
+          ],
+          "why": "permanently excited DC motor, one-quadrant converter, speed PI or MPC; motor, supply, limits, ratings and load are configurable"
+        }
+      ]
+    },
+    {
+      "description": "PMG 132",
+      "matches": [
+        {
+          "plant": "dc_pmg132_v1",
+          "title": "Permanently excited DC motor with the Perm-Motor PMG 132 datasheet values at 60 V (S-20), one-quadrant converter",
+          "controllers": [
+            "PI",
+            "MPC"
+          ],
+          "why": "the Perm-Motor PMG 132 with its datasheet values at 60 V"
+        }
+      ]
+    },
+    {
+      "description": "servo brushless PMSM",
+      "matches": [
+        {
+          "plant": "pmsm_v1",
+          "title": "Salient PMSM, dq current control near standstill (current-step bench)",
+          "controllers": [
+            "FOC_MTPA",
+            "FOC_naive"
+          ],
+          "why": "salient PMSM with dq current control near standstill (current-step bench), MTPA or i_d = 0; not a speed loop"
+        }
+      ]
+    },
+    {
+      "description": "inversor trifásico con filtro LC",
+      "matches": [
+        {
+          "plant": "vsc_dpc_v1",
+          "title": "Voltage source converter with L-C filter, DPC neural controller",
+          "controllers": [
+            "DPC"
+          ],
+          "why": "voltage source converter with L-C filter under the trained DPC neural controller (trained at 50 V, 50 Hz, 8 ohm)"
+        }
+      ]
+    },
+    {
+      "description": "buck de 48 V a 12 V",
+      "matches": [
+        {
+          "plant": "buck_v1",
+          "title": "Averaged synchronous buck converter, PI cascade",
+          "controllers": [
+            "PI"
+          ],
+          "why": "averaged synchronous buck converter with a PI cascade"
+        }
+      ]
+    },
+    {
+      "description": "motor de inducción de 4 polos",
+      "matches": [],
+      "not_simulable": {
+        "reason": "induction motors are not simulated in SPADE today (planned after phase 2, decision D3)",
+        "closest_substitutes": [
+          {
+            "plant": "pmsm_v1",
+            "title": "Salient PMSM, dq current control near standstill (current-step bench)"
+          },
+          {
+            "plant": "dc_perm_ex_v1",
+            "title": "Permanently excited DC motor (GEM, Heinzmann PMG 132 parameters), one-quadrant converter"
+          }
+        ],
+        "note": "a substitute must be labelled as such to the user"
+      }
+    },
+    {
+      "description": "convertidor boost",
+      "matches": [],
+      "not_simulable": {
+        "reason": "only the buck (step-down) DC-DC converter exists in SPADE",
+        "closest_substitutes": [
+          {
+            "plant": "buck_v1",
+            "title": "Averaged synchronous buck converter, PI cascade"
+          }
+        ],
+        "note": "a substitute must be labelled as such to the user"
+      }
+    },
+    {
+      "description": "un sistema de bombeo",
+      "matches": []
+    }
+  ],
+  "suggestions": {
+    "omega_ref_rad_s": {
+      "field": "omega_ref_rad_s",
+      "unit": "rad/s",
+      "value": 300.0,
+      "rule": "the motor's rated speed",
+      "source": "rated omega of the dc_perm_ex_v1 stock motor (describe_plant)"
+    },
+    "load_torque_nm": {
+      "field": "load_torque_nm",
+      "unit": "N*m",
+      "value": 16.0,
+      "rule": "the motor's rated torque (100 % load)",
+      "source": "rated torque of the dc_perm_ex_v1 stock motor (describe_plant)"
+    },
+    "duration_s": {
+      "field": "duration_s",
+      "unit": "s",
+      "value": 1.0,
+      "rule": "SPADE's default for this field",
+      "source": "describe_plant(dc_perm_ex_v1): Scenario field default"
+    },
+    "dc_supply_v": {
+      "field": "dc_supply_v",
+      "unit": "V",
+      "value": null,
+      "why": "no verifiable internal source for a suggestion; ask the user without suggesting a number (phase 1, P5)"
+    },
+    "motor_parameter_overrides.l_a": {
+      "field": "motor_parameter_overrides.l_a",
+      "unit": "H",
+      "value": null,
+      "why": "machine parameters are not suggested; ask the user, or keep the stock motor with use_defaults"
+    }
+  }
+}
