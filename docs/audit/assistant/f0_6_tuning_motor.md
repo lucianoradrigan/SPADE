@@ -39,3 +39,5 @@ Every per-condition metric (overshoot, settling, dip, effort, peak current; CPU 
 
 - Grids scaled to the base motor's ratings: no ejecutado (it would change the tuning definition; decision pending).
 - A full-budget tuning on the 220 V motor: no ejecutado (only the machinery was asked for).
+
+> **Later change (2026-11-02, round Assistant 0b, D2):** the grids are now scaled to the base motor's ratings, so the limit described above no longer applies; see [`f0b_2_tuning_grids.md`](f0b_2_tuning_grids.md). The case B numbers above were taken on the absolute grids.

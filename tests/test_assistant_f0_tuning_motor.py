@@ -69,3 +69,23 @@ def test_j_effort_without_a_rated_current_is_refused():
 def test_the_motor_block_is_validated_like_a_scenario(block, match):
     with pytest.raises((ValueError, ob.MotorSpecError), match=match):
         ob.motor_from_spec(block)
+
+
+def test_grids_are_scaled_to_the_base_motor_ratings():
+    """0b D2: speeds, steps and noise scale with omega_rated / 300, loads with torque_rated / 16;
+    the stock motor keeps the module's own grids (same objects)."""
+    assert ob.grids_for(ob.STOCK) == (ob.TUNING_GRID, ob.EVALUATION_GRID, ob.EVALUATION_GRID_NOISY)
+    assert ob.grids_for(ob.STOCK)[0] is ob.TUNING_GRID
+    tuning, evaluation, noisy = ob.grids_for(CASE_B)
+    ks, kt = CASE_B.nominal_overrides["omega"] / 300.0, CASE_B.nominal_overrides["torque"] / 16.0
+    for scaled, stock in zip(evaluation + noisy, ob.EVALUATION_GRID + ob.EVALUATION_GRID_NOISY):
+        assert scaled.omega_rad_s == pytest.approx(stock.omega_rad_s * ks) and scaled.step_rad_s == pytest.approx(stock.step_rad_s * ks)
+        assert scaled.load_nm == pytest.approx(stock.load_nm * kt) and scaled.noise_std_rad_s == pytest.approx(stock.noise_std_rad_s * ks)
+        assert scaled.drift == stock.drift and scaled.name == stock.name + "_scaled"
+    assert max(c.omega_rad_s for c in evaluation) <= CASE_B.nominal_overrides["omega"] * 200.0 / 300.0 + 1e-9
+
+
+def test_another_motor_without_rated_speed_and_torque_cannot_be_tuned():
+    only_current = ob.BaseMotor(motor_parameter_overrides=dict(CASE_B.motor_parameter_overrides), supply_v=220.0, nominal_overrides={"i": 25.0})
+    with pytest.raises(ob.MotorSpecError, match="rated speed and torque"):
+        ob.objective_functions("J", only_current)

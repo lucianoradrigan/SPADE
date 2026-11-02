@@ -1,0 +1,217 @@
+{
+  "command": "python experiments/report_0b_2_tuning_grids.py",
+  "simulated": true,
+  "status": "candidate -- no default changed",
+  "stock_identical_to_before_f0_6": {
+    "TUNING_GRID": true,
+    "EVALUATION_GRID": true,
+    "EVALUATION_GRID_NOISY": true
+  },
+  "case_b_grids": [
+    {
+      "grid": "tuning",
+      "name": "s04_step_2rad_s_at_150_scaled",
+      "kind": "step",
+      "omega_rad_s": 78.53981633974485,
+      "step_rad_s": 1.0471975511965979,
+      "load_nm": 0.0,
+      "noise_rad_s": 0.0,
+      "drift": false
+    },
+    {
+      "grid": "tuning",
+      "name": "load_10Nm_at_150_scaled",
+      "kind": "load",
+      "omega_rad_s": 78.53981633974485,
+      "step_rad_s": 0.0,
+      "load_nm": 17.90625,
+      "noise_rad_s": 0.0,
+      "drift": false
+    },
+    {
+      "grid": "evaluation",
+      "name": "step_5rad_s_at_120_scaled",
+      "kind": "step",
+      "omega_rad_s": 62.83185307179587,
+      "step_rad_s": 2.617993877991495,
+      "load_nm": 0.0,
+      "noise_rad_s": 0.0,
+      "drift": false
+    },
+    {
+      "grid": "evaluation",
+      "name": "saturating_step_30rad_s_at_100_scaled",
+      "kind": "step",
+      "omega_rad_s": 52.35987755982989,
+      "step_rad_s": 15.707963267948967,
+      "load_nm": 0.0,
+      "noise_rad_s": 0.0,
+      "drift": false
+    },
+    {
+      "grid": "evaluation",
+      "name": "drift_step_2rad_s_at_150_scaled",
+      "kind": "step",
+      "omega_rad_s": 78.53981633974485,
+      "step_rad_s": 1.0471975511965979,
+      "load_nm": 0.0,
+      "noise_rad_s": 0.0,
+      "drift": true
+    },
+    {
+      "grid": "evaluation",
+      "name": "drift_load_15Nm_at_200_scaled",
+      "kind": "load",
+      "omega_rad_s": 104.71975511965978,
+      "step_rad_s": 0.0,
+      "load_nm": 26.859375,
+      "noise_rad_s": 0.0,
+      "drift": true
+    }
+  ],
+  "case_b_tuning": {
+    "evaluations": 8,
+    "baseline": {
+      "params": {
+        "speed_bandwidth_rad_s": 80.0,
+        "speed_damping": 0.9,
+        "setpoint_weight": 1.0
+      },
+      "tuning": {
+        "J": 17.12994190466783,
+        "mean_overshoot_pct": 6.276615126555058,
+        "mean_settling_ms": 65.90000000000002,
+        "mean_dip_rad_s": 2.131663389056385,
+        "finite": true,
+        "mean_effort_v": 1.5027621791624994,
+        "max_step_peak_i_a": 7.4516401740817475,
+        "current_constraint_ok": true
+      },
+      "evaluation": {
+        "J": 25.49862159443542,
+        "mean_overshoot_pct": 1.6896605317162987,
+        "mean_settling_ms": 124.53333333333335,
+        "mean_dip_rad_s": 5.677813864692894,
+        "finite": true,
+        "mean_effort_v": 61.10483228977171,
+        "max_step_peak_i_a": 39.286653027450846,
+        "current_constraint_ok": false
+      },
+      "evaluation_rows": [
+        {
+          "condition": "step_5rad_s_at_120_scaled",
+          "kind": "step",
+          "finite": true,
+          "effort_v": 65.4587394703018,
+          "peak_i_a": 3.238336236303278,
+          "overshoot_pct": 0.10206501752248928,
+          "settling_ms": 96.10000000000002,
+          "rise_ms": 79.10000000000001,
+          "rmse_rad_s": 0.8359717635999533
+        },
+        {
+          "condition": "saturating_step_30rad_s_at_100_scaled",
+          "kind": "step",
+          "finite": true,
+          "effort_v": 4.1435701143269865,
+          "peak_i_a": 39.286653027450846,
+          "overshoot_pct": 0.5970874843704037,
+          "settling_ms": 39.70000000000001,
+          "rise_ms": 25.100000000000012,
+          "rmse_rad_s": 2.5916976535633123
+        },
+        {
+          "condition": "drift_step_2rad_s_at_150_scaled",
+          "kind": "step",
+          "finite": true,
+          "effort_v": 130.74566642135431,
+          "peak_i_a": 2.530744653910994,
+          "overshoot_pct": 4.369829093256003,
+          "settling_ms": 237.8,
+          "rise_ms": 185.20000000000005,
+          "rmse_rad_s": 0.5571918943362477
+        },
+        {
+          "condition": "drift_load_15Nm_at_200_scaled",
+          "kind": "load",
+          "finite": true,
+          "effort_v": 44.07135315310374,
+          "peak_i_a": 38.86410855814675,
+          "dip_rad_s": 5.677813864692894,
+          "final_error_rad_s": 2.428374843077563e-05
+        }
+      ]
+    },
+    "candidate": {
+      "params": {
+        "speed_bandwidth_rad_s": 112.79629309206159,
+        "speed_damping": 1.037697936590399,
+        "setpoint_weight": 0.680537494025796
+      },
+      "tuning": {
+        "J": 4.849456305546434,
+        "mean_overshoot_pct": 0.6523352316694687,
+        "mean_settling_ms": 19.799999999999983,
+        "mean_dip_rad_s": 1.1085605369384837,
+        "finite": true,
+        "mean_effort_v": 1.646074423263931,
+        "max_step_peak_i_a": 7.585525490243581,
+        "current_constraint_ok": true
+      },
+      "evaluation": {
+        "J": 10.142527553441905,
+        "mean_overshoot_pct": 2.7265571961207615,
+        "mean_settling_ms": 40.46666666666667,
+        "mean_dip_rad_s": 1.684651845327238,
+        "finite": true,
+        "mean_effort_v": 2.4288362581684813,
+        "max_step_peak_i_a": 39.56789583802514,
+        "current_constraint_ok": false
+      },
+      "evaluation_rows": [
+        {
+          "condition": "step_5rad_s_at_120_scaled",
+          "kind": "step",
+          "finite": true,
+          "effort_v": 3.071095606048874,
+          "peak_i_a": 17.787996611298514,
+          "overshoot_pct": 1.3963912816829311,
+          "settling_ms": 18.000000000000014,
+          "rise_ms": 10.999999999999954,
+          "rmse_rad_s": 0.2933412707033978
+        },
+        {
+          "condition": "saturating_step_30rad_s_at_100_scaled",
+          "kind": "step",
+          "finite": true,
+          "effort_v": 3.190243533292717,
+          "peak_i_a": 39.56789583802514,
+          "overshoot_pct": 0.0,
+          "settling_ms": 46.999999999999986,
+          "rise_ms": 24.600000000000012,
+          "rmse_rad_s": 2.69951085598946
+        },
+        {
+          "condition": "drift_step_2rad_s_at_150_scaled",
+          "kind": "step",
+          "finite": true,
+          "effort_v": 2.8212753152385086,
+          "peak_i_a": 7.925728059020592,
+          "overshoot_pct": 6.783280306679353,
+          "settling_ms": 56.400000000000006,
+          "rise_ms": 14.100000000000001,
+          "rmse_rad_s": 0.13159098752900786
+        },
+        {
+          "condition": "drift_load_15Nm_at_200_scaled",
+          "kind": "load",
+          "finite": true,
+          "effort_v": 0.6327305780938252,
+          "peak_i_a": 31.27569077515168,
+          "dip_rad_s": 1.684651845327238,
+          "final_error_rad_s": 3.4049207897624e-11
+        }
+      ]
+    }
+  }
+}

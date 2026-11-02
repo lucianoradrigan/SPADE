@@ -42,7 +42,11 @@ base motor's psi_e by 0.9 and j_rotor by 1.5 (DRIFT_FACTORS). With motor=None or
 simulation receives exactly the arguments it received before, so results are identical. J_effort's
 current constraint uses the base motor's rated current: 97 A for the stock motor, otherwise
 nominal_overrides["i"]; with a changed motor and no rated current J_effort is refused. The grids'
-speeds, steps, loads and the noise level stay absolute (sized for the stock motor).
+speeds, steps, loads and the noise level are scaled to the base motor (round Assistant 0b, D2, user
+decision 2026-11-02): grids_for(motor) multiplies speeds, speed steps and the sensor noise by
+omega_rated / 300 rad/s and load steps by torque_rated / 16 N*m (the stock ratings). The stock motor
+uses the module's grids unchanged; a changed motor without rated speed and torque
+(nominal_overrides 'omega', 'torque') cannot be tuned, since nothing is invented.
 """
 
 from __future__ import annotations
@@ -193,6 +197,29 @@ EVALUATION_GRID = (
 EVALUATION_GRID_NOISY = tuple(dataclasses.replace(c, name=c.name + "_noisy", noise_std_rad_s=NOISE_STD_RAD_S) for c in EVALUATION_GRID)
 
 
+#: the stock motor's rated speed and torque, the reference of the grid scaling (DcPermanentlyExcitedMotor nominal values)
+STOCK_RATED_OMEGA_RAD_S = 300.0
+STOCK_RATED_TORQUE_NM = 16.0
+
+
+def grids_for(motor: "BaseMotor | None" = None) -> tuple:
+    """(tuning grid, evaluation grid, noisy evaluation grid) for a base motor (0b D2)."""
+    motor = motor or STOCK
+    if not motor.changes_motor:
+        return TUNING_GRID, EVALUATION_GRID, EVALUATION_GRID_NOISY
+    nominal = motor.nominal_overrides or {}
+    if "omega" not in nominal or "torque" not in nominal:
+        raise MotorSpecError("tuning on another motor needs its rated speed and torque (nominal_overrides / dc_nominal_overrides 'omega' and 'torque'): "
+                             "the grids are scaled to them, and SPADE does not invent ratings")
+    ks, kt = float(nominal["omega"]) / STOCK_RATED_OMEGA_RAD_S, float(nominal["torque"]) / STOCK_RATED_TORQUE_NM
+
+    def scale(c: Condition) -> Condition:
+        return dataclasses.replace(c, name=c.name + "_scaled", omega_rad_s=c.omega_rad_s * ks, step_rad_s=c.step_rad_s * ks, load_nm=c.load_nm * kt,
+                                   noise_std_rad_s=c.noise_std_rad_s * ks)
+
+    return tuple(tuple(scale(c) for c in g) for g in (TUNING_GRID, EVALUATION_GRID, EVALUATION_GRID_NOISY))
+
+
 def as_kwargs(x) -> dict:
     return {p: float(v) for p, v in zip(PARAMS, x)}
 
@@ -277,7 +304,7 @@ def baseline_tuning_summary(motor: BaseMotor | None = None) -> dict:
     """The BASELINE's summary on the tuning grid: the normalisers of J_effort (computed once per motor)."""
     motor = motor or STOCK
     if motor.key() not in _BASELINE_TUNING:
-        _BASELINE_TUNING[motor.key()] = evaluate(BASELINE, TUNING_GRID, motor)[0]
+        _BASELINE_TUNING[motor.key()] = evaluate(BASELINE, grids_for(motor)[0], motor)[0]
     return _BASELINE_TUNING[motor.key()]
 
 
@@ -323,26 +350,29 @@ def objective_functions(objective: str, motor: BaseMotor | None = None) -> tuple
         i_rated = motor.rated_current_a()
     if motor.is_stock:
         return scalar, vector, grid, text, ((lambda s: s["J"]) if objective == "J" else j_effort)
+    tuning, evaluation, evaluation_noisy = grids_for(motor)  # 0b D2: MotorSpecError without ratings
+    grid = evaluation if objective == "J" else evaluation_noisy
     if objective == "J":
         def scalar(x):
-            return evaluate(x, TUNING_GRID, motor)[0]["J"]
+            return evaluate(x, tuning, motor)[0]["J"]
 
         def vector(x):
-            s, _ = evaluate(x, TUNING_GRID, motor)
+            s, _ = evaluate(x, tuning, motor)
             return np.array([math.inf] * 3) if not s["finite"] else np.array([s["mean_overshoot_pct"], s["mean_settling_ms"], s["mean_dip_rad_s"]])
 
         return scalar, vector, grid, text, (lambda s: s["J"])
 
     def scalar(x):
-        return j_effort(evaluate(x, TUNING_GRID, motor)[0], motor)
+        return j_effort(evaluate(x, tuning, motor)[0], motor)
 
     def vector(x):
-        s, _ = evaluate(x, TUNING_GRID, motor)
+        s, _ = evaluate(x, tuning, motor)
         if not s["finite"] or not s["current_constraint_ok"]:
             return np.array([math.inf] * 3)
         return np.array([s["mean_overshoot_pct"], s["mean_dip_rad_s"], s["mean_effort_v"]])
 
-    return scalar, vector, grid, text.replace("97 A", f"{i_rated:g} A"), (lambda s: j_effort(s, motor))
+    text = text.replace("0.6 rad/s", f"{NOISE_STD_RAD_S * float(motor.nominal_overrides['omega']) / STOCK_RATED_OMEGA_RAD_S:.3g} rad/s")
+    return scalar, vector, grid, text.replace("97 A", f"{i_rated:g} A") + "; grids scaled to the base motor's ratings", (lambda s: j_effort(s, motor))
 
 
 def grids_overlap(tuning=TUNING_GRID, evaluation=EVALUATION_GRID) -> bool:
