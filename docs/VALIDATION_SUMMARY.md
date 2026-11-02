@@ -521,7 +521,21 @@ Despite the warnings, PI and MPC bring the 220 V motor to rated speed without ex
 ### 12.6 Not executed / pending decisions
 
 - A load ramp within a run, the induction motor, GUI changes, any LLM: no ejecutado (decisions A1, A5, A7; Phase 1+).
-- Scaling the default load friction to another motor's ratings: no ejecutado; it changes a default (decision needed).
-- Scaling the tuning grids (speeds, loads, noise) to the base motor: no ejecutado; the grids stay absolute, and their 200 rad/s condition exceeds the 220 V motor's supply (decision needed).
-- Changing the stock motor to the PMG 132 datasheet values (S-20): no ejecutado (decision needed).
+- Default load friction for another motor, tuning grids for another motor, PMG 132 values: decided by the user on 2026-11-02 and done in round 0b (§12.7).
 - Simulation cost on other machines: no ejecutado.
+
+### 12.7 Round 0b (2026-11-02): the user's decisions on §12.6
+
+Same method: one branch per decision from `dev`, green full suite, fast-forward merge, branch deleted; `main` not touched.
+
+| Decision | What was done | Evidence |
+|---|---|---|
+| D1. Default load according to the motor | Stock motor keeps a = 0.01, b = 0.05 (bit for bit). Another motor with known rated torque and speed gets a + b·ω_rated = **2 %** of its rated torque (half constant, half viscous); without those ratings the stock load stays. One rule for simulation and tuning (`runner.dc_default_load_parameter`). The proportional option was dropped after showing the stock friction is 94 % of the stock rated torque at rated speed. Case B at rated load: 156.4 rad/s (0.45 % below rated, limited by its supply) instead of 148.0. | [`f0b_1_load_default.md`](audit/assistant/f0b_1_load_default.md) |
+| D2. Tuning grids from the base motor's ratings | `objectives.grids_for(motor)`: speeds, steps and noise × ω_rated/300, loads × T_rated/16; stock grids unchanged; a changed motor without rated speed and torque is refused. Case B's fastest condition is 104.7 rad/s instead of 200. | [`f0b_2_tuning_grids.md`](audit/assistant/f0b_2_tuning_grids.md) |
+| D3. PMG 132 datasheet values | Separate plant `dc_pmg132_v1` (ψ_e 0.181, rated 110 A / 20 N·m / 2870 min⁻¹, limits 200 A / 38 N·m), PI and MPC; `dc_perm_ex_v1` unchanged, so no trained model, dataset or regression reference is affected. Holds rated speed from 0 to 100 % rated torque. Not used by datasets, Gym environments or the GUI. | [`f0b_3_pmg132_plant.md`](audit/assistant/f0b_3_pmg132_plant.md) |
+
+| Task | Suite |
+|---|---|
+| D1 | SUITE_D1 |
+| D2 | SUITE_D2 |
+| D3 and closure | SUITE_D3 |
