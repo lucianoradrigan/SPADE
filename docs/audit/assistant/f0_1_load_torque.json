@@ -1,0 +1,138 @@
+{
+  "command": "python experiments/report_f0_1_load_torque.py",
+  "simulated": true,
+  "machine": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "python": "3.12.13",
+  "rated_torque_nm": 16.0,
+  "duration_s": 3.0,
+  "pi_current_cap_a": 168.0,
+  "smoothing_band_rad_s": {
+    "0": 0.00036363636363636367,
+    "4": 0.14581818181818182,
+    "8": 0.29127272727272724,
+    "12": 0.4367272727272727,
+    "16": 0.5821818181818182
+  },
+  "runs": [
+    {
+      "omega_ref_rad_s": 150.0,
+      "load_torque_nm": 0.0,
+      "load_pct_of_rated": 0.0,
+      "final_speed_rad_s": 149.99999999999997,
+      "steady_error_rad_s": 2.842170943040401e-14,
+      "steady_mean_current_a": 45.515151515173855,
+      "current_needed_a": 45.51515151515151,
+      "at_current_cap_in_steady_state": false,
+      "start_up_reaches_cap": true,
+      "speed_still_changing_rad_s_per_s": 0.0
+    },
+    {
+      "omega_ref_rad_s": 150.0,
+      "load_torque_nm": 4.0,
+      "load_pct_of_rated": 25.0,
+      "final_speed_rad_s": 149.99999999999997,
+      "steady_error_rad_s": 2.842170943040401e-14,
+      "steady_mean_current_a": 69.75757575759813,
+      "current_needed_a": 69.75757575757575,
+      "at_current_cap_in_steady_state": false,
+      "start_up_reaches_cap": true,
+      "speed_still_changing_rad_s_per_s": 0.0
+    },
+    {
+      "omega_ref_rad_s": 150.0,
+      "load_torque_nm": 8.0,
+      "load_pct_of_rated": 50.0,
+      "final_speed_rad_s": 149.99999999999997,
+      "steady_error_rad_s": 2.842170943040401e-14,
+      "steady_mean_current_a": 94.00000000002233,
+      "current_needed_a": 94.0,
+      "at_current_cap_in_steady_state": false,
+      "start_up_reaches_cap": true,
+      "speed_still_changing_rad_s_per_s": 0.0
+    },
+    {
+      "omega_ref_rad_s": 150.0,
+      "load_torque_nm": 12.0,
+      "load_pct_of_rated": 75.0,
+      "final_speed_rad_s": 149.99999999999994,
+      "steady_error_rad_s": 2.842170943040401e-14,
+      "steady_mean_current_a": 118.24242424244657,
+      "current_needed_a": 118.24242424242422,
+      "at_current_cap_in_steady_state": false,
+      "start_up_reaches_cap": true,
+      "speed_still_changing_rad_s_per_s": 0.0
+    },
+    {
+      "omega_ref_rad_s": 150.0,
+      "load_torque_nm": 16.0,
+      "load_pct_of_rated": 100.0,
+      "final_speed_rad_s": 149.9999999999999,
+      "steady_error_rad_s": 5.684341886080802e-14,
+      "steady_mean_current_a": 142.48484848487087,
+      "current_needed_a": 142.48484848484847,
+      "at_current_cap_in_steady_state": false,
+      "start_up_reaches_cap": true,
+      "speed_still_changing_rad_s_per_s": 0.0
+    },
+    {
+      "omega_ref_rad_s": 300.0,
+      "load_torque_nm": 0.0,
+      "load_pct_of_rated": 0.0,
+      "final_speed_rad_s": 299.99999999999994,
+      "steady_error_rad_s": 5.684341886080802e-14,
+      "steady_mean_current_a": 90.96969696974297,
+      "current_needed_a": 90.96969696969697,
+      "at_current_cap_in_steady_state": false,
+      "start_up_reaches_cap": true,
+      "speed_still_changing_rad_s_per_s": 0.0
+    },
+    {
+      "omega_ref_rad_s": 300.0,
+      "load_torque_nm": 4.0,
+      "load_pct_of_rated": 25.0,
+      "final_speed_rad_s": 299.99999999999994,
+      "steady_error_rad_s": 5.684341886080802e-14,
+      "steady_mean_current_a": 115.2121212121672,
+      "current_needed_a": 115.21212121212119,
+      "at_current_cap_in_steady_state": false,
+      "start_up_reaches_cap": true,
+      "speed_still_changing_rad_s_per_s": 0.0
+    },
+    {
+      "omega_ref_rad_s": 300.0,
+      "load_torque_nm": 8.0,
+      "load_pct_of_rated": 50.0,
+      "final_speed_rad_s": 299.9999999999999,
+      "steady_error_rad_s": 5.684341886080802e-14,
+      "steady_mean_current_a": 139.45454545459012,
+      "current_needed_a": 139.45454545454544,
+      "at_current_cap_in_steady_state": false,
+      "start_up_reaches_cap": true,
+      "speed_still_changing_rad_s_per_s": 0.0
+    },
+    {
+      "omega_ref_rad_s": 300.0,
+      "load_torque_nm": 12.0,
+      "load_pct_of_rated": 75.0,
+      "final_speed_rad_s": 300.00000000000006,
+      "steady_error_rad_s": -5.684341886080802e-14,
+      "steady_mean_current_a": 163.69696969692495,
+      "current_needed_a": 163.6969696969697,
+      "at_current_cap_in_steady_state": false,
+      "start_up_reaches_cap": true,
+      "speed_still_changing_rad_s_per_s": 0.0
+    },
+    {
+      "omega_ref_rad_s": 300.0,
+      "load_torque_nm": 16.0,
+      "load_pct_of_rated": 100.0,
+      "final_speed_rad_s": 233.1994830802404,
+      "steady_error_rad_s": 67.006550139811,
+      "steady_mean_current_a": 168.0,
+      "current_needed_a": 187.9393939393939,
+      "at_current_cap_in_steady_state": true,
+      "start_up_reaches_cap": true,
+      "speed_still_changing_rad_s_per_s": 2.192817966095788
+    }
+  ]
+}

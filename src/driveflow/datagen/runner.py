@@ -128,7 +128,10 @@ def build_plant(scenario: Scenario) -> DcMotorSystem:
     if scenario.plant_config_id != "dc_perm_ex_v1":
         raise NotImplementedError(f"Unknown plant_config_id {scenario.plant_config_id!r}")
 
-    base_load = PolynomialStaticLoad(load_parameter=dict(a=0.01, b=0.05, c=0.0, j_load=0.0025))
+    if scenario.load_torque_nm is None:
+        base_load = PolynomialStaticLoad(load_parameter=dict(a=0.01, b=0.05, c=0.0, j_load=0.0025))
+    else:  # F0.1: the passive load torque joins the constant (Coulomb) term a
+        base_load = PolynomialStaticLoad(load_parameter=dict(a=0.01 + scenario.load_torque_nm, b=0.05, c=0.0, j_load=0.0025))
     extra_electrical = [(ft, scenario.electrical_severity, oo) for ft, oo in (scenario.extra_faults or [])]
     load = BearingFaultLoad(
         base_load,

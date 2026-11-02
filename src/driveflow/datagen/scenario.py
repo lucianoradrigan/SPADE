@@ -149,6 +149,15 @@ class Scenario:
             rtol = atol = 1e-9, the fine solver of the validation benches; dc_plant_substeps must
             then be unset). None for both (default) is the production plant: one Euler step per
             TAU, bit for bit. Not a default anywhere; for reference studies only.
+        load_torque_nm: dc_perm_ex_v1 only (round Assistant, task F0.1, decisions A1/A2) -- a
+            constant passive load torque in N*m (absolute, >= 0), added to the constant term of
+            the stock load: PolynomialStaticLoad's a becomes 0.01 + load_torque_nm. Like a, it
+            always opposes the rotation (Coulomb-type, it cannot drive the shaft) and is smoothed
+            linearly for |omega| below a*tau_decay/j_total so the integration stays stable at
+            standstill. It applies in speed control and with torque_ref_nm (torque control) alike.
+            One level per run; a ramp within a run is not modelled. "20 % load" is not a Scenario
+            concept: the caller converts it with the motor's rated torque. None (default) leaves
+            the stock load untouched, bit for bit.
     """
 
     scenario_id: str
@@ -184,6 +193,7 @@ class Scenario:
     plecs_output_points: int = None
     dc_plant_solver: str = None
     dc_plant_substeps: int = None
+    load_torque_nm: float = None
 
     _VALID_PAIRS = {("PI", "dc_perm_ex_v1"), ("MPC", "dc_perm_ex_v1"), ("DPC", "vsc_dpc_v1"), ("FOC_MTPA", "pmsm_v1"), ("FOC_naive", "pmsm_v1"),
                     ("PI", "buck_v1")}
@@ -289,6 +299,22 @@ class Scenario:
         for i, (_ft, order) in enumerate(self.extra_faults or []):
             finite(f"extra_faults[{i}] order_override", order, 0.0, strict=True)
         self._validate_dc_plant_integration()
+        self._validate_dc_motor_fields()
+
+    #: Fields of round Assistant phase 0 that only the DC motor plant (dc_perm_ex_v1) accepts.
+    _DC_MOTOR_ONLY_FIELDS = ("load_torque_nm",)
+
+    def _validate_dc_motor_fields(self):
+        """Round Assistant, phase 0: optional DC-motor fields. Each must be finite and in range,
+        and is rejected on any other plant (same rule as the VSC-only fields)."""
+        used = [name for name in self._DC_MOTOR_ONLY_FIELDS if getattr(self, name) is not None]
+        if not used:
+            return
+        if self.plant_config_id != "dc_perm_ex_v1":
+            raise ValueError(f"Scenario.{used[0]} applies only to plant_config_id='dc_perm_ex_v1', got {self.plant_config_id!r}")
+        value = self.load_torque_nm
+        if value is not None and (isinstance(value, bool) or not isinstance(value, numbers.Real) or not math.isfinite(value) or value < 0):
+            raise ValueError(f"Scenario.load_torque_nm must be a finite number >= 0 (N*m), got {value!r}")
 
     #: dc_plant_solver values (see the class docstring); DC_PLANT_MAX_SUBSTEPS bounds the cost.
     DC_PLANT_SOLVERS = ("euler", "rk45")
