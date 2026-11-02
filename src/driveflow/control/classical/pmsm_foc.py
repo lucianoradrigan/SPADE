@@ -48,8 +48,14 @@ def default_ode_solver() -> EulerSolver:
 def mtpa_id_iq(i_s: float, mp: dict = MOTOR_PARAMS) -> tuple:
     """Closed-form MTPA locus (id<=0 branch) for a salient PMSM, generalizing GEM's own
     PermanentMagnetSynchronousMotor._torque_limit() formula (only evaluated there at the nominal
-    current) to any current magnitude i_s. Verified against that method's own result at i_nom."""
+    current) to any current magnitude i_s. Verified against that method's own result at i_nom.
+
+    A non-salient machine (l_d == l_q, round Assistant F0.3) has no reluctance torque, so MTPA is
+    i_d = 0: the limit of the formula below as l_d -> l_q, which would otherwise divide by zero.
+    The formula assumes l_q > l_d (interior-magnet saliency); Scenario warns when l_d > l_q."""
     ld, lq, psi_p = mp["l_d"], mp["l_q"], mp["psi_p"]
+    if ld == lq:
+        return 0.0, abs(i_s)
     p_ = psi_p / (2 * (ld - lq))
     q_ = -(i_s**2) / 2
     i_d = -p_ / 2 - np.sqrt((p_ / 2) ** 2 - q_)

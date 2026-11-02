@@ -1,0 +1,54 @@
+{
+  "command": "python experiments/report_f0_3_pmsm_params.py",
+  "simulated": true,
+  "machine": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "python": "3.12.13",
+  "bit_identical_explicit_stock": {
+    "FOC_MTPA": true,
+    "FOC_naive": true
+  },
+  "torque_comparison": [
+    {
+      "machine": "non-salient (l_d = l_q = 0.8 mH)",
+      "i_s_a": 100.0,
+      "torque_mtpa_nm": 29.741692052784334,
+      "torque_naive_nm": 29.741692052784334,
+      "mtpa_over_naive": 1.0
+    },
+    {
+      "machine": "non-salient (l_d = l_q = 0.8 mH)",
+      "i_s_a": 200.0,
+      "torque_mtpa_nm": 59.65656771514767,
+      "torque_naive_nm": 59.65656771514767,
+      "mtpa_over_naive": 1.0
+    },
+    {
+      "machine": "non-salient (l_d = l_q = 0.8 mH)",
+      "i_s_a": 350.0,
+      "torque_mtpa_nm": 104.88677233919796,
+      "torque_naive_nm": 104.88677233919796,
+      "mtpa_over_naive": 1.0
+    },
+    {
+      "machine": "stock (l_d 0.37 mH, l_q 1.2 mH)",
+      "i_s_a": 100.0,
+      "torque_mtpa_nm": 42.05475571669018,
+      "torque_naive_nm": 29.76852512355026,
+      "mtpa_over_naive": 1.4127255395471416
+    },
+    {
+      "machine": "stock (l_d 0.37 mH, l_q 1.2 mH)",
+      "i_s_a": 200.0,
+      "torque_mtpa_nm": 119.91429140553443,
+      "torque_naive_nm": 59.75526073655946,
+      "mtpa_over_naive": 2.006757060841816
+    },
+    {
+      "machine": "stock (l_d 0.37 mH, l_q 1.2 mH)",
+      "i_s_a": 350.0,
+      "torque_mtpa_nm": 308.3958072558647,
+      "torque_naive_nm": 105.1760392198542,
+      "mtpa_over_naive": 2.9321869272069763
+    }
+  ]
+}

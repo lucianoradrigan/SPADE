@@ -389,13 +389,26 @@ def _run_pmsm_scenario(scenario: Scenario) -> list:
     from driveflow.control.classical.pmsm_foc import MOTOR_PARAMS, TAU as PMSM_TAU, DqCurrentController, build_pmsm_system, mtpa_id_iq, torque_of
 
     i_s = float(scenario.pmsm_current_ref_a)
-    if scenario.controller_type == "FOC_MTPA":
-        i_d_ref, i_q_abs = mtpa_id_iq(abs(i_s))
-        i_q_ref = float(np.sign(i_s) * i_q_abs)
-    else:  # FOC_naive
-        i_d_ref, i_q_ref = 0.0, i_s
-    system = build_pmsm_system()
-    controller = DqCurrentController(system)
+    if scenario.pmsm_motor_parameters is None:
+        mp = MOTOR_PARAMS
+        if scenario.controller_type == "FOC_MTPA":
+            i_d_ref, i_q_abs = mtpa_id_iq(abs(i_s))
+            i_q_ref = float(np.sign(i_s) * i_q_abs)
+        else:  # FOC_naive
+            i_d_ref, i_q_ref = 0.0, i_s
+        system = build_pmsm_system()
+        controller = DqCurrentController(system)
+    else:  # F0.3: one merged parameter dict for the plant, the controller, MTPA and the torque
+        extra = dict(scenario.pmsm_motor_parameters)
+        u_supply = extra.pop("u_supply", None)
+        mp = {**MOTOR_PARAMS, **extra}
+        if scenario.controller_type == "FOC_MTPA":
+            i_d_ref, i_q_abs = mtpa_id_iq(abs(i_s), mp=mp)
+            i_q_ref = float(np.sign(i_s) * i_q_abs)
+        else:  # FOC_naive
+            i_d_ref, i_q_ref = 0.0, i_s
+        system = build_pmsm_system(mp=mp) if u_supply is None else build_pmsm_system(mp=mp, u_supply=u_supply)
+        controller = DqCurrentController(system, mp=mp)
     system.seed(np.random.SeedSequence(scenario.seed))
     state = system.reset()
     controller.reset()
@@ -414,7 +427,7 @@ def _run_pmsm_scenario(scenario: Scenario) -> list:
                 "current_r": np.nan, "current_s": np.nan, "current_t": np.nan,
                 "acc_x": np.nan, "acc_y": np.nan, "acc_z": np.nan, "vibration_source": None, "audio": np.nan,
                 "rpm": omega * 60.0 / (2 * np.pi),
-                "torque_nm": torque_of(i_d, i_q, MOTOR_PARAMS),
+                "torque_nm": torque_of(i_d, i_q, mp),
                 "voltage_v": np.nan,
                 "label": "normal",
                 "electrical_severity_nm": 0.0, "mechanical_severity": 0.0,

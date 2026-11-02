@@ -170,6 +170,14 @@ class Scenario:
             motor_parameter_overrides alone the current limit stays at the stock 210 A. A u limit
             above dc_supply_v is rejected. None (default) for all three keeps the stock motor and
             the 65 V supply, bit for bit.
+        pmsm_motor_parameters: pmsm_v1 only (round Assistant, task F0.3) -- partial override of the
+            PMSM merged over control/classical/pmsm_foc.MOTOR_PARAMS: p (pole pairs, int >= 1), l_d,
+            l_q (H, dq inductances per phase), r_s (ohm, stator resistance per phase), psi_p (V*s,
+            permanent-magnet flux linkage, peak per phase), j_rotor (kg*m^2, GEM default 0.03883)
+            and u_supply (V, DC link, default 330). The merged dict reaches the plant, the dq
+            current controller, the MTPA split and the reported torque. MTPA assumes l_q >= l_d
+            (salient interior-magnet machine); l_d > l_q is accepted with a warning. The |i_s| <=
+            400 A bound of pmsm_current_ref_a stays. None (default): the stock PMSM, bit for bit.
     """
 
     scenario_id: str
@@ -209,6 +217,7 @@ class Scenario:
     dc_supply_v: float = None
     dc_limit_overrides: dict = None
     dc_nominal_overrides: dict = None
+    pmsm_motor_parameters: dict = None
 
     _VALID_PAIRS = {("PI", "dc_perm_ex_v1"), ("MPC", "dc_perm_ex_v1"), ("DPC", "vsc_dpc_v1"), ("FOC_MTPA", "pmsm_v1"), ("FOC_naive", "pmsm_v1"),
                     ("PI", "buck_v1")}
@@ -315,6 +324,35 @@ class Scenario:
             finite(f"extra_faults[{i}] order_override", order, 0.0, strict=True)
         self._validate_dc_plant_integration()
         self._validate_dc_motor_fields()
+        self._validate_pmsm_motor_parameters()
+
+    #: Keys of pmsm_motor_parameters (pmsm_foc.MOTOR_PARAMS, plus j_rotor and u_supply).
+    PMSM_PARAMETER_KEYS = ("p", "l_d", "l_q", "r_s", "psi_p", "j_rotor", "u_supply")
+
+    def _validate_pmsm_motor_parameters(self):
+        mp = self.pmsm_motor_parameters
+        if mp is None:
+            return
+        if self.plant_config_id != "pmsm_v1":
+            raise ValueError(f"Scenario.pmsm_motor_parameters applies only to plant_config_id='pmsm_v1', got {self.plant_config_id!r}")
+        if not isinstance(mp, dict):
+            raise ValueError(f"Scenario.pmsm_motor_parameters must be a dict with keys among {self.PMSM_PARAMETER_KEYS}, got {mp!r}")
+        for key, value in mp.items():
+            if key not in self.PMSM_PARAMETER_KEYS:
+                raise ValueError(f"Scenario.pmsm_motor_parameters: unknown key {key!r}; expected one of {self.PMSM_PARAMETER_KEYS}")
+            if key == "p":
+                if isinstance(value, bool) or not isinstance(value, numbers.Integral) or value < 1:
+                    raise ValueError(f"Scenario.pmsm_motor_parameters['p'] (pole pairs) must be an int >= 1, got {value!r}")
+            elif isinstance(value, bool) or not isinstance(value, numbers.Real) or not math.isfinite(value) or value <= 0:
+                raise ValueError(f"Scenario.pmsm_motor_parameters[{key!r}] must be a finite number > 0, got {value!r}")
+        from driveflow.control.classical.pmsm_foc import MOTOR_PARAMS
+
+        merged = {**MOTOR_PARAMS, **mp}
+        if merged["l_d"] > merged["l_q"]:
+            import warnings
+
+            warnings.warn(f"Scenario.pmsm_motor_parameters: l_d ({merged['l_d']:g} H) > l_q ({merged['l_q']:g} H). The MTPA policy assumes l_q >= l_d "
+                          "(salient interior-magnet machine) and may not be meaningful for this motor.", UserWarning, stacklevel=3)
 
     #: Fields of round Assistant phase 0 that only the DC motor plant (dc_perm_ex_v1) accepts.
     _DC_MOTOR_ONLY_FIELDS = ("load_torque_nm", "dc_supply_v", "dc_limit_overrides", "dc_nominal_overrides")
