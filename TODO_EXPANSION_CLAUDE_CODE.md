@@ -33,7 +33,7 @@ archivos .npz o .csv de referencia generados una vez en una máquina con PLECS, 
 Nada medido en PLECS se declara sin el log de la máquina donde corrió. Si no hubo PLECS disponible, se escribe "no ejecutado: sin PLECS/licencia".
 Procedencia (spec §0, principio 2): SIMULATED, SIMULATED · PLECS, SIMULATED · SURROGATE, EXTERNAL FILE, MEASURED · EXTERNAL DATASET. Nunca LIVE. "PLECS available" significa que la herramienta responde; no es telemetría.
 Archivos externos: el .plecs del DAB, el .mat de IGBT de la NASA y los CSV de Fund. se descargan a data/upstream/fund/ y no se commitean. Antes de commitear cualquier archivo que no sea código de Fund., verifica su licencia.
-Hallazgos nuevos: siguen la numeración de CLAUDE.md (S-09…, AI-N13…). Si el otro agente ya usó un número, toma el siguiente libre.
+Hallazgos nuevos: toman el siguiente ID libre de las tablas de `docs/SIMULATION_STABILITY_REPORT.md` (S-…) y `docs/AI_TECHNICAL_AUDIT.md` (AI-N…), como dice CLAUDE.md; revisa esas tablas antes de numerar (al 2026-11-02 los siguientes libres son S-20 y AI-N27). Si el otro agente ya usó un número, toma el siguiente libre.
 Decisiones de diseño que esta lista fija sobre la spec
 
 La spec es la referencia de UX. Estos puntos la precisan o la corrigen; si hay contradicción, gana esta lista.

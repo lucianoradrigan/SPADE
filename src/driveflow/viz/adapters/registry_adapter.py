@@ -121,7 +121,14 @@ def c2000_summary(kit: dict) -> str:
     if run is None:
         return f"{text}. Not measured on the board."
     budget = "meets" if run["verdicts"]["C5_real_time"] else "MISSES"
-    return f"{text}. Measured on the {run['measured_on']}: {run['worst_latency_ms']:.1f} ms worst latency, {budget} the {run['latency_budget_ms']:.1f} ms window; max error vs. Keras {run['worst_max_abs_err']:.1e}. Simulated windows replayed from flash, no real signal."
+    out = f"{text}. Measured on the {run['measured_on']}: {run['worst_latency_ms']:.1f} ms worst latency, {budget} the {run['latency_budget_ms']:.1f} ms window; max error vs. Keras {run['worst_max_abs_err']:.1e}. Simulated windows replayed from flash, no real signal."
+    window_ms = kit.get("window_ms")
+    if window_ms is not None and abs(window_ms - run["latency_budget_ms"]) > 1e-6:
+        # AI-N26: the pre-registered verdict above used a 5 kHz budget; the data are sampled at kit["fs_hz"].
+        actual = "meets" if run["worst_latency_ms"] < window_ms else "MISSES"
+        out += (f" Post-hoc correction (AI-N26): that window assumed 5 kHz, but the model's data are sampled at {kit['fs_hz'] / 1000:g} kHz, "
+                f"so its window lasts {window_ms:.1f} ms and the measured latency {actual} it. The pre-registered verdict is kept as recorded.")
+    return out
 
 
 def class_coverage_warnings(rows: list) -> list[str]:

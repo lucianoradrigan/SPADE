@@ -15,6 +15,8 @@ The latency covers normalization and inference. The six classifier windows hold 
 - **AI-N24:** `rpi5_tcn` runs correctly on the board but takes 10 times the window (C5 fail). See `docs/AI_TECHNICAL_AUDIT.md`.
 - **AI-N25:** the promoted `dc_motor/rpi5` classifier (`rpi5_resnet1d_se_5class_w2048/2026-10-20_run01`) needs a 448 KB arena against 128 KB, so no kit is produced for it.
 
+- **AI-N26 (post-hoc, 2026-11-02):** C5 above used 5 kHz windows, but the training data are sampled at 10 kHz. At the real rate the windows last 51.2 ms (512 samples) and 25.6 ms (256 samples): `esp32_dscnn` (68.5 ms) would not keep up, `esp32_tiny` (19.7 ms) would, and `rpi5_tcn` takes about 20 times its window. The verdicts in the table are the pre-registered ones and stay as recorded. See [`ai_n26_sample_rate.md`](ai_n26_sample_rate.md).
+
 ## Commands
 
 ```bash

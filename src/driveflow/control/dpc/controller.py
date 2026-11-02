@@ -54,8 +54,8 @@ class ScheduledDpcController:
 
     Hysteresis: once inside, the region is left only when R or |v_ref| moves more than
     ``hysteresis`` (a fraction of the bound) past it, so a load or setpoint sitting on a boundary
-    does not make the controller alternate every step. ``set_load`` and ``set_magnitude`` update
-    the operating point at run time (a load step).
+    does not make the controller alternate every step. ``set_load`` updates R at run time (a load
+    step); |v_ref| needs no setter, because ``control`` reads it from the reference on every call.
     """
 
     def __init__(self, nominal_weights, wide_weights, r_ohm: float, region: dict, hysteresis: float = 0.05):

@@ -15,3 +15,7 @@ Runs under test: `esp32_dscnn/2026-10-18_run01` (dc_motor classifier), `esp32_ti
 C5 is the non-overlapping case: the board finishes one window before the next one is complete. It says nothing about any control-loop deadline.
 
 Replaying simulated windows from flash is a parity and timing test. It does not exercise ADC acquisition or real sensors.
+
+## Note added after the measurements (2026-11-02, AI-N26)
+
+The criteria above are unchanged. C5's durations assumed 5 kHz; the training data are sampled at 10 kHz, so the actual windows are 51.2 ms for 512 samples and 25.6 ms for 256 samples. The post-hoc re-reading is in [`ai_n26_sample_rate.md`](ai_n26_sample_rate.md). From now on `c2000_collect.py` takes the window duration from the kit's `fs_hz`.

@@ -2,10 +2,12 @@
 # Generated with: uv pip freeze --python .venv/bin/python --exclude-editable
 # Install: uv pip install -r requirements-lock.txt && uv pip install -e . --no-deps
 absl-py==2.5.0
+ai-edge-litert==2.3.0
 altair==6.2.2
 anyio==4.14.2
 astunparse==1.6.3
 attrs==26.1.0
+backports-strenum==1.3.1
 blinker==1.9.0
 certifi==2026.7.22
 charset-normalizer==3.5.1
@@ -74,6 +76,7 @@ tensorflow==2.21.0
 termcolor==3.3.0
 threadpoolctl==3.6.0
 toml==0.10.2
+tqdm==4.70.1
 typing-extensions==4.16.0
 urllib3==2.7.0
 uvicorn==0.52.4

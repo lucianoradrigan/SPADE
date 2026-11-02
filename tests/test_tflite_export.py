@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 import tensorflow as tf
 
+from driveflow.ai.litert import load_interpreter
 from driveflow.ai.tflite_export import export_float16, export_int8
 from driveflow.models.classifiers.builder import build_classifier
 from driveflow.models.classifiers.schemas import ClassifierConfig, ConvBlockConfig
@@ -32,7 +33,7 @@ class TestExportFloat16:
 
         assert out_path.exists()
         assert out_path.stat().st_size > 0
-        interpreter = tf.lite.Interpreter(model_path=str(out_path))
+        interpreter = load_interpreter(out_path)
         interpreter.allocate_tensors()
         input_details = interpreter.get_input_details()
         assert input_details[0]["shape"].tolist() == [1, config.input_window, 2]
@@ -47,7 +48,7 @@ class TestExportFloat16:
         x = np.random.randn(1, config.input_window, 2).astype(np.float32)
         keras_out = model(x, training=False).numpy()
 
-        interpreter = tf.lite.Interpreter(model_path=str(out_path))
+        interpreter = load_interpreter(out_path)
         interpreter.allocate_tensors()
         inp = interpreter.get_input_details()[0]
         out = interpreter.get_output_details()[0]
@@ -66,7 +67,7 @@ class TestExportInt8:
         export_int8(model, representative, out_path)
 
         assert out_path.exists()
-        interpreter = tf.lite.Interpreter(model_path=str(out_path))
+        interpreter = load_interpreter(out_path)
         interpreter.allocate_tensors()
         input_details = interpreter.get_input_details()
         output_details = interpreter.get_output_details()

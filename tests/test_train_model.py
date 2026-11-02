@@ -106,6 +106,7 @@ class TestTrainClassifierFromConfig:
         assert metrics["domain"] == "dc_motor"
         assert metrics["n_train"] > 0
         assert 0.0 <= metrics["test_accuracy"] <= 1.0
+        assert metrics["fs_hz"] == 10_000.0  # AI-N26: the run records the rate it was trained at
 
     def test_second_run_gets_a_distinct_run_dir(self, tmp_path, dc_motor_dataset_path):
         config_path = tmp_path / "configs" / "classifiers" / "tiny_pc.yaml"
@@ -158,6 +159,7 @@ class TestTrainForecasterFromConfig:
         assert metrics["domain"] == "vsc_dpc"
         assert metrics["n_train"] > 0
         assert metrics["test_rmse"] is None or metrics["test_rmse"] >= 0.0
+        assert metrics["fs_hz"] == 10_000.0  # AI-N26
 
 
 class TestDistillation:

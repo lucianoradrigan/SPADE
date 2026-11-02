@@ -77,14 +77,14 @@ class OdeSolver:
 
 
 class EulerSolver(OdeSolver):
-    """
+    r"""
     Solves a system of differential equations of first order for a given time step with linear approximation.
 
         .. math:
             x^\prime(t) = f(x(t))
 
         .. math:
-            x(t + \\frac{\\tau}{nsteps}) = x(t) + x^\prime(t) * \\frac{\\tau}{nsteps}
+            x(t + \frac{\tau}{nsteps}) = x(t) + x^\prime(t) * \frac{\tau}{nsteps}
     """
 
     def __init__(self, nsteps=1):

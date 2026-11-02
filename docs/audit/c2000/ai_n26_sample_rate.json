@@ -1,0 +1,70 @@
+{
+  "finding": "AI-N26",
+  "label": "post-hoc analysis, not pre-registered; pre-registered verdicts unchanged",
+  "command": "python experiments/report_c2000_sample_rate.py",
+  "runs": [
+    {
+      "run": "esp32_dscnn/2026-10-18_run01",
+      "samples": 512,
+      "dataset": "data/diagnosis_grid_dataset.parquet",
+      "dataset_sha256_matches_run": true,
+      "dataset_rate": {
+        "fs_hz_values": [
+          10000.0
+        ],
+        "median_dt_s": 9.999999999998899e-05,
+        "rate_from_dt_hz": 10000.0000000011,
+        "rows": 7875000
+      },
+      "worst_latency_ms": 68.51859999999999,
+      "pre_registered_budget_ms": 102.4,
+      "pre_registered_C5": true,
+      "assumed_fs_hz": 5000.0,
+      "window_ms_at_dataset_rate": 51.2,
+      "post_hoc_C5_at_dataset_rate": false,
+      "latency_over_window": 1.3382539062499998
+    },
+    {
+      "run": "esp32_tiny/2026-10-19_run01",
+      "samples": 256,
+      "dataset": "data/vsc_dpc_grid_dataset.parquet",
+      "dataset_sha256_matches_run": true,
+      "dataset_rate": {
+        "fs_hz_values": [
+          10000.0
+        ],
+        "median_dt_s": 9.99999999999994e-05,
+        "rate_from_dt_hz": 10000.00000000006,
+        "rows": 108000
+      },
+      "worst_latency_ms": 19.71847,
+      "pre_registered_budget_ms": 51.2,
+      "pre_registered_C5": true,
+      "assumed_fs_hz": 5000.0,
+      "window_ms_at_dataset_rate": 25.6,
+      "post_hoc_C5_at_dataset_rate": true,
+      "latency_over_window": 0.770252734375
+    },
+    {
+      "run": "rpi5_tcn/2026-10-20_run01",
+      "samples": 256,
+      "dataset": "data/vsc_dpc_grid_dataset.parquet",
+      "dataset_sha256_matches_run": true,
+      "dataset_rate": {
+        "fs_hz_values": [
+          10000.0
+        ],
+        "median_dt_s": 9.99999999999994e-05,
+        "rate_from_dt_hz": 10000.00000000006,
+        "rows": 108000
+      },
+      "worst_latency_ms": 520.13745,
+      "pre_registered_budget_ms": 51.2,
+      "pre_registered_C5": false,
+      "assumed_fs_hz": 5000.0,
+      "window_ms_at_dataset_rate": 25.6,
+      "post_hoc_C5_at_dataset_rate": false,
+      "latency_over_window": 20.317869140624996
+    }
+  ]
+}

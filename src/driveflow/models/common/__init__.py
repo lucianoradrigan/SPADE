@@ -5,14 +5,15 @@ from .windowing import (
     CANDIDATE_CHANNELS,
     RPM_LEVEL_SCALING,
     VSC_DPC_CANDIDATE_CHANNELS,
-    WINDOW_S,
+    SIMULATION_FS_HZ,
     build_classification_windows,
     build_direct_forecast_windows,
     build_forecast_windows,
     discover_channels,
     is_live_window,
     normalize_window_like_training,
-    window_samples_for,
+    dataset_sample_rate_hz,
+    run_sample_rate_hz,
 )
 
 __all__ = [
@@ -31,12 +32,13 @@ __all__ = [
     "CANDIDATE_CHANNELS",
     "RPM_LEVEL_SCALING",
     "VSC_DPC_CANDIDATE_CHANNELS",
-    "WINDOW_S",
+    "SIMULATION_FS_HZ",
     "build_classification_windows",
     "build_direct_forecast_windows",
     "build_forecast_windows",
     "discover_channels",
     "is_live_window",
     "normalize_window_like_training",
-    "window_samples_for",
+    "dataset_sample_rate_hz",
+    "run_sample_rate_hz",
 ]

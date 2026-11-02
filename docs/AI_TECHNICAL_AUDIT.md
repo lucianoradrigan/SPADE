@@ -242,6 +242,7 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N23 | Medium | Negative result (feasibility) | **Closed (negative)** (§11.1): at most 2 IGBT run-to-failure devices on a comparable protocol (with different failure modes); no validated RUL model is feasible. E11 closed; option 3 (another NASA PCoE dataset) postponed |
 | AI-N24 | Medium | Negative result | **Open** (§12.1): `rpi5_tcn/2026-10-20_run01` is numerically correct on the C2000 but takes 520 ms for a 51.2 ms window |
 | AI-N25 | Medium | Negative result (feasibility) | **Open** (§12.2): the promoted `dc_motor/rpi5` w2048 classifier needs a 448 KB arena; the C2000 has 128 KB for tensors |
+| AI-N26 | Medium | Defect (sample rate) | **Fixed in code; pre-registered C2000 verdicts kept** (§12.3): the C2000 real-time budget and the edge examples assumed 5 kHz, the data are 10 kHz. Post-hoc: `esp32_dscnn/2026-10-18_run01` takes 68.5 ms for a 51.2 ms window |
 | AI-N19 | Medium | Evaluation limit | **Documented** (§10): simulated healthy current/rpm are constant in steady state, so the residual AUROC (1.000) and the persistence baseline are optimistic |
 | AI-N15 | Medium | Defect (estimator bias) | **Open** (§9.1): the VSC PINN estimates C systematically low, −1.3 % to −9.1 % mean error at 0–5 % noise |
 | AI-N16 | Medium | Defect (uncertainty) | **Open** (§9.2): the PINN's 5–95 % bootstrap interval covers the truth in 52–78 % of noisy runs for C; the GUI says "Coverage not validated" |
@@ -714,6 +715,7 @@ Evidence: [`docs/audit/c2000/report.md`](audit/c2000/report.md), against the cri
 ### 12.1 AI-N24 — the promoted RPi5 TCN misses real time on the C2000 · **Medium** · Negative result · **Open**
 
 - **Measured:** 520.1 ms worst latency on a LAUNCHXL-F28379D at 200 MHz, against the 51.2 ms window (256 samples at 5 kHz). Criterion C5 fails. Parity holds (max error 1.2e-6).
+- **Post-hoc (AI-N26, §12.3):** the data are sampled at 10 kHz, so the window lasts 25.6 ms and the latency is about 20 times it, not 10.
 - **Scope:** only this run, which is the promoted `vsc_dpc/rpi5/regressor` and is fine on its own tier. The promoted `esp32_tiny` regressor passes at 19.7 ms.
 - **Not attempted:** moving the weights to RAM, or a smaller distillate.
 
@@ -722,3 +724,24 @@ Evidence: [`docs/audit/c2000/report.md`](audit/c2000/report.md), against the cri
 - **Measured:** `plan_model` needs a 448 KB arena for `rpi5_resnet1d_se_5class_w2048/2026-10-20_run01`, against 128 KB in the kit's linker map and 204 KB of total RAM. `experiments/export_c2000.py` refuses it.
 - **Consequence:** the C2000 has the same class coverage as the ESP32, 3 classes (AI-N13): a ball or cage fault is answered as one of those 3.
 - **Open option:** a 5-class distillate trained for this memory budget.
+
+### 12.3 AI-N26 — the C2000 real-time budget and the edge examples assumed 5 kHz; the data are 10 kHz · **Medium** · Defect (sample rate) · **Fixed in code; pre-registered verdicts kept**
+
+Found 2026-11-02. Evidence: [`docs/audit/c2000/ai_n26_sample_rate.md`](audit/c2000/ai_n26_sample_rate.md) (`python experiments/report_c2000_sample_rate.py`). **Post-hoc analysis, not pre-registered.**
+
+- **Defect:** every simulated record has `fs_hz = 1 / TAU` = 10 000 Hz, and windows are taken at that rate with no decimation. But:
+  - `scripts/edge_benchmark/c2000_collect.py` set `SAMPLE_RATE_HZ = 5000.0`, so criterion C5's windows were 102.4 ms (512 samples) and 51.2 ms (256 samples) instead of 51.2 ms and 25.6 ms;
+  - the ESP32 and C2000 examples (`ai/edge_examples.py`) sampled every 200 µs, "5 kHz, the rate of the training data";
+  - the Edge Deployment tutorials said "Sample at 5 kHz", while the training and transfer-learning pages said 10 kHz.
+- **Cause:** the `models/common/windowing.py` docstring said "fs_hz (5000 at TAU=1e-4s)"; 5000 was the number of samples in a 0.5 s window. No run recorded its sample rate, so the exporters could not read it and the value was typed by hand.
+- **Post-hoc effect on the board results (latencies unchanged, only the budget):**
+  - `esp32_dscnn/2026-10-18_run01`: 68.5 ms against a 51.2 ms window, so it does **not** keep up with non-overlapping windows. Its pre-registered C5 verdict (pass, 102.4 ms) is kept as recorded;
+  - `esp32_tiny/2026-10-19_run01`: 19.7 ms against 25.6 ms, still in real time;
+  - `rpi5_tcn/2026-10-20_run01`: about 20 times its window (AI-N24).
+- **Fix (2026-11-02):**
+  - training writes the dataset's `fs_hz` to `metrics.json`, and transfer-learning candidates inherit it. `windowing.run_sample_rate_hz()` reads it, with the simulator's 10 kHz as the fallback for older runs, all trained on simulator data;
+  - the C2000 manifest carries `fs_hz` and `window_ms`. `c2000_collect.py` takes the budget from it and refuses a kit without it;
+  - the examples and tutorials take the rate from the run;
+  - the Model Registry and Edge Deployment pages show the recorded verdict followed by the post-hoc correction.
+- **Tests:** `tests/test_windowing.py` (rate helpers, pinned to `1 / TAU`), `tests/test_edge_examples.py` (sample period in the generated code), `tests/test_c2000_export.py` (manifest rate, post-hoc summary).
+- **Not executed:** re-measuring on the board, or re-exporting the measured kits (they stay as they ran).

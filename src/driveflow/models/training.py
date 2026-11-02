@@ -56,6 +56,7 @@ from driveflow.models.common import (
     InsufficientGroupsError,
     build_classification_windows,
     build_direct_forecast_windows,
+    dataset_sample_rate_hz,
     discover_channels,
     grouped_split,
     grouped_train_val_test_split,
@@ -208,6 +209,8 @@ def _train_classifier(
         from driveflow.ai.ood import fit_ood
 
         metrics["ood"] = fit_ood(model, X_train, y_train, X_val)
+    if (fs_hz := dataset_sample_rate_hz(df)) is not None:
+        metrics["fs_hz"] = fs_hz  # AI-N26: exporters read the input rate from here
     if level_scaling:
         metrics["level_scaling"] = level_scaling
     if calibration is not None:
@@ -269,6 +272,8 @@ def _train_forecaster(
         "persistence_test_rmse": float(np.sqrt(persistence_mse)) if persistence_mse is not None else None,
         "test_groups": sorted(str(g) for g in np.unique(groups[idx_test])),
     }
+    if (fs_hz := dataset_sample_rate_hz(df)) is not None:
+        metrics["fs_hz"] = fs_hz  # AI-N26: exporters read the input rate from here
     if config.split == "three_way":
         metrics.update({
             "input_window": config.input_window, "horizon": config.horizon, "label_filter": config.label_filter,

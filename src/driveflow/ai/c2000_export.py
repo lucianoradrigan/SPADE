@@ -27,7 +27,7 @@ from pathlib import Path
 
 import numpy as np
 
-from driveflow.models.common.windowing import normalize_window_like_training
+from driveflow.models.common.windowing import normalize_window_like_training, run_sample_rate_hz
 
 KIT_DIR = Path(__file__).parent / "c2000_kit"
 KIT_FILES = ("spade_nn.h", "spade_nn.c", "selftest.h", "selftest.c", "host_main.c", "main.c", "board.h", "board.c", "lnk_spade_f28379d.cmd", "Makefile")
@@ -424,6 +424,8 @@ def export_c2000(model, metrics: dict, raw_windows: np.ndarray, out_dir, source_
     manifest = {
         "target": TARGET, "format": "float32 C (no quantization)", "source_run": source_run, "model_id": weights_digest[:12], "weights_sha256": weights_digest,
         "channels": channels, "classes": classes, "input_shape": list(plan.input_shape), "output_shape": list(plan.output.shape),
+        # AI-N26: the input rate comes from the run, so the board's real-time budget is never hard-coded.
+        "fs_hz": run_sample_rate_hz(metrics), "window_ms": plan.input_shape[0] / run_sample_rate_hz(metrics) * 1e3,
         "level_scaling": metrics.get("level_scaling"), "calibration": calibration, "ood_ported": False,
         "reference_windows": len(raw), "memory": check_fits(plan, per_window * len(raw)),
         "macs_per_inference": _macs(plan), "kernels": sorted({fn for fn, _ in plan.calls}),

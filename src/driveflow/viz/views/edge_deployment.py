@@ -43,14 +43,14 @@ def _tutorial(target: str, facts) -> None:
             ("Install ESP-IDF, then create the project and add TensorFlow Lite Micro.", 'idf.py create-project spade_infer\ncd spade_infer\nidf.py add-dependency "espressif/esp-tflite-micro"', "bash"),
             ("Download the `.tflite` above, rename it `model.tflite`, and turn it into a C array.", "xxd -i model.tflite | sed 's/^unsigned char model_tflite\\[\\]/const unsigned char model_tflite[] __attribute__((aligned(16)))/' > main/model_data.c", "bash"),
             ("Paste the example into `main/main.cc`, delete the generated `main/spade_infer.c`, and list both sources.", 'idf_component_register(SRCS "main.cc" "model_data.c" INCLUDE_DIRS ".")', "cmake"),
-            (f"Replace `read_sample()` with your driver. Channel order: {order}. Sample at 5 kHz, the rate of the training data.", None, None),
+            (f"Replace `read_sample()` with your driver. Channel order: {order}. Sample at {facts.rate_text}, the rate of the training data.", None, None),
             ("Build, flash and watch the serial output. Then set `kArenaSize` from the `arena used` line.", "idf.py build flash monitor", "bash"),
         ], target)
     elif target == "rpi5":
         _steps([
             ("**Python.** Create an environment on the Pi and install the runtime.", "python3 -m venv spade && source spade/bin/activate\npip install ai-edge-litert numpy", "bash"),
             ("Download the `.tflite` above, rename it `model.tflite`, and save the example next to it as `spade_infer.py`.", "python3 spade_infer.py", "bash"),
-            (f"Replace the random window with real data. Shape: ({facts.window}, {facts.n_channels}). Channel order: {order}. Sample at 5 kHz.", None, None),
+            (f"Replace the random window with real data. Shape: ({facts.window}, {facts.n_channels}). Channel order: {order}. Sample at {facts.rate_text}, the rate of the training data.", None, None),
             ("**C++.** Get the TensorFlow sources, and save the example as `main.cpp` with this `CMakeLists.txt`.", "git clone --depth 1 --branch v2.17.0 https://github.com/tensorflow/tensorflow.git tensorflow_src", "bash"),
             ("Create `CMakeLists.txt`.", "cmake_minimum_required(VERSION 3.16)\nproject(spade_infer CXX)\nset(CMAKE_CXX_STANDARD 17)\nadd_subdirectory(tensorflow_src/tensorflow/lite tflite_build EXCLUDE_FROM_ALL)\nadd_executable(spade_infer main.cpp)\ntarget_link_libraries(spade_infer tensorflow-lite)", "cmake"),
             ("Build and run. The first build takes a while on the Pi.", "cmake -S . -B build -DCMAKE_BUILD_TYPE=Release\ncmake --build build -j4\ncp model.tflite build/ && cd build && ./spade_infer", "bash"),
@@ -60,7 +60,7 @@ def _tutorial(target: str, facts) -> None:
             ("Install TI's C2000 compiler (CGT), UniFlash and C2000Ware. The kit's Makefile looks for them in `~/ti`.", None, None),
             ("Export the model above, download the kit, and check it builds. It first runs a benchmark with reference windows.", "unzip <downloaded_kit>.zip && cd spade_c2000\nmake CCXML=/path/to/TMS320F28379D.ccxml flash\npython3 -m serial.tools.miniterm /dev/ttyUSB0 115200", "bash"),
             ("Replace the kit's `main.c` with the example. It uses the kit's `spade_model_run()`, which normalizes the window and runs the model.", None, None),
-            (f"Replace `read_sample()` with your ADC reads. Channel order: {order}. Sample at 5 kHz.", None, None),
+            (f"Replace `read_sample()` with your ADC reads. Channel order: {order}. Sample at {facts.rate_text}, the rate of the training data.", None, None),
             ("Keep inference out of the control ISR: fill the window from an ADC interrupt and call `spade_model_run()` from the main loop.", None, None),
             ("Build and flash again.", "make clean\nmake CCXML=/path/to/TMS320F28379D.ccxml flash", "bash"),
         ], target)
@@ -79,7 +79,7 @@ def _about(target: str) -> None:
 def _model_facts(facts, memory: tuple | None) -> None:
     """memory: (label, value, unit) of what this board's artifact weighs, or None if not exported."""
     outputs = {"label": "Output", "value": str(len(facts.classes)), "unit": "classes"} if facts.is_classifier else {"label": "Output", "value": "—" if facts.horizon is None else str(facts.horizon), "unit": "steps ahead"}
-    items = [{"label": "Input window", "value": str(facts.window), "unit": "samples"}, {"label": "Channels", "value": str(facts.n_channels), "tone": "training"}, {**outputs, "tone": "primary"}]
+    items = [{"label": "Input window", "value": str(facts.window), "unit": f"samples · {facts.window_ms:.1f} ms at {facts.rate_text}"}, {"label": "Channels", "value": str(facts.n_channels), "tone": "training"}, {**outputs, "tone": "primary"}]
     if memory:
         items.append({"label": memory[0], "value": memory[1], "unit": memory[2], "tone": "training"})
     kpi_row(items)

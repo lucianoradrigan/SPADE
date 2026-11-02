@@ -6,7 +6,7 @@ from .synchronous_motor import SynchronousMotor
 
 
 class PermanentMagnetSynchronousMotor(SynchronousMotor):
-    """
+    r"""
     =====================  ==========  ============= ===========================================
     Motor Parameter        Unit        Default Value Description
     =====================  ==========  ============= ===========================================

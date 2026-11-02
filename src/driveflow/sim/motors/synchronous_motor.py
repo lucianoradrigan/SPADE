@@ -4,7 +4,7 @@ from .three_phase_motor import ThreePhaseMotor
 
 
 class SynchronousMotor(ThreePhaseMotor):
-    """The SynchronousMotor and its subclasses implement the technical system of a three phase synchronous motor.
+    r"""The SynchronousMotor and its subclasses implement the technical system of a three phase synchronous motor.
 
     This includes the system equations, the motor parameters of the equivalent circuit diagram,
     as well as limits and bandwidth.

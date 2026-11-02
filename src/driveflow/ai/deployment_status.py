@@ -46,9 +46,9 @@ def tflite_op_names(path) -> list:
 @lru_cache(maxsize=64)
 def _inspect_tflite(path: str, mtime: float) -> dict:
     try:
-        import tensorflow as tf
+        from driveflow.ai.litert import load_interpreter
 
-        interp = tf.lite.Interpreter(model_path=path)
+        interp = load_interpreter(path)
         ins = [str(d["dtype"].__name__) for d in interp.get_input_details()]
         outs = [str(d["dtype"].__name__) for d in interp.get_output_details()]
         tensor_types = {str(t["dtype"].__name__) for t in interp.get_tensor_details()}
@@ -73,7 +73,14 @@ def c2000_status(run_dir) -> dict | None:
     kit = Path(run_dir) / C2000_DIR
     if not (kit / "manifest.json").exists():
         return None
-    status = {"kit_dir": kit, "manifest": json.loads((kit / "manifest.json").read_text()), "evidence": None, "run": None}
+    from driveflow.models.common.windowing import run_sample_rate_hz
+
+    manifest = json.loads((kit / "manifest.json").read_text())
+    metrics_path = Path(run_dir) / "metrics.json"
+    metrics = json.loads(metrics_path.read_text()) if metrics_path.exists() else {}
+    # AI-N26: the run's real input rate, so a kit measured against a 5 kHz budget can be read correctly.
+    fs_hz = manifest.get("fs_hz") or run_sample_rate_hz(metrics)
+    status = {"kit_dir": kit, "manifest": manifest, "evidence": None, "run": None, "fs_hz": fs_hz, "window_ms": manifest["input_shape"][0] / fs_hz * 1e3}
     for key, name in (("evidence", EVIDENCE_FILE), ("run", "hardware_run.json")):
         if (kit / name).exists():
             status[key] = json.loads((kit / name).read_text())

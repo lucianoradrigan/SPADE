@@ -4,7 +4,7 @@ training seed, plus all windows of the dataset). Nothing is re-exported or re-tr
 
 What this measures: what quantization (FP16 for rpi5, full INT8 for esp32) costs in accuracy /
 RMSE and how often the TFLite and Keras predictions disagree. Latency is measured on THIS HOST's
-CPU with tf.lite.Interpreter -- it is NOT an ESP32 / Raspberry Pi 5 measurement and does not move
+CPU with driveflow.ai.litert.load_interpreter (LiteRT, or tf.lite as fallback) -- it is NOT an ESP32 / Raspberry Pi 5 measurement and does not move
 any run past `exported` in ai/deployment_status.py's lifecycle.
 
 Usage:  python experiments/report_tflite_parity.py [--json]
@@ -21,6 +21,7 @@ import tensorflow as tf
 from sklearn.metrics import f1_score
 
 from driveflow.ai.deployment_status import tflite_op_names
+from driveflow.ai.litert import load_interpreter
 from driveflow.ai.registry import load_run_model, resolve
 from driveflow.models.common import build_classification_windows, build_direct_forecast_windows, grouped_split, load_diagnosis_dataset
 
@@ -50,10 +51,19 @@ def _load_df(domain: str, path: Path):
     return df[df["plant_config_id"] == "vsc_dpc_v1"].reset_index(drop=True)
 
 
+def _runtime_label() -> str:
+    """The interpreter load_interpreter picks here (LiteRT when installed, else tf.lite)."""
+    try:
+        import ai_edge_litert  # noqa: F401
+    except ImportError:
+        return f"tf.lite.Interpreter {tf.__version__}"
+    return "ai_edge_litert"
+
+
 def _tflite_predict(path: Path, X: np.ndarray) -> tuple:
     """Runs the interpreter one window at a time (the shipped models have batch 1), quantizing /
     dequantizing with the file's own scale and zero point. Returns (predictions, median ms)."""
-    interp = tf.lite.Interpreter(model_path=str(path))
+    interp = load_interpreter(path)
     interp.allocate_tensors()
     inp, out = interp.get_input_details()[0], interp.get_output_details()[0]
     in_scale, in_zp = inp["quantization"]
@@ -152,7 +162,7 @@ def report(candidates: list | None = None) -> dict:
             continue
         rows[key] = {**base, "status": "evaluated", **r}
     return {
-        "measured_on": "host CPU, tf.lite.Interpreter " + tf.__version__ + " -- NOT target hardware",
+        "measured_on": f"host CPU, {_runtime_label()} -- NOT target hardware",
         "runs": rows,
     }
 

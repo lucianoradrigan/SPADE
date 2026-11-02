@@ -4,7 +4,7 @@ from .synchronous_motor import SynchronousMotor
 
 
 class SynchronousReluctanceMotor(SynchronousMotor):
-    """
+    r"""
     =====================  ==========  ============= ===========================================
     Motor Parameter        Unit        Default Value Description
     =====================  ==========  ============= ===========================================

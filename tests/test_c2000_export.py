@@ -16,6 +16,7 @@ from keras import layers
 from driveflow.ai.c2000_export import ARENA_LIMIT_BYTES, C2000MemoryError, UnsupportedLayerError, export_c2000, host_parity, kit_zip, plan_model
 from driveflow.ai.calibration import decide
 from driveflow.ai.deployment_status import c2000_status, deployment_status
+from driveflow.viz.adapters.registry_adapter import c2000_summary
 from driveflow.models.classifiers.builder import build_classifier
 from driveflow.models.classifiers.schemas import ClassifierConfig, ConvBlockConfig
 from driveflow.models.regressors.builder import build_forecaster
@@ -137,3 +138,28 @@ class TestArtifacts:
         (kit / "hardware_run.json").write_text(json.dumps({"stale": True}))
         export_c2000(model, METRICS, _raw_windows(3), kit)
         assert not (kit / "hardware_run.json").exists()
+
+    def test_manifest_carries_the_run_sample_rate(self, tmp_path):
+        """AI-N26: the board's real-time budget comes from the run's rate, never a typed constant."""
+        model = _randomize(_classifier("dsconv1d"))
+        manifest = export_c2000(model, METRICS, _raw_windows(3), tmp_path / "a" / "c2000")
+        assert manifest["fs_hz"] == 10_000.0 and manifest["window_ms"] == pytest.approx(STEPS / 10.0)
+        manifest = export_c2000(model, {**METRICS, "fs_hz": 8000.0}, _raw_windows(3), tmp_path / "b" / "c2000")
+        assert manifest["window_ms"] == pytest.approx(STEPS / 8.0)
+
+    def test_summary_keeps_the_recorded_verdict_and_adds_the_post_hoc_one(self, tmp_path):
+        model = _randomize(_classifier("dsconv1d"))
+        kit = tmp_path / "run" / "c2000"
+        export_c2000(model, METRICS, _raw_windows(3), kit)
+        # A kit measured before AI-N26: 5 kHz budget recorded, no fs_hz in its manifest.
+        manifest = json.loads((kit / "manifest.json").read_text())
+        del manifest["fs_hz"], manifest["window_ms"]
+        (kit / "manifest.json").write_text(json.dumps(manifest))
+        run = {"measured_on": "board", "worst_latency_ms": 9.0, "latency_budget_ms": STEPS / 5.0, "worst_max_abs_err": 1e-7, "verdicts": {"C5_real_time": True}}
+        (kit / "hardware_run.json").write_text(json.dumps(run))
+        text = c2000_summary(c2000_status(tmp_path / "run"))
+        assert "meets the 12.8 ms window" in text  # the pre-registered verdict, as recorded
+        assert "Post-hoc correction (AI-N26)" in text and "lasts 6.4 ms and the measured latency MISSES it" in text
+        run["latency_budget_ms"] = STEPS / 10.0
+        (kit / "hardware_run.json").write_text(json.dumps(run))
+        assert "Post-hoc" not in c2000_summary(c2000_status(tmp_path / "run"))

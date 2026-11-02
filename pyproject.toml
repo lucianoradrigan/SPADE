@@ -15,6 +15,9 @@ dependencies = [
     "pyyaml",
     "scikit-learn",
     "threadpoolctl",
+    # LiteRT, the replacement for the deprecated tf.lite.Interpreter (driveflow/ai/litert.py). No wheel
+    # exists for Intel Macs on Python 3.12, so there SPADE keeps using TensorFlow's interpreter.
+    "ai-edge-litert; sys_platform != 'darwin' or platform_machine != 'x86_64'",
 ]
 
 [project.optional-dependencies]

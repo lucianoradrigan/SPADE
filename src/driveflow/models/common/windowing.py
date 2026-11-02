@@ -7,9 +7,12 @@ engine at a single, known sample rate (`fs_hz = 1/TAU`), not five real datasets 
 native rates that need per-file decimation/resampling to a common target. No `downsample_*`
 function exists here for that reason -- there is nothing to resample.
 
-WINDOW_S=0.5s matches the original's physical window duration; WINDOW_SAMPLES is computed from
-driveflow's own fs_hz (5000 at TAU=1e-4s), not hardcoded to the original's 4000 (FS_TARGET=8000Hz)
--- see docs/macro_fase_C1_diagnosis.md for why this wasn't resampled to match instead.
+SAMPLE RATE (AI-N26). Every simulated record has fs_hz = 1 / TAU = 10 000 Hz (TAU = 1e-4 s in
+datagen/runner.py), and windows are taken at that rate: 512 samples = 51.2 ms, 2048 samples =
+204.8 ms. An earlier version of this docstring said "fs_hz (5000 at TAU=1e-4s)"; 5000 was the
+number of samples in the original's 0.5 s window, not a rate, and it was copied into the C2000
+real-time budget and the edge examples as "5 kHz". Training now records the dataset's fs_hz in
+metrics.json; run_sample_rate_hz() reads it back, so exporters never hard-code a rate.
 """
 
 import math
@@ -19,7 +22,10 @@ import pandas as pd
 
 from driveflow.models.common.acquisitions import TIME_COL, window_starts
 
-WINDOW_S = 0.5
+#: Sample rate of every record the simulator writes: 1 / datagen.runner.TAU (pinned by
+#: tests/test_windowing.py). Runs trained before 2026-11-02 do not record fs_hz; all of them were
+#: trained on simulator datasets at this rate, so it is their sample rate too.
+SIMULATION_FS_HZ = 10_000.0
 
 #: driveflow's schema subset of paper_federative's CANDIDATE_CHANNELS (canonical order) --
 #: acc_x2/y2/z2, audio, temperature_a/b don't exist in driveflow's schema at all (no second
@@ -40,8 +46,24 @@ CANDIDATE_CHANNELS = [
 VSC_DPC_CANDIDATE_CHANNELS = ["vc_real", "vc_imag", "i_f_real", "i_f_imag"]
 
 
-def window_samples_for(fs_hz: float, window_s: float = WINDOW_S) -> int:
-    return int(round(fs_hz * window_s))
+def dataset_sample_rate_hz(df: pd.DataFrame) -> float | None:
+    """The dataset's single sample rate from its fs_hz column; None when the column is absent or
+    empty. Several distinct rates are an error: windows would mix time scales."""
+    if "fs_hz" not in df.columns:
+        return None
+    rates = pd.unique(df["fs_hz"].dropna())
+    if len(rates) == 0:
+        return None
+    if len(rates) > 1:
+        raise ValueError(f"the dataset mixes sample rates {sorted(float(r) for r in rates)} Hz; windows need one rate")
+    return float(rates[0])
+
+
+def run_sample_rate_hz(metrics: dict) -> float:
+    """Sample rate a trained run expects at its input: metrics["fs_hz"] when the run recorded it,
+    else SIMULATION_FS_HZ (every run trained before fs_hz was recorded used simulator data)."""
+    fs = (metrics or {}).get("fs_hz")
+    return float(fs) if fs else SIMULATION_FS_HZ
 
 
 def is_live_window(w: np.ndarray) -> bool:

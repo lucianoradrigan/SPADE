@@ -12,15 +12,21 @@ import pytest
 from driveflow.datagen import Scenario, run_scenario
 from driveflow.datagen.runner import TAU
 from driveflow.models.common import (
+    SIMULATION_FS_HZ,
     build_classification_windows,
     build_direct_forecast_windows,
     build_forecast_windows,
     discover_channels,
     grouped_split,
     is_live_window,
+    dataset_sample_rate_hz,
     prepare_classification_splits,
-    window_samples_for,
+    run_sample_rate_hz,
 )
+
+
+#: 0.5 s at 1/TAU = 10 kHz, the windows these tests cut.
+WINDOW_0_5_S = int(round(0.5 / TAU))
 
 
 @pytest.fixture(scope="module")
@@ -31,16 +37,31 @@ def mixed_labeled_df():
     scenarios = []
     for fault_type in (None, "outer_race", "inner_race"):
         for seed in (0, 1):
-            # duration_s must clear window_samples_for(1/TAU)=5000 rows (0.5s) -- 1.0s gives
-            # 2 windows/run, enough to exercise cap_per_class and the grouped split below.
+            # 1.0 s = 10 000 rows at 1/TAU: 2 windows of 5000 per run, enough to exercise
+            # cap_per_class and the grouped split below.
             scenarios.append(Scenario(scenario_id=f"w_{fault_type}_{seed}", fault_type=fault_type, duration_s=1.0, seed=seed))
     records = [r for s in scenarios for r in run_scenario(s)]
     return pd.DataFrame.from_records(records)
 
 
-class TestWindowSamplesFor:
-    def test_matches_driveflow_tau(self):
-        assert window_samples_for(1.0 / TAU, window_s=0.5) == 5000
+class TestSampleRate:
+    """AI-N26: the data are sampled at 1/TAU = 10 kHz, and a run says which rate it was trained at."""
+
+    def test_simulation_rate_is_one_over_tau(self):
+        assert SIMULATION_FS_HZ == pytest.approx(1.0 / TAU) == 10_000.0
+
+    def test_dataset_rate_is_read_from_the_records(self, mixed_labeled_df):
+        assert dataset_sample_rate_hz(mixed_labeled_df) == SIMULATION_FS_HZ
+        assert np.allclose(np.diff(mixed_labeled_df["timestamp_s"].to_numpy()[:100]), 1.0 / SIMULATION_FS_HZ)
+
+    def test_dataset_rate_absent_or_mixed(self):
+        assert dataset_sample_rate_hz(pd.DataFrame({"x": [1.0]})) is None
+        with pytest.raises(ValueError, match="mixes sample rates"):
+            dataset_sample_rate_hz(pd.DataFrame({"fs_hz": [10_000.0, 5_000.0]}))
+
+    def test_run_rate_falls_back_to_the_simulator(self):
+        assert run_sample_rate_hz({"fs_hz": 8000.0}) == 8000.0
+        assert run_sample_rate_hz({}) == SIMULATION_FS_HZ
 
 
 class TestIsLiveWindow:
@@ -53,7 +74,7 @@ class TestIsLiveWindow:
 
 class TestDiscoverChannels:
     def test_finds_populated_live_channels(self, mixed_labeled_df):
-        window_samples = window_samples_for(1.0 / TAU)
+        window_samples = WINDOW_0_5_S
         channels = discover_channels(mixed_labeled_df, window_samples)
         for expected in ("acc_x", "acc_y", "acc_z", "current_r", "rpm", "torque_nm"):
             assert expected in channels
@@ -86,7 +107,7 @@ class TestDiscoverChannels:
     def test_excludes_always_nan_channels(self, mixed_labeled_df):
         """current_s/current_t are always NaN for the DC motor (single current channel) --
         see datagen/runner.py's docstring."""
-        window_samples = window_samples_for(1.0 / TAU)
+        window_samples = WINDOW_0_5_S
         channels = discover_channels(mixed_labeled_df, window_samples)
         assert "current_s" not in channels
         assert "current_t" not in channels
@@ -94,7 +115,7 @@ class TestDiscoverChannels:
 
 class TestBuildClassificationWindows:
     def test_returns_windows_for_each_class(self, mixed_labeled_df):
-        window_samples = window_samples_for(1.0 / TAU)
+        window_samples = WINDOW_0_5_S
         channels = discover_channels(mixed_labeled_df, window_samples)
         classes = ["normal", "outer_race", "inner_race"]
         X, y, groups = build_classification_windows(mixed_labeled_df, classes, channels, window_samples, cap_per_class=50)
@@ -107,7 +128,7 @@ class TestBuildClassificationWindows:
     def test_no_window_crosses_a_group_boundary(self, mixed_labeled_df):
         """Each window's group must be a single scenario run's source_file -- windows are never
         built by concatenating rows from two different runs."""
-        window_samples = window_samples_for(1.0 / TAU)
+        window_samples = WINDOW_0_5_S
         channels = discover_channels(mixed_labeled_df, window_samples)
         _, _, groups = build_classification_windows(
             mixed_labeled_df, ["normal", "outer_race"], channels, window_samples, cap_per_class=50
@@ -115,14 +136,14 @@ class TestBuildClassificationWindows:
         assert set(groups) <= set(mixed_labeled_df["source_file"].unique())
 
     def test_missing_class_returns_none(self, mixed_labeled_df):
-        window_samples = window_samples_for(1.0 / TAU)
+        window_samples = WINDOW_0_5_S
         X, y, groups = build_classification_windows(mixed_labeled_df, ["ball"], ["acc_x"], window_samples)
         assert X is None and y is None and groups is None
 
 
 class TestBuildForecastWindows:
     def test_context_and_horizon_shapes(self, mixed_labeled_df):
-        window_samples = window_samples_for(1.0 / TAU)
+        window_samples = WINDOW_0_5_S
         channels = discover_channels(mixed_labeled_df, window_samples)
         healthy_df = mixed_labeled_df[mixed_labeled_df["label"] == "normal"]
         X, Y, groups = build_forecast_windows(healthy_df, channels, window_samples, horizon_samples=500, n_bins=10, cap_per_group=5)
@@ -139,7 +160,7 @@ class TestBuildDirectForecastWindows:
     that function's module docstring for why the two coexist."""
 
     def test_context_and_horizon_shapes(self, mixed_labeled_df):
-        window_samples = window_samples_for(1.0 / TAU)
+        window_samples = WINDOW_0_5_S
         channels = discover_channels(mixed_labeled_df, window_samples)
         healthy_df = mixed_labeled_df[mixed_labeled_df["label"] == "normal"]
         X, Y, groups = build_direct_forecast_windows(healthy_df, channels, window_samples, horizon_samples=500, cap_per_group=5)
@@ -152,7 +173,7 @@ class TestBuildDirectForecastWindows:
 
 class TestGroupedSplit:
     def test_no_group_appears_in_both_sides(self, mixed_labeled_df):
-        window_samples = window_samples_for(1.0 / TAU)
+        window_samples = WINDOW_0_5_S
         channels = discover_channels(mixed_labeled_df, window_samples)
         classes = ["normal", "outer_race", "inner_race"]
         X, y_str, groups = build_classification_windows(mixed_labeled_df, classes, channels, window_samples, cap_per_class=50)

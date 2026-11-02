@@ -6,7 +6,7 @@ from .induction_motor import InductionMotor
 
 
 class DoublyFedInductionMotor(InductionMotor):
-    """
+    r"""
     =====================  ==========  ============= ===========================================
     Motor Parameter        Unit        Default Value Description
     =====================  ==========  ============= ===========================================

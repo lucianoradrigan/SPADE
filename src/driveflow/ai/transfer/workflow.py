@@ -278,7 +278,7 @@ def save_candidate(result: TLResult, base: dict, decision: GateDecision, run_dir
     m = result.report["metrics"]
     # level_scaling is preprocessing and carries over; the base's calibration does not (the
     # fine-tuned weights have their own confidence behaviour), so the candidate is uncalibrated.
-    metrics = {k: base["metrics"][k] for k in ("kind", "domain", "tier", "channels", "classes", "level_scaling") if k in base["metrics"]}
+    metrics = {k: base["metrics"][k] for k in ("kind", "domain", "tier", "channels", "classes", "level_scaling", "fs_hz") if k in base["metrics"]}
     if classes:
         metrics["classes"] = list(classes)
     if result.report["task"] == "classification":

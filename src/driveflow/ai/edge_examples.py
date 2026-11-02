@@ -10,6 +10,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from driveflow.models.common.windowing import SIMULATION_FS_HZ, run_sample_rate_hz
+
 MICRO_RESOLVER = {
     "ADD": "AddAdd", "BATCH_TO_SPACE_ND": "AddBatchToSpaceNd", "CONV_2D": "AddConv2D", "DEPTHWISE_CONV_2D": "AddDepthwiseConv2D", "DEQUANTIZE": "AddDequantize",
     "EXPAND_DIMS": "AddExpandDims", "FULLY_CONNECTED": "AddFullyConnected", "LOGISTIC": "AddLogistic", "MAX_POOL_2D": "AddMaxPool2D", "MEAN": "AddMean", "MUL": "AddMul",
@@ -34,6 +36,19 @@ class ModelFacts:
     level_scaling: dict = field(default_factory=dict)
     calibration: dict | None = None
     tflite_ops: list = field(default_factory=list)
+    fs_hz: float = SIMULATION_FS_HZ  # sample rate of the training data (AI-N26)
+
+    @property
+    def sample_period_us(self) -> int:
+        return int(round(1e6 / self.fs_hz))
+
+    @property
+    def rate_text(self) -> str:
+        return f"{self.fs_hz / 1000:g} kHz"
+
+    @property
+    def window_ms(self) -> float:
+        return self.window / self.fs_hz * 1e3
 
     @property
     def is_classifier(self) -> bool:
@@ -54,7 +69,8 @@ class ModelFacts:
 
 def facts_from_run(metrics: dict, config: dict, tflite_ops: list | None = None) -> ModelFacts:
     return ModelFacts(channels=list(metrics["channels"]), window=int(config["input_window"]), classes=list(metrics.get("classes") or []), horizon=config.get("horizon"),
-                      level_scaling=dict(metrics.get("level_scaling") or {}), calibration=metrics.get("calibration"), tflite_ops=list(tflite_ops or []))
+                      level_scaling=dict(metrics.get("level_scaling") or {}), calibration=metrics.get("calibration"), tflite_ops=list(tflite_ops or []),
+                      fs_hz=run_sample_rate_hz(metrics))
 
 
 def _floats(values) -> str:
@@ -181,7 +197,7 @@ extern "C" void app_main(void) {{
   for (;;) {{
     for (int t = 0; t < WINDOW_SAMPLES; t++) {{
       read_sample(&raw[t * NUM_CHANNELS]);
-      esp_rom_delay_us(200);  // 5 kHz, the rate of the training data. Use a timer for real sampling.
+      esp_rom_delay_us({facts.sample_period_us});  // {facts.rate_text}, the rate of the training data. Use a timer for real sampling.
     }}
     float mu[NUM_CHANNELS], sigma[NUM_CHANNELS];
     normalize_window(raw, normalized, mu, sigma);
@@ -385,7 +401,7 @@ void main(void)
 
         for (t = 0; t < SPADE_INPUT_STEPS; t++) {{
             read_sample(&raw[t * SPADE_INPUT_CHANNELS]);
-            DEVICE_DELAY_US(200);  /* 5 kHz, the rate of the training data. Use an ADC trigger for real sampling. */
+            DEVICE_DELAY_US({facts.sample_period_us});  /* {facts.rate_text}, the rate of the training data. Use an ADC trigger for real sampling. */
         }}
         spade_model_run(raw);  /* normalizes the window and runs the model */
 {report}

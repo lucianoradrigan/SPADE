@@ -28,7 +28,6 @@ from pathlib import Path
 import serial
 
 PARITY_TOLERANCE = 1e-3  # C3
-SAMPLE_RATE_HZ = 5000.0  # windowing.py: fs_hz = 1 / TAU
 BEGIN = re.compile(r"SPADE-BEGIN model=(\w+) vectors=(\d+) sysclk=(\d+) arena_bytes=(\d+)")
 LINE = re.compile(r"V (\d+) cycles=(\d+) err_bits=(\d+) top=(\d+) exp=(\d+)")
 
@@ -71,7 +70,11 @@ def main(argv=None) -> None:
     rows = [{"window": v, "cycles": c, "latency_ms": c / sysclk * 1e3, "max_abs_err": struct.unpack("<f", struct.pack("<I", bits))[0], "top": t - 1, "expected_top": e - 1} for v, c, bits, t, e in windows]
     worst_err = max(r["max_abs_err"] for r in rows)
     worst_ms = max(r["latency_ms"] for r in rows)
-    budget_ms = manifest["input_shape"][0] / SAMPLE_RATE_HZ * 1e3
+    # AI-N26: the window duration comes from the run's sample rate, recorded in the kit's manifest.
+    # Kits exported before 2026-11-02 assumed 5 kHz here (the data are 10 kHz) and carry no fs_hz.
+    if not manifest.get("fs_hz"):
+        raise SystemExit("the kit's manifest has no fs_hz (exported before AI-N26); re-export it with experiments/export_c2000.py")
+    budget_ms = manifest["input_shape"][0] / manifest["fs_hz"] * 1e3
     is_classifier = bool(manifest["classes"])
     verdicts = {
         "C2_memory": manifest["memory"]["fits"] and arena == manifest["memory"]["arena_bytes"],
@@ -81,7 +84,7 @@ def main(argv=None) -> None:
     }
     when = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
     run = {"measured_on": manifest["target"], "when": when, "source_run": manifest["source_run"], "model_id": model_id, "sysclk_hz": sysclk,
-           "input": "simulated windows replayed from flash", "worst_max_abs_err": worst_err, "worst_latency_ms": worst_ms, "latency_budget_ms": budget_ms, "verdicts": verdicts, "windows": rows}
+           "input": "simulated windows replayed from flash", "worst_max_abs_err": worst_err, "worst_latency_ms": worst_ms, "fs_hz": manifest["fs_hz"], "latency_budget_ms": budget_ms, "verdicts": verdicts, "windows": rows}
     (args.kit / "hardware_run.json").write_text(json.dumps(run, indent=2) + "\n")
     passed = all(v is True or v == "not_applicable" for v in verdicts.values())
     evidence = {"static_compatibility_passed": True, "bench_verified": passed, "board": manifest["target"], "runtime": "SPADE float32 C kernels, CGT 25.11.1.LTS",

@@ -53,9 +53,9 @@ def _simulated_frames(domain: str):
 
 
 def _host_tflite(path: Path, x: np.ndarray) -> np.ndarray:
-    import tensorflow as tf
+    from driveflow.ai.litert import load_interpreter
 
-    interp = tf.lite.Interpreter(model_path=str(path))
+    interp = load_interpreter(path)
     interp.allocate_tensors()
     inp, out = interp.get_input_details()[0], interp.get_output_details()[0]
     res = []

@@ -84,10 +84,13 @@ def test_python_example_matches_keras(tmp_path, monkeypatch, facts):
     converter = tf.lite.TFLiteConverter.from_keras_model(model)
     (tmp_path / "model.tflite").write_bytes(converter.convert())
 
-    package, module = types.ModuleType("ai_edge_litert"), types.ModuleType("ai_edge_litert.interpreter")
-    module.Interpreter = tf.lite.Interpreter
-    monkeypatch.setitem(sys.modules, "ai_edge_litert", package)
-    monkeypatch.setitem(sys.modules, "ai_edge_litert.interpreter", module)
+    try:
+        import ai_edge_litert.interpreter  # noqa: F401 -- a SPADE dependency except on Intel Macs
+    except ImportError:  # Intel Mac: stand in TensorFlow's interpreter for the example's import
+        package, module = types.ModuleType("ai_edge_litert"), types.ModuleType("ai_edge_litert.interpreter")
+        module.Interpreter = tf.lite.Interpreter
+        monkeypatch.setitem(sys.modules, "ai_edge_litert", package)
+        monkeypatch.setitem(sys.modules, "ai_edge_litert.interpreter", module)
     monkeypatch.chdir(tmp_path)
     namespace = {"__name__": "example"}
     exec(rpi_python_example(facts), namespace)  # noqa: S102 -- the generated example, the subject of this test

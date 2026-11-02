@@ -2,8 +2,8 @@
 paper_federative's `build_sensor` (repo/02_local_baselines_etapa1/train_baseline.py) -- targets
 an ESP32-class edge device, ~4-8K params, <5ms INT8 inference. The only change is
 `window_samples` becoming a required argument instead of a module-level constant: the original
-hardcodes `WINDOW_SAMPLES=4000` (FS_TARGET=8000Hz); driveflow computes it from its own fs_hz (see
-models/common/windowing.py).
+hardcodes `WINDOW_SAMPLES=4000` (FS_TARGET=8000Hz); in driveflow it is the config's input_window,
+in samples at the simulator's 10 kHz (see models/common/windowing.py).
 """
 
 import keras

@@ -6,10 +6,8 @@ Deliberately narrow: two functions, no auto-selection of which one to call for a
 caller, experiments/export_tflite.py, decides that from --tier) -- this module only knows how to
 convert, not the design doc's tier->format mapping.
 
-Uses tf.lite.Interpreter (in the int8 sanity path some callers may want, not used internally here)
--- that class is deprecated in favor of the separate `ai_edge_litert` package, not a project
-dependency (avoided here to not add one); still functional as of TF 2.21, a known future
-migration point, not an oversight.
+Conversion only; to load the exported file use driveflow.ai.litert.load_interpreter, which prefers
+the `ai_edge_litert` package and falls back to the deprecated tf.lite.Interpreter.
 """
 
 import tempfile
