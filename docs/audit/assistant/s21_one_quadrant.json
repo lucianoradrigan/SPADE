@@ -1,0 +1,105 @@
+{
+  "command": "python experiments/report_s21_one_quadrant.py",
+  "simulated": true,
+  "bench_stock_motor_120rad_s": [
+    {
+      "load": "stock (a = 0.01, b = 0.05)",
+      "peak_speed_rad_s": 120.39257751348764,
+      "final_speed_rad_s": 120.0,
+      "min_current_a": 34.4309967580642,
+      "mean_current_after_0_2s_a": 36.41022416772078,
+      "mean_torque_after_0_2s_nm": 6.007686987673928,
+      "mean_power_u_i_after_0_2s_w": 742.1397892194731,
+      "fraction_steps_full_voltage_after_0_2s": 0.0
+    },
+    {
+      "load": {
+        "a": 0.16,
+        "b": 0.0005333333333333334,
+        "c": 0.0,
+        "j_load": 0.0025
+      },
+      "peak_speed_rad_s": 196.84071818773853,
+      "final_speed_rad_s": 196.84071818773853,
+      "min_current_a": -163.08937957683978,
+      "mean_current_after_0_2s_a": 23.39965158319381,
+      "mean_torque_after_0_2s_nm": 3.860942511226979,
+      "mean_power_u_i_after_0_2s_w": 3521.881998032957,
+      "fraction_steps_full_voltage_after_0_2s": 0.45
+    },
+    {
+      "load": {
+        "a": 1.0,
+        "b": 0.01
+      },
+      "peak_speed_rad_s": 120.80212856541606,
+      "final_speed_rad_s": 120.0,
+      "min_current_a": 9.094715628231548,
+      "mean_current_after_0_2s_a": 13.324228334811211,
+      "mean_torque_after_0_2s_nm": 2.1984976752438494,
+      "mean_power_u_i_after_0_2s_w": 266.66133806623833,
+      "fraction_steps_full_voltage_after_0_2s": 0.0
+    }
+  ],
+  "dc_pmg132_v1_120rad_s_integration": [
+    {
+      "integration": "Euler, one step per period (default)",
+      "peak_speed_rad_s": 179.43140675983625,
+      "final_speed_rad_s": 179.43140675983625,
+      "min_current_a": -161.1941195399097
+    },
+    {
+      "integration": {
+        "dc_plant_substeps": 10
+      },
+      "peak_speed_rad_s": 179.40445950462075,
+      "final_speed_rad_s": 179.40445950462075,
+      "min_current_a": -156.3903940424682
+    },
+    {
+      "integration": {
+        "dc_plant_substeps": 100
+      },
+      "peak_speed_rad_s": 179.40214206361543,
+      "final_speed_rad_s": 179.40214206361543,
+      "min_current_a": -155.60139992902785
+    },
+    {
+      "integration": {
+        "dc_plant_solver": "rk45"
+      },
+      "peak_speed_rad_s": 179.40242327575774,
+      "final_speed_rad_s": 179.40242327575774,
+      "min_current_a": -155.51413076500788
+    }
+  ],
+  "dc_pmg132_v1_120rad_s_load": [
+    {
+      "load_torque_nm": 0.0,
+      "integration": {
+        "load_torque_nm": 0.0
+      },
+      "peak_speed_rad_s": 179.43140675983625,
+      "final_speed_rad_s": 179.43140675983625,
+      "min_current_a": -161.1941195399097
+    },
+    {
+      "load_torque_nm": 1.0,
+      "integration": {
+        "load_torque_nm": 1.0
+      },
+      "peak_speed_rad_s": 120.97249806818253,
+      "final_speed_rad_s": 120.0,
+      "min_current_a": 2.343502375026361
+    },
+    {
+      "load_torque_nm": 5.0,
+      "integration": {
+        "load_torque_nm": 5.0
+      },
+      "peak_speed_rad_s": 120.51882924038267,
+      "final_speed_rad_s": 120.00000000000001,
+      "min_current_a": 26.648332381301675
+    }
+  ]
+}

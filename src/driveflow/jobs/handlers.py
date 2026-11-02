@@ -114,6 +114,15 @@ def _condition_metrics(df) -> dict:
     return {k: (None if isinstance(v, float) and not math.isfinite(v) else v) for k, v in out.items()}
 
 
+AI_PLANNED = "SIMULATED · AI-PLANNED"
+
+
+def _origin(spec: ExperimentSpec) -> str:
+    """SIMULATED · AI-PLANNED only when the assistant planned the job (params.origin set to exactly
+    that); every other run keeps the plain SIMULATED label, as before."""
+    return AI_PLANNED if spec.params.get("origin") == AI_PLANNED else "SIMULATED"
+
+
 def scenario_sweep(ctx: JobContext) -> HandlerResult:
     from driveflow.datagen.export_parquet import records_to_dataframe
     from driveflow.datagen.runner import run_scenario
@@ -138,10 +147,7 @@ def scenario_sweep(ctx: JobContext) -> HandlerResult:
             conditions.append({"index": i, "condition": cond, "status": "failed", "error": f"{type(exc).__name__}: {exc}", "seconds": round(time.perf_counter() - t0, 3)})
             ctx.log(f"condition {i + 1}/{n} failed: {type(exc).__name__}: {exc}")
     ctx.progress(sum(c["status"] != "skipped" for c in conditions), n, "finished")
-    # Runs planned by the assistant carry params.origin = "SIMULATED · AI-PLANNED"; any other value
-    # (or none) keeps the plain SIMULATED label, as before.
-    origin = ctx.spec.params.get("origin") if ctx.spec.params.get("origin") == "SIMULATED · AI-PLANNED" else "SIMULATED"
-    return HandlerResult(conditions=conditions, metrics={"n_conditions": n, "n_ok": sum(c["status"] == "ok" for c in conditions)}, origin=origin)
+    return HandlerResult(conditions=conditions, metrics={"n_conditions": n, "n_ok": sum(c["status"] == "ok" for c in conditions)}, origin=_origin(ctx.spec))
 
 
 # --------------------------------------------------------------------------- plecs_sweep
@@ -429,7 +435,7 @@ def controller_tuning(ctx: JobContext) -> HandlerResult:
             candidates = [{"label": f"pareto_{j}", "params": ob.as_kwargs(res.X[k]), "objectives": [float(v) for v in res.F[k]]} for j, k in enumerate(front)]
     except _Cancelled:
         conditions.append({"index": len(conditions), "condition": {}, "status": "skipped", "error": "Cancelled before the remaining evaluations."})
-        return HandlerResult(conditions=conditions, metrics={"method": method, "n_evaluations": len(conditions) - 1})
+        return HandlerResult(conditions=conditions, metrics={"method": method, "n_evaluations": len(conditions) - 1}, origin=_origin(spec))
 
     ctx.log(f"{method}: {len(conditions)} evaluations; evaluating baseline and {len(candidates)} candidate(s) on the evaluation grid")
     base_sum, base_rows = ob.evaluate(ob.BASELINE, eval_grid, motor)
@@ -458,7 +464,7 @@ def controller_tuning(ctx: JobContext) -> HandlerResult:
     metrics = {"method": method, "n_evaluations": len(conditions), "baseline_J_tuning": base_tune["J"], "baseline_J_evaluation": base_sum["J"],
                "best_J_tuning": best["tuning"]["J"] if best else None, "best_J_evaluation": best["evaluation"]["J"] if best else None,
                "best_params": best["params"] if best else None, "n_candidates": len(evaluated)}
-    return HandlerResult(conditions=conditions, metrics=metrics)
+    return HandlerResult(conditions=conditions, metrics=metrics, origin=_origin(spec))
 
 
 # --------------------------------------------------------------------------- rl_training

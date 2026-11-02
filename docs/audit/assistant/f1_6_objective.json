@@ -1,0 +1,301 @@
+{
+  "command": "python experiments/report_f1_6_objective.py",
+  "llm": "none (tool calls written by hand)",
+  "cases": [
+    {
+      "case": "A",
+      "plant": "dc_perm_ex_v1",
+      "request": "Busca un PI para el motor DC de stock con sobrepaso menor a 5 % y asentamiento menor a 50 ms.",
+      "proposal": {
+        "proposal": "show this to the user and ask for confirmation; do not launch before their yes",
+        "plant": "dc_perm_ex_v1",
+        "base_motor": "stock motor",
+        "tunes": "speed PI: bandwidth, damping, setpoint weight (full ranges)",
+        "objective": "J",
+        "algorithm": "pso",
+        "evaluations": {
+          "value": 48,
+          "origin": "default",
+          "source": "Tuning Studio defaults for the DC-motor PI (viz/views/tuning_studio.py)"
+        },
+        "seed": 0,
+        "requirements": [
+          {
+            "metric": "overshoot_pct",
+            "op": "<",
+            "value": 5,
+            "unit": "%"
+          },
+          {
+            "metric": "settling_time_s",
+            "op": "<",
+            "value": 50,
+            "unit": "ms"
+          }
+        ],
+        "verification": "each requirement is checked on the evaluation grid (separate from the tuning grid); results are candidates",
+        "draft_hash": "ca02e278fd16651b351574deb3cb8491fb9cf2b6f7d02aaebfec0c8ceee4aef1"
+      },
+      "job": {
+        "job_id": "job-20261102T224223-56e7602b",
+        "experiment_id": "exp-20261102T224223-226c2f30",
+        "evaluations": 48,
+        "note": "queued; a SPADE worker runs it. Tuning takes minutes: report progress with get_job_status"
+      },
+      "wall_s": 20.28741693496704,
+      "check": {
+        "origin": "SIMULATED · AI-PLANNED",
+        "run_id": "run-20261102T224223-b143bce5",
+        "objective": "J",
+        "evaluation_grid": [
+          "step_5rad_s_at_120",
+          "saturating_step_30rad_s_at_100",
+          "drift_step_2rad_s_at_150",
+          "drift_load_15Nm_at_200"
+        ],
+        "results": [
+          {
+            "label": "baseline",
+            "params": {
+              "speed_bandwidth_rad_s": 80.0,
+              "speed_damping": 0.9,
+              "setpoint_weight": 1.0
+            },
+            "checks": [
+              {
+                "metric": "overshoot_pct",
+                "op": "<",
+                "threshold": 5,
+                "unit": "%",
+                "worst_case": 20.325958652492204,
+                "met": false,
+                "margin": -15.325958652492204,
+                "conditions": [
+                  "step_5rad_s_at_120",
+                  "saturating_step_30rad_s_at_100",
+                  "drift_step_2rad_s_at_150"
+                ]
+              },
+              {
+                "metric": "settling_time_s",
+                "op": "<",
+                "threshold": 0.05,
+                "unit": "s",
+                "worst_case": 0.07750000000000001,
+                "met": false,
+                "margin": -0.02750000000000001,
+                "conditions": [
+                  "step_5rad_s_at_120",
+                  "saturating_step_30rad_s_at_100",
+                  "drift_step_2rad_s_at_150"
+                ]
+              }
+            ],
+            "n_met": 0
+          },
+          {
+            "label": "best",
+            "params": {
+              "speed_bandwidth_rad_s": 150.184547622902,
+              "speed_damping": 1.0435407697636399,
+              "setpoint_weight": 0.6552851851929797
+            },
+            "checks": [
+              {
+                "metric": "overshoot_pct",
+                "op": "<",
+                "threshold": 5,
+                "unit": "%",
+                "worst_case": 4.874063055842726,
+                "met": true,
+                "margin": 0.1259369441572744,
+                "conditions": [
+                  "step_5rad_s_at_120",
+                  "saturating_step_30rad_s_at_100",
+                  "drift_step_2rad_s_at_150"
+                ]
+              },
+              {
+                "metric": "settling_time_s",
+                "op": "<",
+                "threshold": 0.05,
+                "unit": "s",
+                "worst_case": 0.053200000000000025,
+                "met": false,
+                "margin": -0.0032000000000000223,
+                "conditions": [
+                  "step_5rad_s_at_120",
+                  "saturating_step_30rad_s_at_100",
+                  "drift_step_2rad_s_at_150"
+                ]
+              }
+            ],
+            "n_met": 1
+          }
+        ],
+        "verdict": "no candidate meets all 2 requirements; best compromise 'best' meets 1",
+        "all_met": false,
+        "status": "candidates only; no default changes",
+        "note": "SIMULATED; report met / not met and the margins as they are, including a negative result"
+      }
+    },
+    {
+      "case": "B",
+      "plant": "dc_pmg132_v1",
+      "request": "Para el PMG 132 quiero sobrepaso menor a 2 % y corriente pico de 150 A como máximo.",
+      "proposal": {
+        "proposal": "show this to the user and ask for confirmation; do not launch before their yes",
+        "plant": "dc_pmg132_v1",
+        "base_motor": {
+          "motor_parameter_overrides": {
+            "r_a": 0.016,
+            "l_a": 1.9e-05,
+            "psi_e": 0.181,
+            "j_rotor": 0.025
+          },
+          "dc_limit_overrides": {
+            "omega": 400.0,
+            "torque": 38.0,
+            "i": 200.0,
+            "u": 60.0
+          },
+          "dc_nominal_overrides": {
+            "omega": 300.54569719342356,
+            "torque": 20.0,
+            "i": 110.0,
+            "u": 60.0
+          }
+        },
+        "tunes": "speed PI: bandwidth, damping, setpoint weight (full ranges)",
+        "objective": "J",
+        "algorithm": "pso",
+        "evaluations": {
+          "value": 48,
+          "origin": "default",
+          "source": "Tuning Studio defaults for the DC-motor PI (viz/views/tuning_studio.py)"
+        },
+        "seed": 0,
+        "requirements": [
+          {
+            "metric": "overshoot_pct",
+            "op": "<",
+            "value": 2,
+            "unit": "%"
+          },
+          {
+            "metric": "peak_current_a",
+            "op": "<=",
+            "value": 150,
+            "unit": "A"
+          }
+        ],
+        "verification": "each requirement is checked on the evaluation grid (separate from the tuning grid); results are candidates",
+        "draft_hash": "7da5b277680f8dff0384f690ff3c87b16d716eb17597767134ef3d0d57c6a188"
+      },
+      "job": {
+        "job_id": "job-20261102T224243-4fc98a27",
+        "experiment_id": "exp-20261102T224243-9e09a5e6",
+        "evaluations": 48,
+        "note": "queued; a SPADE worker runs it. Tuning takes minutes: report progress with get_job_status"
+      },
+      "wall_s": 20.335527181625366,
+      "check": {
+        "origin": "SIMULATED · AI-PLANNED",
+        "run_id": "run-20261102T224243-0927719e",
+        "objective": "J",
+        "evaluation_grid": [
+          "step_5rad_s_at_120_scaled",
+          "saturating_step_30rad_s_at_100_scaled",
+          "drift_step_2rad_s_at_150_scaled",
+          "drift_load_15Nm_at_200_scaled"
+        ],
+        "results": [
+          {
+            "label": "baseline",
+            "params": {
+              "speed_bandwidth_rad_s": 80.0,
+              "speed_damping": 0.9,
+              "setpoint_weight": 1.0
+            },
+            "checks": [
+              {
+                "metric": "overshoot_pct",
+                "op": "<",
+                "threshold": 2,
+                "unit": "%",
+                "worst_case": 2321.294937705977,
+                "met": false,
+                "margin": -2319.294937705977,
+                "conditions": [
+                  "step_5rad_s_at_120_scaled",
+                  "saturating_step_30rad_s_at_100_scaled",
+                  "drift_step_2rad_s_at_150_scaled"
+                ]
+              },
+              {
+                "metric": "peak_current_a",
+                "op": "<=",
+                "threshold": 150.0,
+                "unit": "A",
+                "worst_case": 196.14416676309176,
+                "met": false,
+                "margin": -46.14416676309176,
+                "conditions": [
+                  "step_5rad_s_at_120_scaled",
+                  "saturating_step_30rad_s_at_100_scaled",
+                  "drift_step_2rad_s_at_150_scaled",
+                  "drift_load_15Nm_at_200_scaled"
+                ]
+              }
+            ],
+            "n_met": 0
+          },
+          {
+            "label": "best",
+            "params": {
+              "speed_bandwidth_rad_s": 150.184547622902,
+              "speed_damping": 1.0435407697636399,
+              "setpoint_weight": 0.6552851851929797
+            },
+            "checks": [
+              {
+                "metric": "overshoot_pct",
+                "op": "<",
+                "threshold": 2,
+                "unit": "%",
+                "worst_case": 5.153568116261845,
+                "met": false,
+                "margin": -3.1535681162618454,
+                "conditions": [
+                  "step_5rad_s_at_120_scaled",
+                  "saturating_step_30rad_s_at_100_scaled",
+                  "drift_step_2rad_s_at_150_scaled"
+                ]
+              },
+              {
+                "metric": "peak_current_a",
+                "op": "<=",
+                "threshold": 150.0,
+                "unit": "A",
+                "worst_case": 160.00000000000006,
+                "met": false,
+                "margin": -10.000000000000057,
+                "conditions": [
+                  "step_5rad_s_at_120_scaled",
+                  "saturating_step_30rad_s_at_100_scaled",
+                  "drift_step_2rad_s_at_150_scaled",
+                  "drift_load_15Nm_at_200_scaled"
+                ]
+              }
+            ],
+            "n_met": 0
+          }
+        ],
+        "verdict": "no candidate meets all 2 requirements; best compromise 'best' meets 0",
+        "all_met": false,
+        "status": "candidates only; no default changes",
+        "note": "SIMULATED; report met / not met and the margins as they are, including a negative result"
+      }
+    }
+  ]
+}

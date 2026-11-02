@@ -27,7 +27,7 @@ from driveflow.assistant.core.loop import Tool, ToolFailure
 from driveflow.assistant.core.policy import SessionState
 from driveflow.assistant.draft import NATIVE_PLANTS, PatchError, _catalog, field_meta
 
-AI_ORIGIN = "SIMULATED · AI-PLANNED"
+AI_ORIGIN = "SIMULATED · AI-PLANNED"  # = jobs.handlers.AI_PLANNED
 RPM_TO_RAD_S = 2 * math.pi / 60
 OBJ_EMPTY = {"type": "object", "properties": {}, "additionalProperties": False}
 

@@ -89,7 +89,7 @@ def visible_tools(state: SessionState) -> list[str]:
     """Names of the tools the model may see in this state (order: always, mode, state)."""
     names = list(ALWAYS) + list(BY_MODE[state.mode])
     if state.mode in LAUNCH_TOOLS:
-        ready = draft_ready(state) if state.mode == "configuration" else (draft_ready(state) and bool(state.draft.objective))
+        ready = draft_ready(state) if state.mode == "configuration" else (draft_ready(state) and bool((state.draft.objective or {}).get("complete")))
         if ready:
             names.append(PROPOSE_TOOLS[state.mode])
             p = state.proposal
