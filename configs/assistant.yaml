@@ -1,0 +1,30 @@
+# SPADE assistant (round Assistant, phase 1, task F1.2). Read by driveflow.assistant.config.
+#
+# The assistant runs on a LOCAL model served by Ollama (decision B1, 2026-11-02): nothing leaves the
+# machine. base_url must be a loopback address unless allow_remote_runtime is set explicitly, in
+# which case every session warns and records it (change C4).
+#
+# The model is pinned by tag AND digest (B3). Both stay null until Luciano chooses the model after
+# the comparison of task F1.1; until then the OllamaClient refuses to chat.
+
+runtime: ollama
+base_url: http://127.0.0.1:11434
+allow_remote_runtime: false
+timeout_s: 180
+
+model:
+  tag: null      # e.g. "<name>:<size>-<quantization>", chosen in F1.1
+  digest: null   # sha256 from `ollama list` / GET /api/tags, chosen in F1.1
+
+# Determinism (B3): temperature 0 and a fixed seed on every call.
+temperature: 0
+seed: 0
+context_tokens: 16384
+# Models that "think" before answering: false asks Ollama not to; null sends nothing.
+think: false
+
+# Plan §4.4. driveflow.assistant.draft.DEFAULT_LIMITS must match (tests/assistant/test_assistant_llm.py).
+limits:
+  max_tool_calls_per_turn: 12
+  max_experiments_per_launch: 50
+  max_total_sim_seconds: 600

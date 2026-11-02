@@ -45,4 +45,5 @@ markers = [
     "compat: installation smoke checks that must pass on Linux, Windows and macOS (tests/compat)",
     "slow: > ~20 s each; excluded from the per-commit CI job, run by the scheduled/manual workflow",
     "fmu: needs fmpy and a built FMU under data/fmu/; skipped (not failed) when either is missing",
+    "llm: talks to a real local model runtime (Ollama); skipped unless pytest --run-llm (decision B4: the suite needs no network or GPU)",
 ]

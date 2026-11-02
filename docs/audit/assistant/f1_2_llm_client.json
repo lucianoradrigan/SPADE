@@ -1,0 +1,27 @@
+{
+  "command": "python experiments/report_f1_2_llm_client.py",
+  "python": "3.12.13",
+  "runtime_version": "0.40.13",
+  "installed_models": [],
+  "config": {
+    "runtime": "ollama",
+    "base_url": "http://127.0.0.1:11434",
+    "allow_remote_runtime": false,
+    "timeout_s": 180,
+    "model": {
+      "tag": null,
+      "digest": null
+    },
+    "temperature": 0,
+    "seed": 0,
+    "context_tokens": 16384,
+    "think": false,
+    "limits": {
+      "max_tool_calls_per_turn": 12,
+      "max_experiments_per_launch": 50,
+      "max_total_sim_seconds": 600
+    }
+  },
+  "unpinned_chat": "refused: no model is pinned in configs/assistant.yaml (model.tag); it is chosen in task F1.1",
+  "remote_base_url": "refused: base_url 'http://192.168.1.10:11434' is not on this machine: the conversation and every tool result would leave it. Use 127.0.0.1 / ::1 / localhost, or set allow_remote_runtime: true in configs/assistant.yaml on purpose."
+}
