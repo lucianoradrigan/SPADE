@@ -28,3 +28,6 @@ limits:
   max_tool_calls_per_turn: 12
   max_experiments_per_launch: 50
   max_total_sim_seconds: 600
+  # Bounded tool loop (task F1.3): one user turn never runs more than this.
+  max_model_calls_per_turn: 16
+  max_tokens_per_turn: 60000

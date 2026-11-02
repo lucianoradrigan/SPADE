@@ -1,0 +1,132 @@
+{
+  "command": "python experiments/report_f1_3_loop_policy.py",
+  "llm": "none (scripted replies)",
+  "tools_by_state": [
+    {
+      "state": "undetermined, empty draft",
+      "tools": [
+        "set_mode",
+        "explain_spade",
+        "search_docs",
+        "recommend_plant",
+        "describe_plant"
+      ]
+    },
+    {
+      "state": "question",
+      "tools": [
+        "set_mode",
+        "explain_spade",
+        "search_docs"
+      ]
+    },
+    {
+      "state": "configuration, draft not ready",
+      "tools": [
+        "set_mode",
+        "explain_spade",
+        "search_docs",
+        "recommend_plant",
+        "describe_plant",
+        "suggest_value",
+        "update_draft",
+        "validate_draft",
+        "estimate_cost"
+      ]
+    },
+    {
+      "state": "configuration, draft ready",
+      "tools": [
+        "set_mode",
+        "explain_spade",
+        "search_docs",
+        "recommend_plant",
+        "describe_plant",
+        "suggest_value",
+        "update_draft",
+        "validate_draft",
+        "estimate_cost",
+        "propose_experiments"
+      ]
+    },
+    {
+      "state": "configuration, launch proposed (same draft)",
+      "tools": [
+        "set_mode",
+        "explain_spade",
+        "search_docs",
+        "recommend_plant",
+        "describe_plant",
+        "suggest_value",
+        "update_draft",
+        "validate_draft",
+        "estimate_cost",
+        "propose_experiments",
+        "run_experiments"
+      ]
+    },
+    {
+      "state": "configuration, a job exists",
+      "tools": [
+        "set_mode",
+        "explain_spade",
+        "search_docs",
+        "recommend_plant",
+        "describe_plant",
+        "suggest_value",
+        "update_draft",
+        "validate_draft",
+        "estimate_cost",
+        "propose_experiments",
+        "run_experiments",
+        "get_job_status",
+        "summarize_results"
+      ]
+    },
+    {
+      "state": "objective, no objective yet",
+      "tools": [
+        "set_mode",
+        "explain_spade",
+        "search_docs",
+        "recommend_plant",
+        "describe_plant",
+        "suggest_value",
+        "update_draft",
+        "describe_tunable",
+        "update_objective",
+        "validate_draft"
+      ]
+    }
+  ],
+  "confirmation_scenarios": [
+    {
+      "scenario": "user says yes, interface marks it",
+      "user_reply": "sí",
+      "interface_confirmation": "typed: sí",
+      "launched": true,
+      "refusal": null
+    },
+    {
+      "scenario": "user asks something else, model tries to launch",
+      "user_reply": "¿cuánto tarda?",
+      "interface_confirmation": null,
+      "launched": false,
+      "refusal": "the user has not confirmed this proposal; wait for their answer (the interface records it)"
+    },
+    {
+      "scenario": "model claims the user confirmed",
+      "user_reply": "perfecto",
+      "interface_confirmation": null,
+      "launched": false,
+      "refusal": "the user has not confirmed this proposal; wait for their answer (the interface records it)"
+    },
+    {
+      "scenario": "draft changed in the same turn as the yes",
+      "user_reply": "sí, y 2 s",
+      "interface_confirmation": "typed",
+      "launched": false,
+      "refusal": "tool 'run_experiments' is not available now (mode configuration); available: ['set_mode', 'explain_spade', 'search_docs', 'recommend_plant', 'describe_plant', 'suggest_value', 'update_draft', 'validate_draft', 'estimate_cost', 'propose_experiments']"
+    }
+  ]
+}
