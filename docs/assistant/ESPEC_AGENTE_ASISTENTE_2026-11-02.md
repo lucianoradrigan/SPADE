@@ -103,13 +103,13 @@ Luciano aceptó todas las recomendaciones el 2026-11-02 a las 11:10.
 | # | Decisión | Estado |
 |---|---|---|
 | D1 | Carga | **Decidido:** una corrida por nivel en la Fase 0 (en `Scenario` como `load_torque_nm`); rampa (`load_profile`) en la Fase 3 |
-| D2 | Dependencias | **Decidido:** `anthropic` como extra opcional `[assistant]`; modelo local detrás del mismo `LLMClient` en la Fase 2 |
+| D2 | Dependencias / proveedor | **Reemplazada el 2026-11-02 (17:54):** LLM local con Ollama, sin proveedor en la nube y sin dependencias Python nuevas (cliente con la biblioteca estándar). Ver `INSTRUCCIONES_CLAUDE_CODE_FASE1_2026-11-02.md` §1 (B1–B7) |
 | D3 | Motor de inducción (0b) | **Decidido:** después de la Fase 2 |
 | D4 | Modo objetivo | **Decidido:** (a) sintonizar con `J`/`J_effort` y verificar los umbrales del usuario en la Fase 1; (b) objetivo con restricciones en la Fase 3 |
 | D5 | Sintonía con otro motor (0+) | **Decidido:** sí, con un test de que las grillas actuales dan los mismos resultados |
 | D6 | Datasheets o placas propias para el conjunto dorado | **Abierto:** necesario antes de la Fase 2 |
 | D7 | Umbrales de los benchmarks | **Abierto:** los fija Luciano antes de medir (Fase 1 y Fase 2) |
-| D8 | ID del modelo LLM en `configs/assistant.yaml` | **Abierto:** necesario antes de la Fase 1 |
+| D8 | Modelo LLM | **Se decide en la Fase 1, tarea F1.1:** se comparan 2–3 modelos locales y Luciano elige; tag y digest quedan en `configs/assistant.yaml` |
 
 ## 8. Primera tarea
 

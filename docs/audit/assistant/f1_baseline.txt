@@ -1,0 +1,34 @@
+# F1.0 baseline (round Assistant, phase 1), 2026-11-02T18:19:52-03:00
+# dev = origin/dev = 537889d; machine: 12 logical CPUs
+
+## Commands
+PYTHONPATH=src .venv/bin/python -m pytest -q -p no:cacheprovider
+python scripts/smoke_test.py --launch
+ollama --version; curl -s http://127.0.0.1:11434/api/version; ollama list
+nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv
+
+## Runtime and GPU
+ollama version is 0.40.13
+api: {"version":"0.40.13"}
+models installed: none (ollama list empty; candidates are pulled in F1.1)
+systemd service: active
+name, memory.total [MiB], driver_version
+NVIDIA GeForce RTX 5060 Ti, 16311 MiB, 595.91.07
+
+## dc_pmg132_v1 check
+created in round 0b, decision D3, commit 409b3f7; described in configs/plant_catalog.yaml, docs/VALIDATION_SUMMARY.md §12.7 and docs/SIMULATION_STABILITY_REPORT.md (S-20).
+note added in F1.4 to VALIDATION_SUMMARY §12.7: it is an approved exception to Phase 0 decision A3.
+
+## pytest (summary)
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1461 passed, 9 xfailed, 470 warnings in 1143.64s (0:19:03)
+exit=0
+
+## smoke test
+[PASS] 1. dependencies import (2.2 s) numpy 2.5.4; scipy 1.18.1; pandas 3.0.6; pyarrow 26.0.0; sklearn 1.9.1; yaml 6.0.3; gymnasium 1.4.0; threadpoolctl 3.7.0; tensorflow 2.21.0; keras 3.15.1; streamlit 1.66.0; plotly 7.1.0
+[PASS] 2. application starts (Overview page renders) (0.7 s) AppTest: no exceptions
+[PASS] 2b. Streamlit server answers its health endpoint (1.3 s) http://127.0.0.1:54485 -> ok
+[PASS] 3. platform modules load (0.0 s) rule sets: ['vsc_dpc']
+[PASS] 4. short simulations (DC+PI, DC+MPC, VSC+DPC, PMSM FOC) (0.5 s) final speed 470.3 rpm, VSC |vc| 50.2 V
+[PASS] 5. inference with a registered model (0.8 s) pc_server_5class_w2048/2026-10-20_run01 -> uncertain (0.28, calibrated)
+6. no exceptions: PASS -- 6/6 checks passed
