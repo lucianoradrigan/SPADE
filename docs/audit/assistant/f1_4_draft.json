@@ -1,0 +1,370 @@
+{
+  "command": "python experiments/report_f1_4_draft.py",
+  "llm": "none (patches written by hand)",
+  "request": "Simula el motor DC de stock con PI a 1500 rpm, 2 s por corrida, con carga del 20 al 100 % cada 20 %.",
+  "patch": [
+    {
+      "op": "set_plant",
+      "plant": "dc_perm_ex_v1"
+    },
+    {
+      "op": "set_controller",
+      "controller_type": "PI"
+    },
+    {
+      "op": "set",
+      "field": "omega_ref_rad_s",
+      "value": 1500,
+      "unit": "rpm"
+    },
+    {
+      "op": "set",
+      "field": "duration_s",
+      "value": 2,
+      "unit": "s"
+    },
+    {
+      "op": "vary",
+      "field": "load_torque_nm",
+      "range": {
+        "start": 20,
+        "stop": 100,
+        "step": 20
+      },
+      "unit": "%"
+    }
+  ],
+  "patch_ok": true,
+  "draft": {
+    "plant": "dc_perm_ex_v1",
+    "controller_type": "PI",
+    "preset": {},
+    "experiments": {
+      "base": {
+        "omega_ref_rad_s": {
+          "value": 1500,
+          "unit": "rpm",
+          "origin": "user",
+          "source": "user message 1: '1500 rpm'"
+        },
+        "duration_s": {
+          "value": 2,
+          "unit": "s",
+          "origin": "user",
+          "source": "user message 1: '2 s'"
+        }
+      },
+      "vary": [
+        {
+          "field": "load_torque_nm",
+          "values": [
+            {
+              "value": 20.0,
+              "unit": "%",
+              "origin": "user",
+              "source": "user message 1: '20'",
+              "note": "percent of the rated torque; SPADE converts it with the motor's rated torque"
+            },
+            {
+              "value": 40.0,
+              "unit": "%",
+              "origin": "derived",
+              "source": "range 20.0..100.0 step 20.0",
+              "note": "step from user message 1: '20'; endpoints from user message 1: '20' and user message 1: '100 %'"
+            },
+            {
+              "value": 60.0,
+              "unit": "%",
+              "origin": "derived",
+              "source": "range 20.0..100.0 step 20.0",
+              "note": "step from user message 1: '20'; endpoints from user message 1: '20' and user message 1: '100 %'"
+            },
+            {
+              "value": 80.0,
+              "unit": "%",
+              "origin": "derived",
+              "source": "range 20.0..100.0 step 20.0",
+              "note": "step from user message 1: '20'; endpoints from user message 1: '20' and user message 1: '100 %'"
+            },
+            {
+              "value": 100.0,
+              "unit": "%",
+              "origin": "user",
+              "source": "user message 1: '100 %'",
+              "note": "percent of the rated torque; SPADE converts it with the motor's rated torque"
+            }
+          ]
+        }
+      ],
+      "combine": "product"
+    },
+    "assumptions": [],
+    "objective": null,
+    "name": "assistant"
+  },
+  "status": {
+    "plant": "dc_perm_ex_v1",
+    "controller_type": "PI",
+    "missing_required": [],
+    "missing_important": [
+      {
+        "field": "motor_parameter_overrides",
+        "unit": null,
+        "default": {
+          "r_a": 0.016,
+          "l_a": 1.9e-05,
+          "psi_e": 0.165,
+          "j_rotor": 0.025
+        },
+        "default_source": "dc_perm_ex_v1: DcPermanentlyExcitedMotor._default_motor_parameter (GEM); dc_pmg132_v1: runner.PMG132_MOTOR_PARAMETER (datasheet)"
+      },
+      {
+        "field": "dc_supply_v",
+        "unit": "V",
+        "default": null,
+        "default_source": "runner.build_plant: 65 V (motor rated 60 V)"
+      },
+      {
+        "field": "dc_limit_overrides",
+        "unit": null,
+        "default": {
+          "omega": 400,
+          "torque": 38.0,
+          "i": 210,
+          "u": 60
+        },
+        "default_source": "dc_perm_ex_v1: DcPermanentlyExcitedMotor._default_limits, not derived from motor_parameter_overrides; dc_pmg132_v1: runner.PMG132_LIMITS"
+      }
+    ],
+    "defaults_used": [],
+    "invalid": [],
+    "experiments": 5,
+    "derived": [
+      {
+        "field": "load_torque_nm",
+        "value": 3.2,
+        "unit": "N*m",
+        "origin": "derived",
+        "formula": "20.0 % x 16 N*m",
+        "rated_torque_from": "rated torque of the dc_perm_ex_v1 stock motor (default: describe_plant)"
+      },
+      {
+        "field": "load_torque_nm",
+        "value": 6.4,
+        "unit": "N*m",
+        "origin": "derived",
+        "formula": "40.0 % x 16 N*m",
+        "rated_torque_from": "rated torque of the dc_perm_ex_v1 stock motor (default: describe_plant)"
+      },
+      {
+        "field": "load_torque_nm",
+        "value": 9.6,
+        "unit": "N*m",
+        "origin": "derived",
+        "formula": "60.0 % x 16 N*m",
+        "rated_torque_from": "rated torque of the dc_perm_ex_v1 stock motor (default: describe_plant)"
+      },
+      {
+        "field": "load_torque_nm",
+        "value": 12.8,
+        "unit": "N*m",
+        "origin": "derived",
+        "formula": "80.0 % x 16 N*m",
+        "rated_torque_from": "rated torque of the dc_perm_ex_v1 stock motor (default: describe_plant)"
+      },
+      {
+        "field": "load_torque_nm",
+        "value": 16.0,
+        "unit": "N*m",
+        "origin": "derived",
+        "formula": "100.0 % x 16 N*m",
+        "rated_torque_from": "rated torque of the dc_perm_ex_v1 stock motor (default: describe_plant)"
+      }
+    ],
+    "cost": {
+      "sim_seconds": 10.0,
+      "est_cpu_s": 31.624,
+      "cpu_s_per_sim_s": 3.1624,
+      "basis": "configs/sim_cost.yaml dc_perm_ex_v1/PI, measured 2026-11-02T14:33:54-03:00 on one machine"
+    },
+    "limits": {
+      "max_experiments_per_launch": 50,
+      "max_total_sim_seconds": 600.0,
+      "experiments_exceeded": false,
+      "sim_seconds_exceeded": false
+    },
+    "ready": true,
+    "draft_hash": "594372a563c4b4b08a0e3821755fbd1f88fdfa23db3d0a26f299d51014515898"
+  },
+  "conditions": [
+    {
+      "scenario_id": "assistant_000",
+      "plant_config_id": "dc_perm_ex_v1",
+      "controller_type": "PI",
+      "omega_ref_rad_s": 157.07963267948966,
+      "duration_s": 2.0,
+      "load_torque_nm": 3.2
+    },
+    {
+      "scenario_id": "assistant_001",
+      "plant_config_id": "dc_perm_ex_v1",
+      "controller_type": "PI",
+      "omega_ref_rad_s": 157.07963267948966,
+      "duration_s": 2.0,
+      "load_torque_nm": 6.4
+    },
+    {
+      "scenario_id": "assistant_002",
+      "plant_config_id": "dc_perm_ex_v1",
+      "controller_type": "PI",
+      "omega_ref_rad_s": 157.07963267948966,
+      "duration_s": 2.0,
+      "load_torque_nm": 9.6
+    },
+    {
+      "scenario_id": "assistant_003",
+      "plant_config_id": "dc_perm_ex_v1",
+      "controller_type": "PI",
+      "omega_ref_rad_s": 157.07963267948966,
+      "duration_s": 2.0,
+      "load_torque_nm": 12.8
+    },
+    {
+      "scenario_id": "assistant_004",
+      "plant_config_id": "dc_perm_ex_v1",
+      "controller_type": "PI",
+      "omega_ref_rad_s": 157.07963267948966,
+      "duration_s": 2.0,
+      "load_torque_nm": 16.0
+    }
+  ],
+  "comparison_cases": [
+    {
+      "text": "a 3000 rpm",
+      "value": 3000,
+      "unit": "rpm",
+      "field": "omega_ref_rad_s",
+      "expected": true,
+      "accepted": true,
+      "pass": true
+    },
+    {
+      "text": "a 3000 rpm",
+      "value": 314.1592653589793,
+      "unit": "rad/s",
+      "field": "omega_ref_rad_s",
+      "expected": true,
+      "accepted": true,
+      "pass": true
+    },
+    {
+      "text": "a 3000 rpm",
+      "value": 314,
+      "unit": "rad/s",
+      "field": "omega_ref_rad_s",
+      "expected": false,
+      "accepted": false,
+      "pass": true
+    },
+    {
+      "text": "a 3000 rpm",
+      "value": 314.16,
+      "unit": "rad/s",
+      "field": "omega_ref_rad_s",
+      "expected": false,
+      "accepted": false,
+      "pass": true
+    },
+    {
+      "text": "a 300 rpm",
+      "value": 300,
+      "unit": "rad/s",
+      "field": "omega_ref_rad_s",
+      "expected": false,
+      "accepted": false,
+      "pass": true
+    },
+    {
+      "text": "a 1.500 rpm",
+      "value": 1500,
+      "unit": "rpm",
+      "field": "omega_ref_rad_s",
+      "expected": false,
+      "accepted": false,
+      "pass": true
+    },
+    {
+      "text": "a 1.500 rpm",
+      "value": 1.5,
+      "unit": "rpm",
+      "field": "omega_ref_rad_s",
+      "expected": false,
+      "accepted": false,
+      "pass": true
+    },
+    {
+      "text": "a 1.500,5 rpm",
+      "value": 1500.5,
+      "unit": "rpm",
+      "field": "omega_ref_rad_s",
+      "expected": true,
+      "accepted": true,
+      "pass": true
+    },
+    {
+      "text": "alimentación de 220 V",
+      "value": 220,
+      "unit": "V",
+      "field": "dc_supply_v",
+      "expected": true,
+      "accepted": true,
+      "pass": true
+    },
+    {
+      "text": "alimentación de 220 V",
+      "value": 230,
+      "unit": "V",
+      "field": "dc_supply_v",
+      "expected": false,
+      "accepted": false,
+      "pass": true
+    },
+    {
+      "text": "tres segundos",
+      "value": 3,
+      "unit": "s",
+      "field": "duration_s",
+      "expected": true,
+      "accepted": true,
+      "pass": true
+    },
+    {
+      "text": "un motor",
+      "value": 1,
+      "unit": "s",
+      "field": "duration_s",
+      "expected": false,
+      "accepted": false,
+      "pass": true
+    },
+    {
+      "text": "del 20 al 100 % de carga",
+      "value": 60,
+      "unit": "%",
+      "field": "load_torque_nm",
+      "expected": false,
+      "accepted": false,
+      "pass": true
+    },
+    {
+      "text": "del 20 al 100 % de carga",
+      "value": 20,
+      "unit": "%",
+      "field": "load_torque_nm",
+      "expected": true,
+      "accepted": true,
+      "pass": true
+    }
+  ],
+  "untouched_draft_equals_hand_written_scenario": true
+}
