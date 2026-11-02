@@ -457,3 +457,71 @@ AI-N24 was not used.
 ### 11.7 Screenshots
 
 `docs/screenshots/plecs_om/`: Plant Studio → Use as a Gymnasium plant, with the FMU engine in five readiness states, light and dark. Index in its `README.md`.
+
+
+## 12. Assistant, phase 0 (simulator prerequisites) — round of 2026-11-02
+
+Instructions: the user's round document `INSTRUCCIONES_CLAUDE_CODE_2026-11-02.md` (decisions A1–A7); planning documents in [`docs/assistant/`](assistant/). **No assistant exists and no language model is used**: this phase only adds optional simulator inputs. Evidence: `docs/audit/assistant/`. Every task ran on its own branch, was merged fast-forward into `dev` after a green full suite, and its branch was deleted. `main` was not touched.
+
+### 12.1 Tests per task (full suite, `PYTHONPATH=src python -m pytest -q`, Python 3.12, fmpy and data/ present)
+
+| Task | Suite |
+|---|---|
+| Baseline (`df1950f`) | 1318 passed, 9 xfailed; smoke 6/6 (`f0_baseline.txt`) |
+| F0.0 planning documents | 1318 passed, 9 xfailed |
+| F0.1 `load_torque_nm` | 1331 passed, 9 xfailed |
+| F0.2 supply, limits, nominals, design check | 1346 passed, 9 xfailed |
+| F0.3 `pmsm_motor_parameters` | 1361 passed, 9 xfailed |
+| F0.4 `describe_plant()` | 1418 passed, 9 xfailed |
+| F0.5 simulation cost | 1418 passed, 9 xfailed |
+| F0.6 tuning on another motor | 1426 passed, 9 xfailed |
+| F0.7 S-20 and closure | SUITE_F07 |
+
+No xfail was added; the inventory (`docs/audit/expansion/xfail_inventory.md`) is unchanged and `tests/test_xfail_inventory.py` passes.
+
+### 12.2 New `Scenario` fields (all optional; `None` takes the original code path)
+
+| Field | Plant | Meaning |
+|---|---|---|
+| `load_torque_nm` | dc_perm_ex_v1 | Constant passive load torque (N·m, ≥ 0), added to the stock friction constant `a` |
+| `dc_supply_v` | dc_perm_ex_v1 | DC link voltage (default 65 V) |
+| `dc_limit_overrides` / `dc_nominal_overrides` | dc_perm_ex_v1 | Motor limits / rated values (`omega`, `torque`, `i`, `u`); `u` limit ≤ supply |
+| `pmsm_motor_parameters` | pmsm_v1 | `p`, `l_d`, `l_q`, `r_s`, `psi_p`, `j_rotor`, `u_supply`, merged over `MOTOR_PARAMS` |
+
+Each is validated in `__post_init__` (finite, range, keys) and rejected on any other plant. **Defaults bit for bit:** the existing datagen and `tests/test_scml_system_regression.py` tests were not modified and pass; explicit stock values (zero load, 65 V, stock limits and nominals, explicit `MOTOR_PARAMS`) give bit-identical records (new tests). The tuning with the stock motor gives the same numbers as before the change (F0.6).
+
+Other additions: `control/design_check.py` (diagnostic only), `datagen/plant_catalog.describe_plant()` with `configs/plant_catalog.yaml`, `experiments/measure_sim_cost.py` with `configs/sim_cost.yaml`, an optional `params.motor` block in `controller_tuning`. One function changed for a case it could not handle: `pmsm_foc.mtpa_id_iq` returns i_d = 0 for a non-salient machine (it divided by `l_d − l_q`).
+
+### 12.3 Controller-design check
+
+| Motor | τ_m/τ_a | PI | MPC (horizon/τ_a) |
+|---|---|---|---|
+| Stock (GEM PMG 132) | 13.6 | ok | ok (1.68) |
+| Case B, 220 V (R_a 1.6 Ω, L_a 16 mH, ψ_e 1.146, J 0.05) | 6.4 | **warning** | **warning** (0.20) |
+
+Despite the warnings, PI and MPC bring the 220 V motor to rated speed without extra load (PI error 0.000 rad/s, 0.31 % overshoot; MPC 0.19 rad/s offset). **At rated load torque neither reaches rated speed** (148 rad/s, voltage at the 220 V supply): the stock load's friction (a + b·ω = 7.9 N·m at 157 rad/s), sized for the 60 V PMG 132, adds to the rated torque. Not a finding against the controllers; recorded as an open point for the assistant (§12.6).
+
+### 12.4 Simulation cost (this machine only: Ryzen 5 5600X, idle)
+
+| Plant | Median CPU s per simulated s |
+|---|---|
+| DC + PI | 3.16 |
+| DC + MPC | 5.41 |
+| PMSM FOC_MTPA | 1.14 |
+| VSC + DPC | 13.75 |
+| Buck + PI | 0.67 |
+
+### 12.5 Findings and observations
+
+- **S-20** (Info, Documented): the stock DC motor matches the PMG 132 datasheet in R, L, J and rated speed, not in the 60 V S1 rating (110 A vs 97 A, 20 N·m vs 16 N·m, ψ_e 0.181–0.194 vs 0.165). SPADE validates its port of GEM, not the real motor. No default changed.
+- GEM keeps an explicit current limit, but changing motor parameters alone keeps the stock 210 A limit (documented in `Scenario`).
+- The stock motor needs 188 A for rated torque at 300 rad/s (stock friction b·ω = 15 N·m there), above the PI's 168 A cap (F0.1).
+- AI-N26 had already been fixed earlier on 2026-11-02 at the user's request (`df1950f`); decision A6 was superseded by that. The next free IDs are S-21 and AI-N27.
+
+### 12.6 Not executed / pending decisions
+
+- A load ramp within a run, the induction motor, GUI changes, any LLM: no ejecutado (decisions A1, A5, A7; Phase 1+).
+- Scaling the default load friction to another motor's ratings: no ejecutado; it changes a default (decision needed).
+- Scaling the tuning grids (speeds, loads, noise) to the base motor: no ejecutado; the grids stay absolute, and their 200 rad/s condition exceeds the 220 V motor's supply (decision needed).
+- Changing the stock motor to the PMG 132 datasheet values (S-20): no ejecutado (decision needed).
+- Simulation cost on other machines: no ejecutado.
