@@ -1,0 +1,101 @@
+{
+  "finding": "S-20",
+  "command": "python experiments/report_f0_7_s20_pmg132.py",
+  "datasheet": {
+    "source": "Perm-Motor GmbH, PMG 132 (PMG-132-e.pdf)",
+    "sha256": "4e3647904079a6e474eec571fbaa37901b1b3aae7459f3e1121aaaad51d423ed",
+    "path": "data/upstream/pmg132/PMG-132-e.pdf",
+    "present": true,
+    "sha256_matches": true
+  },
+  "read": {
+    "variants": {
+      "24": {
+        "current_s1_a": 110,
+        "power_kw": 2.2,
+        "speed_min-1": 1080
+      },
+      "36": {
+        "current_s1_a": 110,
+        "power_kw": 3.5,
+        "speed_min-1": 1700
+      },
+      "48": {
+        "current_s1_a": 110,
+        "power_kw": 4.74,
+        "speed_min-1": 2300
+      },
+      "60": {
+        "current_s1_a": 110,
+        "power_kw": 5.97,
+        "speed_min-1": 2870
+      },
+      "72": {
+        "current_s1_a": 110,
+        "power_kw": 7.22,
+        "speed_min-1": 3480
+      }
+    },
+    "torque_nm": 20.0,
+    "inertia_kg_m2": 0.025,
+    "inductance_h": 1.9e-05,
+    "resistance_ohm": 0.016,
+    "short_time_current_a": 200.0,
+    "short_time_mode": "S2 - 10 min",
+    "short_time_torque_nm": 38.0,
+    "weight_kg": 11.0,
+    "protection": "IP 20"
+  },
+  "derived": {
+    "24": {
+      "omega_rad_s": 113.09733552923255,
+      "torque_from_power_nm": 19.452270822342765,
+      "psi_from_torque": 0.17683882565766149,
+      "psi_from_emf": 0.19664477413131956
+    },
+    "36": {
+      "omega_rad_s": 178.0235837034216,
+      "torque_from_power_nm": 19.660316499587072,
+      "psi_from_torque": 0.17873014999624612,
+      "psi_from_emf": 0.19233406769881756
+    },
+    "48": {
+      "omega_rad_s": 240.85543677521747,
+      "torque_from_power_nm": 19.67985470231958,
+      "psi_from_torque": 0.1789077700210871,
+      "psi_from_emf": 0.19198238004963236
+    },
+    "60": {
+      "omega_rad_s": 300.5456971934235,
+      "torque_from_power_nm": 19.863867810284642,
+      "psi_from_torque": 0.1805806164571331,
+      "psi_from_emf": 0.19378084778408333
+    },
+    "72": {
+      "omega_rad_s": 364.42474781641596,
+      "torque_from_power_nm": 19.812046364198007,
+      "psi_from_torque": 0.18010951240180006,
+      "psi_from_emf": 0.1927421241857712
+    }
+  },
+  "gem": {
+    "motor_parameter": {
+      "r_a": 0.016,
+      "l_a": 1.9e-05,
+      "psi_e": 0.165,
+      "j_rotor": 0.025
+    },
+    "nominal": {
+      "omega": 300,
+      "torque": 16.0,
+      "i": 97,
+      "u": 60
+    },
+    "limits": {
+      "omega": 400,
+      "torque": 38.0,
+      "i": 210,
+      "u": 60
+    }
+  }
+}
