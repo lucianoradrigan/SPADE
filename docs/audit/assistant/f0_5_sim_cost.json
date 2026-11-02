@@ -1,0 +1,81 @@
+{
+  "measured": "2026-11-02T14:33:54-03:00",
+  "command": "python experiments/measure_sim_cost.py",
+  "note": "Measured on the machine below; not a guarantee. Another CPU, background load or library versions change these numbers.",
+  "duration_s_per_run": 0.5,
+  "repeats": 5,
+  "timer": "time.process_time (CPU of this process, all threads), after one untimed warm-up run",
+  "machine": {
+    "cpu": "AMD Ryzen 5 5600X 6-Core Processor",
+    "logical_cpus": 12,
+    "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+    "python": "3.12.13",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "tensorflow": "2.21.0"
+  },
+  "cpu_s_per_simulated_s": {
+    "dc_perm_ex_v1/PI": {
+      "median_cpu_s_per_sim_s": 3.1624,
+      "min": 3.1332,
+      "max": 3.2856
+    },
+    "dc_perm_ex_v1/MPC": {
+      "median_cpu_s_per_sim_s": 5.406,
+      "min": 5.3869,
+      "max": 5.4159
+    },
+    "pmsm_v1/FOC_MTPA": {
+      "median_cpu_s_per_sim_s": 1.1393,
+      "min": 1.1335,
+      "max": 1.148
+    },
+    "vsc_dpc_v1/DPC": {
+      "median_cpu_s_per_sim_s": 13.7521,
+      "min": 13.4295,
+      "max": 13.8239
+    },
+    "buck_v1/PI": {
+      "median_cpu_s_per_sim_s": 0.6736,
+      "min": 0.6715,
+      "max": 0.6867
+    }
+  },
+  "samples": {
+    "dc_perm_ex_v1/PI": [
+      3.28555511,
+      3.2761685679999992,
+      3.160704771999999,
+      3.1623884979999985,
+      3.133245023999997
+    ],
+    "dc_perm_ex_v1/MPC": [
+      5.40559756,
+      5.410657719999996,
+      5.415861388000003,
+      5.386907998000005,
+      5.405997843999998
+    ],
+    "pmsm_v1/FOC_MTPA": [
+      1.1423698299999998,
+      1.1480175100000025,
+      1.139336647999997,
+      1.133475267999998,
+      1.1339807860000022
+    ],
+    "vsc_dpc_v1/DPC": [
+      13.685898163999994,
+      13.823927521999991,
+      13.752146799999991,
+      13.77831055,
+      13.429516854
+    ],
+    "buck_v1/PI": [
+      0.6867402459999852,
+      0.6736484000000189,
+      0.6740644799999984,
+      0.6714741380000078,
+      0.6725160639999785
+    ]
+  }
+}
