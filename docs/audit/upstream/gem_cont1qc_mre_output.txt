@@ -1,0 +1,8 @@
+tau = 0.0001 s, u_sup = 60.0 V, start omega = 150.00 rad/s
+t = 0.0001 s  omega =   149.96 rad/s  i = -124.918 A  u =    0.00 V
+t = 0.0010 s  omega =   150.07 rad/s  i =  -48.804 A  u =    0.00 V
+t = 0.0100 s  omega =   151.94 rad/s  i =  -95.326 A  u =    0.00 V
+t = 0.1000 s  omega =   164.18 rad/s  i =  -67.950 A  u =    0.00 V
+t = 0.5000 s  omega =   181.82 rad/s  i =  -78.904 A  u =    0.00 V
+min armature current seen: -144.683 A
+Expected (one-quadrant converter, duty 0, no load): i >= 0 always, u = 0 or back-EMF, omega stays ~150 rad/s.
