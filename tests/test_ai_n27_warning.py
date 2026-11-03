@@ -16,7 +16,7 @@ def test_promoted_dc_motor_classifiers_carry_ai_n27():
         findings = load_audit_findings(entries[key])
         ai = [f for f in findings if f.get("id") == "AI-N27"]
         assert len(ai) == 1 and "open" in ai[0]["summary"] and ai[0]["severity"] == "high", key
-        assert "unchanged" in ai[0]["summary"]
+        assert "unchanged" in ai[0]["summary"] and "affects" in ai[0]["summary"]
 
 
 def test_model_registry_lists_it_with_the_run():

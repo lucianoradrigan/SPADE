@@ -542,7 +542,7 @@ Same method: one branch per decision from `dev`, green full suite, fast-forward 
 
 ## 13. Open warning (2026-11-02): simulator artifact S-21 in the training data of the promoted dc_motor classifiers (AI-N27)
 
-> **Open.** The three promoted dc_motor classifiers were trained on simulated data that contain a non-physical converter artifact. Their recorded metrics stay as recorded; their effect on the predictions is being measured (pre-registered study `docs/audit/assistant/ai_n27_preregistration.md`). Nothing has been retrained, regenerated or demoted.
+> **Open; measured: AFFECTS (2026-11-03).** The three promoted dc_motor classifiers were trained on simulated data that contain a non-physical converter artifact. A pre-registered study (`docs/audit/assistant/ai_n27_impact.md`) shows they change their decision on 30–54 % of the windows of the affected regime (80–125 rad/s, high severity) when the physics is corrected, and on none of the control runs. Their recorded metrics stay as recorded; nothing has been retrained, regenerated or demoted. Decision pending (AI-N27).
 
 - **Artifact (S-21, `docs/SIMULATION_STABILITY_REPORT.md`):** the one-quadrant converter model applies the full supply for a whole control period when the current is negative; the speed then rises above its reference instead of coasting. S-19 is this mechanism.
 - **Training windows that contain it** (`docs/audit/assistant/s21_dataset_scan.md`, rebuilt exactly):

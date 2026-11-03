@@ -243,7 +243,7 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N24 | Medium | Negative result | **Open** (§12.1): `rpi5_tcn/2026-10-20_run01` is numerically correct on the C2000 but takes 520 ms for a 51.2 ms window |
 | AI-N25 | Medium | Negative result (feasibility) | **Open** (§12.2): the promoted `dc_motor/rpi5` w2048 classifier needs a 448 KB arena; the C2000 has 128 KB for tensors |
 | AI-N26 | Medium | Defect (sample rate) | **Fixed in code; pre-registered C2000 verdicts kept** (§12.3): the C2000 real-time budget and the edge examples assumed 5 kHz, the data are 10 kHz. Post-hoc: `esp32_dscnn/2026-10-18_run01` takes 68.5 ms for a 51.2 ms window |
-| AI-N27 | **High** | Training-data defect (simulator artifact S-21) | **Open; decision pending** (§13): 7.1 % (ESP32, 3 classes) and 17.8 % (PC and RPi5, 5 classes) of the promoted dc_motor classifiers' training windows contain the one-quadrant converter artifact of S-21; all of them fault classes, none healthy |
+| AI-N27 | **High** | Training-data defect (simulator artifact S-21) | **Open; measured: AFFECTS — decision pending** (§13): 7.1 % (ESP32, 3 classes) and 17.8 % (PC and RPi5, 5 classes) of the promoted dc_motor classifiers' training windows contain the one-quadrant converter artifact of S-21; all of them fault classes, none healthy |
 | AI-N19 | Medium | Evaluation limit | **Documented** (§10): simulated healthy current/rpm are constant in steady state, so the residual AUROC (1.000) and the persistence baseline are optimistic |
 | AI-N15 | Medium | Defect (estimator bias) | **Open** (§9.1): the VSC PINN estimates C systematically low, −1.3 % to −9.1 % mean error at 0–5 % noise |
 | AI-N16 | Medium | Defect (uncertainty) | **Open** (§9.2): the PINN's 5–95 % bootstrap interval covers the truth in 52–78 % of noisy runs for C; the GUI says "Coverage not validated" |
@@ -750,7 +750,7 @@ Found 2026-11-02. Evidence: [`docs/audit/c2000/ai_n26_sample_rate.md`](audit/c20
 
 ## 13. Round Assistant, phase 1 (2026-11-02): simulator artifact in the training data
 
-### 13.1 AI-N27 — training windows of the promoted dc_motor classifiers contain the S-21 converter artifact · **High** · Training-data defect · **Open; decision pending**
+### 13.1 AI-N27 — training windows of the promoted dc_motor classifiers contain the S-21 converter artifact · **High** · Training-data defect · **Open; measured: affects; decision pending**
 
 Found 2026-11-02 by the scan of decision S21-1. Evidence: [`docs/audit/assistant/s21_dataset_scan.md`](audit/assistant/s21_dataset_scan.md) (`python experiments/report_s21_dataset_scan.py`, data read only); simulator finding S-21 in `docs/SIMULATION_STABILITY_REPORT.md`.
 
@@ -763,4 +763,12 @@ Found 2026-11-02 by the scan of decision S21-1. Evidence: [`docs/audit/assistant
 - **S-19 is this mechanism:** every acquisition listed by S-19 contains the branch (21 of 21 and 78 of 78), and no acquisition is more than 2 % fast without it. S-19's reading "physical operating range" is superseded by S-21.
 - **Possible bias:** the artifact appears only in fault classes, at low speed and high severity, so a classifier could have learned it as a fault cue (speed above the reference, full-voltage bursts). Not measured.
 - **Not executed (decision S21-4):** no dataset regenerated, no model retrained, no default changed. The effect on the models' accuracy needs the converged reference of S21-2 first.
+
+**Impact (pre-registered study, 2026-11-03).** Evidence: [`docs/audit/assistant/ai_n27_impact.md`](audit/assistant/ai_n27_impact.md) (`python experiments/report_ai_n27_impact.py`); pre-registration and amendments 1–2 in the same folder, all committed before the study ran. Converged reference: `dc_converter_model="dcm"` at ×1000 (S21-2). 124 affected + 30 control grid runs, each rebuilt with the generator's own configuration (plant bit-identical to the stored data).
+
+- **Verdict (comparison a, GEM1000 vs DCM1000, affected set, all windows): AFFECTS** for all three models; no class with affected windows meets agreement ≥ 0.98 and |Δ accuracy| ≤ 1 point.
+- **Agreement on affected windows** (a / b = training data vs DCM1000): PC 0.700 / 0.698, RPi5 0.662 / 0.653, ESP32 0.463 / 0.456. **Control runs:** 1.000 in (a) for every model (the converter model changes nothing where the artifact is absent); 0.975–0.985 in (b), the S-16 / S-18 start-up effect.
+- **Accuracy on affected windows, GEM1000 → DCM1000:** PC 80.7 → 83.5 %, RPi5 78.8 → 79.2 %, ESP32 53.9 → 69.7 % (its 3 classes); per class it moves by up to 42 points in both directions (e.g. PC cage −21.5, outer_race +30.3; RPi5 inner_race +42.3). Abstention on affected windows: PC 14 → 8 %, RPi5 20 → 10 %, ESP32 26 → 53 %.
+- **Speed in the affected runs:** median +35 % (max +76 %) above the reference in the training data and GEM1000; −0.0 % (max +9.3 %) with DCM1000.
+- **Reading (descriptive, not part of the verdict):** in the affected regime (80–125 rad/s, high severity) the models decide differently on a third to a half of the windows once the physics is corrected; the training data's artifact is a cue they use. Outside it (controls) nothing changes.
 
