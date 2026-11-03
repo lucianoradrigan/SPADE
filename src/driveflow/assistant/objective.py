@@ -197,7 +197,8 @@ def run_tuning(state: SessionState) -> dict:
     except SpadeError as exc:
         raise ToolFailure(f"{exc.code.value}: {exc}") from None
     state.jobs.append({"job_id": job.job_id, "kind": "controller_tuning", "experiment_id": spec.experiment_id, "status": job.state.value,
-                       "draft_hash": state.draft.hash(), "requirements": obj["requirements"]})
+                       "draft_hash": state.draft.hash(), "requirements": obj["requirements"],
+                       "draft_snapshot": state.draft.to_dict(), "confirmed_by_message_seq": state.confirmation.message_seq if state.confirmation else None})
     state.proposal, state.confirmation = None, None
     return {"job_id": job.job_id, "experiment_id": spec.experiment_id, "evaluations": obj["evaluations"]["value"],
             "note": "queued; a SPADE worker runs it. Tuning takes minutes: report progress with get_job_status"}

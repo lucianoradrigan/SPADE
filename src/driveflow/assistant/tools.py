@@ -195,7 +195,9 @@ def run_experiments(state: SessionState) -> dict:
     except SpadeError as exc:
         raise ToolFailure(f"{exc.code.value}: {exc}") from None
     state.jobs.append({"job_id": job.job_id, "kind": "scenario_sweep", "experiment_id": spec.experiment_id, "status": job.state.value,
-                       "draft_hash": state.draft.hash(), "n_conditions": len(spec.conditions)})
+                       "draft_hash": state.draft.hash(), "n_conditions": len(spec.conditions),
+                       # F1.8: what was launched, exactly, and the user message that confirmed it
+                       "draft_snapshot": state.draft.to_dict(), "confirmed_by_message_seq": state.confirmation.message_seq if state.confirmation else None})
     state.proposal, state.confirmation = None, None  # one confirmation = one launch
     return {"job_id": job.job_id, "experiment_id": spec.experiment_id, "n_conditions": len(spec.conditions),
             "note": "queued; a SPADE worker runs it (Experiment Runs page or `python -m driveflow.jobs.worker`)"}

@@ -35,6 +35,13 @@ CREATE TABLE IF NOT EXISTS runs (id TEXT PRIMARY KEY, experiment_id TEXT, job_id
 CREATE INDEX IF NOT EXISTS runs_by_time ON runs (completed_utc);
 CREATE TABLE IF NOT EXISTS profiles (id TEXT NOT NULL, version INTEGER NOT NULL, body TEXT NOT NULL, PRIMARY KEY (id, version));
 CREATE TABLE IF NOT EXISTS approvals (id TEXT PRIMARY KEY, subject TEXT NOT NULL, created_utc TEXT NOT NULL, body TEXT NOT NULL);
+-- Round Assistant, phase 1 (task F1.8, plan §8): chat sessions of the local assistant.
+CREATE TABLE IF NOT EXISTS assistant_sessions (id TEXT PRIMARY KEY, created_utc TEXT NOT NULL, model_id TEXT NOT NULL, prompt_version TEXT NOT NULL,
+                                               status TEXT NOT NULL, body TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS assistant_messages (session_id TEXT NOT NULL, seq INTEGER NOT NULL, role TEXT NOT NULL, created_utc TEXT NOT NULL, body TEXT NOT NULL,
+                                               PRIMARY KEY (session_id, seq));
+CREATE TABLE IF NOT EXISTS assistant_launches (session_id TEXT NOT NULL, experiment_id TEXT NOT NULL, job_id TEXT NOT NULL, confirmed_by_message_seq INTEGER NOT NULL,
+                                               draft_snapshot TEXT NOT NULL, PRIMARY KEY (session_id, experiment_id));
 """
 
 
