@@ -100,3 +100,28 @@ def test_tool_numbers():
     assert led.tool_number(16.0, ("describe_plant",)) is not None
     assert led.tool_number(16.0, ("suggest_value",)) is None
     assert led.tool_number(1.0, None) is None  # True is not a number
+
+
+# Range disambiguation (DECISIONES_S21_F1 §5 point 2): an ambiguous number counts only when exactly
+# one of its readings is inside the field's valid range; Python decides and reports the reading.
+@pytest.mark.parametrize("text, value, unit, field_unit, rng, accepted", [
+    ("peso 1,000", 1.0, None, None, {"min": 0.0, "max": 1.0}, True),          # 1000 outside [0, 1]
+    ("peso 1,000", 1000.0, None, None, {"min": 0.0, "max": 1.0}, False),
+    ("1.500 A", 1.5, "A", "A", {"min": -400.0, "max": 400.0}, True),           # 1500 A outside +-400 A
+    ("psi_e 1,146 V*s/rad", 1.146, "V*s/rad", "V*s/rad", {"min": 0.0, "min_inclusive": False}, False),  # both readings valid: ask
+    ("1.000 substeps", 1000.0, None, None, {"min": 1, "max": 10000}, False),  # both valid: ask
+    ("1.500 A", 1.5, "A", "A", None, False),                                     # no range known: ask
+])
+def test_range_disambiguation(text, value, unit, field_unit, rng, accepted):
+    led = _ledger(text)
+    src = led.user_quantity(value, unit, field_unit, field_range=rng)
+    assert (src is not None) is accepted
+    if accepted:
+        assert "read as" in src and "outside the valid range" in src
+
+
+def test_in_range_bounds():
+    assert nb.in_range(1.0, {"min": 0.0, "max": 1.0, "max_inclusive": True})
+    assert not nb.in_range(1.0, {"min": 0.0, "max": 1.0, "max_inclusive": False})
+    assert not nb.in_range(0.0, {"min": 0.0, "min_inclusive": False})
+    assert nb.in_range(5.0, None) and nb.in_range(5.0, {})

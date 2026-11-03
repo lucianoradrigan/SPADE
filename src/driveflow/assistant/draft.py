@@ -84,8 +84,10 @@ class Ledger:
     def add_tool_result(self, tool: str, call_id: str, result) -> None:
         self.items.append(Evidence("tool", f"tool {tool} (call {call_id})", tool=tool, numbers=nb.numbers_in(result), result=result))
 
-    def user_quantity(self, value: float, unit: str | None, field_unit: str | None, *, fraction_field: bool = False) -> str | None:
-        """Source of a user quantity equal to value[unit] in the field's unit, or None."""
+    def user_quantity(self, value: float, unit: str | None, field_unit: str | None, *, fraction_field: bool = False, field_range: dict | None = None) -> str | None:
+        """Source of a user quantity equal to value[unit] in the field's unit, or None. An ambiguous
+        number counts only when exactly one of its two readings is inside ``field_range`` (SI) and
+        that reading is the patch's value; the source then says how it was read."""
         try:
             target = nb.to_si(value, unit, field_unit)
         except nb.UnitError:
@@ -95,6 +97,9 @@ class Ledger:
                 continue
             for q in ev.quantities:
                 if q.ambiguous:
+                    src = self._disambiguated(ev, q, value, unit, field_unit, target, field_range)
+                    if src:
+                        return src
                     continue
                 if unit == "%" and q.unit == "%" and nb.same(q.value, value):
                     return f"{ev.source}: '{q.text}'"
@@ -108,6 +113,23 @@ class Ledger:
                 except nb.UnitError:
                     continue
         return None
+
+    @staticmethod
+    def _disambiguated(ev, q, value, unit, field_unit, target, field_range) -> str | None:
+        if field_range is None or target is None or q.thousands_reading is None:
+            return None
+        readings = []
+        for r in (q.value, q.thousands_reading):
+            try:
+                si = nb.to_si(r, q.unit if q.unit is not None else unit, field_unit)
+            except nb.UnitError:
+                return None
+            readings.append((r, si, nb.in_range(si, field_range)))
+        valid = [x for x in readings if x[2]]
+        if len(valid) != 1 or not nb.same(valid[0][1], target):
+            return None
+        other = next(x for x in readings if not x[2])
+        return f"{ev.source}: '{q.text}' read as {valid[0][0]:g} ({other[0]:g} is outside the valid range of the field)"
 
     def suggestion(self, path: str, si_value: float) -> str | None:
         """Source of a suggest_value result for this field with this value (in the field's SI unit)."""
@@ -175,11 +197,11 @@ def field_meta(plant: str, path: str) -> dict:
         if key not in entry["keys"]:
             raise PatchError(f"{name} has no key {key!r}; keys: {list(entry['keys'])}")
         k = entry["keys"][key]
-        return {"name": path, "unit": k.get("unit"), "integer": k.get("integer", False), "default": k.get("default"), "default_source": entry.get("default_source"),
+        return {"name": path, "unit": k.get("unit"), "integer": k.get("integer", False), "default": k.get("default"), "default_source": entry.get("default_source"), "range": k.get("range"),
                 "importance": entry["importance"], "type": "float"}
     if key:
         raise PatchError(f"{name} is not a group")
-    return {"name": path, "unit": entry.get("unit"), "integer": entry.get("type") == "int", "default": entry.get("default"),
+    return {"name": path, "unit": entry.get("unit"), "integer": entry.get("type") == "int", "default": entry.get("default"), "range": entry.get("range"),
             "default_source": entry.get("default_source"), "importance": entry["importance"], "type": entry.get("type"), "allowed": entry.get("allowed")}
 
 
@@ -363,7 +385,8 @@ class Draft:
             elif unit is None and field_unit not in (None, "%") and path not in FRACTION_FIELDS:
                 raise PatchError(f"{path}: give the unit (the field is in {field_unit})")
         if origin == "user":
-            src = ledger.user_quantity(value, unit, field_unit if not percent_of_rated else "%", fraction_field=path in FRACTION_FIELDS)
+            src = ledger.user_quantity(value, unit, field_unit if not percent_of_rated else "%", fraction_field=path in FRACTION_FIELDS,
+                                       field_range=None if percent_of_rated else meta.get("range"))
             if src is None:
                 raise PatchError(f"{path} = {value} {unit or ''}: the user did not write this quantity (an ambiguous number like '1.500' does not count): ask the user".replace("  ", " "))
             if percent_of_rated:

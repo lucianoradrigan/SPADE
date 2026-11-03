@@ -212,3 +212,14 @@ def test_no_invention_on_a_trace_and_on_every_cassette():
     for path in sorted(CASSETTES.glob("*.json")) if CASSETTES.is_dir() else []:
         events = json.loads(path.read_text()).get("draft_events", [])
         assert audit_trace(events) == [], path.name
+
+
+def test_ambiguous_number_resolved_by_the_field_range_is_reported():
+    led = ledger("PMSM con 1.500 A y peso de consigna 1,000")
+    d = Draft()
+    assert d.patch([{"op": "set_plant", "plant": "pmsm_v1"}, {"op": "set", "field": "pmsm_current_ref_a", "value": 1.5, "unit": "A"}], led)["ok"]
+    assert "read as 1.5" in d.base["pmsm_current_ref_a"].source
+    # psi_e: both readings are valid (only > 0 is required), so the assistant must ask.
+    led = ledger("motor DC con psi_e 1,146 V*s/rad")
+    d = dc_draft(led)
+    assert not d.patch([{"op": "set", "field": "motor_parameter_overrides.psi_e", "value": 1.146, "unit": "V*s/rad"}], led)["ok"]

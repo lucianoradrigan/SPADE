@@ -7,7 +7,10 @@ with ``UNITS`` (the one unit table of the assistant) and compares with a relativ
 
 - decimal comma and point both work ("1,5" = "1.5"); thousands separators too when unambiguous
   ("1.500,5", "1,500.5"); a lone separator followed by exactly three digits ("1.500", "1,500") is
-  AMBIGUOUS in a bilingual chat and is never usable as a user value (the assistant asks);
+  AMBIGUOUS in a bilingual chat. It is usable only when exactly ONE of its two readings lies inside
+  the field's valid range in configs/plant_catalog.yaml (decision of 2026-11-02, DECISIONES_S21_F1
+  §5 point 2): that reading is taken and the interpretation is reported; otherwise the assistant
+  asks. Python decides, never the model;
 - "20 %" and "20%" are kept as the quantity (20, "%"); turning it into a fraction (0.2) is allowed
   only for fields that are fractions, and turning it into a physical value (a load torque) is a
   derivation done by Python with its provenance (``draft``), never a user value;
@@ -92,6 +95,7 @@ class Quantity:
     text: str
     ambiguous: bool = False
     role: str = "value"  # value | range_start | range_end | step
+    thousands_reading: float | None = None  # ambiguous only: the other reading ("1.500" -> 1500)
 
     @property
     def dimension(self) -> str | None:
@@ -122,6 +126,17 @@ def to_si(value: float, unit: str | None, target_unit: str | None) -> float:
     return float(value) * f_from / f_to
 
 
+def in_range(x: float, rng: dict | None) -> bool:
+    """x (SI) inside a catalog range {min, min_inclusive, max, max_inclusive}; None/{} = no bound."""
+    if not rng:
+        return True
+    if "min" in rng and (x < rng["min"] or (x == rng["min"] and not rng.get("min_inclusive", True))):
+        return False
+    if "max" in rng and (x > rng["max"] or (x == rng["max"] and not rng.get("max_inclusive", True))):
+        return False
+    return True
+
+
 def same(a: float, b: float, rel_tol: float = REL_TOL) -> bool:
     """The comparison of the no-invention check: equal within REL_TOL after conversion to SI."""
     if a == b:
@@ -143,6 +158,12 @@ _STEP_BEFORE = re.compile(r"(cada|every|in steps of|en pasos de|con paso de|paso
 _RANGE_START = re.compile(r"(del?|desde|from|between|entre)\s*$", re.IGNORECASE)
 _RANGE_MID = re.compile(r"^\s*(al|a|hasta|to|and|y|-|–)\s*$", re.IGNORECASE)
 _LIST_MID = re.compile(r"^\s*(,|y|and|o|or|;)\s*$", re.IGNORECASE)
+
+
+def _thousands_reading(token: str) -> float:
+    t = token.strip()
+    sign = -1.0 if t.startswith("-") else 1.0
+    return sign * float(t.lstrip("+-").replace(".", "").replace(",", ""))
 
 
 def parse_number(token: str) -> tuple[float, bool]:
@@ -202,7 +223,8 @@ def extract_quantities(text: str) -> list[Quantity]:
             value, amb = parse_number(m.group("num"))
         except ValueError:
             continue
-        found.append((m.start(), m.end(), Quantity(value, m.group("unit"), m.group(0).strip(), amb)))
+        alt = _thousands_reading(m.group("num")) if amb else None
+        found.append((m.start(), m.end(), Quantity(value, m.group("unit"), m.group(0).strip(), amb, thousands_reading=alt)))
     for m in _WORD.finditer(text):
         unit_m = _WORD_UNIT.match(text, m.end())
         unit = unit_m.group("unit") if unit_m else None
@@ -217,16 +239,16 @@ def extract_quantities(text: str) -> list[Quantity]:
         s_prev, e_prev, q_prev = found[i - 1]
         between = text[e_prev:found[i][0]]
         if q_prev.unit is None and out[i].unit is not None and (_RANGE_MID.match(between) or _LIST_MID.match(between)):
-            out[i - 1] = Quantity(q_prev.value, out[i].unit, q_prev.text, q_prev.ambiguous, q_prev.role)
+            out[i - 1] = Quantity(q_prev.value, out[i].unit, q_prev.text, q_prev.ambiguous, q_prev.role, q_prev.thousands_reading)
     # Roles: range endpoints and steps.
     for i, (s, e, _q) in enumerate(found):
         before = text[max(0, s - 20):s]
         if _STEP_BEFORE.search(before):
-            out[i] = Quantity(out[i].value, out[i].unit, out[i].text, out[i].ambiguous, "step")
+            out[i] = Quantity(out[i].value, out[i].unit, out[i].text, out[i].ambiguous, "step", out[i].thousands_reading)
         elif i + 1 < len(found) and _RANGE_START.search(before) and _RANGE_MID.match(text[e:found[i + 1][0]]):
-            out[i] = Quantity(out[i].value, out[i].unit, out[i].text, out[i].ambiguous, "range_start")
+            out[i] = Quantity(out[i].value, out[i].unit, out[i].text, out[i].ambiguous, "range_start", out[i].thousands_reading)
             nxt = out[i + 1]
-            out[i + 1] = Quantity(nxt.value, nxt.unit, nxt.text, nxt.ambiguous, "range_end")
+            out[i + 1] = Quantity(nxt.value, nxt.unit, nxt.text, nxt.ambiguous, "range_end", nxt.thousands_reading)
     return out
 
 
