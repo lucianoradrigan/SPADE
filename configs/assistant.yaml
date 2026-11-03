@@ -31,3 +31,12 @@ limits:
   # Bounded tool loop (task F1.3): one user turn never runs more than this.
   max_model_calls_per_turn: 16
   max_tokens_per_turn: 60000
+
+# Avatar and visible identity of the assistant (task FE-2, decisions FE-D2, FE-D3, FE-D5). The images
+# are Luciano Radrigan's likeness, NOT under SPADE's MIT license (licenses/avatar/). Point avatar_dir
+# to another directory with base.webp and hand.webp to replace them; without them the page shows a
+# neutral silhouette.
+persona:
+  name: "PhD. Radrigan"
+  tagline: "AI assistant · local model"
+  avatar_dir: src/driveflow/viz/assets/assistant

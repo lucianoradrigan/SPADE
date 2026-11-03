@@ -58,3 +58,25 @@ def load_config(path: Path | str | None = None, overrides: dict | None = None) -
         raise ConfigError(f"configs/assistant.yaml limits: missing {missing}")
     cfg["warnings"] = check_runtime_url(cfg["base_url"], bool(cfg.get("allow_remote_runtime", False)))
     return cfg
+
+
+AVATAR_FILES = ("base.webp", "hand.webp")
+REPO_ROOT = CONFIG_PATH.parents[1]
+
+
+def avatar_assets(cfg: dict | None = None) -> dict:
+    """The avatar layers named by ``persona.avatar_dir`` (relative to the repository root, or absolute).
+    Returns {"ok", "dir", "files", "missing", "name", "tagline"}; when a layer is missing ``ok`` is False,
+    the UI shows a neutral silhouette and the reason is logged. Never raises (FE-2, point 3)."""
+    import logging
+
+    cfg = cfg if cfg is not None else load_config()
+    persona = cfg.get("persona") or {}
+    raw = persona.get("avatar_dir") or ""
+    d = Path(raw) if Path(raw).is_absolute() else REPO_ROOT / raw
+    files = {f: d / f for f in AVATAR_FILES}
+    missing = [f for f, p in files.items() if not p.is_file()]
+    if missing:
+        logging.getLogger(__name__).warning("assistant avatar: %s missing in %s; using a neutral silhouette", ", ".join(missing), d)
+    return {"ok": not missing and bool(raw), "dir": d, "files": files, "missing": missing,
+            "name": persona.get("name", "SPADE assistant"), "tagline": persona.get("tagline", "AI assistant · local model")}

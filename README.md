@@ -702,3 +702,5 @@ This project consolidates and ports code from two MIT-licensed upstream projects
 ## License
 
 MIT -- see [LICENSE](LICENSE).
+
+The avatar of the planned assistant (`src/driveflow/viz/assets/assistant/`, "PhD. Radrigan") is **not** covered by the MIT license: see [`licenses/avatar/`](licenses/avatar/) (all rights reserved; replaceable through `persona.avatar_dir` in `configs/assistant.yaml`).
