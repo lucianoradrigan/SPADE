@@ -188,6 +188,7 @@ privacy:
 | `update_draft(patch)` | Modifica el preset o la lista de experimentos; devuelve `status()` | Borrador |
 | `validate_draft()` | Expande los experimentos a `Scenario` y los valida | Lectura |
 | `estimate_cost()` | Número de simulaciones y tiempo estimado | Lectura |
+| `propose_experiments()` | Congela el borrador listo como la propuesta (hash) y devuelve la tabla de experimentos para mostrar; la confirmación del usuario queda atada a esa propuesta (agregada en F1.3/F1.5, aprobada el 2026-11-02) | Propuesta |
 | `run_experiments()` | `ExperimentSpec` → `RunStore.save_experiment` → `JobService.submit`. **Requiere la confirmación del usuario** | Ejecuta |
 | `get_job_status(job_id)` | Progreso, condiciones ok o fallidas | Lectura |
 | `summarize_results(run_id, metrics?)` | KPIs por condición (escalón, seguimiento, espectro) y una tabla comparativa; la UI dibuja los gráficos desde los parquet | Lectura |
@@ -329,6 +330,7 @@ Herramientas adicionales:
 |---|---|---|
 | `describe_tunable(system)` | Parámetros sintonizables, rangos, algoritmos, objetivos y grillas, **leídos desde `optim/`** | Lectura |
 | `update_objective(patch)` | Arma la especificación del modo objetivo en el borrador | Borrador |
+| `propose_tuning()` | Congela la especificación de objetivo completa como la propuesta, igual que `propose_experiments` (agregada en F1.6, aprobada el 2026-11-02) | Propuesta |
 | `run_tuning()` | `ExperimentSpec(kind="controller_tuning")` → `JobService.submit`. **Requiere la confirmación del usuario** | Ejecuta |
 | `check_requirements(run_id)` | Evalúa cada umbral sobre la grilla de evaluación: cumple / no cumple, con el margen | Lectura |
 

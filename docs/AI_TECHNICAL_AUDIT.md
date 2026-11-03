@@ -243,6 +243,7 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N24 | Medium | Negative result | **Open** (§12.1): `rpi5_tcn/2026-10-20_run01` is numerically correct on the C2000 but takes 520 ms for a 51.2 ms window |
 | AI-N25 | Medium | Negative result (feasibility) | **Open** (§12.2): the promoted `dc_motor/rpi5` w2048 classifier needs a 448 KB arena; the C2000 has 128 KB for tensors |
 | AI-N26 | Medium | Defect (sample rate) | **Fixed in code; pre-registered C2000 verdicts kept** (§12.3): the C2000 real-time budget and the edge examples assumed 5 kHz, the data are 10 kHz. Post-hoc: `esp32_dscnn/2026-10-18_run01` takes 68.5 ms for a 51.2 ms window |
+| AI-N27 | **High** | Training-data defect (simulator artifact S-21) | **Open; decision pending** (§13): 7.1 % (ESP32, 3 classes) and 17.8 % (PC and RPi5, 5 classes) of the promoted dc_motor classifiers' training windows contain the one-quadrant converter artifact of S-21; all of them fault classes, none healthy |
 | AI-N19 | Medium | Evaluation limit | **Documented** (§10): simulated healthy current/rpm are constant in steady state, so the residual AUROC (1.000) and the persistence baseline are optimistic |
 | AI-N15 | Medium | Defect (estimator bias) | **Open** (§9.1): the VSC PINN estimates C systematically low, −1.3 % to −9.1 % mean error at 0–5 % noise |
 | AI-N16 | Medium | Defect (uncertainty) | **Open** (§9.2): the PINN's 5–95 % bootstrap interval covers the truth in 52–78 % of noisy runs for C; the GUI says "Coverage not validated" |
@@ -745,3 +746,21 @@ Found 2026-11-02. Evidence: [`docs/audit/c2000/ai_n26_sample_rate.md`](audit/c20
   - the Model Registry and Edge Deployment pages show the recorded verdict followed by the post-hoc correction.
 - **Tests:** `tests/test_windowing.py` (rate helpers, pinned to `1 / TAU`), `tests/test_edge_examples.py` (sample period in the generated code), `tests/test_c2000_export.py` (manifest rate, post-hoc summary).
 - **Not executed:** re-measuring on the board, or re-exporting the measured kits (they stay as they ran).
+
+
+## 13. Round Assistant, phase 1 (2026-11-02): simulator artifact in the training data
+
+### 13.1 AI-N27 — training windows of the promoted dc_motor classifiers contain the S-21 converter artifact · **High** · Training-data defect · **Open; decision pending**
+
+Found 2026-11-02 by the scan of decision S21-1. Evidence: [`docs/audit/assistant/s21_dataset_scan.md`](audit/assistant/s21_dataset_scan.md) (`python experiments/report_s21_dataset_scan.py`, data read only); simulator finding S-21 in `docs/SIMULATION_STABILITY_REPORT.md`.
+
+- **What:** in the one-quadrant DC drive, when the current is negative at the start of a control period the converter model applies the full supply for the whole period (S-21). A real one-quadrant chopper cannot carry negative current; the effect is non-physical and makes the speed rise above its reference.
+- **Signature (noise-free):** full supply (≥ 64.9 V) while the speed is already above its reference. It matches `current_r` < 0 sample by sample on noise-free runs; `current_r` itself cannot be used in the grids because sensor noise is added to it after the run.
+- **Datasets:** 21 of 315 acquisitions of `diagnosis_grid_dataset.parquet` (6.7 %) and 103 of 525 of `diagnosis_grid_dataset_5class.parquet` (19.6 %) contain it; the RK45 grids the same (21 and 102). None of the healthy acquisitions. Mostly 80–125 rad/s and severity ≥ 0.75; the cage class most (54 of 105).
+- **Training windows (rebuilt exactly; counts match `metrics.json`):**
+  - `dc_motor/esp32/classifier` (`esp32_dscnn/2026-10-18_run01`): 450 of 6319 (7.1 %) contain the branch — inner_race 159, outer_race 291, normal 0;
+  - `dc_motor/pc/classifier` (`pc_server_5class_w2048/2026-10-20_run01`) and `dc_motor/rpi5/classifier` (`rpi5_resnet1d_se_5class_w2048/2026-10-20_run01`): 790 of 4440 (17.8 %) — cage 391, ball 223, outer_race 105, inner_race 71, normal 0.
+- **S-19 is this mechanism:** every acquisition listed by S-19 contains the branch (21 of 21 and 78 of 78), and no acquisition is more than 2 % fast without it. S-19's reading "physical operating range" is superseded by S-21.
+- **Possible bias:** the artifact appears only in fault classes, at low speed and high severity, so a classifier could have learned it as a fault cue (speed above the reference, full-voltage bursts). Not measured.
+- **Not executed (decision S21-4):** no dataset regenerated, no model retrained, no default changed. The effect on the models' accuracy needs the converged reference of S21-2 first.
+
