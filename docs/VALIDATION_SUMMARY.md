@@ -539,3 +539,19 @@ Same method: one branch per decision from `dev`, green full suite, fast-forward 
 | D1 | 1430 passed, 9 xfailed |
 | D2 | 1432 passed, 9 xfailed |
 | D3 and closure | 1461 passed, 9 xfailed; smoke `--launch` 6/6 |
+
+## 13. Open warning (2026-11-02): simulator artifact S-21 in the training data of the promoted dc_motor classifiers (AI-N27)
+
+> **Open.** The three promoted dc_motor classifiers were trained on simulated data that contain a non-physical converter artifact. Their recorded metrics stay as recorded; their effect on the predictions is being measured (pre-registered study `docs/audit/assistant/ai_n27_preregistration.md`). Nothing has been retrained, regenerated or demoted.
+
+- **Artifact (S-21, `docs/SIMULATION_STABILITY_REPORT.md`):** the one-quadrant converter model applies the full supply for a whole control period when the current is negative; the speed then rises above its reference instead of coasting. S-19 is this mechanism.
+- **Training windows that contain it** (`docs/audit/assistant/s21_dataset_scan.md`, rebuilt exactly):
+
+| Model (registry entry) | Run | Training windows with the artifact | Classes |
+|---|---|---|---|
+| `dc_motor/esp32/classifier` | `esp32_dscnn/2026-10-18_run01` | 450 / 6319 (7.1 %) | inner_race 159, outer_race 291, normal 0 |
+| `dc_motor/pc/classifier` | `pc_server_5class_w2048/2026-10-20_run01` | 790 / 4440 (17.8 %) | cage 391, ball 223, outer_race 105, inner_race 71, normal 0 |
+| `dc_motor/rpi5/classifier` | `rpi5_resnet1d_se_5class_w2048/2026-10-20_run01` | 790 / 4440 (17.8 %) | same as PC |
+
+- **Shown in Model Registry:** each of the three runs carries AI-N27 in its `audit_findings.json`, listed as an audit finding next to the run (no test pins a hash of that file; checked 2026-11-02).
+- **Finding:** AI-N27, `docs/AI_TECHNICAL_AUDIT.md` §13.1.
