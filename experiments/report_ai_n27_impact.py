@@ -6,7 +6,8 @@ this ran). Runs only after the amended convergence criterion passed (s21_2_dcm_c
   set: the 124 grid acquisitions with the converter-branch signature (S21-1) + 30 unaffected controls
        (rng 2711), each rebuilt with experiments/generate_diagnosis_grid_dataset.build_jobs (3 seeds,
        2.5 s, --seed 7, the grid's faults) and the generator's Scenario;
-  precondition: the rebuilt default plant equals the stored parquet exactly for 6 acquisitions;
+  precondition (amendment 2): for 6 acquisitions the rebuilt default plant is bit-identical to the stored
+       parquet in the plant channels and within 1e-12 relative in the vibration channels;
   versions: GEM1000 (dc_converter_model "gem", 1000 substeps), DCM1000 ("dcm", 1000), STORED (the
        dataset); comparisons (a) GEM1000 vs DCM1000 -- decides -- and (b) STORED vs DCM1000;
   windows: each model's build_classification_windows, paired (same samples of the same run), by
@@ -42,7 +43,10 @@ CONTROL_PER_CLASS = {"3class": 5, "5class": 3}
 CONTROL_SEED = 2711
 SETTLE_S = 0.5
 RULE = {"agreement_min": 0.98, "abs_delta_accuracy_max_points": 1.0}
-CHECK_COLS = ("current_r", "rpm", "voltage_v", "torque_nm", "acc_x")
+CHECK_COLS = ("current_r", "rpm", "voltage_v", "torque_nm", "acc_x")  # original precondition (kept for the record)
+PLANT_COLS = ("current_r", "rpm", "voltage_v", "torque_nm")  # amendment 2: bit-identical
+VIB_COLS = ("acc_x", "acc_y", "acc_z")  # amendment 2: max relative difference <= VIB_REL_TOL
+VIB_REL_TOL = 1e-12
 CLASSES5 = ("normal", "outer_race", "inner_race", "ball", "cage")
 
 
@@ -111,7 +115,9 @@ def reconstruction_check(sets, stored, scratch, workers) -> dict:
         sid = t[0] and sid_of(t[0])
         a = pd.read_parquet(path).reset_index(drop=True)
         b = stored[g][sid]
-        out[f"{g}/{sid}"] = all(np.array_equal(a[c].to_numpy(), b[c].to_numpy(), equal_nan=True) for c in CHECK_COLS)
+        plant = all(np.array_equal(a[c].to_numpy(), b[c].to_numpy(), equal_nan=True) for c in PLANT_COLS)
+        vib = {c: float(np.max(np.abs(a[c].to_numpy() - b[c].to_numpy())) / np.max(np.abs(b[c].to_numpy()))) for c in VIB_COLS}
+        out[f"{g}/{sid}"] = {"plant_bit_identical": bool(plant), "vibration_max_rel_diff": vib, "pass": bool(plant and all(v <= VIB_REL_TOL for v in vib.values()))}
     return out
 
 
@@ -205,7 +211,7 @@ def main(argv=None) -> None:
     sets, stored = select(args.scratch)
     check = reconstruction_check(sets, stored, args.scratch, args.workers)
     print("reconstruction check:", check, flush=True)
-    if not all(check.values()):
+    if not all(v["pass"] for v in check.values()):
         OUT.with_suffix(".json").write_text(json.dumps({"stopped": "reconstruction check failed", "check": check}, indent=2) + "\n")
         raise SystemExit("reconstruction check failed: stopping (preregistration §2.2)")
     tasks = [(s["jobs"][sid], v, opts, args.scratch / f"{g}_{v}_{sid}.parquet") for g, s in sets.items() for sid in s["affected"] + s["control"] for v, opts in VERSIONS.items()]
@@ -250,8 +256,9 @@ def write_md(r: dict) -> None:
     L = ["# AI-N27 — impact of the S-21 converter artifact on the promoted dc_motor classifiers", "",
          "**Simulated. Pre-registered** ([`ai_n27_preregistration.md`](ai_n27_preregistration.md) §2 and [`amendment 1`](ai_n27_preregistration_amendment1.md)), committed before this ran.", "",
          f"- **Command:** `{r['command']}`. Raw values: [`ai_n27_impact.json`](ai_n27_impact.json).",
-         f"- **Runs:** {r['n_runs']}, each in GEM1000 and DCM1000 ({r['simulation_wall_s'] / 3600:.1f} h wall clock, {r['cpu_s_total'] / 3600:.1f} h CPU). Reconstruction check (default plant = stored data, exactly): "
-         + ("**pass**" if all(r["reconstruction_check"].values()) else "**fail**") + f" ({len(r['reconstruction_check'])} acquisitions).",
+         f"- **Runs:** {r['n_runs']}, each in GEM1000 and DCM1000 ({r['simulation_wall_s'] / 3600:.1f} h wall clock, {r['cpu_s_total'] / 3600:.1f} h CPU). Reconstruction check: "
+         + ("**pass**" if all(v["pass"] for v in r["reconstruction_check"].values()) else "**fail**")
+         + f" ({len(r['reconstruction_check'])} acquisitions; plant bit-identical, vibration ≤ {VIB_REL_TOL:g} relative, amendment 2).",
          f"- **Verdict (comparison a, affected set, all windows; agreement ≥ {RULE['agreement_min']} and |Δ accuracy| ≤ {RULE['abs_delta_accuracy_max_points']:g} point in every known class): "
          f"{ver['overall'].upper()}**.", ""]
     L += ["| Model | Verdict | Per class (agreement; Δ accuracy points) |", "|---|---|---|"]
