@@ -19,7 +19,8 @@ import json
 from dataclasses import dataclass, field
 from typing import Callable
 
-from driveflow.assistant.core.llm import LLMClient, ToolCall
+from driveflow.assistant import events as ev
+from driveflow.assistant.core.llm import LLMClient, ModelNotAvailable, RuntimeUnavailable, ToolCall
 from driveflow.assistant.core.policy import MODES, SessionState, check_call, visible_tools
 
 DEFAULT_TURN_LIMITS = {"max_tool_calls_per_turn": 12, "max_model_calls_per_turn": 16, "max_tokens_per_turn": 60_000}
@@ -72,13 +73,15 @@ class TurnResult:
 class AgentTrace:
     events: list = field(default_factory=list)
     draft_events: list = field(default_factory=list)
+    agent_events: list = field(default_factory=list)  # FE-1: the AgentEvents of the session, as dicts
 
     def add(self, kind: str, **data) -> None:
         self.events.append({"kind": kind, **data})
 
 
 class Agent:
-    def __init__(self, client: LLMClient, tools: list, *, system_prompt: str = "", state: SessionState | None = None, limits: dict | None = None, seed: int = 0):
+    def __init__(self, client: LLMClient, tools: list, *, system_prompt: str = "", state: SessionState | None = None, limits: dict | None = None, seed: int = 0,
+                 on_event: Callable[[ev.AgentEvent], None] | None = None):
         self.client = client
         self.tools = {t.name: t for t in [SET_MODE, *tools]}
         self.state = state or SessionState()
@@ -86,6 +89,12 @@ class Agent:
         self.seed = seed
         self.messages: list[dict] = [{"role": "system", "content": system_prompt}] if system_prompt else []
         self.trace = AgentTrace()
+        self.on_event = on_event
+
+    def _emit(self, event: ev.AgentEvent) -> None:
+        self.trace.agent_events.append(event.to_dict())
+        if self.on_event is not None:
+            self.on_event(event)
 
     # --- interface layer ---------------------------------------------------------------------
     def user_turn(self, text: str, *, confirmed_how: str | None = None) -> TurnResult:
@@ -93,6 +102,7 @@ class Agent:
         typed right after a proposal); the model has no way to set it."""
         seq = self.state.next_seq()
         self.state.last_user_seq = seq
+        self._emit(ev.TurnStarted(message_seq=seq))
         self.state.ledger.add_user_message(seq, text)
         self.messages.append({"role": "user", "content": text})
         self.trace.add("user", seq=seq, text=text)
@@ -100,7 +110,16 @@ class Agent:
         if confirmed_how is not None:
             ok = self.state.confirm(seq, confirmed_how)
             self.trace.add("confirmation", seq=seq, how=confirmed_how, recorded=ok)
-        return self._run()
+            if ok:
+                self._emit(ev.UserConfirmed(draft_hash=self.state.confirmation.draft_hash, message_seq=seq))
+        try:
+            res = self._run()
+        except (RuntimeUnavailable, ModelNotAvailable) as exc:
+            self._emit(ev.RuntimeUnavailableEvent(reason=str(exc)))
+            self._emit(ev.TurnEnded(stopped="runtime_unavailable"))
+            raise
+        self._emit(ev.TurnEnded(stopped=res.stopped))
+        return res
 
     # --- the loop ------------------------------------------------------------------------------
     def _run(self) -> TurnResult:
@@ -113,9 +132,11 @@ class Agent:
                 return self._stop(res, "max_tokens_per_turn")
             names = visible_tools(self.state)
             schemas = [self.tools[n].schema() for n in names if n in self.tools]
+            self._emit(ev.LlmCall(phase="start"))
             reply = self.client.chat(self.messages, schemas, seed=self.seed)
             res.model_calls += 1
             res.tokens += (reply.prompt_tokens or 0) + (reply.completion_tokens or 0)
+            self._emit(ev.LlmCall(phase="end", tokens=(reply.prompt_tokens or 0) + (reply.completion_tokens or 0)))
             self.messages.append(reply.to_message())
             self.trace.add("model", visible_tools=names, text=reply.text, tool_calls=[{"name": c.name, "arguments": c.arguments, "error": c.error} for c in reply.tool_calls],
                            prompt_tokens=reply.prompt_tokens, completion_tokens=reply.completion_tokens, latency_s=reply.latency_s)
@@ -128,7 +149,10 @@ class Agent:
                         self._tool_message(skipped, {"error": "not executed: tool-call limit of this turn reached"})
                     return self._stop(res, "max_tool_calls_per_turn")
                 res.tool_calls += 1
+                self._emit(ev.ToolCallEvent(phase="start", tool=call.name))
                 result, failed = self._execute(call)
+                self._emit(ev.ToolCallEvent(phase="end", tool=call.name, ok=not failed))
+                self._emit_outcome(call.name, result, failed)
                 self._tool_message(call, result)
                 errors_in_row = errors_in_row + 1 if failed else 0
                 if errors_in_row >= MAX_CONSECUTIVE_ERRORS:
@@ -167,6 +191,28 @@ class Agent:
         self._record_patch(call, result)
         failed = isinstance(result, dict) and result.get("ok") is False
         return result, failed
+
+    def _emit_outcome(self, tool: str, result: dict, failed: bool) -> None:
+        """The UI-level events a tool result implies (FE-1)."""
+        if failed:
+            msg = ""
+            if isinstance(result, dict):
+                msg = str(result.get("error") or (result.get("errors") or [{}])[0].get("error", ""))
+            self._emit(ev.ErrorEvent(where=f"tool:{tool}", message=msg[:300]))
+            return
+        if not isinstance(result, dict):
+            return
+        if tool in ev.PROPOSAL_TOOLS:
+            cost = result.get("cost") or {}
+            n = len(result["experiments"]) if isinstance(result.get("experiments"), list) else None
+            self._emit(ev.ProposalReady(draft_hash=str(result.get("draft_hash", "")), n_experiments=n, est_wall_s=cost.get("est_cpu_s")))
+        elif tool in ev.LAUNCH_TOOLS:
+            self._emit(ev.JobEvent(job_id=str(result.get("job_id", "")), state="queued", done=0, total=result.get("n_conditions") or result.get("evaluations")))
+        elif tool == "get_job_status":
+            p = result.get("progress") or {}
+            self._emit(ev.JobEvent(job_id=str(result.get("job_id", "")), state=str(result.get("state", "")), done=p.get("done"), total=p.get("total")))
+        elif tool in ev.RESULT_TOOLS:
+            self._emit(ev.ResultsReady(run_id=str(result.get("run_id", ""))))
 
     def _record_patch(self, call: ToolCall, result: dict) -> None:
         if call.name == "update_draft" and isinstance(call.arguments, dict) and "ops" in call.arguments:
