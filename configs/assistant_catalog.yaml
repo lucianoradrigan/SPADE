@@ -1,0 +1,363 @@
+# What the assistant may say about SPADE (round Assistant, phase 1, task F1.7; plan §6c).
+# The assistant answers questions about SPADE ONLY from this file, configs/algorithm_guide.yaml and
+# docs/ (explain_spade, search_docs); what is not here it does not have documented.
+#
+# Coverage rules (tests/assistant/test_assistant_catalog.py):
+# - every page of viz/app.py PAGES, every plant of datagen.plant_catalog.NATIVE_PLANTS, every
+#   controller_type accepted by Scenario and every job kind of jobs.handlers.HANDLERS has an entry;
+# - every algorithm family of configs/algorithm_guide.yaml is referenced (not copied);
+# - every module in implemented_by imports, every file in docs/page exists, and every finding ID
+#   cited (S-…, AI-N…) exists in docs/SIMULATION_STABILITY_REPORT.md or docs/AI_TECHNICAL_AUDIT.md.
+# Texts are short and factual; sources: README (page table), docs/ and the code they name.
+
+version: 1
+entries:
+  # ------------------------------------------------------------------ pages (viz/app.py PAGES)
+  overview:
+    kind: page
+    page: pages/overview.py
+    title: Overview
+    what: "Landing page: workspace checks, the engineering workflow, this session's runs, motor status (UNKNOWN until monitored) and a clickable system diagram."
+    when: "To see whether the workspace is healthy and where to go next."
+    implemented_by: [driveflow.viz.views.overview]
+    assistant_can_drive: false
+    docs: [README.md]
+  experiment_runs:
+    kind: page
+    page: pages/experiment_runs.py
+    title: Experiment Runs
+    what: "Durable job queue and run history. Long jobs run in a separate worker process; every run keeps its configuration hash, seed, versions, logs and a reproducible command."
+    when: "To follow a launched job, see failed conditions, or compare runs."
+    limitations: ["Jobs run only while a SPADE worker is running (python -m driveflow.jobs.worker)."]
+    implemented_by: [driveflow.viz.views.experiment_runs, driveflow.jobs.service, driveflow.runs.store]
+    assistant_can_drive: true
+    docs: [README.md]
+  dc_motor:
+    kind: page
+    page: pages/dc_motor.py
+    title: DC Motor
+    what: "Permanently excited DC motor with a PI or MPC speed controller, bearing-fault injection (current signature and synthetic vibration), KPIs, time signals, spectrum with fault-frequency markers, AI suggestion and provenance export."
+    when: "To simulate the DC drive, compare PI and MPC, or generate faulted signals."
+    limitations:
+      - "One-quadrant converter: negative speed references are not tracked (S-07)."
+      - "With little friction and load, GEM's converter model speeds the motor up when the PI asks it to brake (S-21); the optional dc_converter_model='dcm' removes it."
+    implemented_by: [driveflow.viz.views.dc_motor, driveflow.datagen.runner]
+    assistant_can_drive: true
+    docs: [docs/SIMULATION_STABILITY_REPORT.md]
+  pmsm:
+    kind: page
+    page: pages/pmsm.py
+    title: PMSM / FOC
+    what: "Salient PMSM with field-oriented current control near standstill: MTPA versus the naive i_d = 0 policy. A control-law demo, explicitly without diagnosis."
+    when: "To compare current-control policies on a PMSM."
+    limitations: ["Current-step bench near standstill: no speed loop.", "No fault model: every record is labelled normal."]
+    implemented_by: [driveflow.viz.views.pmsm, driveflow.control.classical.pmsm_foc]
+    assistant_can_drive: true
+    docs: [README.md]
+  vsc_dpc:
+    kind: page
+    page: pages/vsc_dpc.py
+    title: VSC / DPC
+    what: "Voltage source converter with an L-C filter under a trained DPC neural controller: tracking, complex plane and a dataset-upload evaluator."
+    when: "To see how the learned controller tracks a rotating voltage reference."
+    limitations: ["The network was trained at 50 V, 50 Hz and 8 ohm; other operating points are robustness probes, not validated points."]
+    implemented_by: [driveflow.viz.views.vsc_dpc, driveflow.control.dpc.controller]
+    assistant_can_drive: true
+    docs: [README.md]
+  dcdc_converters:
+    kind: page
+    page: pages/dcdc_converters.py
+    title: DC-DC Converters
+    what: "Averaged synchronous buck under a PI cascade, and a DAB modulation selector whose simulation needs PLECS."
+    when: "To simulate the buck or explore DAB modulation choices."
+    limitations: ["Only the buck (step-down) is simulated natively."]
+    implemented_by: [driveflow.viz.views.dcdc_converters, driveflow.sim.buck_system]
+    assistant_can_drive: true
+    docs: [README.md]
+  plecs_plant_studio:
+    kind: page
+    page: pages/plecs_plant_studio.py
+    title: PLECS Plant Studio
+    what: "Datasets from PLECS Standalone RPC sweeps (needs a local PLECS licence), surrogate plants fitted to them, and FMUs from OpenModelica or PLECS published as Gymnasium plants after a 13-check verification."
+    when: "To bring an external circuit model into SPADE."
+    limitations: ["PLECS sweeps need PLECS installed and licensed on the same computer."]
+    implemented_by: [driveflow.viz.views.plecs_plant_studio, driveflow.integrations.fmu.gym_profile]
+    assistant_can_drive: false
+    docs: [README.md]
+  tuning_studio:
+    kind: page
+    page: pages/tuning_studio.py
+    title: Tuning Studio
+    what: "PSO, Bayesian and NSGA-II tuning of the DC-motor speed PI, and PSO / Bayesian tuning of the buck PI, on a tuning grid, compared with the baseline on a separate evaluation grid."
+    when: "To find controller gains that balance overshoot, settling and load disturbance instead of tuning by hand."
+    assumptions: "The simulated plant represents your system; the fixed objective J or J_effort reflects what you care about."
+    limitations: ["Results are candidates: no default changes.", "From the chat only the DC-motor speed PI is tuned (objective mode)."]
+    algorithm_guide: [controller_tuning]
+    implemented_by: [driveflow.optim.objectives, driveflow.optim.systems, driveflow.viz.views.tuning_studio]
+    assistant_can_drive: true
+    docs: [docs/VALIDATION_SUMMARY.md]
+  rl_lab:
+    kind: page
+    page: pages/rl_lab.py
+    title: RL Lab
+    what: "DQN and DDPG on SPADE's Gymnasium environments, benchmarked against the classical controllers on the same grid."
+    when: "To try a learned controller and compare it with PI / DPC."
+    limitations: ["Policies are candidates."]
+    algorithm_guide: [model_free_control, rl_environment]
+    implemented_by: [driveflow.viz.views.rl_lab, driveflow.control.rl]
+    assistant_can_drive: false
+    docs: [README.md]
+  ai_diagnostics:
+    kind: page
+    page: pages/ai_diagnostics.py
+    title: AI Diagnostics
+    what: "Evaluate a fault classifier (the promoted one or another on this machine) on a sample run or an uploaded file, or train a classifier on a custom simulated grid."
+    when: "To diagnose bearing faults from current and vibration windows, or train a candidate model."
+    limitations:
+      - "Trained and evaluated on simulated data only."
+      - "The promoted dc_motor classifiers' training windows contain the S-21 converter artifact (AI-N27, open)."
+      - "The ESP32 model has 3 classes, not 5 (AI-N13)."
+    algorithm_guide: [fault_classification, unknown_condition]
+    implemented_by: [driveflow.viz.views.ai_diagnostics, driveflow.ai.custom_training]
+    assistant_can_drive: false
+    docs: [docs/AI_TECHNICAL_AUDIT.md]
+  edge_deployment:
+    kind: page
+    page: pages/edge_deployment.py
+    title: Edge Deployment
+    what: "One tab per board (ESP32, Raspberry Pi 5, TI C2000): scope and limits, model download, C2000 export, inference code generated from the run and a tutorial."
+    when: "To run a promoted model on a microcontroller or single-board computer."
+    limitations: ["The data are sampled at 10 kHz (AI-N26).", "The promoted RPi5 TCN misses real time on the C2000 (AI-N24)."]
+    implemented_by: [driveflow.viz.views.edge_deployment, driveflow.ai.c2000_export]
+    assistant_can_drive: false
+    docs: [docs/AI_TECHNICAL_AUDIT.md]
+  transfer_learning:
+    kind: page
+    page: pages/transfer_learning.py
+    title: Transfer Learning
+    what: "Four-step gated wizard (data, setup, validate, promote) that adapts the promoted model, another local model or an imported Keras model, by full or feature transfer."
+    when: "To adapt a classifier to new data with gated validation."
+    algorithm_guide: [adaptation]
+    implemented_by: [driveflow.viz.views.transfer_learning, driveflow.ai.transfer.workflow]
+    assistant_can_drive: false
+    docs: [README.md]
+  model_registry:
+    kind: page
+    page: pages/model_registry.py
+    title: Model Registry
+    what: "Every model run on disk: status from evidence, lineage, gate, artifacts with SHA-256, audit findings, edge-export lifecycle and rollback."
+    when: "To see which model is promoted and what is known about it."
+    implemented_by: [driveflow.viz.views.model_registry, driveflow.viz.adapters.registry_adapter]
+    assistant_can_drive: false
+    docs: [docs/AI_TECHNICAL_AUDIT.md]
+  monitoring:
+    kind: page
+    page: pages/monitoring.py
+    title: Monitoring
+    what: "SIMULATED monitoring: agent consensus, status from all active alerts, motor status and acknowledgement."
+    when: "To see how the monitoring agents react to simulated conditions."
+    limitations: ["Simulated data only; no live telemetry."]
+    algorithm_guide: [anomaly_monitoring]
+    implemented_by: [driveflow.viz.views.monitoring]
+    assistant_can_drive: false
+    docs: [README.md]
+  alert_history:
+    kind: page
+    page: pages/alert_history.py
+    title: Alert History
+    what: "Filterable, exportable alert log."
+    when: "To review past alerts."
+    implemented_by: [driveflow.viz.views.alert_history]
+    assistant_can_drive: false
+    docs: [README.md]
+  documentation:
+    kind: page
+    page: pages/documentation.py
+    title: Documentation
+    what: "Status semantics, data formats and known limitations."
+    when: "To read how SPADE labels and stores things."
+    implemented_by: [driveflow.viz.views.documentation]
+    assistant_can_drive: false
+    docs: [README.md]
+  algorithm_guide:
+    kind: page
+    page: pages/algorithm_guide.py
+    title: Algorithm Guide
+    what: "Three questions lead to an algorithm family, its assumptions and limits, and the SPADE page that implements it."
+    when: "To choose an approach before choosing a page."
+    implemented_by: [driveflow.viz.views.algorithm_guide]
+    assistant_can_drive: false
+    docs: [README.md]
+
+  # ------------------------------------------------------------------ plants
+  plant_dc_perm_ex_v1:
+    kind: plant
+    plant_config_id: dc_perm_ex_v1
+    title: "DC motor (GEM's PMG 132 port)"
+    what: "Permanently excited DC motor from gym-electric-motor, one-quadrant converter on a 65 V supply, PI or MPC speed control; motor, supply, limits, ratings and load are configurable."
+    limitations: ["S-07: one-quadrant converter.", "S-21: light-load deceleration with GEM's converter model is not physical."]
+    implemented_by: [driveflow.datagen.runner, driveflow.sim.dc_dcm]
+    assistant_can_drive: true
+    docs: [docs/SIMULATION_STABILITY_REPORT.md]
+  plant_dc_pmg132_v1:
+    kind: plant
+    plant_config_id: dc_pmg132_v1
+    title: "DC motor with the PMG 132 datasheet values"
+    what: "The same plant structure with the Perm-Motor PMG 132 datasheet values at 60 V (S-20): psi_e 0.181, rated 110 A, 20 N*m, 2870 min^-1."
+    limitations: ["Not used by the diagnosis datasets, the Gym environments or the GUI.", "S-21 affects it at light load."]
+    implemented_by: [driveflow.datagen.runner]
+    assistant_can_drive: true
+    docs: [docs/SIMULATION_STABILITY_REPORT.md]
+  plant_pmsm_v1:
+    kind: plant
+    plant_config_id: pmsm_v1
+    title: "Salient PMSM (current-step bench)"
+    what: "dq current control near standstill with a large load inertia; MTPA or i_d = 0."
+    implemented_by: [driveflow.control.classical.pmsm_foc]
+    assistant_can_drive: true
+    docs: [README.md]
+  plant_vsc_dpc_v1:
+    kind: plant
+    plant_config_id: vsc_dpc_v1
+    title: "VSC with L-C filter"
+    what: "Voltage source converter with an L-C filter driven by the trained DPC network."
+    implemented_by: [driveflow.control.dpc.controller]
+    assistant_can_drive: true
+    docs: [README.md]
+  plant_buck_v1:
+    kind: plant
+    plant_config_id: buck_v1
+    title: "Averaged synchronous buck"
+    what: "Averaged synchronous buck converter under a PI cascade (voltage and current loops)."
+    implemented_by: [driveflow.sim.buck_system]
+    assistant_can_drive: true
+    docs: [README.md]
+
+  # ------------------------------------------------------------------ controllers (Scenario.controller_type)
+  controller_PI:
+    kind: controller
+    controller_type: PI
+    title: "PI cascade"
+    what: "Speed PI over a current PI for the DC motors, designed from the motor's parameters; voltage PI over a current PI for the buck."
+    implemented_by: [driveflow.control.classical.pi_controller]
+    assistant_can_drive: true
+    docs: [README.md]
+  controller_MPC:
+    kind: controller
+    controller_type: MPC
+    title: "Linear MPC (DC motor)"
+    what: "One QP per step with an exact solver, interchangeable with the PI on the same DC plant."
+    limitations: ["No integrator: a small permanent speed offset.", "Several times the PI's CPU cost (configs/sim_cost.yaml)."]
+    implemented_by: [driveflow.control.mpc.controller]
+    assistant_can_drive: true
+    docs: [README.md]
+  controller_DPC:
+    kind: controller
+    controller_type: DPC
+    title: "Direct predictive neural controller (VSC)"
+    what: "Neural network trained through a model of the VSC to track a rotating voltage reference."
+    algorithm_guide: [learned_controller]
+    implemented_by: [driveflow.control.dpc.controller]
+    assistant_can_drive: true
+    docs: [README.md]
+  controller_FOC_MTPA:
+    kind: controller
+    controller_type: FOC_MTPA
+    title: "Field-oriented control, MTPA"
+    what: "Splits the current magnitude into i_d and i_q on the maximum-torque-per-ampere locus."
+    implemented_by: [driveflow.control.classical.pmsm_foc]
+    assistant_can_drive: true
+    docs: [README.md]
+  controller_FOC_naive:
+    kind: controller
+    controller_type: FOC_naive
+    title: "Field-oriented control, i_d = 0"
+    what: "All the current on the q axis (i_d = 0); the naive policy compared with MTPA."
+    implemented_by: [driveflow.control.classical.pmsm_foc]
+    assistant_can_drive: true
+    docs: [README.md]
+
+  # ------------------------------------------------------------------ job kinds (jobs.handlers.HANDLERS)
+  job_scenario_sweep:
+    kind: job
+    job_kind: scenario_sweep
+    what: "Runs one simulation per condition and saves one Parquet file per successful condition."
+    implemented_by: [driveflow.jobs.handlers]
+    assistant_can_drive: true
+    docs: [README.md]
+  job_plecs_sweep:
+    kind: job
+    job_kind: plecs_sweep
+    what: "One PLECS RPC simulation per condition on a PLECS batch profile; needs PLECS."
+    implemented_by: [driveflow.jobs.handlers]
+    assistant_can_drive: false
+    docs: [README.md]
+  job_controller_tuning:
+    kind: job
+    job_kind: controller_tuning
+    what: "Runs PSO, Bayesian optimization or NSGA-II on the tuning grid, then evaluates the baseline and the candidates on the separate evaluation grid. Candidates only."
+    algorithm_guide: [controller_tuning]
+    implemented_by: [driveflow.jobs.handlers, driveflow.optim.objectives]
+    assistant_can_drive: true
+    docs: [docs/VALIDATION_SUMMARY.md]
+  job_rl_training:
+    kind: job
+    job_kind: rl_training
+    what: "Trains a DQN or DDPG agent on a SPADE environment and benchmarks the final policy against the classical controllers."
+    implemented_by: [driveflow.jobs.handlers]
+    assistant_can_drive: false
+    docs: [README.md]
+  job_surrogate_fit:
+    kind: job
+    job_kind: surrogate_fit
+    what: "Fits surrogate models to a completed PLECS sweep and publishes a surrogate Gymnasium environment."
+    algorithm_guide: [surrogate_model]
+    implemented_by: [driveflow.jobs.handlers]
+    assistant_can_drive: false
+    docs: [README.md]
+  job_classifier_training:
+    kind: job
+    job_kind: classifier_training
+    what: "Simulates a condition grid and trains a classifier on it; the model is written as a candidate, nothing is promoted."
+    implemented_by: [driveflow.jobs.handlers, driveflow.ai.custom_training]
+    assistant_can_drive: false
+    docs: [README.md]
+  job_fmu_fetch:
+    kind: job
+    job_kind: fmu_fetch
+    what: "Downloads prebuilt OpenModelica FMUs from a GitHub Release, verifying SHA-256 and the model version."
+    implemented_by: [driveflow.jobs.handlers]
+    assistant_can_drive: false
+    docs: [README.md]
+  job_fmu_verification:
+    kind: job
+    job_kind: fmu_verification
+    what: "Runs the Plant Studio stage-6 checks of an OpenModelica FMU profile, one condition per check."
+    implemented_by: [driveflow.jobs.handlers, driveflow.integrations.fmu.gym_profile]
+    assistant_can_drive: false
+    docs: [README.md]
+  job_selftest:
+    kind: job
+    job_kind: selftest.steps
+    what: "Worker self-test without physics, used by the tests and by 'Check worker' in the GUI."
+    implemented_by: [driveflow.jobs.handlers]
+    assistant_can_drive: false
+    docs: [README.md]
+
+  # ------------------------------------------------------------------ algorithm families (configs/algorithm_guide.yaml, referenced)
+  algorithms:
+    kind: algorithm_index
+    what: "The algorithm families with their assumptions and limits are in configs/algorithm_guide.yaml (Algorithm Guide page); explain_spade returns them by id."
+    algorithm_guide: [controller_tuning, surrogate_model, converter_sizing, model_based_control, learned_controller, model_free_control, rl_environment,
+                      fault_classification, unknown_condition, parameter_identification, adaptation, anomaly_monitoring, remaining_useful_life]
+    implemented_by: [driveflow.viz.views.algorithm_guide]
+    assistant_can_drive: false
+    docs: [README.md]
+
+not_simulable:
+  - topic: induction motor
+    why: "No induction-motor plant in SPADE today (planned after phase 2)."
+  - topic: boost / flyback / buck-boost converter
+    why: "Only the buck (step-down) DC-DC converter is simulated natively."
+  - topic: real hardware / live telemetry
+    why: "SPADE is simulation-only; every result is SIMULATED."
