@@ -107,7 +107,7 @@ def _condition_metrics(df) -> dict:
     if plant == "vsc_dpc_v1":
         err = ((half["vc_real"] - half["v_ref_real"]) ** 2 + (half["vc_imag"] - half["v_ref_imag"]) ** 2) ** 0.5
         out["rms_voltage_error_v_second_half"] = float((err ** 2).mean() ** 0.5)
-    elif plant == "dc_perm_ex_v1":
+    elif plant in ("dc_perm_ex_v1", "dc_pmg132_v1"):
         out["mean_rpm_second_half"] = float(half["rpm"].mean())
     elif plant == "buck_v1":
         out["rms_voltage_error_v_second_half"] = float(((half["buck_v_out"] - half["buck_v_ref"]) ** 2).mean() ** 0.5)

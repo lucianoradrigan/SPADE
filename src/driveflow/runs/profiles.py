@@ -35,6 +35,12 @@ NATIVE_PROFILES = {
     for p in (
         PlantProfile(profile_id="native:dc_perm_ex_v1", kind="native", engine="driveflow.sim", display_name="DC motor (permanently excited)",
                      signals=("rpm", "torque_nm", "voltage_v", "current_r", "current_s", "current_t"), capabilities=_stepping("SPADE/DcMotor-v0"), status="published"),
+        # Round 0b, D3: the PMG 132 datasheet plant. Batch simulation only: no Gymnasium environment.
+        PlantProfile(profile_id="native:dc_pmg132_v1", kind="native", engine="driveflow.sim", display_name="DC motor (PMG 132 datasheet values)",
+                     signals=("rpm", "torque_nm", "voltage_v", "current_r"),
+                     capabilities=EnvironmentCapability(can_simulate_batch=True, diagnostic_messages=(
+                         "Batch simulation via datagen.runner.run_scenario.", "No Gymnasium environment (round Assistant 0b, decision D3).")),
+                     status="published"),
         PlantProfile(profile_id="native:vsc_dpc_v1", kind="native", engine="driveflow.sim", display_name="VSC with L-C filter",
                      signals=("vc_real", "vc_imag", "i_f_real", "i_f_imag"), capabilities=_stepping("SPADE/Vsc-v0"), status="published"),
         PlantProfile(profile_id="native:pmsm_v1", kind="native", engine="driveflow.sim", display_name="PMSM (FOC demo)",
