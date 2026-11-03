@@ -176,7 +176,7 @@ def build_plant(scenario: Scenario) -> DcMotorSystem:
         extra_electrical = [(ft, scenario.electrical_severity, oo) for ft, oo in (scenario.extra_faults or [])]
         load = BearingFaultLoad(PolynomialStaticLoad(load_parameter=load_parameter), fault_type=scenario.fault_type, geometry=KAT_DATACENTER_6203_GEOMETRY,
                                 severity=scenario.electrical_severity, order_override=scenario.fault_order_override, extra_faults=extra_electrical)
-        return DcMotorSystem(converter=ContOneQuadrantConverter(), motor=motor, load=load, supply=supply, ode_solver=dc_ode_solver(scenario), tau=TAU)
+        return _dc_system(scenario, motor, load, supply)
 
     scaled = dc_default_load_parameter(scenario.motor_parameter_overrides, scenario.dc_nominal_overrides)
     if scaled is None and scenario.load_torque_nm is None:
@@ -201,6 +201,23 @@ def build_plant(scenario: Scenario) -> DcMotorSystem:
         motor = DcPermanentlyExcitedMotor(motor_parameter=scenario.motor_parameter_overrides, nominal_values=scenario.dc_nominal_overrides,
                                           limit_values=scenario.dc_limit_overrides)
         supply = IdealVoltageSupply(u_nominal=65.0 if scenario.dc_supply_v is None else scenario.dc_supply_v)
+    return _dc_system(scenario, motor, load, supply)
+
+
+#: Substeps per period of the discontinuous-conduction converter model when dc_plant_substeps is not
+#: given (S21-2; its convergence is in docs/audit/assistant/s21_2_dcm_convergence.md).
+DCM_DEFAULT_SUBSTEPS = 100
+
+
+def _dc_system(scenario: Scenario, motor, load, supply):
+    """The DC plant. dc_converter_model None or "gem": DcMotorSystem exactly as before (byte-identical).
+    "dcm": the same components with the one-quadrant converter re-evaluated inside the period and
+    discontinuous conduction (sim/dc_dcm.py, S-21)."""
+    if scenario.dc_converter_model == "dcm":
+        from driveflow.sim.dc_dcm import DcmDcMotorSystem
+
+        return DcmDcMotorSystem(converter=ContOneQuadrantConverter(), motor=motor, load=load, supply=supply, ode_solver=EulerSolver(), tau=TAU,
+                                substeps=scenario.dc_plant_substeps or DCM_DEFAULT_SUBSTEPS)
     return DcMotorSystem(
         converter=ContOneQuadrantConverter(),
         motor=motor,

@@ -274,6 +274,14 @@ fields:
     integer: true
     range: {min: 1, min_inclusive: true, max: 10000, max_inclusive: true}
     description: "Euler substeps per control period (with dc_plant_solver euler or unset)."
+  dc_converter_model:
+    applies_to: [dc_perm_ex_v1, dc_pmg132_v1]
+    not_applicable: [pmsm_v1, vsc_dpc_v1, buck_v1]
+    unit: null
+    importance: optional
+    range: null
+    allowed_per_plant: {dc_perm_ex_v1: [gem, dcm], dc_pmg132_v1: [gem, dcm]}
+    description: "One-quadrant converter model (studies only; S-21). None/gem = GEM's, decided once per period; dcm = discontinuous conduction re-evaluated inside the period."
   load_torque_nm:
     applies_to: [dc_perm_ex_v1, dc_pmg132_v1]
     not_applicable: [pmsm_v1, vsc_dpc_v1, buck_v1]

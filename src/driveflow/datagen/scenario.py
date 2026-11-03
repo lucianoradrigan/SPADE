@@ -141,6 +141,11 @@ class Scenario:
             is the initial load (default 6 ohm); buck_load_step_ohm switches the load to that value
             at buck_load_step_time_s (default: half of duration_s); buck_parameter_overrides sets
             any of l_h, c_f, r_l_ohm, i_max_a. No fault model: every record is labelled "normal".
+        dc_converter_model: DC plants only (S-21, decision S21-2). None or "gem" = GEM's averaged
+            one-quadrant converter, decided once per period (the default, byte-identical). "dcm" =
+            discontinuous conduction: the converter is re-evaluated in each of dc_plant_substeps
+            substeps (default runner.DCM_DEFAULT_SUBSTEPS) and the current stays at zero when the
+            diode blocks (sim/dc_dcm.py). A study option; it does not change any default.
         dc_plant_solver / dc_plant_substeps: dc_perm_ex_v1 only (round PLECS/OM task R2, decision
             G3; finding S-16) -- how the plant is integrated over each control period TAU = 100 us.
             The controller still acts every TAU and its action (including the converter branch) is
@@ -230,6 +235,7 @@ class Scenario:
     dc_limit_overrides: dict = None
     dc_nominal_overrides: dict = None
     pmsm_motor_parameters: dict = None
+    dc_converter_model: str = None
 
     _VALID_PAIRS = {("PI", "dc_perm_ex_v1"), ("MPC", "dc_perm_ex_v1"), ("PI", "dc_pmg132_v1"), ("MPC", "dc_pmg132_v1"), ("DPC", "vsc_dpc_v1"), ("FOC_MTPA", "pmsm_v1"), ("FOC_naive", "pmsm_v1"),
                     ("PI", "buck_v1")}
@@ -409,8 +415,20 @@ class Scenario:
     DC_PLANT_SOLVERS = ("euler", "rk45")
     DC_PLANT_MAX_SUBSTEPS = 10_000
 
+    #: dc_converter_model values (S-21, decision S21-2): "gem" = GEM's averaged one-quadrant converter
+    #: (the default, None); "dcm" = discontinuous conduction, re-evaluated inside the period (sim/dc_dcm.py).
+    DC_CONVERTER_MODELS = ("gem", "dcm")
+
     def _validate_dc_plant_integration(self):
         solver, n = self.dc_plant_solver, self.dc_plant_substeps
+        model = self.dc_converter_model
+        if model is not None:
+            if self.plant_config_id not in self.DC_PLANTS:
+                raise ValueError("Scenario.dc_converter_model applies only to plant_config_id='dc_perm_ex_v1' or 'dc_pmg132_v1' (the DC motor plants)")
+            if model not in self.DC_CONVERTER_MODELS:
+                raise ValueError(f"Scenario.dc_converter_model must be one of {self.DC_CONVERTER_MODELS}, got {model!r}")
+            if model == "dcm" and solver == "rk45":
+                raise ValueError("Scenario.dc_converter_model='dcm' integrates with its own substeps (dc_plant_substeps); it does not combine with dc_plant_solver='rk45'")
         if solver is None and n is None:
             return
         if self.plant_config_id not in self.DC_PLANTS:
