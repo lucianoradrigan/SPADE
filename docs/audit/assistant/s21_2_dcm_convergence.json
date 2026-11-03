@@ -1,0 +1,291 @@
+{
+  "command": "python experiments/report_s21_2_dcm_convergence.py",
+  "simulated": true,
+  "preregistration": "docs/audit/assistant/ai_n27_preregistration.md \u00a71",
+  "conv_tol": 0.0001,
+  "control_tol": 1e-09,
+  "cases": {
+    "1_pmg132_120_no_load": {
+      "scenario": {
+        "plant_config_id": "dc_pmg132_v1",
+        "omega_ref_rad_s": 120.0,
+        "duration_s": 1.0
+      },
+      "nrms_x10_vs_x1000": {
+        "omega": 1.636348073753998e-05,
+        "i_a": 0.0003019664582110002
+      },
+      "nrms_x100_vs_x1000": {
+        "omega": 1.4886086769500397e-06,
+        "i_a": 2.8370088843393347e-05
+      },
+      "converged": true,
+      "final_speed": {
+        "gem_default": 179.43140675989915,
+        "dcm_x100": 120.00000000000009,
+        "dcm_x1000": 120.00000000000007,
+        "reference": 120.0
+      },
+      "mean_speed_second_half": {
+        "gem_default": 179.40200413434135,
+        "dcm_x100": 119.99999995827652
+      },
+      "min_current": {
+        "gem_default": -161.1941195399097,
+        "dcm_x100": 0.0
+      },
+      "gem_default_vs_dcm_x1000": {
+        "omega": 0.4049017994906647,
+        "i_a": 0.5528500319232493
+      },
+      "cpu_s": {
+        "gem_default": 6.806512164000004,
+        "dcm_x100": 17.973385844,
+        "dcm_x1000": 144.411904214
+      }
+    },
+    "2_stock_D1_friction_120": {
+      "scenario": {
+        "omega_ref_rad_s": 120.0,
+        "duration_s": 1.0,
+        "motor_parameter_overrides": {
+          "r_a": 0.016,
+          "l_a": 1.9e-05,
+          "psi_e": 0.165,
+          "j_rotor": 0.025
+        },
+        "dc_nominal_overrides": {
+          "omega": 300.0,
+          "torque": 16.0,
+          "i": 97.0,
+          "u": 60.0
+        }
+      },
+      "nrms_x10_vs_x1000": {
+        "omega": 1.6679964498384274e-05,
+        "i_a": 0.00034053355160688984
+      },
+      "nrms_x100_vs_x1000": {
+        "omega": 1.5364892077859317e-06,
+        "i_a": 3.3337814253543026e-05
+      },
+      "converged": true,
+      "final_speed": {
+        "gem_default": 196.84075898452284,
+        "dcm_x100": 120.0,
+        "dcm_x1000": 119.99999999999149,
+        "reference": 120.0
+      },
+      "mean_speed_second_half": {
+        "gem_default": 196.1762776224053,
+        "dcm_x100": 119.99999507530643
+      },
+      "min_current": {
+        "gem_default": -163.08937957683978,
+        "dcm_x100": 0.0
+      },
+      "gem_default_vs_dcm_x1000": {
+        "omega": 0.48844639556589947,
+        "i_a": 0.5389830665314939
+      },
+      "cpu_s": {
+        "gem_default": 6.766278154999995,
+        "dcm_x100": 25.280170926,
+        "dcm_x1000": 161.198628945
+      }
+    },
+    "3_outer_race_x2_80": {
+      "scenario": {
+        "omega_ref_rad_s": 80.0,
+        "duration_s": 2.5,
+        "fault_type": "outer_race",
+        "electrical_severity": 16.0,
+        "mechanical_severity": 0.1
+      },
+      "nrms_x10_vs_x1000": {
+        "omega": 0.0004890022320946662,
+        "i_a": 0.006105415012838431
+      },
+      "nrms_x100_vs_x1000": {
+        "omega": 3.996878258026974e-05,
+        "i_a": 0.0004967051851036217
+      },
+      "converged": false,
+      "final_speed": {
+        "gem_default": 126.01259564608276,
+        "dcm_x100": 77.78328301480666,
+        "dcm_x1000": 77.7862371858681,
+        "reference": 80.0
+      },
+      "mean_speed_second_half": {
+        "gem_default": 127.55504293307166,
+        "dcm_x100": 80.00368878174118
+      },
+      "min_current": {
+        "gem_default": -103.45787623858962,
+        "dcm_x100": 0.0
+      },
+      "gem_default_vs_dcm_x1000": {
+        "omega": 0.5437615722621532,
+        "i_a": 0.6036598584966483
+      },
+      "cpu_s": {
+        "gem_default": 17.280473970000003,
+        "dcm_x100": 75.050767497,
+        "dcm_x1000": 334.92872298599997
+      }
+    },
+    "4_cage_x2_80": {
+      "scenario": {
+        "omega_ref_rad_s": 80.0,
+        "duration_s": 2.5,
+        "fault_type": "cage",
+        "electrical_severity": 16.0,
+        "mechanical_severity": 0.04
+      },
+      "nrms_x10_vs_x1000": {
+        "omega": 0.0002751927310353824,
+        "i_a": 0.0025137171101959972
+      },
+      "nrms_x100_vs_x1000": {
+        "omega": 1.9491012156399155e-05,
+        "i_a": 0.00019568184828231338
+      },
+      "converged": false,
+      "final_speed": {
+        "gem_default": 145.57043240736968,
+        "dcm_x100": 83.63347267118363,
+        "dcm_x1000": 83.6341972325411,
+        "reference": 80.0
+      },
+      "mean_speed_second_half": {
+        "gem_default": 136.82481131879177,
+        "dcm_x100": 86.97591444197468
+      },
+      "min_current": {
+        "gem_default": -127.21242503592856,
+        "dcm_x100": 0.0
+      },
+      "gem_default_vs_dcm_x1000": {
+        "omega": 0.473986832414546,
+        "i_a": 0.6644111264256478
+      },
+      "cpu_s": {
+        "gem_default": 17.448235425999997,
+        "dcm_x100": 70.540974443,
+        "dcm_x1000": 334.148811462
+      }
+    },
+    "5_control_healthy_220": {
+      "scenario": {
+        "omega_ref_rad_s": 220.0,
+        "duration_s": 1.0
+      },
+      "nrms_x10_vs_x1000": {
+        "omega": 7.525121076679635e-06,
+        "i_a": 5.929694588872353e-05
+      },
+      "nrms_x100_vs_x1000": {
+        "omega": 6.765642398426784e-07,
+        "i_a": 5.368979130525813e-06
+      },
+      "converged": true,
+      "final_speed": {
+        "gem_default": 219.99999999999994,
+        "dcm_x100": 220.00000000000006,
+        "dcm_x1000": 220.00000000000006,
+        "reference": 220.0
+      },
+      "mean_speed_second_half": {
+        "gem_default": 220.00000000303854,
+        "dcm_x100": 220.00000000346702
+      },
+      "min_current": {
+        "gem_default": 66.26447324640466,
+        "dcm_x100": 66.2589540997045
+      },
+      "gem_default_vs_dcm_x1000": {
+        "omega": 8.510822251914823e-05,
+        "i_a": 0.0006345208981392015
+      },
+      "cpu_s": {
+        "gem_default": 6.284107359000004,
+        "dcm_x100": 23.867271236,
+        "dcm_x1000": 152.389029074
+      },
+      "control": {
+        "dcm_x1_vs_gem_x1": {
+          "omega": 7.543469251086552e-15,
+          "i_a": 1.2678316916067475e-13
+        },
+        "dcm_x100_vs_gem_x100": {
+          "omega": 8.642958876796514e-15,
+          "i_a": 1.4605017204624183e-13
+        },
+        "gem_negative_current_samples": 0,
+        "info_dcm_x100_vs_gem_default": {
+          "omega": 8.442609709638026e-05,
+          "i_a": 0.0006324015995411198
+        },
+        "pass": true
+      }
+    },
+    "6_control_load5_120": {
+      "scenario": {
+        "omega_ref_rad_s": 120.0,
+        "duration_s": 1.0,
+        "load_torque_nm": 5.0
+      },
+      "nrms_x10_vs_x1000": {
+        "omega": 8.182678582860708e-06,
+        "i_a": 5.946680606153465e-05
+      },
+      "nrms_x100_vs_x1000": {
+        "omega": 7.380246522812547e-07,
+        "i_a": 5.387656913737947e-06
+      },
+      "converged": true,
+      "final_speed": {
+        "gem_default": 119.99999999999996,
+        "dcm_x100": 120.00000000000003,
+        "dcm_x1000": 119.99999999999976,
+        "reference": 120.0
+      },
+      "mean_speed_second_half": {
+        "gem_default": 119.99999999999869,
+        "dcm_x100": 119.99999999999548
+      },
+      "min_current": {
+        "gem_default": 66.27670119810952,
+        "dcm_x100": 66.24850565136163
+      },
+      "gem_default_vs_dcm_x1000": {
+        "omega": 9.078576166767475e-05,
+        "i_a": 0.0006130959206512991
+      },
+      "cpu_s": {
+        "gem_default": 6.705793698000008,
+        "dcm_x100": 26.415018547000003,
+        "dcm_x1000": 159.983883975
+      },
+      "control": {
+        "dcm_x1_vs_gem_x1": {
+          "omega": 3.063232911346955e-15,
+          "i_a": 1.5140088170071052e-14
+        },
+        "dcm_x100_vs_gem_x100": {
+          "omega": 2.8318386075538695e-15,
+          "i_a": 2.8359995991859706e-14
+        },
+        "gem_negative_current_samples": 0,
+        "info_dcm_x100_vs_gem_default": {
+          "omega": 9.007136236638314e-05,
+          "i_a": 0.0006119975982555807
+        },
+        "pass": true
+      }
+    }
+  },
+  "converged": false,
+  "control_pass": true
+}
