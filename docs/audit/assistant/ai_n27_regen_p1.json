@@ -1,0 +1,116 @@
+{
+  "command": "python experiments/report_ai_n27_regen_preconditions.py p1",
+  "host": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "python": "3.12.13",
+  "cases": {
+    "3class:grid_normal_w80_s0.00_seed1001": {
+      "rows": [
+        25000,
+        25000
+      ],
+      "plant_bit_identical": {
+        "current_r": true,
+        "rpm": true,
+        "voltage_v": true,
+        "torque_nm": true
+      },
+      "vib_max_rel_diff": {
+        "acc_x": 2.6325737795758254e-15,
+        "acc_y": 1.3200475962069665e-15,
+        "acc_z": 3.309438741036033e-15
+      },
+      "ok": true
+    },
+    "3class:grid_outer_race_w150_s1.00_seed1158": {
+      "rows": [
+        25000,
+        25000
+      ],
+      "plant_bit_identical": {
+        "current_r": true,
+        "rpm": true,
+        "voltage_v": true,
+        "torque_nm": true
+      },
+      "vib_max_rel_diff": {
+        "acc_x": 4.827095029604023e-16,
+        "acc_y": 2.660671518644305e-16,
+        "acc_z": 7.613350440135262e-16
+      },
+      "ok": true
+    },
+    "3class:grid_inner_race_w220_s2.00_seed1315": {
+      "rows": [
+        25000,
+        25000
+      ],
+      "plant_bit_identical": {
+        "current_r": true,
+        "rpm": true,
+        "voltage_v": true,
+        "torque_nm": true
+      },
+      "vib_max_rel_diff": {
+        "acc_x": 5.337262542722419e-16,
+        "acc_y": 3.2388516426939594e-16,
+        "acc_z": 1.0093696968672173e-15
+      },
+      "ok": true
+    },
+    "5class:grid_normal_w80_s0.00_seed1001": {
+      "rows": [
+        25000,
+        25000
+      ],
+      "plant_bit_identical": {
+        "current_r": true,
+        "rpm": true,
+        "voltage_v": true,
+        "torque_nm": true
+      },
+      "vib_max_rel_diff": {
+        "acc_x": 2.6325737795758254e-15,
+        "acc_y": 1.3200475962069665e-15,
+        "acc_z": 3.309438741036033e-15
+      },
+      "ok": true
+    },
+    "5class:grid_inner_race_w150_s1.00_seed1263": {
+      "rows": [
+        25000,
+        25000
+      ],
+      "plant_bit_identical": {
+        "current_r": true,
+        "rpm": true,
+        "voltage_v": true,
+        "torque_nm": true
+      },
+      "vib_max_rel_diff": {
+        "acc_x": 1.0740282469662923e-15,
+        "acc_y": 7.224265444751827e-16,
+        "acc_z": 2.0707096047588225e-15
+      },
+      "ok": true
+    },
+    "5class:grid_cage_w220_s2.00_seed1525": {
+      "rows": [
+        25000,
+        25000
+      ],
+      "plant_bit_identical": {
+        "current_r": true,
+        "rpm": true,
+        "voltage_v": true,
+        "torque_nm": true
+      },
+      "vib_max_rel_diff": {
+        "acc_x": 4.885675648239376e-16,
+        "acc_y": 2.8413153221029696e-16,
+        "acc_z": 9.595108690443853e-16
+      },
+      "ok": true
+    }
+  },
+  "ok": true
+}
