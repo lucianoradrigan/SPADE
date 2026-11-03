@@ -68,8 +68,8 @@ def _simulate(job: tuple) -> pd.DataFrame:
     from driveflow.datagen.export_parquet import records_to_dataframe
     from driveflow.datagen.scenario import CALIBRATED_MECHANICAL_SEVERITY
 
-    cond, fault, seed, overrides, mech_scale, duration_s = job
-    kw = dict(overrides)
+    cond, fault, seed, overrides, mech_scale, duration_s, *rest = job
+    kw = {**overrides, **(rest[0] if rest else {})}
     if fault is not None:
         kw["mechanical_severity"] = CALIBRATED_MECHANICAL_SEVERITY[fault] * mech_scale
     sid = f"eval_{cond}_{fault or 'normal'}_seed{seed}"
@@ -78,17 +78,19 @@ def _simulate(job: tuple) -> pd.DataFrame:
     return df
 
 
-def generate(seeds: list, duration_s: float, workers: int, extra_faults: tuple = ()) -> pd.DataFrame:
+def generate(seeds: list, duration_s: float, workers: int, extra_faults: tuple = (), plant_opts: dict | None = None) -> pd.DataFrame:
+    """plant_opts: Scenario plant options added to every run (AI-N27 option 2: dc_converter_model /
+    dc_plant_substeps); None = the production plant, exactly as before."""
     jobs = []
     for cond, (overrides, mech_scale, _win) in CONDITIONS.items():
         if cond in _SHARES_NOMINAL:
             continue
         for fault in CLASSES_FAULTS + tuple(extra_faults):
             for seed in seeds:
-                jobs.append((cond, fault, seed, overrides, mech_scale, duration_s))
+                jobs.append((cond, fault, seed, overrides, mech_scale, duration_s, *([plant_opts] if plant_opts else [])))
     for fault in OOD_FAULTS:
         for seed in seeds:
-            jobs.append(("ood_unseen_fault_type", fault, seed, {}, 1.0, duration_s))
+            jobs.append(("ood_unseen_fault_type", fault, seed, {}, 1.0, duration_s, *([plant_opts] if plant_opts else [])))
     ctx = mp.get_context("spawn")
     with ctx.Pool(workers) as pool:
         frames = pool.map(_simulate, jobs)
@@ -216,6 +218,9 @@ def main(argv=None):
     ap.add_argument("--out-dir", type=Path, default=REPO_ROOT / "docs" / "audit" / "ai")
     ap.add_argument("--extra-faults", default="", help="comma-separated fault types simulated in every condition besides healthy/outer/inner (A2: ball,cage)")
     ap.add_argument("--out-stem", default="classifier_evaluation", help="output file name stem in --out-dir")
+    ap.add_argument("--dc-converter-model", choices=("gem", "dcm"), default=None, help="S-21/AI-N27: Scenario.dc_converter_model for the simulated runs (default: not set)")
+    ap.add_argument("--dc-plant-substeps", type=int, default=None, help="Scenario.dc_plant_substeps for the simulated runs (default: not set)")
+    ap.add_argument("--generate-only", action="store_true", help="only simulate and write --cache; evaluate nothing and write no report")
     ap.add_argument("--run-dir", type=Path, action="append", default=None, help="model run(s) to evaluate; default: promoted pc classifier, its no-rpm-level ablation, the 2026-10-13 candidate and the pre-2026-10-18 production run")
     args = ap.parse_args(argv)
 
@@ -224,10 +229,16 @@ def main(argv=None):
     if args.cache is not None and args.cache.exists():
         data = pd.read_parquet(args.cache)
     else:
-        data = generate(seeds, args.duration_s, args.workers, tuple(f for f in args.extra_faults.split(",") if f))
+        plant_opts = {k: v for k, v in (("dc_converter_model", args.dc_converter_model), ("dc_plant_substeps", args.dc_plant_substeps)) if v}
+        data = generate(seeds, args.duration_s, args.workers, tuple(f for f in args.extra_faults.split(",") if f), plant_opts or None)
         if args.cache is not None:
             args.cache.parent.mkdir(parents=True, exist_ok=True)
             data.to_parquet(args.cache)
+    if args.generate_only:
+        if args.cache is None:
+            raise SystemExit("--generate-only needs --cache")
+        print(f"wrote {args.cache} ({data['source_file'].nunique()} runs) in {time.time() - t0:.0f} s")
+        return
     t_sim = time.time() - t0
 
     from driveflow.ai.registry import resolve

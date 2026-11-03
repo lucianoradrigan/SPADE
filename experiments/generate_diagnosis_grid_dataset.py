@@ -36,6 +36,10 @@ Usage:
     # Euler datasets the promoted models were trained on are kept unchanged.
     python experiments/generate_diagnosis_grid_dataset.py --dc-plant-solver rk45 \
         --faults outer_race,inner_race,ball,cage --out data/diagnosis_grid_dataset_5class_rk45.parquet
+    # AI-N27 option 2 (user decision 2026-11-03): the same grids with the discontinuous-conduction
+    # converter (S21-2) at the converged 1000 substeps. New files; the GEM datasets are kept.
+    python experiments/generate_diagnosis_grid_dataset.py --dc-converter-model dcm --dc-plant-substeps 1000 \
+        --workers 10 --out data/diagnosis_grid_dataset_dcm.parquet
 """
 
 from __future__ import annotations
@@ -97,12 +101,18 @@ def _simulate(job: dict) -> pd.DataFrame:
         electrical_noise_pct=job["electrical_noise_pct"], mechanical_noise_pct=job["mechanical_noise_pct"],
         motor_parameter_overrides={"psi_e": job["psi_e"], "j_rotor": job["j_rotor"]}, **kw,
         **({"dc_plant_solver": job["dc_plant_solver"]} if job.get("dc_plant_solver") else {}),
+        **({"dc_converter_model": job["dc_converter_model"]} if job.get("dc_converter_model") else {}),
+        **({"dc_plant_substeps": job["dc_plant_substeps"]} if job.get("dc_plant_substeps") else {}),
     )
     df = records_to_dataframe(run_scenario(sc))
     for k in ("speed", "severity_scale", "electrical_noise_pct", "mechanical_noise_pct", "psi_e", "j_rotor"):
         df[f"grid_{k}"] = job[k]
     if job.get("dc_plant_solver"):
         df["grid_dc_plant_solver"] = job["dc_plant_solver"]
+    if job.get("dc_converter_model"):
+        df["grid_dc_converter_model"] = job["dc_converter_model"]
+    if job.get("dc_plant_substeps"):
+        df["grid_dc_plant_substeps"] = job["dc_plant_substeps"]
     return df
 
 
@@ -115,6 +125,9 @@ def main(argv=None):
     ap.add_argument("--workers", type=int, default=max(1, (mp.cpu_count() or 2) - 1))
     ap.add_argument("--dc-plant-solver", choices=("euler", "rk45"), default="euler",
                     help="euler (default): the production plant, one Euler step per tau; rk45: the converged reference of R2 (Scenario.dc_plant_solver)")
+    ap.add_argument("--dc-converter-model", choices=("gem", "dcm"), default=None,
+                    help="S-21/AI-N27: Scenario.dc_converter_model (default: not set = the production GEM converter)")
+    ap.add_argument("--dc-plant-substeps", type=int, default=None, help="Scenario.dc_plant_substeps (default: not set)")
     ap.add_argument("--faults", default=",".join(f for f in FAULTS if f), help="comma-separated fault classes besides healthy (default: outer_race,inner_race)")
     args = ap.parse_args(argv)
 
@@ -123,6 +136,11 @@ def main(argv=None):
     if args.dc_plant_solver == "rk45":
         for j in jobs:
             j["dc_plant_solver"] = "rk45"
+    for j in jobs:
+        if args.dc_converter_model:
+            j["dc_converter_model"] = args.dc_converter_model
+        if args.dc_plant_substeps:
+            j["dc_plant_substeps"] = args.dc_plant_substeps
     print(f"{len(jobs)} runs ({len(SPEEDS_RAD_S)} speeds x {len(SEVERITY_SCALES)} severities x {args.seeds} seeds x {len(faults)} classes), {args.duration_s} s each")
     t0 = time.time()
     with mp.get_context("spawn").Pool(args.workers) as pool:
