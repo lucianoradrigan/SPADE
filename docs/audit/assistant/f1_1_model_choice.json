@@ -1,0 +1,1270 @@
+{
+  "command": "python experiments/report_f1_1_model_choice.py --models qwen3:14b ornith:9b --traces /tmp/claude-1000/-home-seven-post-doc-plataform-proposed/3b387af5-16b9-4a3f-a6b0-f810f07a05d0/scratchpad/f1_1_traces",
+  "host": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "runtime_version": "0.40.13",
+  "gpu_vram_idle_mib": 1603,
+  "config": {
+    "temperature": 0,
+    "context_tokens": 16384,
+    "think": false,
+    "limits": {
+      "max_tool_calls_per_turn": 12,
+      "max_experiments_per_launch": 50,
+      "max_total_sim_seconds": 600,
+      "max_model_calls_per_turn": 16,
+      "max_tokens_per_turn": 60000
+    }
+  },
+  "models": {
+    "qwen3:14b": {
+      "tag": "qwen3:14b",
+      "digest": "bdbd181c33f2ed1b31c972991882db3cf4d192569092138a7d29e973cd9debe8",
+      "size_bytes": 9276198565,
+      "parameter_size": "14.8B",
+      "quantization": "Q4_K_M",
+      "family": "qwen3",
+      "license": "Apache-2.0",
+      "vram_loaded_mib": 12955,
+      "ollama_ps": [
+        {
+          "name": "qwen3:14b",
+          "size": 11682688531,
+          "size_vram": 11682688531,
+          "context_length": 16384
+        }
+      ],
+      "elapsed_s": 359.5466101169586,
+      "by_visibility": {
+        "all": {
+          "turns": 36,
+          "errors": 0,
+          "valid_calls_pct": 97.36842105263158,
+          "tool_calls": 114,
+          "correct_tool_pct": 33.33333333333333,
+          "launch_attempts_unconfirmed": 6,
+          "launches_executed": 0,
+          "invented_numbers_refused": 0,
+          "audit_trace_problems": 0,
+          "latency_median_s": 3.4396963629405946,
+          "latency_p95_s": 11.855896389170084,
+          "tokens_per_s": 30.907602160441122,
+          "stopped_by_limit": 3,
+          "correct_by_kind": {
+            "c": 66.66666666666666,
+            "o": 0.0,
+            "q": 0.0
+          }
+        },
+        "state": {
+          "turns": 36,
+          "errors": 0,
+          "valid_calls_pct": 92.0,
+          "tool_calls": 75,
+          "correct_tool_pct": 33.33333333333333,
+          "launch_attempts_unconfirmed": 0,
+          "launches_executed": 0,
+          "invented_numbers_refused": 0,
+          "audit_trace_problems": 0,
+          "latency_median_s": 4.498236145940609,
+          "latency_p95_s": 10.091830290097278,
+          "tokens_per_s": 34.81258494138274,
+          "stopped_by_limit": 0,
+          "correct_by_kind": {
+            "c": 66.66666666666666,
+            "o": 0.0,
+            "q": 0.0
+          }
+        }
+      },
+      "per_prompt": {
+        "all": {
+          "c1": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft"
+              ]
+            ]
+          },
+          "c2": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft"
+              ]
+            ]
+          },
+          "c3": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "suggest_value"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "suggest_value"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "suggest_value"
+              ]
+            ]
+          },
+          "c4": {
+            "correct": 0,
+            "tools": [
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ]
+            ]
+          },
+          "c5": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "suggest_value"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "suggest_value"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "suggest_value"
+              ]
+            ]
+          },
+          "c6": {
+            "correct": 0,
+            "tools": [
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "suggest_value",
+                "update_draft",
+                "suggest_value",
+                "suggest_value",
+                "update_draft",
+                "propose_experiments",
+                "run_experiments",
+                "propose_experiments",
+                "run_experiments",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "suggest_value",
+                "update_draft",
+                "suggest_value",
+                "suggest_value",
+                "update_draft",
+                "propose_experiments",
+                "run_experiments",
+                "propose_experiments",
+                "run_experiments",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "suggest_value",
+                "update_draft",
+                "suggest_value",
+                "suggest_value",
+                "update_draft",
+                "propose_experiments",
+                "run_experiments",
+                "propose_experiments",
+                "run_experiments",
+                "propose_experiments"
+              ]
+            ]
+          },
+          "o1": {
+            "correct": 0,
+            "tools": [
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ]
+            ]
+          },
+          "o2": {
+            "correct": 0,
+            "tools": [
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "suggest_value"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "suggest_value"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "suggest_value"
+              ]
+            ]
+          },
+          "o3": {
+            "correct": 0,
+            "tools": [
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ]
+            ]
+          },
+          "q1": {
+            "correct": 0,
+            "tools": [
+              [
+                "explain_spade"
+              ],
+              [
+                "explain_spade"
+              ],
+              [
+                "explain_spade"
+              ]
+            ]
+          },
+          "q2": {
+            "correct": 0,
+            "tools": [
+              [],
+              [],
+              []
+            ]
+          },
+          "q3": {
+            "correct": 0,
+            "tools": [
+              [
+                "explain_spade"
+              ],
+              [
+                "explain_spade"
+              ],
+              [
+                "explain_spade"
+              ]
+            ]
+          }
+        },
+        "state": {
+          "c1": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft"
+              ]
+            ]
+          },
+          "c2": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft"
+              ]
+            ]
+          },
+          "c3": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "recommend_plant"
+              ],
+              [
+                "set_mode",
+                "recommend_plant"
+              ],
+              [
+                "set_mode",
+                "recommend_plant"
+              ]
+            ]
+          },
+          "c4": {
+            "correct": 0,
+            "tools": [
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ]
+            ]
+          },
+          "c5": {
+            "correct": 0,
+            "tools": [
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ]
+            ]
+          },
+          "c6": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft"
+              ]
+            ]
+          },
+          "o1": {
+            "correct": 0,
+            "tools": [
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ]
+            ]
+          },
+          "o2": {
+            "correct": 0,
+            "tools": [
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft"
+              ]
+            ]
+          },
+          "o3": {
+            "correct": 0,
+            "tools": [
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ]
+            ]
+          },
+          "q1": {
+            "correct": 0,
+            "tools": [
+              [
+                "recommend_plant"
+              ],
+              [
+                "recommend_plant"
+              ],
+              [
+                "recommend_plant"
+              ]
+            ]
+          },
+          "q2": {
+            "correct": 0,
+            "tools": [
+              [
+                "search_docs"
+              ],
+              [
+                "search_docs"
+              ],
+              [
+                "search_docs"
+              ]
+            ]
+          },
+          "q3": {
+            "correct": 0,
+            "tools": [
+              [
+                "explain_spade"
+              ],
+              [
+                "explain_spade"
+              ],
+              [
+                "explain_spade"
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "ornith:9b": {
+      "tag": "ornith:9b",
+      "digest": "a75697c145891910e312c95e4a9fc1ccb8653e5ef543b23b0403a4665b82fd91",
+      "size_bytes": 5629110568,
+      "parameter_size": "9.0B",
+      "quantization": "Q4_K_M",
+      "family": "qwen35",
+      "license": "MIT",
+      "vram_loaded_mib": 7397,
+      "ollama_ps": [
+        {
+          "name": "ornith:9b",
+          "size": 5887271895,
+          "size_vram": 5887271895,
+          "context_length": 16384
+        }
+      ],
+      "elapsed_s": 1141.41037607193,
+      "by_visibility": {
+        "all": {
+          "turns": 36,
+          "errors": 0,
+          "valid_calls_pct": 100.0,
+          "tool_calls": 195,
+          "correct_tool_pct": 66.66666666666666,
+          "launch_attempts_unconfirmed": 0,
+          "launches_executed": 0,
+          "invented_numbers_refused": 0,
+          "audit_trace_problems": 0,
+          "latency_median_s": 8.12004361138679,
+          "latency_p95_s": 14.182453960413113,
+          "tokens_per_s": 47.375001714919726,
+          "stopped_by_limit": 12,
+          "correct_by_kind": {
+            "c": 83.33333333333334,
+            "o": 33.33333333333333,
+            "q": 66.66666666666666
+          }
+        },
+        "state": {
+          "turns": 36,
+          "errors": 3,
+          "valid_calls_pct": 98.55072463768116,
+          "tool_calls": 207,
+          "correct_tool_pct": 83.33333333333334,
+          "launch_attempts_unconfirmed": 0,
+          "launches_executed": 0,
+          "invented_numbers_refused": 0,
+          "audit_trace_problems": 0,
+          "latency_median_s": 8.29999931214843,
+          "latency_p95_s": 189.82721378764836,
+          "tokens_per_s": 49.46592278101776,
+          "stopped_by_limit": 15,
+          "correct_by_kind": {
+            "c": 66.66666666666666,
+            "o": 100.0,
+            "q": 100.0
+          }
+        }
+      },
+      "per_prompt": {
+        "all": {
+          "c1": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments"
+              ]
+            ]
+          },
+          "c2": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "update_draft",
+                "update_draft",
+                "update_draft",
+                "validate_draft",
+                "propose_experiments",
+                "update_draft",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "update_draft",
+                "update_draft",
+                "update_draft",
+                "validate_draft",
+                "propose_experiments",
+                "update_draft",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "update_draft",
+                "update_draft",
+                "update_draft",
+                "validate_draft",
+                "propose_experiments",
+                "update_draft",
+                "propose_experiments"
+              ]
+            ]
+          },
+          "c3": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments"
+              ]
+            ]
+          },
+          "c4": {
+            "correct": 0,
+            "tools": [
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ]
+            ]
+          },
+          "c5": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft"
+              ]
+            ]
+          },
+          "c6": {
+            "correct": 3,
+            "tools": [
+              [
+                "describe_plant",
+                "describe_plant",
+                "update_draft",
+                "set_mode",
+                "update_draft",
+                "propose_experiments"
+              ],
+              [
+                "describe_plant",
+                "describe_plant",
+                "update_draft",
+                "set_mode",
+                "update_draft",
+                "propose_experiments"
+              ],
+              [
+                "describe_plant",
+                "describe_plant",
+                "update_draft",
+                "set_mode",
+                "update_draft",
+                "propose_experiments"
+              ]
+            ]
+          },
+          "o1": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "update_objective",
+                "recommend_plant",
+                "update_objective",
+                "update_objective",
+                "update_objective"
+              ],
+              [
+                "set_mode",
+                "update_objective",
+                "recommend_plant",
+                "update_objective",
+                "update_objective",
+                "update_objective"
+              ],
+              [
+                "set_mode",
+                "update_objective",
+                "recommend_plant",
+                "update_objective",
+                "update_objective",
+                "update_objective"
+              ]
+            ]
+          },
+          "o2": {
+            "correct": 0,
+            "tools": [
+              [
+                "set_mode",
+                "describe_plant",
+                "update_objective",
+                "describe_tunable",
+                "update_draft",
+                "update_objective",
+                "set_mode"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_objective",
+                "describe_tunable",
+                "update_draft",
+                "update_objective",
+                "set_mode"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_objective",
+                "describe_tunable",
+                "update_draft",
+                "update_objective",
+                "set_mode"
+              ]
+            ]
+          },
+          "o3": {
+            "correct": 0,
+            "tools": [
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ]
+            ]
+          },
+          "q1": {
+            "correct": 0,
+            "tools": [
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ]
+            ]
+          },
+          "q2": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs"
+              ],
+              [
+                "set_mode",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs"
+              ],
+              [
+                "set_mode",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs"
+              ]
+            ]
+          },
+          "q3": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs"
+              ],
+              [
+                "set_mode",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs"
+              ],
+              [
+                "set_mode",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs"
+              ]
+            ]
+          }
+        },
+        "state": {
+          "c1": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments",
+                "propose_experiments"
+              ]
+            ]
+          },
+          "c2": {
+            "correct": 0,
+            "tools": [
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ]
+            ]
+          },
+          "c3": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "validate_draft",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "validate_draft",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "validate_draft",
+                "propose_experiments"
+              ]
+            ]
+          },
+          "c4": {
+            "correct": 0,
+            "tools": [
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ],
+              [
+                "set_mode"
+              ]
+            ]
+          },
+          "c5": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "update_draft",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "update_draft",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "update_draft",
+                "update_draft"
+              ]
+            ]
+          },
+          "c6": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "update_draft",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "update_draft",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "update_draft",
+                "update_draft"
+              ]
+            ]
+          },
+          "o1": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "update_objective",
+                "describe_plant",
+                "update_draft",
+                "describe_tunable"
+              ],
+              [
+                "set_mode",
+                "update_objective",
+                "describe_plant",
+                "update_draft",
+                "describe_tunable"
+              ],
+              [
+                "set_mode",
+                "update_objective",
+                "describe_plant",
+                "update_draft",
+                "describe_tunable"
+              ]
+            ]
+          },
+          "o2": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "suggest_value",
+                "describe_tunable",
+                "recommend_plant",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "suggest_value",
+                "describe_tunable",
+                "recommend_plant",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "suggest_value",
+                "describe_tunable",
+                "recommend_plant",
+                "update_draft"
+              ]
+            ]
+          },
+          "o3": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "describe_tunable"
+              ],
+              [
+                "set_mode",
+                "describe_tunable"
+              ],
+              [
+                "set_mode",
+                "describe_tunable"
+              ]
+            ]
+          },
+          "q1": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs"
+              ],
+              [
+                "set_mode",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs"
+              ],
+              [
+                "set_mode",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs"
+              ]
+            ]
+          },
+          "q2": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs"
+              ],
+              [
+                "set_mode",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs"
+              ],
+              [
+                "set_mode",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs"
+              ]
+            ]
+          },
+          "q3": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs"
+              ],
+              [
+                "set_mode",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs"
+              ],
+              [
+                "set_mode",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs",
+                "search_docs"
+              ]
+            ]
+          }
+        }
+      }
+    }
+  }
+}
