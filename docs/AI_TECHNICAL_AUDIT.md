@@ -243,7 +243,7 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N24 | Medium | Negative result | **Open** (§12.1): `rpi5_tcn/2026-10-20_run01` is numerically correct on the C2000 but takes 520 ms for a 51.2 ms window |
 | AI-N25 | Medium | Negative result (feasibility) | **Open** (§12.2): the promoted `dc_motor/rpi5` w2048 classifier needs a 448 KB arena; the C2000 has 128 KB for tensors |
 | AI-N26 | Medium | Defect (sample rate) | **Fixed in code; pre-registered C2000 verdicts kept** (§12.3): the C2000 real-time budget and the edge examples assumed 5 kHz, the data are 10 kHz. Post-hoc: `esp32_dscnn/2026-10-18_run01` takes 68.5 ms for a 51.2 ms window |
-| AI-N27 | **High** | Training-data defect (simulator artifact S-21) | **Open; measured: AFFECTS — decision pending** (§13): 7.1 % (ESP32, 3 classes) and 17.8 % (PC and RPi5, 5 classes) of the promoted dc_motor classifiers' training windows contain the one-quadrant converter artifact of S-21; all of them fault classes, none healthy |
+| AI-N27 | **High** | Training-data defect (simulator artifact S-21) | **Open; measured: AFFECTS; option 2 executed — PC and RPi5 candidates meet the pre-registered criterion, ESP32 does not; promotion pending** (§13): 7.1 % (ESP32, 3 classes) and 17.8 % (PC and RPi5, 5 classes) of the promoted dc_motor classifiers' training windows contain the one-quadrant converter artifact of S-21; all of them fault classes, none healthy |
 | AI-N19 | Medium | Evaluation limit | **Documented** (§10): simulated healthy current/rpm are constant in steady state, so the residual AUROC (1.000) and the persistence baseline are optimistic |
 | AI-N15 | Medium | Defect (estimator bias) | **Open** (§9.1): the VSC PINN estimates C systematically low, −1.3 % to −9.1 % mean error at 0–5 % noise |
 | AI-N16 | Medium | Defect (uncertainty) | **Open** (§9.2): the PINN's 5–95 % bootstrap interval covers the truth in 52–78 % of noisy runs for C; the GUI says "Coverage not validated" |
@@ -750,7 +750,7 @@ Found 2026-11-02. Evidence: [`docs/audit/c2000/ai_n26_sample_rate.md`](audit/c20
 
 ## 13. Round Assistant, phase 1 (2026-11-02): simulator artifact in the training data
 
-### 13.1 AI-N27 — training windows of the promoted dc_motor classifiers contain the S-21 converter artifact · **High** · Training-data defect · **Open; measured: affects; decision pending**
+### 13.1 AI-N27 — training windows of the promoted dc_motor classifiers contain the S-21 converter artifact · **High** · Training-data defect · **Open; measured: affects; option 2 executed (PC, RPi5 candidates meet the criterion; ESP32 does not); promotion pending**
 
 Found 2026-11-02 by the scan of decision S21-1. Evidence: [`docs/audit/assistant/s21_dataset_scan.md`](audit/assistant/s21_dataset_scan.md) (`python experiments/report_s21_dataset_scan.py`, data read only); simulator finding S-21 in `docs/SIMULATION_STABILITY_REPORT.md`.
 
@@ -771,4 +771,18 @@ Found 2026-11-02 by the scan of decision S21-1. Evidence: [`docs/audit/assistant
 - **Accuracy on affected windows, GEM1000 → DCM1000:** PC 80.7 → 83.5 %, RPi5 78.8 → 79.2 %, ESP32 53.9 → 69.7 % (its 3 classes); per class it moves by up to 42 points in both directions (e.g. PC cage −21.5, outer_race +30.3; RPi5 inner_race +42.3). Abstention on affected windows: PC 14 → 8 %, RPi5 20 → 10 %, ESP32 26 → 53 %.
 - **Speed in the affected runs:** median +35 % (max +76 %) above the reference in the training data and GEM1000; −0.0 % (max +9.3 %) with DCM1000.
 - **Reading (descriptive, not part of the verdict):** in the affected regime (80–125 rad/s, high severity) the models decide differently on a third to a half of the windows once the physics is corrected; the training data's artifact is a cue they use. Outside it (controls) nothing changes.
+
+**Option 2 (Luciano, 2026-11-03): grids regenerated with `dcm` ×1000, candidates retrained (pre-registered, 2026-11-04).**
+- **Evidence:** [`docs/audit/assistant/ai_n27_regen.md`](audit/assistant/ai_n27_regen.md). The pre-registration `ai_n27_regen_preregistration.md` was committed before any data existed.
+- **Preconditions:**
+  - P1: the generator reproduces the stored grids.
+  - P2: no noise-free acquisition carries a negative current.
+  - P3: identical train/validation/test split.
+- **Recipe:** same as the promoted runs.
+- **Verdict per tier:**
+  - **PC: meets the criterion.** Macro-F1 on the dcm test split 0.891 → 0.930; held-out runs in the affected regime 0.888 → 0.929; regenerated generalization 0.955 → 0.982.
+  - **RPi5: meets the criterion.** 0.870 → 0.925; 0.851 → 0.924; 0.964 → 0.980.
+  - **ESP32: does not meet it.** 0.899 → 0.718; 0.843 → 0.563; 0.990 → 0.679. outer_race recall collapses (int8 TFLite: 0.38 / 0.05 / 0.21).
+- **Post-hoc (descriptive):** the ESP32 Keras candidate is already weaker on outer_race (0.76 vs 0.86 on the test split), and the int8 quantization makes it much worse.
+- **Not done:** nothing promoted, registry unchanged. The promoted models keep the AI-N27 warning until Luciano decides.
 

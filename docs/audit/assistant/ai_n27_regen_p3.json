@@ -1,0 +1,76 @@
+{
+  "command": "python experiments/report_ai_n27_regen_preconditions.py p3 --pairs configs/classifiers/pc_server/2026-10-25_run01=configs/classifiers/pc_server/2026-11-04_run01 configs/classifiers/esp32_dscnn/2026-10-18_run01=configs/classifiers/esp32_dscnn/2026-11-04_run01 configs/classifiers/pc_server_5class_w2048/2026-10-20_run01=configs/classifiers/pc_server_5class_w2048/2026-11-04_run01 configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-10-20_run01=configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-11-04_run01",
+  "host": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "python": "3.12.13",
+  "candidates": {
+    "configs/classifiers/pc_server/2026-11-04_run01": {
+      "reference": "configs/classifiers/pc_server/2026-10-25_run01",
+      "group_hashes_equal": true,
+      "n_windows": [
+        {
+          "train": 6319,
+          "val": 1811,
+          "test": 870
+        },
+        {
+          "train": 6319,
+          "val": 1811,
+          "test": 870
+        }
+      ],
+      "ok": true
+    },
+    "configs/classifiers/esp32_dscnn/2026-11-04_run01": {
+      "reference": "configs/classifiers/esp32_dscnn/2026-10-18_run01",
+      "group_hashes_equal": true,
+      "n_windows": [
+        {
+          "train": 6319,
+          "val": 1811,
+          "test": 870
+        },
+        {
+          "train": 6319,
+          "val": 1811,
+          "test": 870
+        }
+      ],
+      "ok": true
+    },
+    "configs/classifiers/pc_server_5class_w2048/2026-11-04_run01": {
+      "reference": "configs/classifiers/pc_server_5class_w2048/2026-10-20_run01",
+      "group_hashes_equal": true,
+      "n_windows": [
+        {
+          "train": 4440,
+          "val": 1260,
+          "test": 600
+        },
+        {
+          "train": 4440,
+          "val": 1260,
+          "test": 600
+        }
+      ],
+      "ok": true
+    },
+    "configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-11-04_run01": {
+      "reference": "configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-10-20_run01",
+      "group_hashes_equal": true,
+      "n_windows": [
+        {
+          "train": 4440,
+          "val": 1260,
+          "test": 600
+        },
+        {
+          "train": 4440,
+          "val": 1260,
+          "test": 600
+        }
+      ],
+      "ok": true
+    }
+  },
+  "ok": true
+}

@@ -1,0 +1,32 @@
+{
+  "command": "python experiments/report_ai_n27_regen_preconditions.py p2",
+  "host": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "python": "3.12.13",
+  "grids": {
+    "3class": {
+      "path": "data/diagnosis_grid_dataset_dcm.parquet",
+      "acquisitions": 315,
+      "rows": 7875000,
+      "same_acquisitions_order": true,
+      "same_rows_and_timestamps": true,
+      "tagged_dcm_1000": true,
+      "noise_free_acquisitions": 113,
+      "noise_free_min_current_a": 0.0,
+      "noise_free_below_tol": 0,
+      "ok": true
+    },
+    "5class": {
+      "path": "data/diagnosis_grid_dataset_5class_dcm.parquet",
+      "acquisitions": 525,
+      "rows": 13125000,
+      "same_acquisitions_order": true,
+      "same_rows_and_timestamps": true,
+      "tagged_dcm_1000": true,
+      "noise_free_acquisitions": 187,
+      "noise_free_min_current_a": 0.0,
+      "noise_free_below_tol": 0,
+      "ok": true
+    }
+  },
+  "ok": true
+}

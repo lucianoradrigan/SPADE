@@ -1,0 +1,7435 @@
+{
+  "command": "python experiments/report_ai_n27_regen.py --candidates PC3=configs/classifiers/pc_server/2026-11-04_run01 ESP32=configs/classifiers/esp32_dscnn/2026-11-04_run01 PC5=configs/classifiers/pc_server_5class_w2048/2026-11-04_run01 RPI5=configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-11-04_run01",
+  "preregistration": "docs/audit/assistant/ai_n27_regen_preregistration.md",
+  "host": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "python": "3.12.13",
+  "rule": {
+    "gate_min_macro_f1": 0.88,
+    "gate_min_recall": 0.7,
+    "min_delta_macro_f1_points": -1.0,
+    "min_delta_recall_points": -5.0,
+    "max_abs_delta_abstention_points": 5.0
+  },
+  "candidates": {
+    "PC3": "configs/classifiers/pc_server/2026-11-04_run01",
+    "ESP32": "configs/classifiers/esp32_dscnn/2026-11-04_run01",
+    "PC5": "configs/classifiers/pc_server_5class_w2048/2026-11-04_run01",
+    "RPI5": "configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-11-04_run01"
+  },
+  "tiers": {
+    "PC": {
+      "promoted": "configs/classifiers/pc_server_5class_w2048/2026-10-20_run01",
+      "candidate": "configs/classifiers/pc_server_5class_w2048/2026-11-04_run01",
+      "artifact": "keras",
+      "classes": [
+        "ball",
+        "cage",
+        "inner_race",
+        "normal",
+        "outer_race"
+      ],
+      "candidate_dataset": "data/diagnosis_grid_dataset_5class_dcm.parquet",
+      "candidate_dataset_sha256": "f3dc2f56f364dc7ce5b59da46ce7ae544c65edb6398912de1a9842203c6323cc",
+      "sets": {
+        "E1": {
+          "n_acquisitions": 50,
+          "promoted": {
+            "n_windows": 600,
+            "accuracy": 0.8916666666666667,
+            "macro_f1": 0.8908415878243183,
+            "recall": {
+              "ball": 0.95,
+              "cage": 0.7583333333333333,
+              "inner_race": 0.925,
+              "normal": 0.925,
+              "outer_race": 0.9
+            },
+            "n_per_class": {
+              "ball": 120,
+              "cage": 120,
+              "inner_race": 120,
+              "normal": 120,
+              "outer_race": 120
+            },
+            "abstention": 0.09833333333333333,
+            "confusion": [
+              [
+                114,
+                2,
+                3,
+                0,
+                1
+              ],
+              [
+                2,
+                91,
+                10,
+                17,
+                0
+              ],
+              [
+                4,
+                1,
+                111,
+                1,
+                3
+              ],
+              [
+                1,
+                2,
+                5,
+                111,
+                1
+              ],
+              [
+                3,
+                4,
+                1,
+                4,
+                108
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 600,
+            "accuracy": 0.93,
+            "macro_f1": 0.9302559678279968,
+            "recall": {
+              "ball": 0.9583333333333334,
+              "cage": 0.95,
+              "inner_race": 0.9166666666666666,
+              "normal": 0.9583333333333334,
+              "outer_race": 0.8666666666666667
+            },
+            "n_per_class": {
+              "ball": 120,
+              "cage": 120,
+              "inner_race": 120,
+              "normal": 120,
+              "outer_race": 120
+            },
+            "abstention": 0.115,
+            "confusion": [
+              [
+                115,
+                1,
+                3,
+                1,
+                0
+              ],
+              [
+                3,
+                114,
+                0,
+                2,
+                1
+              ],
+              [
+                5,
+                1,
+                110,
+                1,
+                3
+              ],
+              [
+                4,
+                0,
+                1,
+                115,
+                0
+              ],
+              [
+                9,
+                5,
+                1,
+                1,
+                104
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 3.9414380003678473,
+            "accuracy": 3.833333333333333,
+            "abstention": 1.6666666666666676,
+            "recall": {
+              "ball": 0.8333333333333415,
+              "cage": 19.166666666666664,
+              "inner_race": -0.8333333333333415,
+              "normal": 3.3333333333333326,
+              "outer_race": -3.3333333333333326
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -0.5126526258033128,
+            9.059610872938215
+          ]
+        },
+        "E2b": {
+          "n_acquisitions": 13,
+          "promoted": {
+            "n_windows": 156,
+            "accuracy": 0.7948717948717948,
+            "macro_f1": 0.6830690537084398,
+            "recall": {
+              "ball": 0.9166666666666666,
+              "cage": 0.71875,
+              "inner_race": 1.0,
+              "normal": null,
+              "outer_race": 0.8888888888888888
+            },
+            "n_per_class": {
+              "ball": 12,
+              "cage": 96,
+              "inner_race": 12,
+              "normal": 0,
+              "outer_race": 36
+            },
+            "abstention": 0.08974358974358974,
+            "confusion": [
+              [
+                11,
+                1,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                69,
+                10,
+                17,
+                0
+              ],
+              [
+                0,
+                0,
+                12,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                4,
+                0,
+                0,
+                32
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 156,
+            "accuracy": 0.9038461538461539,
+            "macro_f1": 0.6954126984126983,
+            "recall": {
+              "ball": 0.9166666666666666,
+              "cage": 0.9583333333333334,
+              "inner_race": 1.0,
+              "normal": null,
+              "outer_race": 0.7222222222222222
+            },
+            "n_per_class": {
+              "ball": 12,
+              "cage": 96,
+              "inner_race": 12,
+              "normal": 0,
+              "outer_race": 36
+            },
+            "abstention": 0.1346153846153846,
+            "confusion": [
+              [
+                11,
+                0,
+                1,
+                0,
+                0
+              ],
+              [
+                1,
+                92,
+                0,
+                2,
+                1
+              ],
+              [
+                0,
+                0,
+                12,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                6,
+                4,
+                0,
+                0,
+                26
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 1.2343644704258416,
+            "accuracy": 10.897435897435903,
+            "abstention": 4.487179487179486,
+            "recall": {
+              "ball": 0.0,
+              "cage": 23.958333333333336,
+              "inner_race": 0.0,
+              "normal": null,
+              "outer_race": -16.666666666666664
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -8.888438530043487,
+            11.593235638453557
+          ]
+        },
+        "E2a": {
+          "n_acquisitions": 90,
+          "promoted": {
+            "n_windows": 1080,
+            "accuracy": 0.8898148148148148,
+            "macro_f1": 0.887903170834799,
+            "recall": {
+              "ball": 0.9351851851851852,
+              "cage": 0.6990740740740741,
+              "inner_race": 0.9305555555555556,
+              "normal": 0.9351851851851852,
+              "outer_race": 0.9490740740740741
+            },
+            "n_per_class": {
+              "ball": 216,
+              "cage": 216,
+              "inner_race": 216,
+              "normal": 216,
+              "outer_race": 216
+            },
+            "abstention": 0.09351851851851851,
+            "confusion": [
+              [
+                202,
+                6,
+                5,
+                0,
+                3
+              ],
+              [
+                3,
+                151,
+                15,
+                46,
+                1
+              ],
+              [
+                10,
+                1,
+                201,
+                3,
+                1
+              ],
+              [
+                4,
+                4,
+                4,
+                202,
+                2
+              ],
+              [
+                5,
+                2,
+                3,
+                1,
+                205
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 1080,
+            "accuracy": 0.9277777777777778,
+            "macro_f1": 0.928920565902678,
+            "recall": {
+              "ball": 0.9675925925925926,
+              "cage": 0.9444444444444444,
+              "inner_race": 0.8981481481481481,
+              "normal": 0.9212962962962963,
+              "outer_race": 0.9074074074074074
+            },
+            "n_per_class": {
+              "ball": 216,
+              "cage": 216,
+              "inner_race": 216,
+              "normal": 216,
+              "outer_race": 216
+            },
+            "abstention": 0.12037037037037036,
+            "confusion": [
+              [
+                209,
+                5,
+                0,
+                1,
+                1
+              ],
+              [
+                9,
+                204,
+                0,
+                3,
+                0
+              ],
+              [
+                13,
+                1,
+                194,
+                0,
+                8
+              ],
+              [
+                12,
+                4,
+                1,
+                199,
+                0
+              ],
+              [
+                15,
+                3,
+                1,
+                1,
+                196
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 4.101739506787904,
+            "accuracy": 3.7962962962962976,
+            "abstention": 2.685185185185185,
+            "recall": {
+              "ball": 3.240740740740733,
+              "cage": 24.537037037037035,
+              "inner_race": -3.240740740740744,
+              "normal": -1.388888888888895,
+              "outer_race": -4.1666666666666625
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            1.0023005116379258,
+            7.681894646383107
+          ]
+        },
+        "E2a_startup": {
+          "n_acquisitions": 90,
+          "promoted": {
+            "n_windows": 180,
+            "accuracy": 0.6222222222222222,
+            "macro_f1": 0.6268132952145986,
+            "recall": {
+              "ball": 0.6111111111111112,
+              "cage": 0.5833333333333334,
+              "inner_race": 0.5833333333333334,
+              "normal": 0.6388888888888888,
+              "outer_race": 0.6944444444444444
+            },
+            "n_per_class": {
+              "ball": 36,
+              "cage": 36,
+              "inner_race": 36,
+              "normal": 36,
+              "outer_race": 36
+            },
+            "abstention": 0.45,
+            "confusion": [
+              [
+                22,
+                6,
+                5,
+                0,
+                3
+              ],
+              [
+                3,
+                21,
+                7,
+                5,
+                0
+              ],
+              [
+                10,
+                1,
+                21,
+                3,
+                1
+              ],
+              [
+                4,
+                3,
+                4,
+                23,
+                2
+              ],
+              [
+                5,
+                2,
+                3,
+                1,
+                25
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 180,
+            "accuracy": 0.6277777777777778,
+            "macro_f1": 0.6302217544413816,
+            "recall": {
+              "ball": 0.8055555555555556,
+              "cage": 0.6944444444444444,
+              "inner_race": 0.3888888888888889,
+              "normal": 0.5555555555555556,
+              "outer_race": 0.6944444444444444
+            },
+            "n_per_class": {
+              "ball": 36,
+              "cage": 36,
+              "inner_race": 36,
+              "normal": 36,
+              "outer_race": 36
+            },
+            "abstention": 0.6333333333333333,
+            "confusion": [
+              [
+                29,
+                5,
+                0,
+                1,
+                1
+              ],
+              [
+                8,
+                25,
+                0,
+                3,
+                0
+              ],
+              [
+                13,
+                1,
+                14,
+                0,
+                8
+              ],
+              [
+                12,
+                3,
+                1,
+                20,
+                0
+              ],
+              [
+                6,
+                3,
+                1,
+                1,
+                25
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.34084592267830116,
+            "accuracy": 0.5555555555555536,
+            "abstention": 18.33333333333333,
+            "recall": {
+              "ball": 19.444444444444443,
+              "cage": 11.111111111111105,
+              "inner_race": -19.444444444444446,
+              "normal": -8.333333333333325,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -4.838480807071527,
+            5.478637003338458
+          ]
+        },
+        "E2a_steady_state": {
+          "n_acquisitions": 90,
+          "promoted": {
+            "n_windows": 810,
+            "accuracy": 0.9345679012345679,
+            "macro_f1": 0.9311924533469093,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.6728395061728395,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 162,
+              "cage": 162,
+              "inner_race": 162,
+              "normal": 162,
+              "outer_race": 162
+            },
+            "abstention": 0.020987654320987655,
+            "confusion": [
+              [
+                162,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                109,
+                13,
+                40,
+                0
+              ],
+              [
+                0,
+                0,
+                162,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                162,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                162
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 810,
+            "accuracy": 0.9888888888888889,
+            "macro_f1": 0.9889048623290334,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.9876543209876543,
+              "inner_race": 0.9938271604938271,
+              "normal": 1.0,
+              "outer_race": 0.9629629629629629
+            },
+            "n_per_class": {
+              "ball": 162,
+              "cage": 162,
+              "inner_race": 162,
+              "normal": 162,
+              "outer_race": 162
+            },
+            "abstention": 0.01728395061728395,
+            "confusion": [
+              [
+                162,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                1,
+                160,
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                161,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                0,
+                162,
+                0
+              ],
+              [
+                6,
+                0,
+                0,
+                0,
+                156
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 5.771240898212415,
+            "accuracy": 5.432098765432103,
+            "abstention": -0.37037037037037057,
+            "recall": {
+              "ball": 0.0,
+              "cage": 31.481481481481477,
+              "inner_race": -0.6172839506172867,
+              "normal": 0.0,
+              "outer_race": -3.703703703703709
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            2.4207428417998655,
+            9.684931874880155
+          ]
+        },
+        "E3_nominal_steady_state": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.0,
+            "accuracy": 0.0,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.0,
+            0.0
+          ]
+        },
+        "E3_startup_transient": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 40,
+            "accuracy": 0.6,
+            "macro_f1": 0.6333333333333332,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.5,
+              "inner_race": 0.5,
+              "normal": 0.5,
+              "outer_race": 0.5
+            },
+            "n_per_class": {
+              "ball": 8,
+              "cage": 8,
+              "inner_race": 8,
+              "normal": 8,
+              "outer_race": 8
+            },
+            "abstention": 0.6,
+            "confusion": [
+              [
+                8,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                4,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                0,
+                4,
+                0,
+                0
+              ],
+              [
+                4,
+                0,
+                0,
+                4,
+                0
+              ],
+              [
+                4,
+                0,
+                0,
+                0,
+                4
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 40,
+            "accuracy": 0.55,
+            "macro_f1": 0.5741176470588234,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.5,
+              "inner_race": 0.5,
+              "normal": 0.25,
+              "outer_race": 0.5
+            },
+            "n_per_class": {
+              "ball": 8,
+              "cage": 8,
+              "inner_race": 8,
+              "normal": 8,
+              "outer_race": 8
+            },
+            "abstention": 0.6,
+            "confusion": [
+              [
+                8,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                4,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                0,
+                4,
+                0,
+                0
+              ],
+              [
+                6,
+                0,
+                0,
+                2,
+                0
+              ],
+              [
+                4,
+                0,
+                0,
+                0,
+                4
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -5.921568627450979,
+            "accuracy": -4.999999999999993,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": -25.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -14.236139128308565,
+            0.0
+          ]
+        },
+        "E3_speed_100_rad_s": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 0.9,
+            "macro_f1": 0.8933333333333333,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.5,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                8,
+                0,
+                8,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 10.666666666666668,
+            "accuracy": 9.999999999999998,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 50.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            6.666666666666677,
+            16.681372549019603
+          ]
+        },
+        "E3_speed_200_rad_s": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.0,
+            "accuracy": 0.0,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.0,
+            0.0
+          ]
+        },
+        "E3_severity_x0.5": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.0,
+            "accuracy": 0.0,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.0,
+            0.0
+          ]
+        },
+        "E3_severity_x2": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 0.8,
+            "macro_f1": 0.7232323232323232,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.1375,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                12,
+                4,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 27.67676767676768,
+            "accuracy": 19.999999999999996,
+            "abstention": -13.750000000000002,
+            "recall": {
+              "ball": 0.0,
+              "cage": 100.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            21.50467475467938,
+            37.004652697574656
+          ]
+        },
+        "E3_noise_20pct": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.0,
+            "accuracy": 0.0,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.0,
+            0.0
+          ]
+        },
+        "E3_noise_100pct": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.0,
+            "accuracy": 0.0,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.0,
+            0.0
+          ]
+        },
+        "E3_plant_drift_psi-10pct_J+50pct": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.0,
+            "accuracy": 0.0,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.0,
+            0.0
+          ]
+        },
+        "E3_unseen_speed_115_rad_s": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 0.95,
+            "macro_f1": 0.9492063492063492,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.75,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                12,
+                0,
+                4,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 5.0793650793650835,
+            "accuracy": 5.000000000000004,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 25.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            2.857142857142858,
+            9.537142857142856
+          ]
+        },
+        "E3_unseen_speed_190_rad_s": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.0,
+            "accuracy": 0.0,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.0,
+            0.0
+          ]
+        },
+        "E3_extrapolated_speed_250_rad_s": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.0,
+            "accuracy": 0.0,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.0,
+            0.0
+          ]
+        },
+        "E3_unseen_severity_x0.6": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.0,
+            "accuracy": 0.0,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.0,
+            0.0
+          ]
+        },
+        "E3": {
+          "n_acquisitions": 260,
+          "promoted": {
+            "n_windows": 1000,
+            "accuracy": 0.956,
+            "macro_f1": 0.9553443108206846,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.84,
+              "inner_race": 0.98,
+              "normal": 0.98,
+              "outer_race": 0.98
+            },
+            "n_per_class": {
+              "ball": 200,
+              "cage": 200,
+              "inner_race": 200,
+              "normal": 200,
+              "outer_race": 200
+            },
+            "abstention": 0.035,
+            "confusion": [
+              [
+                200,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                168,
+                12,
+                16,
+                0
+              ],
+              [
+                4,
+                0,
+                196,
+                0,
+                0
+              ],
+              [
+                4,
+                0,
+                0,
+                196,
+                0
+              ],
+              [
+                4,
+                0,
+                0,
+                0,
+                196
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 1000,
+            "accuracy": 0.982,
+            "macro_f1": 0.9822812684688186,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.98,
+              "inner_race": 0.98,
+              "normal": 0.97,
+              "outer_race": 0.98
+            },
+            "n_per_class": {
+              "ball": 200,
+              "cage": 200,
+              "inner_race": 200,
+              "normal": 200,
+              "outer_race": 200
+            },
+            "abstention": 0.024,
+            "confusion": [
+              [
+                200,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                196,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                0,
+                196,
+                0,
+                0
+              ],
+              [
+                6,
+                0,
+                0,
+                194,
+                0
+              ],
+              [
+                4,
+                0,
+                0,
+                0,
+                196
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 2.6936957648133975,
+            "accuracy": 2.6000000000000023,
+            "abstention": -1.1000000000000003,
+            "recall": {
+              "ball": 0.0,
+              "cage": 14.000000000000002,
+              "inner_race": 0.0,
+              "normal": -1.0000000000000009,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            1.125081214400362,
+            4.681132397638357
+          ]
+        }
+      },
+      "keras_descriptive": {},
+      "candidate_recorded_test_macro_f1_keras": 0.9302559678279968,
+      "checks": {
+        "gate_D1_macro_f1": {
+          "value": 0.9302559678279968,
+          "pass": true
+        },
+        "gate_D1_min_recall": {
+          "value": 0.8666666666666667,
+          "pass": true
+        },
+        "E1_delta_macro_f1": {
+          "value": 3.9414380003678473,
+          "pass": true
+        },
+        "E1_worst_delta_recall": {
+          "class": "outer_race",
+          "value": -3.3333333333333326,
+          "pass": true
+        },
+        "E1_delta_abstention": {
+          "value": 1.6666666666666676,
+          "pass": true
+        },
+        "E2a_delta_macro_f1": {
+          "value": 4.101739506787904,
+          "pass": true
+        },
+        "E2a_worst_delta_recall": {
+          "class": "outer_race",
+          "value": -4.1666666666666625,
+          "pass": true
+        },
+        "E2a_delta_abstention": {
+          "value": 2.685185185185185,
+          "pass": true
+        },
+        "E3_delta_macro_f1": {
+          "value": 2.6936957648133975,
+          "pass": true
+        },
+        "E3_worst_delta_recall": {
+          "class": "normal",
+          "value": -1.0000000000000009,
+          "pass": true
+        },
+        "E3_delta_abstention": {
+          "value": -1.1000000000000003,
+          "pass": true
+        }
+      },
+      "verdict": "MEETS THE CRITERION"
+    },
+    "RPi5": {
+      "promoted": "configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-10-20_run01",
+      "candidate": "configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-11-04_run01",
+      "artifact": "tflite",
+      "classes": [
+        "ball",
+        "cage",
+        "inner_race",
+        "normal",
+        "outer_race"
+      ],
+      "candidate_dataset": "data/diagnosis_grid_dataset_5class_dcm.parquet",
+      "candidate_dataset_sha256": "f3dc2f56f364dc7ce5b59da46ce7ae544c65edb6398912de1a9842203c6323cc",
+      "sets": {
+        "E1": {
+          "n_acquisitions": 50,
+          "promoted": {
+            "n_windows": 600,
+            "accuracy": 0.87,
+            "macro_f1": 0.8700477619659056,
+            "recall": {
+              "ball": 0.9083333333333333,
+              "cage": 0.7333333333333333,
+              "inner_race": 0.9,
+              "normal": 0.9,
+              "outer_race": 0.9083333333333333
+            },
+            "n_per_class": {
+              "ball": 120,
+              "cage": 120,
+              "inner_race": 120,
+              "normal": 120,
+              "outer_race": 120
+            },
+            "abstention": 0.09833333333333333,
+            "confusion": [
+              [
+                109,
+                4,
+                0,
+                2,
+                5
+              ],
+              [
+                19,
+                88,
+                0,
+                3,
+                10
+              ],
+              [
+                4,
+                1,
+                108,
+                4,
+                3
+              ],
+              [
+                6,
+                2,
+                0,
+                108,
+                4
+              ],
+              [
+                1,
+                6,
+                0,
+                4,
+                109
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 600,
+            "accuracy": 0.925,
+            "macro_f1": 0.9251224592259943,
+            "recall": {
+              "ball": 0.925,
+              "cage": 0.95,
+              "inner_race": 0.9,
+              "normal": 0.9666666666666667,
+              "outer_race": 0.8833333333333333
+            },
+            "n_per_class": {
+              "ball": 120,
+              "cage": 120,
+              "inner_race": 120,
+              "normal": 120,
+              "outer_race": 120
+            },
+            "abstention": 0.115,
+            "confusion": [
+              [
+                111,
+                1,
+                3,
+                5,
+                0
+              ],
+              [
+                1,
+                114,
+                1,
+                3,
+                1
+              ],
+              [
+                5,
+                1,
+                108,
+                4,
+                2
+              ],
+              [
+                1,
+                3,
+                0,
+                116,
+                0
+              ],
+              [
+                0,
+                6,
+                2,
+                6,
+                106
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 5.507469726008873,
+            "accuracy": 5.500000000000005,
+            "abstention": 1.6666666666666676,
+            "recall": {
+              "ball": 1.6666666666666718,
+              "cage": 21.666666666666668,
+              "inner_race": 0.0,
+              "normal": 6.666666666666665,
+              "outer_race": -2.500000000000002
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            1.6134211057114642,
+            10.673138080586037
+          ]
+        },
+        "E2b": {
+          "n_acquisitions": 13,
+          "promoted": {
+            "n_windows": 156,
+            "accuracy": 0.7371794871794872,
+            "macro_f1": 0.5797040905014688,
+            "recall": {
+              "ball": 0.5833333333333334,
+              "cage": 0.6770833333333334,
+              "inner_race": 0.9166666666666666,
+              "normal": null,
+              "outer_race": 0.8888888888888888
+            },
+            "n_per_class": {
+              "ball": 12,
+              "cage": 96,
+              "inner_race": 12,
+              "normal": 0,
+              "outer_race": 36
+            },
+            "abstention": 0.10897435897435898,
+            "confusion": [
+              [
+                7,
+                1,
+                0,
+                0,
+                4
+              ],
+              [
+                18,
+                65,
+                0,
+                3,
+                10
+              ],
+              [
+                0,
+                0,
+                11,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                4,
+                0,
+                0,
+                32
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 156,
+            "accuracy": 0.9294871794871795,
+            "macro_f1": 0.7540754921046939,
+            "recall": {
+              "ball": 0.9166666666666666,
+              "cage": 0.9583333333333334,
+              "inner_race": 1.0,
+              "normal": null,
+              "outer_race": 0.8333333333333334
+            },
+            "n_per_class": {
+              "ball": 12,
+              "cage": 96,
+              "inner_race": 12,
+              "normal": 0,
+              "outer_race": 36
+            },
+            "abstention": 0.1282051282051282,
+            "confusion": [
+              [
+                11,
+                0,
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                92,
+                0,
+                3,
+                1
+              ],
+              [
+                0,
+                0,
+                12,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                4,
+                0,
+                2,
+                30
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 17.437140160322517,
+            "accuracy": 19.23076923076923,
+            "abstention": 1.9230769230769218,
+            "recall": {
+              "ball": 33.33333333333333,
+              "cage": 28.125,
+              "inner_race": 8.333333333333337,
+              "normal": null,
+              "outer_race": -5.5555555555555465
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            2.574717139838048,
+            24.303745967705762
+          ]
+        },
+        "E2a": {
+          "n_acquisitions": 90,
+          "promoted": {
+            "n_windows": 1080,
+            "accuracy": 0.850925925925926,
+            "macro_f1": 0.8507621425187539,
+            "recall": {
+              "ball": 0.7592592592592593,
+              "cage": 0.7453703703703703,
+              "inner_race": 0.8796296296296297,
+              "normal": 0.9212962962962963,
+              "outer_race": 0.9490740740740741
+            },
+            "n_per_class": {
+              "ball": 216,
+              "cage": 216,
+              "inner_race": 216,
+              "normal": 216,
+              "outer_race": 216
+            },
+            "abstention": 0.08981481481481482,
+            "confusion": [
+              [
+                164,
+                10,
+                0,
+                3,
+                39
+              ],
+              [
+                17,
+                161,
+                4,
+                16,
+                18
+              ],
+              [
+                7,
+                5,
+                190,
+                5,
+                9
+              ],
+              [
+                7,
+                6,
+                0,
+                199,
+                4
+              ],
+              [
+                5,
+                4,
+                0,
+                2,
+                205
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 1080,
+            "accuracy": 0.924074074074074,
+            "macro_f1": 0.9242190699137411,
+            "recall": {
+              "ball": 0.9212962962962963,
+              "cage": 0.9259259259259259,
+              "inner_race": 0.8981481481481481,
+              "normal": 0.9351851851851852,
+              "outer_race": 0.9398148148148148
+            },
+            "n_per_class": {
+              "ball": 216,
+              "cage": 216,
+              "inner_race": 216,
+              "normal": 216,
+              "outer_race": 216
+            },
+            "abstention": 0.12222222222222222,
+            "confusion": [
+              [
+                199,
+                10,
+                3,
+                3,
+                1
+              ],
+              [
+                4,
+                200,
+                4,
+                5,
+                3
+              ],
+              [
+                6,
+                7,
+                194,
+                4,
+                5
+              ],
+              [
+                10,
+                2,
+                2,
+                202,
+                0
+              ],
+              [
+                4,
+                5,
+                2,
+                2,
+                203
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 7.3456927394987215,
+            "accuracy": 7.314814814814808,
+            "abstention": 3.24074074074074,
+            "recall": {
+              "ball": 16.2037037037037,
+              "cage": 18.055555555555557,
+              "inner_race": 1.851851851851849,
+              "normal": 1.388888888888895,
+              "outer_race": -0.92592592592593
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            4.272949287291793,
+            10.564000094758136
+          ]
+        },
+        "E2a_startup": {
+          "n_acquisitions": 90,
+          "promoted": {
+            "n_windows": 180,
+            "accuracy": 0.5444444444444444,
+            "macro_f1": 0.5350011558880297,
+            "recall": {
+              "ball": 0.5,
+              "cage": 0.6944444444444444,
+              "inner_race": 0.2777777777777778,
+              "normal": 0.5555555555555556,
+              "outer_race": 0.6944444444444444
+            },
+            "n_per_class": {
+              "ball": 36,
+              "cage": 36,
+              "inner_race": 36,
+              "normal": 36,
+              "outer_race": 36
+            },
+            "abstention": 0.42777777777777776,
+            "confusion": [
+              [
+                18,
+                10,
+                0,
+                3,
+                5
+              ],
+              [
+                6,
+                25,
+                0,
+                5,
+                0
+              ],
+              [
+                7,
+                5,
+                10,
+                5,
+                9
+              ],
+              [
+                7,
+                5,
+                0,
+                20,
+                4
+              ],
+              [
+                5,
+                4,
+                0,
+                2,
+                25
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 180,
+            "accuracy": 0.5944444444444444,
+            "macro_f1": 0.5939156585811977,
+            "recall": {
+              "ball": 0.5555555555555556,
+              "cage": 0.75,
+              "inner_race": 0.3888888888888889,
+              "normal": 0.6388888888888888,
+              "outer_race": 0.6388888888888888
+            },
+            "n_per_class": {
+              "ball": 36,
+              "cage": 36,
+              "inner_race": 36,
+              "normal": 36,
+              "outer_race": 36
+            },
+            "abstention": 0.6,
+            "confusion": [
+              [
+                20,
+                10,
+                3,
+                3,
+                0
+              ],
+              [
+                4,
+                27,
+                3,
+                2,
+                0
+              ],
+              [
+                6,
+                7,
+                14,
+                4,
+                5
+              ],
+              [
+                9,
+                2,
+                2,
+                23,
+                0
+              ],
+              [
+                4,
+                5,
+                2,
+                2,
+                23
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 5.891450269316801,
+            "accuracy": 5.000000000000004,
+            "abstention": 17.22222222222222,
+            "recall": {
+              "ball": 5.555555555555558,
+              "cage": 5.555555555555558,
+              "inner_race": 11.11111111111111,
+              "normal": 8.333333333333325,
+              "outer_race": -5.555555555555558
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.7650629323876021,
+            11.106588560871499
+          ]
+        },
+        "E2a_steady_state": {
+          "n_acquisitions": 90,
+          "promoted": {
+            "n_windows": 810,
+            "accuracy": 0.9185185185185185,
+            "macro_f1": 0.9176896991980039,
+            "recall": {
+              "ball": 0.8209876543209876,
+              "cage": 0.7716049382716049,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 162,
+              "cage": 162,
+              "inner_race": 162,
+              "normal": 162,
+              "outer_race": 162
+            },
+            "abstention": 0.030864197530864196,
+            "confusion": [
+              [
+                133,
+                0,
+                0,
+                0,
+                29
+              ],
+              [
+                13,
+                125,
+                2,
+                6,
+                16
+              ],
+              [
+                0,
+                0,
+                162,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                162,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                162
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 810,
+            "accuracy": 0.9901234567901235,
+            "macro_f1": 0.9900972800615282,
+            "recall": {
+              "ball": 0.9938271604938271,
+              "cage": 0.9567901234567902,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 162,
+              "cage": 162,
+              "inner_race": 162,
+              "normal": 162,
+              "outer_race": 162
+            },
+            "abstention": 0.02345679012345679,
+            "confusion": [
+              [
+                161,
+                0,
+                0,
+                0,
+                1
+              ],
+              [
+                1,
+                155,
+                0,
+                6,
+                0
+              ],
+              [
+                0,
+                0,
+                162,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                162,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                162
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 7.240758086352428,
+            "accuracy": 7.160493827160497,
+            "abstention": -0.7407407407407405,
+            "recall": {
+              "ball": 17.28395061728395,
+              "cage": 18.518518518518523,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            4.243357531972843,
+            11.037963630033017
+          ]
+        },
+        "E3_nominal_steady_state": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.0,
+            "accuracy": 0.0,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.0,
+            0.0
+          ]
+        },
+        "E3_startup_transient": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 40,
+            "accuracy": 0.5,
+            "macro_f1": 0.4666666666666666,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.5,
+              "inner_race": 0.5,
+              "normal": 0.0,
+              "outer_race": 0.5
+            },
+            "n_per_class": {
+              "ball": 8,
+              "cage": 8,
+              "inner_race": 8,
+              "normal": 8,
+              "outer_race": 8
+            },
+            "abstention": 0.5,
+            "confusion": [
+              [
+                8,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                4,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                0,
+                4,
+                0,
+                0
+              ],
+              [
+                4,
+                4,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                0,
+                0,
+                0,
+                4
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 40,
+            "accuracy": 0.5,
+            "macro_f1": 0.4666666666666666,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.5,
+              "inner_race": 0.5,
+              "normal": 0.0,
+              "outer_race": 0.5
+            },
+            "n_per_class": {
+              "ball": 8,
+              "cage": 8,
+              "inner_race": 8,
+              "normal": 8,
+              "outer_race": 8
+            },
+            "abstention": 0.6,
+            "confusion": [
+              [
+                8,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                4,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                0,
+                4,
+                0,
+                0
+              ],
+              [
+                4,
+                4,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                0,
+                0,
+                0,
+                4
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.0,
+            "accuracy": 0.0,
+            "abstention": 9.999999999999998,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.0,
+            0.0
+          ]
+        },
+        "E3_speed_100_rad_s": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.0,
+            "accuracy": 0.0,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.0,
+            0.0
+          ]
+        },
+        "E3_speed_200_rad_s": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.05,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.0,
+            "accuracy": 0.0,
+            "abstention": -5.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.0,
+            0.0
+          ]
+        },
+        "E3_severity_x0.5": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.0,
+            "accuracy": 0.0,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.0,
+            0.0
+          ]
+        },
+        "E3_severity_x2": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 0.8,
+            "macro_f1": 0.7232323232323232,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.1375,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                12,
+                0,
+                0,
+                4,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 27.67676767676768,
+            "accuracy": 19.999999999999996,
+            "abstention": -13.750000000000002,
+            "recall": {
+              "ball": 0.0,
+              "cage": 100.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            21.53515151515152,
+            37.145521145521144
+          ]
+        },
+        "E3_noise_20pct": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.0,
+            "accuracy": 0.0,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.0,
+            0.0
+          ]
+        },
+        "E3_noise_100pct": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.0,
+            "accuracy": 0.0,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.0,
+            0.0
+          ]
+        },
+        "E3_plant_drift_psi-10pct_J+50pct": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.0,
+            "accuracy": 0.0,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.0,
+            0.0
+          ]
+        },
+        "E3_unseen_speed_115_rad_s": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.0,
+            "accuracy": 0.0,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.0,
+            0.0
+          ]
+        },
+        "E3_unseen_speed_190_rad_s": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.0,
+            "accuracy": 0.0,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.0,
+            0.0
+          ]
+        },
+        "E3_extrapolated_speed_250_rad_s": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.0,
+            "accuracy": 0.0,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.0,
+            0.0
+          ]
+        },
+        "E3_unseen_severity_x0.6": {
+          "n_acquisitions": 20,
+          "promoted": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 80,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 16,
+              "cage": 16,
+              "inner_race": 16,
+              "normal": 16,
+              "outer_race": 16
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                16,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                16,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                16
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.0,
+            "accuracy": 0.0,
+            "abstention": 0.0,
+            "recall": {
+              "ball": 0.0,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.0,
+            0.0
+          ]
+        },
+        "E3": {
+          "n_acquisitions": 260,
+          "promoted": {
+            "n_windows": 1000,
+            "accuracy": 0.964,
+            "macro_f1": 0.9643148777494572,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.9,
+              "inner_race": 0.98,
+              "normal": 0.96,
+              "outer_race": 0.98
+            },
+            "n_per_class": {
+              "ball": 200,
+              "cage": 200,
+              "inner_race": 200,
+              "normal": 200,
+              "outer_race": 200
+            },
+            "abstention": 0.035,
+            "confusion": [
+              [
+                200,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                16,
+                180,
+                0,
+                4,
+                0
+              ],
+              [
+                4,
+                0,
+                196,
+                0,
+                0
+              ],
+              [
+                4,
+                4,
+                0,
+                192,
+                0
+              ],
+              [
+                4,
+                0,
+                0,
+                0,
+                196
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 1000,
+            "accuracy": 0.98,
+            "macro_f1": 0.9801856556142271,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.98,
+              "inner_race": 0.98,
+              "normal": 0.96,
+              "outer_race": 0.98
+            },
+            "n_per_class": {
+              "ball": 200,
+              "cage": 200,
+              "inner_race": 200,
+              "normal": 200,
+              "outer_race": 200
+            },
+            "abstention": 0.024,
+            "confusion": [
+              [
+                200,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                196,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                0,
+                196,
+                0,
+                0
+              ],
+              [
+                4,
+                4,
+                0,
+                192,
+                0
+              ],
+              [
+                4,
+                0,
+                0,
+                0,
+                196
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 1.587077786476987,
+            "accuracy": 1.6000000000000014,
+            "abstention": -1.1000000000000003,
+            "recall": {
+              "ball": 0.0,
+              "cage": 7.9999999999999964,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.38487997657079054,
+            3.380632785768706
+          ]
+        }
+      },
+      "keras_descriptive": {
+        "E1": {
+          "n_acquisitions": 50,
+          "promoted": {
+            "n_windows": 600,
+            "accuracy": 0.87,
+            "macro_f1": 0.8700477619659056,
+            "recall": {
+              "ball": 0.9083333333333333,
+              "cage": 0.7333333333333333,
+              "inner_race": 0.9,
+              "normal": 0.9,
+              "outer_race": 0.9083333333333333
+            },
+            "n_per_class": {
+              "ball": 120,
+              "cage": 120,
+              "inner_race": 120,
+              "normal": 120,
+              "outer_race": 120
+            },
+            "abstention": 0.09833333333333333,
+            "confusion": [
+              [
+                109,
+                4,
+                0,
+                2,
+                5
+              ],
+              [
+                19,
+                88,
+                0,
+                3,
+                10
+              ],
+              [
+                4,
+                1,
+                108,
+                4,
+                3
+              ],
+              [
+                6,
+                2,
+                0,
+                108,
+                4
+              ],
+              [
+                1,
+                6,
+                0,
+                4,
+                109
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 600,
+            "accuracy": 0.925,
+            "macro_f1": 0.9251224592259943,
+            "recall": {
+              "ball": 0.925,
+              "cage": 0.95,
+              "inner_race": 0.9,
+              "normal": 0.9666666666666667,
+              "outer_race": 0.8833333333333333
+            },
+            "n_per_class": {
+              "ball": 120,
+              "cage": 120,
+              "inner_race": 120,
+              "normal": 120,
+              "outer_race": 120
+            },
+            "abstention": 0.115,
+            "confusion": [
+              [
+                111,
+                1,
+                3,
+                5,
+                0
+              ],
+              [
+                1,
+                114,
+                1,
+                3,
+                1
+              ],
+              [
+                5,
+                1,
+                108,
+                4,
+                2
+              ],
+              [
+                1,
+                3,
+                0,
+                116,
+                0
+              ],
+              [
+                0,
+                6,
+                2,
+                6,
+                106
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 5.507469726008873,
+            "accuracy": 5.500000000000005,
+            "abstention": 1.6666666666666676,
+            "recall": {
+              "ball": 1.6666666666666718,
+              "cage": 21.666666666666668,
+              "inner_race": 0.0,
+              "normal": 6.666666666666665,
+              "outer_race": -2.500000000000002
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            1.6134211057114642,
+            10.673138080586037
+          ]
+        },
+        "E2a": {
+          "n_acquisitions": 90,
+          "promoted": {
+            "n_windows": 1080,
+            "accuracy": 0.850925925925926,
+            "macro_f1": 0.8507621425187539,
+            "recall": {
+              "ball": 0.7592592592592593,
+              "cage": 0.7453703703703703,
+              "inner_race": 0.8796296296296297,
+              "normal": 0.9212962962962963,
+              "outer_race": 0.9490740740740741
+            },
+            "n_per_class": {
+              "ball": 216,
+              "cage": 216,
+              "inner_race": 216,
+              "normal": 216,
+              "outer_race": 216
+            },
+            "abstention": 0.08888888888888889,
+            "confusion": [
+              [
+                164,
+                10,
+                0,
+                3,
+                39
+              ],
+              [
+                17,
+                161,
+                4,
+                16,
+                18
+              ],
+              [
+                7,
+                5,
+                190,
+                5,
+                9
+              ],
+              [
+                7,
+                6,
+                0,
+                199,
+                4
+              ],
+              [
+                5,
+                4,
+                0,
+                2,
+                205
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 1080,
+            "accuracy": 0.924074074074074,
+            "macro_f1": 0.9242190699137411,
+            "recall": {
+              "ball": 0.9212962962962963,
+              "cage": 0.9259259259259259,
+              "inner_race": 0.8981481481481481,
+              "normal": 0.9351851851851852,
+              "outer_race": 0.9398148148148148
+            },
+            "n_per_class": {
+              "ball": 216,
+              "cage": 216,
+              "inner_race": 216,
+              "normal": 216,
+              "outer_race": 216
+            },
+            "abstention": 0.12222222222222222,
+            "confusion": [
+              [
+                199,
+                10,
+                3,
+                3,
+                1
+              ],
+              [
+                4,
+                200,
+                4,
+                5,
+                3
+              ],
+              [
+                6,
+                7,
+                194,
+                4,
+                5
+              ],
+              [
+                10,
+                2,
+                2,
+                202,
+                0
+              ],
+              [
+                4,
+                5,
+                2,
+                2,
+                203
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 7.3456927394987215,
+            "accuracy": 7.314814814814808,
+            "abstention": 3.3333333333333326,
+            "recall": {
+              "ball": 16.2037037037037,
+              "cage": 18.055555555555557,
+              "inner_race": 1.851851851851849,
+              "normal": 1.388888888888895,
+              "outer_race": -0.92592592592593
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            4.272949287291793,
+            10.564000094758136
+          ]
+        },
+        "E3": {
+          "n_acquisitions": 260,
+          "promoted": {
+            "n_windows": 1000,
+            "accuracy": 0.964,
+            "macro_f1": 0.9643148777494572,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.9,
+              "inner_race": 0.98,
+              "normal": 0.96,
+              "outer_race": 0.98
+            },
+            "n_per_class": {
+              "ball": 200,
+              "cage": 200,
+              "inner_race": 200,
+              "normal": 200,
+              "outer_race": 200
+            },
+            "abstention": 0.035,
+            "confusion": [
+              [
+                200,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                16,
+                180,
+                0,
+                4,
+                0
+              ],
+              [
+                4,
+                0,
+                196,
+                0,
+                0
+              ],
+              [
+                4,
+                4,
+                0,
+                192,
+                0
+              ],
+              [
+                4,
+                0,
+                0,
+                0,
+                196
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 1000,
+            "accuracy": 0.98,
+            "macro_f1": 0.9801856556142271,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.98,
+              "inner_race": 0.98,
+              "normal": 0.96,
+              "outer_race": 0.98
+            },
+            "n_per_class": {
+              "ball": 200,
+              "cage": 200,
+              "inner_race": 200,
+              "normal": 200,
+              "outer_race": 200
+            },
+            "abstention": 0.024,
+            "confusion": [
+              [
+                200,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                196,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                0,
+                196,
+                0,
+                0
+              ],
+              [
+                4,
+                4,
+                0,
+                192,
+                0
+              ],
+              [
+                4,
+                0,
+                0,
+                0,
+                196
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 1.587077786476987,
+            "accuracy": 1.6000000000000014,
+            "abstention": -1.1000000000000003,
+            "recall": {
+              "ball": 0.0,
+              "cage": 7.9999999999999964,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            0.38487997657079054,
+            3.380632785768706
+          ]
+        }
+      },
+      "candidate_recorded_test_macro_f1_keras": 0.9251224592259943,
+      "checks": {
+        "gate_D1_macro_f1": {
+          "value": 0.9251224592259943,
+          "pass": true
+        },
+        "gate_D1_min_recall": {
+          "value": 0.8833333333333333,
+          "pass": true
+        },
+        "E1_delta_macro_f1": {
+          "value": 5.507469726008873,
+          "pass": true
+        },
+        "E1_worst_delta_recall": {
+          "class": "outer_race",
+          "value": -2.500000000000002,
+          "pass": true
+        },
+        "E1_delta_abstention": {
+          "value": 1.6666666666666676,
+          "pass": true
+        },
+        "E2a_delta_macro_f1": {
+          "value": 7.3456927394987215,
+          "pass": true
+        },
+        "E2a_worst_delta_recall": {
+          "class": "outer_race",
+          "value": -0.92592592592593,
+          "pass": true
+        },
+        "E2a_delta_abstention": {
+          "value": 3.24074074074074,
+          "pass": true
+        },
+        "E3_delta_macro_f1": {
+          "value": 1.587077786476987,
+          "pass": true
+        },
+        "E3_worst_delta_recall": {
+          "class": "ball",
+          "value": 0.0,
+          "pass": true
+        },
+        "E3_delta_abstention": {
+          "value": -1.1000000000000003,
+          "pass": true
+        }
+      },
+      "verdict": "MEETS THE CRITERION"
+    },
+    "ESP32": {
+      "promoted": "configs/classifiers/esp32_dscnn/2026-10-18_run01",
+      "candidate": "configs/classifiers/esp32_dscnn/2026-11-04_run01",
+      "artifact": "tflite",
+      "classes": [
+        "inner_race",
+        "normal",
+        "outer_race"
+      ],
+      "candidate_dataset": "data/diagnosis_grid_dataset_dcm.parquet",
+      "candidate_dataset_sha256": "d09a42b856cf75e9ba9d43e6af63e714d4742e2524f4b57a5f2ff8d451463b46",
+      "sets": {
+        "E1": {
+          "n_acquisitions": 30,
+          "promoted": {
+            "n_windows": 870,
+            "accuracy": 0.8988505747126436,
+            "macro_f1": 0.8990066415902556,
+            "recall": {
+              "inner_race": 0.8793103448275862,
+              "normal": 0.9241379310344827,
+              "outer_race": 0.8931034482758621
+            },
+            "n_per_class": {
+              "inner_race": 290,
+              "normal": 290,
+              "outer_race": 290
+            },
+            "abstention": 0.16551724137931034,
+            "confusion": [
+              [
+                255,
+                21,
+                14
+              ],
+              [
+                13,
+                268,
+                9
+              ],
+              [
+                8,
+                23,
+                259
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 870,
+            "accuracy": 0.7436781609195402,
+            "macro_f1": 0.718419034604536,
+            "recall": {
+              "inner_race": 0.8586206896551725,
+              "normal": 0.9896551724137931,
+              "outer_race": 0.38275862068965516
+            },
+            "n_per_class": {
+              "inner_race": 290,
+              "normal": 290,
+              "outer_race": 290
+            },
+            "abstention": 0.15057471264367817,
+            "confusion": [
+              [
+                249,
+                41,
+                0
+              ],
+              [
+                3,
+                287,
+                0
+              ],
+              [
+                130,
+                49,
+                111
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -18.05876069857195,
+            "accuracy": -15.517241379310342,
+            "abstention": -1.4942528735632177,
+            "recall": {
+              "inner_race": -2.0689655172413723,
+              "normal": 6.5517241379310365,
+              "outer_race": -51.03448275862069
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -28.307309758129517,
+            -8.237936631877963
+          ]
+        },
+        "E2b": {
+          "n_acquisitions": 0
+        },
+        "E2a": {
+          "n_acquisitions": 45,
+          "promoted": {
+            "n_windows": 2160,
+            "accuracy": 0.8430555555555556,
+            "macro_f1": 0.842782955097063,
+            "recall": {
+              "inner_race": 0.8791666666666667,
+              "normal": 0.9513888888888888,
+              "outer_race": 0.6986111111111111
+            },
+            "n_per_class": {
+              "inner_race": 720,
+              "normal": 720,
+              "outer_race": 720
+            },
+            "abstention": 0.23981481481481481,
+            "confusion": [
+              [
+                633,
+                9,
+                78
+              ],
+              [
+                16,
+                685,
+                19
+              ],
+              [
+                212,
+                5,
+                503
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 2160,
+            "accuracy": 0.6694444444444444,
+            "macro_f1": 0.5632962672217148,
+            "recall": {
+              "inner_race": 0.9625,
+              "normal": 0.9986111111111111,
+              "outer_race": 0.04722222222222222
+            },
+            "n_per_class": {
+              "inner_race": 720,
+              "normal": 720,
+              "outer_race": 720
+            },
+            "abstention": 0.15324074074074073,
+            "confusion": [
+              [
+                693,
+                27,
+                0
+              ],
+              [
+                1,
+                719,
+                0
+              ],
+              [
+                531,
+                155,
+                34
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -27.948668787534825,
+            "accuracy": -17.361111111111114,
+            "abstention": -8.657407407407408,
+            "recall": {
+              "inner_race": 8.333333333333337,
+              "normal": 4.722222222222228,
+              "outer_race": -65.13888888888889
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -35.262077548350234,
+            -19.07981492834943
+          ]
+        },
+        "E2a_startup": {
+          "n_acquisitions": 45,
+          "promoted": {
+            "n_windows": 405,
+            "accuracy": 0.7012345679012346,
+            "macro_f1": 0.7050013923254586,
+            "recall": {
+              "inner_race": 0.6666666666666666,
+              "normal": 0.7407407407407407,
+              "outer_race": 0.6962962962962963
+            },
+            "n_per_class": {
+              "inner_race": 135,
+              "normal": 135,
+              "outer_race": 135
+            },
+            "abstention": 0.4469135802469136,
+            "confusion": [
+              [
+                90,
+                9,
+                36
+              ],
+              [
+                16,
+                100,
+                19
+              ],
+              [
+                36,
+                5,
+                94
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 405,
+            "accuracy": 0.6148148148148148,
+            "macro_f1": 0.5156043355177922,
+            "recall": {
+              "inner_race": 0.8,
+              "normal": 0.9925925925925926,
+              "outer_race": 0.05185185185185185
+            },
+            "n_per_class": {
+              "inner_race": 135,
+              "normal": 135,
+              "outer_race": 135
+            },
+            "abstention": 0.2,
+            "confusion": [
+              [
+                108,
+                27,
+                0
+              ],
+              [
+                1,
+                134,
+                0
+              ],
+              [
+                88,
+                40,
+                7
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -18.93970568076664,
+            "accuracy": -8.64197530864198,
+            "abstention": -24.691358024691358,
+            "recall": {
+              "inner_race": 13.333333333333341,
+              "normal": 25.185185185185187,
+              "outer_race": -64.44444444444444
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -27.04708056003733,
+            -9.135549682213988
+          ]
+        },
+        "E2a_steady_state": {
+          "n_acquisitions": 45,
+          "promoted": {
+            "n_windows": 1755,
+            "accuracy": 0.8769230769230769,
+            "macro_f1": 0.875186686579902,
+            "recall": {
+              "inner_race": 0.9333333333333333,
+              "normal": 1.0,
+              "outer_race": 0.6974358974358974
+            },
+            "n_per_class": {
+              "inner_race": 585,
+              "normal": 585,
+              "outer_race": 585
+            },
+            "abstention": 0.19487179487179487,
+            "confusion": [
+              [
+                546,
+                0,
+                39
+              ],
+              [
+                0,
+                585,
+                0
+              ],
+              [
+                177,
+                0,
+                408
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 1755,
+            "accuracy": 0.6877492877492878,
+            "macro_f1": 0.5834545649904609,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 0.06324786324786325
+            },
+            "n_per_class": {
+              "inner_race": 585,
+              "normal": 585,
+              "outer_race": 585
+            },
+            "abstention": 0.14814814814814814,
+            "confusion": [
+              [
+                585,
+                0,
+                0
+              ],
+              [
+                0,
+                585,
+                0
+              ],
+              [
+                392,
+                156,
+                37
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -29.173212158944107,
+            "accuracy": -18.91737891737891,
+            "abstention": -4.672364672364673,
+            "recall": {
+              "inner_race": 6.666666666666665,
+              "normal": 0.0,
+              "outer_race": -63.418803418803414
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -36.465475254276235,
+            -20.383405128848715
+          ]
+        },
+        "E3_nominal_steady_state": {
+          "n_acquisitions": 12,
+          "promoted": {
+            "n_windows": 228,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                0,
+                0,
+                76
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 228,
+            "accuracy": 0.7017543859649122,
+            "macro_f1": 0.6271284271284271,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 0.10526315789473684
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.017543859649122806,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                68,
+                0,
+                8
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -37.28715728715729,
+            "accuracy": -29.824561403508774,
+            "abstention": 1.7543859649122806,
+            "recall": {
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": -89.47368421052632
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -50.0193573364305,
+            -28.986482696730054
+          ]
+        },
+        "E3_startup_transient": {
+          "n_acquisitions": 12,
+          "promoted": {
+            "n_windows": 108,
+            "accuracy": 0.7314814814814815,
+            "macro_f1": 0.7319976771196283,
+            "recall": {
+              "inner_race": 0.6666666666666666,
+              "normal": 0.8333333333333334,
+              "outer_race": 0.6944444444444444
+            },
+            "n_per_class": {
+              "inner_race": 36,
+              "normal": 36,
+              "outer_race": 36
+            },
+            "abstention": 0.32407407407407407,
+            "confusion": [
+              [
+                24,
+                8,
+                4
+              ],
+              [
+                1,
+                30,
+                5
+              ],
+              [
+                3,
+                8,
+                25
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 108,
+            "accuracy": 0.5185185185185185,
+            "macro_f1": 0.40620782726045884,
+            "recall": {
+              "inner_race": 0.5555555555555556,
+              "normal": 1.0,
+              "outer_race": 0.0
+            },
+            "n_per_class": {
+              "inner_race": 36,
+              "normal": 36,
+              "outer_race": 36
+            },
+            "abstention": 0.06481481481481481,
+            "confusion": [
+              [
+                20,
+                16,
+                0
+              ],
+              [
+                0,
+                36,
+                0
+              ],
+              [
+                20,
+                16,
+                0
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -32.57898498591694,
+            "accuracy": -21.2962962962963,
+            "abstention": -25.925925925925924,
+            "recall": {
+              "inner_race": -11.111111111111105,
+              "normal": 16.666666666666664,
+              "outer_race": -69.44444444444444
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -40.50288986613682,
+            -18.00970538676139
+          ]
+        },
+        "E3_speed_100_rad_s": {
+          "n_acquisitions": 12,
+          "promoted": {
+            "n_windows": 228,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.0043859649122807015,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                0,
+                0,
+                76
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 228,
+            "accuracy": 0.706140350877193,
+            "macro_f1": 0.6352762109409974,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 0.11842105263157894
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.04824561403508772,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                67,
+                0,
+                9
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -36.47237890590026,
+            "accuracy": -29.385964912280706,
+            "abstention": 4.385964912280701,
+            "recall": {
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": -88.1578947368421
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -49.36591401175379,
+            -27.402387256756203
+          ]
+        },
+        "E3_speed_200_rad_s": {
+          "n_acquisitions": 12,
+          "promoted": {
+            "n_windows": 228,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                0,
+                0,
+                76
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 228,
+            "accuracy": 0.7719298245614035,
+            "macro_f1": 0.7416993464052287,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 0.3157894736842105
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.27631578947368424,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                52,
+                0,
+                24
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -25.83006535947713,
+            "accuracy": -22.807017543859654,
+            "abstention": 27.631578947368425,
+            "recall": {
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": -68.42105263157895
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -38.463763086355485,
+            -16.666260954235636
+          ]
+        },
+        "E3_severity_x0.5": {
+          "n_acquisitions": 12,
+          "promoted": {
+            "n_windows": 228,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                0,
+                0,
+                76
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 228,
+            "accuracy": 0.6666666666666666,
+            "macro_f1": 0.5555555555555555,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 0.0
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                76,
+                0,
+                0
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -44.44444444444445,
+            "accuracy": -33.333333333333336,
+            "abstention": 0.0,
+            "recall": {
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": -100.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -57.14285714285714,
+            -35.55555555555555
+          ]
+        },
+        "E3_severity_x2": {
+          "n_acquisitions": 12,
+          "promoted": {
+            "n_windows": 228,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                0,
+                0,
+                76
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 228,
+            "accuracy": 0.8070175438596491,
+            "macro_f1": 0.7893675988914084,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 0.42105263157894735
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.06140350877192982,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                44,
+                0,
+                32
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -21.063240110859162,
+            "accuracy": -19.298245614035093,
+            "abstention": 6.140350877192982,
+            "recall": {
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": -57.89473684210527
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -33.29350856232577,
+            -14.903953291438254
+          ]
+        },
+        "E3_noise_20pct": {
+          "n_acquisitions": 12,
+          "promoted": {
+            "n_windows": 228,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                0,
+                0,
+                76
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 228,
+            "accuracy": 0.6929824561403509,
+            "macro_f1": 0.6103420493664397,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 0.07894736842105263
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.021929824561403508,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                70,
+                0,
+                6
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -38.96579506335603,
+            "accuracy": -30.701754385964907,
+            "abstention": 2.1929824561403506,
+            "recall": {
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": -92.10526315789474
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -51.522521165615004,
+            -29.289287917758397
+          ]
+        },
+        "E3_noise_100pct": {
+          "n_acquisitions": 12,
+          "promoted": {
+            "n_windows": 228,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.32894736842105265,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                0,
+                0,
+                76
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 228,
+            "accuracy": 0.6666666666666666,
+            "macro_f1": 0.5555555555555555,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 0.0
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.03508771929824561,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                76,
+                0,
+                0
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -44.44444444444445,
+            "accuracy": -33.333333333333336,
+            "abstention": -29.385964912280706,
+            "recall": {
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": -100.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -57.14285714285714,
+            -35.55555555555555
+          ]
+        },
+        "E3_plant_drift_psi-10pct_J+50pct": {
+          "n_acquisitions": 12,
+          "promoted": {
+            "n_windows": 228,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                0,
+                0,
+                76
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 228,
+            "accuracy": 0.6973684210526315,
+            "macro_f1": 0.618819168075015,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 0.09210526315789473
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.03508771929824561,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                69,
+                0,
+                7
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -38.118083192498496,
+            "accuracy": -30.263157894736846,
+            "abstention": 3.508771929824561,
+            "recall": {
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": -90.78947368421053
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -50.07577680718908,
+            -28.986482696730054
+          ]
+        },
+        "E3_unseen_speed_115_rad_s": {
+          "n_acquisitions": 12,
+          "promoted": {
+            "n_windows": 228,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                0,
+                0,
+                76
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 228,
+            "accuracy": 0.6754385964912281,
+            "macro_f1": 0.5746161409878224,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 0.02631578947368421
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.021929824561403508,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                74,
+                0,
+                2
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -42.53838590121776,
+            "accuracy": -32.45614035087719,
+            "abstention": 2.1929824561403506,
+            "recall": {
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": -97.36842105263158
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -55.62288502400252,
+            -32.4390243902439
+          ]
+        },
+        "E3_unseen_speed_190_rad_s": {
+          "n_acquisitions": 12,
+          "promoted": {
+            "n_windows": 228,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                0,
+                0,
+                76
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 228,
+            "accuracy": 0.8464912280701754,
+            "macro_f1": 0.8378963084845438,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 0.5394736842105263
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.08333333333333333,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                35,
+                0,
+                41
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -16.210369151545624,
+            "accuracy": -15.350877192982459,
+            "abstention": 8.333333333333332,
+            "recall": {
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": -46.05263157894737
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -27.01302454709226,
+            -10.77452718676124
+          ]
+        },
+        "E3_extrapolated_speed_250_rad_s": {
+          "n_acquisitions": 12,
+          "promoted": {
+            "n_windows": 228,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                0,
+                0,
+                76
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 228,
+            "accuracy": 0.956140350877193,
+            "macro_f1": 0.9559496899090013,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 0.868421052631579
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.13596491228070176,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                10,
+                0,
+                66
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -4.4050310090998686,
+            "accuracy": -4.385964912280704,
+            "abstention": 13.596491228070176,
+            "recall": {
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": -13.157894736842103
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -10.491199670135362,
+            -1.2481231231231127
+          ]
+        },
+        "E3_unseen_severity_x0.6": {
+          "n_acquisitions": 12,
+          "promoted": {
+            "n_windows": 228,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                0,
+                0,
+                76
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 228,
+            "accuracy": 0.6666666666666666,
+            "macro_f1": 0.5555555555555555,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 0.0
+            },
+            "n_per_class": {
+              "inner_race": 76,
+              "normal": 76,
+              "outer_race": 76
+            },
+            "abstention": 0.008771929824561403,
+            "confusion": [
+              [
+                76,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0
+              ],
+              [
+                76,
+                0,
+                0
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -44.44444444444445,
+            "accuracy": -33.333333333333336,
+            "abstention": 0.8771929824561403,
+            "recall": {
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": -100.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -57.14285714285714,
+            -35.55555555555555
+          ]
+        },
+        "E3": {
+          "n_acquisitions": 156,
+          "promoted": {
+            "n_windows": 2844,
+            "accuracy": 0.989803094233474,
+            "macro_f1": 0.9898077547537651,
+            "recall": {
+              "inner_race": 0.9873417721518988,
+              "normal": 0.9936708860759493,
+              "outer_race": 0.9883966244725738
+            },
+            "n_per_class": {
+              "inner_race": 948,
+              "normal": 948,
+              "outer_race": 948
+            },
+            "abstention": 0.039029535864978905,
+            "confusion": [
+              [
+                936,
+                8,
+                4
+              ],
+              [
+                1,
+                942,
+                5
+              ],
+              [
+                3,
+                8,
+                937
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 2844,
+            "accuracy": 0.7296061884669479,
+            "macro_f1": 0.6789585973632186,
+            "recall": {
+              "inner_race": 0.9831223628691983,
+              "normal": 1.0,
+              "outer_race": 0.20569620253164558
+            },
+            "n_per_class": {
+              "inner_race": 948,
+              "normal": 948,
+              "outer_race": 948
+            },
+            "abstention": 0.06223628691983123,
+            "confusion": [
+              [
+                932,
+                16,
+                0
+              ],
+              [
+                0,
+                948,
+                0
+              ],
+              [
+                737,
+                16,
+                195
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -31.08491573905465,
+            "accuracy": -26.01969057665261,
+            "abstention": 2.320675105485232,
+            "recall": {
+              "inner_race": -0.42194092827004814,
+              "normal": 0.6329113924050667,
+              "outer_race": -78.27004219409282
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -35.765155924161235,
+            -25.83984990812772
+          ]
+        }
+      },
+      "keras_descriptive": {
+        "E1": {
+          "n_acquisitions": 30,
+          "promoted": {
+            "n_windows": 870,
+            "accuracy": 0.9,
+            "macro_f1": 0.900243233084366,
+            "recall": {
+              "inner_race": 0.8827586206896552,
+              "normal": 0.9551724137931035,
+              "outer_race": 0.8620689655172413
+            },
+            "n_per_class": {
+              "inner_race": 290,
+              "normal": 290,
+              "outer_race": 290
+            },
+            "abstention": 0.09195402298850575,
+            "confusion": [
+              [
+                256,
+                25,
+                9
+              ],
+              [
+                13,
+                277,
+                0
+              ],
+              [
+                14,
+                26,
+                250
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 870,
+            "accuracy": 0.8758620689655172,
+            "macro_f1": 0.8749692439156048,
+            "recall": {
+              "inner_race": 0.8827586206896552,
+              "normal": 0.9827586206896551,
+              "outer_race": 0.7620689655172413
+            },
+            "n_per_class": {
+              "inner_race": 290,
+              "normal": 290,
+              "outer_race": 290
+            },
+            "abstention": 0.0735632183908046,
+            "confusion": [
+              [
+                256,
+                32,
+                2
+              ],
+              [
+                5,
+                285,
+                0
+              ],
+              [
+                32,
+                37,
+                221
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -2.5273989168761224,
+            "accuracy": -2.4137931034482807,
+            "abstention": -1.839080459770115,
+            "recall": {
+              "inner_race": 0.0,
+              "normal": 2.758620689655167,
+              "outer_race": -9.999999999999998
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -6.762980048398897,
+            0.7683381554003599
+          ]
+        },
+        "E2a": {
+          "n_acquisitions": 45,
+          "promoted": {
+            "n_windows": 2160,
+            "accuracy": 0.8421296296296297,
+            "macro_f1": 0.8402414474012302,
+            "recall": {
+              "inner_race": 0.8861111111111111,
+              "normal": 0.9763888888888889,
+              "outer_race": 0.6638888888888889
+            },
+            "n_per_class": {
+              "inner_race": 720,
+              "normal": 720,
+              "outer_race": 720
+            },
+            "abstention": 0.17083333333333334,
+            "confusion": [
+              [
+                638,
+                14,
+                68
+              ],
+              [
+                16,
+                703,
+                1
+              ],
+              [
+                232,
+                10,
+                478
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 2160,
+            "accuracy": 0.7356481481481482,
+            "macro_f1": 0.7085221179779979,
+            "recall": {
+              "inner_race": 0.9097222222222222,
+              "normal": 0.9833333333333333,
+              "outer_race": 0.3138888888888889
+            },
+            "n_per_class": {
+              "inner_race": 720,
+              "normal": 720,
+              "outer_race": 720
+            },
+            "abstention": 0.14953703703703702,
+            "confusion": [
+              [
+                655,
+                18,
+                47
+              ],
+              [
+                12,
+                708,
+                0
+              ],
+              [
+                476,
+                18,
+                226
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -13.171932942323227,
+            "accuracy": -10.64814814814815,
+            "abstention": -2.1296296296296315,
+            "recall": {
+              "inner_race": 2.361111111111114,
+              "normal": 0.694444444444442,
+              "outer_race": -35.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -20.856073901971147,
+            -5.542749883263877
+          ]
+        },
+        "E3": {
+          "n_acquisitions": 156,
+          "promoted": {
+            "n_windows": 2844,
+            "accuracy": 0.9887482419127989,
+            "macro_f1": 0.9887682528240593,
+            "recall": {
+              "inner_race": 0.9873417721518988,
+              "normal": 0.9957805907172996,
+              "outer_race": 0.9831223628691983
+            },
+            "n_per_class": {
+              "inner_race": 948,
+              "normal": 948,
+              "outer_race": 948
+            },
+            "abstention": 0.00808720112517581,
+            "confusion": [
+              [
+                936,
+                12,
+                0
+              ],
+              [
+                4,
+                944,
+                0
+              ],
+              [
+                4,
+                12,
+                932
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 2844,
+            "accuracy": 0.9613220815752461,
+            "macro_f1": 0.9611215621649501,
+            "recall": {
+              "inner_race": 0.9873417721518988,
+              "normal": 0.9978902953586498,
+              "outer_race": 0.8987341772151899
+            },
+            "n_per_class": {
+              "inner_race": 948,
+              "normal": 948,
+              "outer_race": 948
+            },
+            "abstention": 0.029184247538677918,
+            "confusion": [
+              [
+                936,
+                12,
+                0
+              ],
+              [
+                2,
+                946,
+                0
+              ],
+              [
+                84,
+                12,
+                852
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -2.7646690659109185,
+            "accuracy": -2.742616033755274,
+            "abstention": 2.109704641350211,
+            "recall": {
+              "inner_race": 0.0,
+              "normal": 0.21097046413501852,
+              "outer_race": -8.43881856540084
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -4.608928054923398,
+            -1.1589307730699416
+          ]
+        }
+      },
+      "candidate_recorded_test_macro_f1_keras": 0.8749692439156048,
+      "ood_ball_cage_abstention": {
+        "promoted": 0.4342105263157895,
+        "candidate": 0.5
+      },
+      "checks": {
+        "gate_D1_macro_f1": {
+          "value": 0.718419034604536,
+          "pass": false
+        },
+        "gate_D1_min_recall": {
+          "value": 0.38275862068965516,
+          "pass": false
+        },
+        "E1_delta_macro_f1": {
+          "value": -18.05876069857195,
+          "pass": false
+        },
+        "E1_worst_delta_recall": {
+          "class": "outer_race",
+          "value": -51.03448275862069,
+          "pass": false
+        },
+        "E1_delta_abstention": {
+          "value": -1.4942528735632177,
+          "pass": true
+        },
+        "E2a_delta_macro_f1": {
+          "value": -27.948668787534825,
+          "pass": false
+        },
+        "E2a_worst_delta_recall": {
+          "class": "outer_race",
+          "value": -65.13888888888889,
+          "pass": false
+        },
+        "E2a_delta_abstention": {
+          "value": -8.657407407407408,
+          "pass": false
+        },
+        "E3_delta_macro_f1": {
+          "value": -31.08491573905465,
+          "pass": false
+        },
+        "E3_worst_delta_recall": {
+          "class": "outer_race",
+          "value": -78.27004219409282,
+          "pass": false
+        },
+        "E3_delta_abstention": {
+          "value": 2.320675105485232,
+          "pass": true
+        }
+      },
+      "verdict": "DOES NOT MEET THE CRITERION"
+    }
+  },
+  "teacher_pc3": {
+    "run": "configs/classifiers/pc_server/2026-11-04_run01",
+    "test_accuracy": 0.9206896551724137,
+    "test_macro_f1": 0.9208333583869983,
+    "n_test": 870
+  },
+  "elapsed_s": 182.73679041862488
+}

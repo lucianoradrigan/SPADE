@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "candidate-dcm1000",
+      "severity": "medium",
+      "date": "2026-11-04",
+      "summary": "Candidate (ESP32 3-class) retrained on the grid regenerated with the discontinuous-conduction converter at 1000 substeps (AI-N27 option 2, S-21 corrected), same recipe and same split as the promoted run. Not promoted; the registry is unchanged.",
+      "evidence": "docs/audit/assistant/ai_n27_regen.md, docs/audit/assistant/ai_n27_regen_preregistration.md"
+    },
+    {
+      "id": "sim-only",
+      "severity": "medium",
+      "date": "2026-11-04",
+      "summary": "Trained and evaluated on simulated data only (speed x severity x noise x plant-drift grid, DC plant with dcm x1000); no real-machine validation exists.",
+      "evidence": "docs/audit/assistant/ai_n27_regen.md"
+    },
+    {
+      "id": "three-class-vs-five",
+      "severity": "high",
+      "date": "2026-11-04",
+      "summary": "3 classes (inner_race, normal, outer_race): a ball or cage fault is assigned to one of the 3 known classes, probably with high confidence; no OOD method catches it (AI-N13).",
+      "evidence": "docs/AI_TECHNICAL_AUDIT.md AI-N12/AI-N13"
+    }
+  ]
+}
