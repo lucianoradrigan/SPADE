@@ -76,3 +76,19 @@ def test_heldout_set_is_the_preregistered_one():
     grid_seeds = {j["seed"] for j in g.build_jobs(3, 2.5, 7, (None, "outer_race", "inner_race", "ball", "cage"))}
     assert not grid_seeds & {j["seed"] for j in j3 + j5} and not {200, 201, 202, 203} & {j["seed"] for j in j3 + j5}
     assert h.build_jobs("3class") == j3  # reproducible
+
+
+def test_ood_cache_jobs_take_plant_options():
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    import experiments.report_ood_detector as od
+
+    base, dcm = od._jobs("custom_orders"), od._jobs("custom_orders", {"dc_converter_model": "dcm", "dc_plant_substeps": 1000})
+    assert len(base) == len(dcm) and all(not isinstance(j[-1], dict) for j in base)
+    assert all(j[:-1] == b and j[-1] == {"dc_converter_model": "dcm", "dc_plant_substeps": 1000} for j, b in zip(dcm, base))
+    short = ("custom", "c", "unknown_1p3x", 1.3, 11, 120.0, 1.0, {"dc_converter_model": "gem"})
+    od.DURATION_S, saved = 0.02, od.DURATION_S
+    try:
+        a, b = od._sim(short[:-1]), od._sim(short)
+    finally:
+        od.DURATION_S = saved
+    assert a["current_r"].equals(b["current_r"])

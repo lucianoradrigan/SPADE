@@ -25,8 +25,15 @@
       "id": "AI-N27",
       "severity": "high",
       "date": "2026-11-02",
-      "summary": "AI-N27 (open): 790 of its 4440 training windows (17.8 %; cage 391, ball 223, outer_race 105, inner_race 71, normal 0) contain a non-physical simulator artifact (S-21: the one-quadrant converter applies the full supply on negative current, and the speed rises above its reference), only in fault classes, mostly at 80-125 rad/s and high severity. The model and its promotion are unchanged; measured effect (pre-registered, 2026-11-03): in the affected regime (80-125 rad/s, high severity) its decision agrees with the corrected physics on only 0.66 of the windows; no change on control runs. Verdict: affects.",
-      "evidence": "docs/AI_TECHNICAL_AUDIT.md Sec. 13.1; docs/audit/assistant/ai_n27_impact.md"
+      "summary": "AI-N27 (open): 790 of its 4440 training windows (17.8 %; cage 391, ball 223, outer_race 105, inner_race 71, normal 0) contain a non-physical simulator artifact (S-21: the one-quadrant converter applies the full supply on negative current, and the speed rises above its reference), only in fault classes, mostly at 80-125 rad/s and high severity. The model and its promotion are unchanged; measured effect (pre-registered, 2026-11-03): in the affected regime (80-125 rad/s, high severity) its decision agrees with the corrected physics on only 0.66 of the windows; no change on control runs. Verdict: affects. Superseded in the registry on 2026-11-04 by rpi5_resnet1d_se_5class_w2048/2026-11-04_run01, retrained without the artifact (AI-N27 option 2).",
+      "evidence": "docs/AI_TECHNICAL_AUDIT.md Sec. 13.1; docs/audit/assistant/ai_n27_impact.md; docs/audit/assistant/ai_n27_regen.md"
+    },
+    {
+      "id": "superseded-dcm",
+      "severity": "info",
+      "date": "2026-11-04",
+      "summary": "No longer promoted: replaced on 2026-11-04 by rpi5_resnet1d_se_5class_w2048/2026-11-04_run01 (trained on the dcm x1000 grid, S-21 corrected). On the corrected-physics test split (dcm) this run scores macro-F1 0.870. That is below the D1 floor (macro-F1 >= 0.88): on corrected physics this previously promoted model would not have passed the current gate.",
+      "evidence": "docs/audit/assistant/ai_n27_regen.md"
     }
   ]
 }

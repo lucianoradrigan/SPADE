@@ -659,5 +659,9 @@
     "target_coverage": 0.95
   },
   "distilled_from": "configs/classifiers/pc_server_5class_w2048/2026-11-04_run01",
-  "distill_alpha": 0.5
+  "distill_alpha": 0.5,
+  "synthetic_only_classes": [
+    "ball",
+    "cage"
+  ]
 }

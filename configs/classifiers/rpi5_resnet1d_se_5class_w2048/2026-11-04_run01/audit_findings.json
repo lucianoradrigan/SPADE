@@ -1,11 +1,32 @@
 {
   "findings": [
     {
-      "id": "candidate-dcm1000",
+      "id": "dcm-trained",
+      "severity": "info",
+      "date": "2026-11-04",
+      "summary": "Trained on the grid regenerated with the discontinuous-conduction converter at 1000 substeps (dc_converter_model='dcm', S21-2), i.e. without the S-21 converter artifact: AI-N27 option 2. Same recipe and same train/val/test split as rpi5_resnet1d_se_5class_w2048/2026-10-20_run01, which it replaces. Promoted 2026-11-04 after a pre-registered evaluation (RPi5 (float16 TFLite)): macro-F1 0.925 on the dcm test split (previous model 0.870), 0.924 on held-out runs in the affected regime, 0.980 on the regenerated generalization set.",
+      "evidence": "docs/audit/assistant/ai_n27_regen.md; docs/audit/assistant/ai_n27_regen_preregistration.md"
+    },
+    {
+      "id": "AI-N27",
       "severity": "medium",
       "date": "2026-11-04",
-      "summary": "Candidate (RPi5 5-class w2048) retrained on the grid regenerated with the discontinuous-conduction converter at 1000 substeps (AI-N27 option 2, S-21 corrected), same recipe and same split as the promoted run. Not promoted; the registry is unchanged.",
-      "evidence": "docs/audit/assistant/ai_n27_regen.md, docs/audit/assistant/ai_n27_regen_preregistration.md"
+      "summary": "AI-N27 (mitigated for this run) / S-21: this model was trained without the converter artifact. The production DC plant (dc_perm_ex_v1, the GUI and assistant default) still uses GEM's converter, so its simulations in braking at light load (mostly 80-125 rad/s, high severity) still contain the artifact; on such inputs this model sees a signal it was not trained on. Not measured on GEM-plant inputs beyond the AI-N27 impact study.",
+      "evidence": "docs/AI_TECHNICAL_AUDIT.md Sec. 13.1; docs/SIMULATION_STABILITY_REPORT.md S-21; docs/audit/assistant/ai_n27_regen.md"
+    },
+    {
+      "id": "startup",
+      "severity": "medium",
+      "date": "2026-11-04",
+      "summary": "2048-sample (205 ms) windows: start-up (t < 0.5 s) macro-F1 0.594 with abstention 0.60 on the held-out runs, 0.467 on the generalization start-up condition; steady state 0.99-1.00.",
+      "evidence": "docs/audit/assistant/ai_n27_regen.md"
+    },
+    {
+      "id": "weakest-class",
+      "severity": "low",
+      "date": "2026-11-04",
+      "summary": "Lowest per-class recall on the dcm test split: outer_race 0.883 (it fell 2.5-4.2 points vs the previous model, within the pre-registered 5-point margin).",
+      "evidence": "docs/audit/assistant/ai_n27_regen.md"
     },
     {
       "id": "sim-only",
@@ -13,6 +34,13 @@
       "date": "2026-11-04",
       "summary": "Trained and evaluated on simulated data only (speed x severity x noise x plant-drift grid, DC plant with dcm x1000); no real-machine validation exists.",
       "evidence": "docs/audit/assistant/ai_n27_regen.md"
+    },
+    {
+      "id": "no-device-run",
+      "severity": "medium",
+      "date": "2026-11-04",
+      "summary": "The float16 model.tflite has never been executed on a Raspberry Pi 5: parity and latency were measured on the development host only.",
+      "evidence": "docs/audit/assistant/tflite_parity_rpi5_dcm_2026-11-04.txt (host: top-1 agreement 1.000 with Keras); docs/audit/assistant/ai_n27_regen.md"
     },
     {
       "id": "A2-synthetic-ball-cage",

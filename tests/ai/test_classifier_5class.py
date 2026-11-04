@@ -35,7 +35,8 @@ def test_run_carries_the_synthetic_only_label(run_dir):
 def test_long_window_five_class_models_are_promoted_except_on_esp32():
     # 2026-10-20, confirmed by the user: PC and RPi5 run the 2048-sample 5-class models; the ESP32
     # keeps its 3-class model because the 5-class int8 export is not usable (Sec. 8.5).
-    assert resolve("dc_motor", "pc", "classifier") == PC_W2048
+    # 2026-11-04 (AI-N27 option 2): the PC and RPi5 entries are the dcm-trained 2048-sample 5-class runs.
+    assert resolve("dc_motor", "pc", "classifier").parent.name == "pc_server_5class_w2048"
     assert resolve("dc_motor", "rpi5", "classifier").parent.name == "rpi5_resnet1d_se_5class_w2048"
     assert "5class" not in str(resolve("dc_motor", "esp32", "classifier"))
 

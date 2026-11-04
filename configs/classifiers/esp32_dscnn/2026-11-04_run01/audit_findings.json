@@ -20,6 +20,13 @@
       "date": "2026-11-04",
       "summary": "3 classes (inner_race, normal, outer_race): a ball or cage fault is assigned to one of the 3 known classes, probably with high confidence; no OOD method catches it (AI-N13).",
       "evidence": "docs/AI_TECHNICAL_AUDIT.md AI-N12/AI-N13"
+    },
+    {
+      "id": "AI-N28",
+      "severity": "high",
+      "date": "2026-11-04",
+      "summary": "Not promoted: did not meet the pre-registered criterion. Its int8 TFLite collapses on outer_race (recall 0.38 on the dcm test split, 0.05 on the held-out affected-regime runs, 0.21 on the generalization set; Keras 0.76 / 0.31 / 0.90). Int8 quantization fragility: AI-N28.",
+      "evidence": "docs/AI_TECHNICAL_AUDIT.md AI-N28; docs/audit/assistant/ai_n27_regen.md"
     }
   ]
 }

@@ -1,6 +1,7 @@
-"""AI-N27 (2026-11-02): the three promoted dc_motor classifiers carry the open warning about the S-21
-simulator artifact in their training data, shown by Model Registry next to each run. The models and
-their promotion are unchanged."""
+"""AI-N27: every promoted dc_motor classifier carries the AI-N27 finding about the S-21 simulator
+artifact, shown by Model Registry next to the run. Since 2026-11-04 (option 2) the PC and RPi5 entries
+are runs trained on the corrected (dcm x1000) data, where it is mitigated; the ESP32 entry is still
+the run trained on data with the artifact, where it stays open."""
 
 import yaml
 
@@ -15,8 +16,20 @@ def test_promoted_dc_motor_classifiers_carry_ai_n27():
     for key in PROMOTED:
         findings = load_audit_findings(entries[key])
         ai = [f for f in findings if f.get("id") == "AI-N27"]
-        assert len(ai) == 1 and "open" in ai[0]["summary"] and ai[0]["severity"] == "high", key
-        assert "unchanged" in ai[0]["summary"] and "affects" in ai[0]["summary"]
+        assert len(ai) == 1, key
+        if key == "dc_motor/esp32/classifier":
+            assert "open" in ai[0]["summary"] and ai[0]["severity"] == "high"
+            assert "trained on data that contain" in ai[0]["summary"] and "AI-N28" in ai[0]["summary"]
+        else:
+            assert "mitigated" in ai[0]["summary"] and "dc_perm_ex_v1" in ai[0]["summary"]
+            assert any(f.get("id") == "dcm-trained" for f in findings), key
+            assert entries[key].endswith("2026-11-04_run01"), key
+
+
+def test_previous_rpi5_does_not_pass_d1_on_corrected_physics():
+    findings = load_audit_findings("configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-10-20_run01")
+    sup = [f for f in findings if f.get("id") == "superseded-dcm"]
+    assert len(sup) == 1 and "0.870" in sup[0]["summary"] and "D1" in sup[0]["summary"]
 
 
 def test_model_registry_lists_it_with_the_run():

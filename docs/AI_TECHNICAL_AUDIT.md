@@ -243,7 +243,8 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N24 | Medium | Negative result | **Open** (§12.1): `rpi5_tcn/2026-10-20_run01` is numerically correct on the C2000 but takes 520 ms for a 51.2 ms window |
 | AI-N25 | Medium | Negative result (feasibility) | **Open** (§12.2): the promoted `dc_motor/rpi5` w2048 classifier needs a 448 KB arena; the C2000 has 128 KB for tensors |
 | AI-N26 | Medium | Defect (sample rate) | **Fixed in code; pre-registered C2000 verdicts kept** (§12.3): the C2000 real-time budget and the edge examples assumed 5 kHz, the data are 10 kHz. Post-hoc: `esp32_dscnn/2026-10-18_run01` takes 68.5 ms for a 51.2 ms window |
-| AI-N27 | **High** | Training-data defect (simulator artifact S-21) | **Open; measured: AFFECTS; option 2 executed — PC and RPi5 candidates meet the pre-registered criterion, ESP32 does not; promotion pending** (§13): 7.1 % (ESP32, 3 classes) and 17.8 % (PC and RPi5, 5 classes) of the promoted dc_motor classifiers' training windows contain the one-quadrant converter artifact of S-21; all of them fault classes, none healthy |
+| AI-N27 | **High** | Training-data defect (simulator artifact S-21) | **Mitigated for PC and RPi5** (dcm-trained runs promoted 2026-11-04); **open for ESP32** (§13.1): 7.1 % (ESP32, 3 classes) and 17.8 % (PC and RPi5, 5 classes) of the promoted dc_motor classifiers' training windows contain the one-quadrant converter artifact of S-21; all of them fault classes, none healthy |
+| AI-N28 | **High** | Robustness defect (int8 quantization) | **Open** (§13.2): the ESP32 DS-CNN retrained on the corrected (dcm) grid loses outer_race in int8 (recall 0.38 / 0.05 / 0.21 on test / affected-regime held-out / generalization; Keras 0.76 / 0.31 / 0.90); the 3-class int8 path is fragile to a change of training data |
 | AI-N19 | Medium | Evaluation limit | **Documented** (§10): simulated healthy current/rpm are constant in steady state, so the residual AUROC (1.000) and the persistence baseline are optimistic |
 | AI-N15 | Medium | Defect (estimator bias) | **Open** (§9.1): the VSC PINN estimates C systematically low, −1.3 % to −9.1 % mean error at 0–5 % noise |
 | AI-N16 | Medium | Defect (uncertainty) | **Open** (§9.2): the PINN's 5–95 % bootstrap interval covers the truth in 52–78 % of noisy runs for C; the GUI says "Coverage not validated" |
@@ -750,7 +751,7 @@ Found 2026-11-02. Evidence: [`docs/audit/c2000/ai_n26_sample_rate.md`](audit/c20
 
 ## 13. Round Assistant, phase 1 (2026-11-02): simulator artifact in the training data
 
-### 13.1 AI-N27 — training windows of the promoted dc_motor classifiers contain the S-21 converter artifact · **High** · Training-data defect · **Open; measured: affects; option 2 executed (PC, RPi5 candidates meet the criterion; ESP32 does not); promotion pending**
+### 13.1 AI-N27 — training windows of the promoted dc_motor classifiers contain the S-21 converter artifact · **High** · Training-data defect · **Mitigated for PC and RPi5 (2026-11-04); open for ESP32**
 
 Found 2026-11-02 by the scan of decision S21-1. Evidence: [`docs/audit/assistant/s21_dataset_scan.md`](audit/assistant/s21_dataset_scan.md) (`python experiments/report_s21_dataset_scan.py`, data read only); simulator finding S-21 in `docs/SIMULATION_STABILITY_REPORT.md`.
 
@@ -784,5 +785,42 @@ Found 2026-11-02 by the scan of decision S21-1. Evidence: [`docs/audit/assistant
   - **RPi5: meets the criterion.** 0.870 → 0.925; 0.851 → 0.924; 0.964 → 0.980.
   - **ESP32: does not meet it.** 0.899 → 0.718; 0.843 → 0.563; 0.990 → 0.679. outer_race recall collapses (int8 TFLite: 0.38 / 0.05 / 0.21).
 - **Post-hoc (descriptive):** the ESP32 Keras candidate is already weaker on outer_race (0.76 vs 0.86 on the test split), and the int8 quantization makes it much worse.
-- **Not done:** nothing promoted, registry unchanged. The promoted models keep the AI-N27 warning until Luciano decides.
+- **Promotion (Luciano, 2026-11-04):**
+  - The registry entries `dc_motor/pc/classifier` and `dc_motor/rpi5/classifier` are now `pc_server_5class_w2048/2026-11-04_run01` and `rpi5_resnet1d_se_5class_w2048/2026-11-04_run01` (`promote_run.py`).
+  - Each run's `audit_findings.json` states:
+    - it was trained on dcm ×1000;
+    - its known limits (start-up, weakest class outer_race, simulation only, synthetic ball/cage; for RPi5, never run on a Raspberry Pi 5);
+    - AI-N27 is mitigated for it, but the default plant (`dc_perm_ex_v1`, GEM converter) still produces the artifact at inference.
+  - The previous runs say they are superseded.
+  - **On corrected physics, the previously promoted RPi5 (`2026-10-20_run01`) does not pass D1:** macro-F1 0.870 < 0.88 on the dcm test split. The previous PC scores 0.891.
+- **Generalization of the promoted runs on the regenerated cache** (`eval_cache_5class_dcm`, [`classifier_evaluation_5class_w2048_dcm.md`](audit/assistant/classifier_evaluation_5class_w2048_dcm.md)):
+  - accuracy 1.000 in every steady-state condition for both models, including the held-out speeds and severity, 100 % noise and plant drift;
+  - start-up macro-F1 0.574 (PC) and 0.467 (RPi5).
+- **RPi5 TFLite parity, host only:** top-1 agreement 1.000 with Keras ([`tflite_parity_rpi5_dcm_2026-11-04.txt`](audit/assistant/tflite_parity_rpi5_dcm_2026-11-04.txt)).
+- **ESP32:**
+  - `esp32_dscnn/2026-10-18_run01` stays promoted with the open warning. Its finding says it was trained on data that contain the artifact.
+  - The candidate failed: see AI-N28.
+  - A repair round will be pre-registered after the assistant milestone; it is not executed.
+
+### 13.2 AI-N28 — the ESP32 int8 classifier is fragile to a change of training data · **High** · Robustness defect · **Open**
+
+Found 2026-11-04 by the pre-registered evaluation of AI-N27 option 2 ([`docs/audit/assistant/ai_n27_regen.md`](audit/assistant/ai_n27_regen.md)).
+
+- **What:** the ESP32 DS-CNN (3 classes, distilled from the PC 3-class model, int8 TFLite) was retrained with the same recipe and split on the grid regenerated with the corrected converter. Its outer_race recall collapses:
+
+| | dcm test split | held-out, affected regime | generalization |
+|---|---|---|---|
+| Promoted (int8) | 0.89 | 0.70 | 0.99 |
+| Candidate, int8 | 0.38 | 0.05 | 0.21 |
+| Candidate, Keras | 0.76 | 0.31 | 0.90 |
+
+- **Reading (post-hoc, descriptive):**
+  - The distilled float model is already weaker on outer_race, and the int8 quantization makes it much worse. The int8 ranges were calibrated on 1000 windows of the dcm grid, per tensor, without `--calibration-noise-free`, as the promoted run.
+  - The same recipe that produced a usable ESP32 model on the GEM data does not on the corrected data. The 3-class int8 path is therefore fragile, and the promoted ESP32's own quality may partly rest on that fragility.
+- **Not done:** nothing retried (pre-registration §7).
+- **Next step (Luciano, 2026-11-04):** a pre-registered repair round after the assistant milestone. On the same Keras candidate, without retraining:
+  - calibration sets: current, or stratified by class with and without noise;
+  - int8 per tensor or per channel;
+  - the variant is chosen on validation by a fixed rule, and only that one is tested once.
+  - Then, only if needed: another distillation alpha or no distillation.
 

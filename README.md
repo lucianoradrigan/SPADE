@@ -98,7 +98,7 @@ script trains any of them:
 python experiments/train_model.py --config configs/classifiers/pc_server.yaml --dataset data/diagnosis_dataset.parquet
 ```
 
-**The promoted `dc_motor` classifier (since 2026-10-20).** `pc_server_5class_w2048/2026-10-20_run01`, and the RPi5 tier `rpi5_resnet1d_se_5class_w2048`.
+**The promoted `dc_motor` classifier (since 2026-11-04).** `pc_server_5class_w2048/2026-11-04_run01`, and the RPi5 tier `rpi5_resnet1d_se_5class_w2048/2026-11-04_run01`, both trained on the grid with the corrected converter model (AI-N27 option 2; they replaced the `2026-10-20_run01` runs). The ESP32 tier keeps `esp32_dscnn/2026-10-18_run01` (AI-N27 open, AI-N28).
 - **Classes:** healthy, outer race, inner race, ball and cage.
 - **Data and preprocessing:** trained on an operating-condition grid (7 speeds × 5 severities, sensor noise, plant drift) with 2048-sample (205 ms) windows. It keeps the rpm level as a speed reference and is temperature-calibrated with an abstention threshold.
 - **Synthetic-only classes:** ball and cage have an **uncalibrated amplitude**. The GUI labels those answers.

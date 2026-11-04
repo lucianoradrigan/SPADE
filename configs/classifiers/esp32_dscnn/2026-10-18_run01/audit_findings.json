@@ -32,8 +32,8 @@
       "id": "AI-N27",
       "severity": "high",
       "date": "2026-11-02",
-      "summary": "AI-N27 (open): 450 of its 6319 training windows (7.1 %; inner_race 159, outer_race 291, normal 0) contain a non-physical simulator artifact (S-21: the one-quadrant converter applies the full supply on negative current, and the speed rises above its reference), only in fault classes, mostly at 80-125 rad/s and high severity. The model and its promotion are unchanged; measured effect (pre-registered, 2026-11-03): in the affected regime (80-125 rad/s, high severity) its decision agrees with the corrected physics on only 0.46 of the windows; no change on control runs. Verdict: affects.",
-      "evidence": "docs/AI_TECHNICAL_AUDIT.md Sec. 13.1; docs/audit/assistant/ai_n27_impact.md"
+      "summary": "AI-N27 (open for this run): trained on data that contain the S-21 simulator artifact -- 450 of its 6319 training windows (7.1 %; inner_race 159, outer_race 291, normal 0) contain it (the one-quadrant converter applies the full supply on negative current and the speed rises above its reference), mostly at 80-125 rad/s and high severity. Measured effect (pre-registered, 2026-11-03): in the affected regime its decision agrees with the corrected physics on only 0.46 of the windows. Kept promoted on 2026-11-04 with this warning: the candidate retrained on the corrected (dcm x1000) data did not meet the pre-registered criterion (int8 outer_race recall collapsed; AI-N28).",
+      "evidence": "docs/AI_TECHNICAL_AUDIT.md Sec. 13.1; docs/audit/assistant/ai_n27_impact.md; docs/audit/assistant/ai_n27_regen.md"
     }
   ]
 }

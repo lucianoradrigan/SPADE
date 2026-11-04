@@ -71,3 +71,19 @@ events:
   override_reason: null
   previous: configs/classifiers/rpi5_resnet1d_se/2026-10-18_run01
   utc: '2026-10-20T20:46:04+00:00'
+- action: promote
+  by: null
+  gate_status: null
+  key: dc_motor/pc/classifier
+  new: configs/classifiers/pc_server_5class_w2048/2026-11-04_run01
+  override_reason: null
+  previous: configs/classifiers/pc_server_5class_w2048/2026-10-20_run01
+  utc: '2026-11-04T12:15:32+00:00'
+- action: promote
+  by: null
+  gate_status: null
+  key: dc_motor/rpi5/classifier
+  new: configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-11-04_run01
+  override_reason: null
+  previous: configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-10-20_run01
+  utc: '2026-11-04T12:15:36+00:00'

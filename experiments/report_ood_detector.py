@@ -77,9 +77,10 @@ def _simulate_custom(job: tuple) -> pd.DataFrame:
     from driveflow.datagen.export_parquet import records_to_dataframe
     from driveflow.datagen.scenario import CALIBRATED_MECHANICAL_SEVERITY
 
-    cond, label, order, seed, speed, sev = job
+    cond, label, order, seed, speed, sev, *rest = job
     sc = Scenario(scenario_id=f"{cond}_seed{seed}", fault_type=label, fault_order_override=order, seed=seed, duration_s=DURATION_S,
-                  omega_ref_rad_s=speed, electrical_severity=8.0 * sev, mechanical_severity=CALIBRATED_MECHANICAL_SEVERITY["ball"] * sev)
+                  omega_ref_rad_s=speed, electrical_severity=8.0 * sev, mechanical_severity=CALIBRATED_MECHANICAL_SEVERITY["ball"] * sev,
+                  **(rest[0] if rest else {}))
     df = records_to_dataframe(run_scenario(sc))
     df["condition"] = cond
     return df
@@ -89,7 +90,10 @@ def _sim(job):
     return _simulate_custom(job[1:]) if job[0] == "custom" else _simulate(job[1:])
 
 
-def _jobs(ood_set: str = "ball_cage") -> list:
+def _jobs(ood_set: str = "ball_cage", plant_opts: dict | None = None) -> list:
+    """plant_opts: Scenario plant options appended to every job (AI-N27: dc_converter_model /
+    dc_plant_substeps); None = the production plant, exactly as before."""
+    extra = (plant_opts,) if plant_opts else ()
     jobs = []
     for label, fault, order in OOD_SETS[ood_set]:
         for speed in OOD_SPEEDS:
@@ -97,19 +101,19 @@ def _jobs(ood_set: str = "ball_cage") -> list:
                 for seed in SEEDS:
                     cond = f"ood_{label}_w{speed:g}_s{sev:g}"
                     if order is None:
-                        jobs.append(("builtin", cond, fault, seed, {"omega_ref_rad_s": speed, "electrical_severity": 8.0 * sev}, sev, DURATION_S))
+                        jobs.append(("builtin", cond, fault, seed, {"omega_ref_rad_s": speed, "electrical_severity": 8.0 * sev}, sev, DURATION_S, *extra))
                     else:
-                        jobs.append(("custom", cond, fault, order, seed, speed, sev))
+                        jobs.append(("custom", cond, fault, order, seed, speed, sev, *extra))
     for cond, overrides in BENIGN.items():
         for fault in (None, "outer_race", "inner_race"):
             for seed in SEEDS:
-                jobs.append(("builtin", f"benign_{cond}", fault, seed, overrides, 1.0, DURATION_S))
+                jobs.append(("builtin", f"benign_{cond}", fault, seed, overrides, 1.0, DURATION_S, *extra))
     return jobs
 
 
-def simulate(workers: int, ood_set: str = "ball_cage") -> pd.DataFrame:
+def simulate(workers: int, ood_set: str = "ball_cage", plant_opts: dict | None = None) -> pd.DataFrame:
     with mp.get_context("spawn").Pool(workers) as pool:
-        return pd.concat(pool.map(_sim, _jobs(ood_set)), ignore_index=True)
+        return pd.concat(pool.map(_sim, _jobs(ood_set, plant_opts)), ignore_index=True)
 
 
 def rebuild_id_windows(metrics: dict, meta: dict):
@@ -248,6 +252,9 @@ def main(argv=None):
     ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2) - 2))
     ap.add_argument("--ood-set", choices=sorted(OOD_SETS), default="ball_cage")
     ap.add_argument("--layer", default=None, help="Mahalanobis features: None = the head's input (dense1), or e.g. 'gap'")
+    ap.add_argument("--dc-converter-model", choices=("gem", "dcm"), default=None, help="S-21/AI-N27: Scenario.dc_converter_model for the simulated runs (default: not set)")
+    ap.add_argument("--dc-plant-substeps", type=int, default=None, help="Scenario.dc_plant_substeps for the simulated runs (default: not set)")
+    ap.add_argument("--out-stem", default=None, help="output file stem (default: ood_detector[_<set>][_<layer>])")
     ap.add_argument("--write-to-run", action="store_true", help="store the fitted parameters in the run's metrics.json['ood']")
     args = ap.parse_args(argv)
 
@@ -266,7 +273,8 @@ def main(argv=None):
     if args.cache is not None and args.cache.exists():
         sim = pd.read_parquet(args.cache)
     else:
-        sim = simulate(args.workers, args.ood_set)
+        plant_opts = {k: v for k, v in (("dc_converter_model", args.dc_converter_model), ("dc_plant_substeps", args.dc_plant_substeps)) if v}
+        sim = simulate(args.workers, args.ood_set, plant_opts or None)
         if args.cache is not None:
             args.cache.parent.mkdir(parents=True, exist_ok=True)
             sim.to_parquet(args.cache)
@@ -275,7 +283,7 @@ def main(argv=None):
            "jobs": {"ood_speeds": OOD_SPEEDS, "ood_severity_scales": OOD_SEVERITY_SCALES, "seeds": SEEDS, "duration_s": DURATION_S, "benign": BENIGN},
            "eval": evaluate(model, metrics, ood, id_sets, sim, args.ood_set)}
     args.out_dir.mkdir(parents=True, exist_ok=True)
-    stem = ("ood_detector" if args.ood_set == "ball_cage" else f"ood_detector_{args.ood_set}") + ("" if args.layer is None else f"_{args.layer}")
+    stem = args.out_stem or (("ood_detector" if args.ood_set == "ball_cage" else f"ood_detector_{args.ood_set}") + ("" if args.layer is None else f"_{args.layer}"))
     rep["stem"] = stem
     (args.out_dir / f"{stem}.json").write_text(json.dumps(rep, indent=2) + "\n")
     (args.out_dir / f"{stem}.md").write_text(_md(rep))
