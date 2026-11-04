@@ -1,0 +1,152 @@
+{
+  "run": "configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-11-04_run01",
+  "ood_set": "custom_orders",
+  "ood_labels": [
+    "unknown_1p3x",
+    "unknown_6p5x"
+  ],
+  "mahalanobis_layer": "dense1 (head input)",
+  "ood_params_summary": {
+    "mahalanobis": {
+      "threshold": 71.66828951979781
+    },
+    "energy": {
+      "threshold": -1.4511218764785707
+    }
+  },
+  "jobs": {
+    "ood_speeds": [
+      80.0,
+      125.0,
+      175.0,
+      220.0
+    ],
+    "ood_severity_scales": [
+      0.5,
+      1.0,
+      2.0
+    ],
+    "seeds": [
+      11,
+      12
+    ],
+    "duration_s": 2.5,
+    "benign": {
+      "speed_50_rad_s": {
+        "omega_ref_rad_s": 50.0
+      },
+      "speed_300_rad_s": {
+        "omega_ref_rad_s": 300.0
+      },
+      "noise_150pct": {
+        "electrical_noise_pct": 150.0,
+        "mechanical_noise_pct": 150.0
+      }
+    }
+  },
+  "eval": {
+    "in_distribution_test": {
+      "n": 600,
+      "accuracy_on_answered_abstention_only": 0.992467043314501
+    },
+    "methods": {
+      "mahalanobis": {
+        "threshold": 71.66828951979781,
+        "in_distribution_false_unknown_rate": 0.05,
+        "in_distribution_accuracy_on_answered": 0.9980506822612085,
+        "in_distribution_answered_share": 0.855,
+        "ood_unknown_1p3x": {
+          "n": 216,
+          "unknown_rate": 0.7731481481481481,
+          "auroc_vs_id_test": 0.9543518518518518,
+          "abstained_or_unknown_rate": 0.8009259259259259,
+          "unknown_or_called_fault_rate": 1.0,
+          "confident_wrong_answer_rate_without_ood": 0.8333333333333334
+        },
+        "ood_unknown_6p5x": {
+          "n": 216,
+          "unknown_rate": 1.0,
+          "auroc_vs_id_test": 0.9858333333333333,
+          "abstained_or_unknown_rate": 1.0,
+          "unknown_or_called_fault_rate": 1.0,
+          "confident_wrong_answer_rate_without_ood": 1.0
+        },
+        "benign_speed_50_rad_s": {
+          "n": 54,
+          "unknown_rate": 1.0,
+          "auroc_vs_id_test": 0.9849382716049383,
+          "abstained_or_unknown_rate": 1.0,
+          "accuracy_on_answered": null
+        },
+        "benign_speed_300_rad_s": {
+          "n": 54,
+          "unknown_rate": 1.0,
+          "auroc_vs_id_test": 1.0,
+          "abstained_or_unknown_rate": 1.0,
+          "accuracy_on_answered": null
+        },
+        "benign_noise_150pct": {
+          "n": 54,
+          "unknown_rate": 0.0,
+          "auroc_vs_id_test": 0.6140740740740741,
+          "abstained_or_unknown_rate": 0.0,
+          "accuracy_on_answered": 1.0
+        },
+        "targets": {
+          "unknown_1p3x_unknown_ge_90pct": false,
+          "unknown_6p5x_unknown_or_fault_ge_90pct": true,
+          "id_accuracy_drop_le_1pt": true
+        }
+      },
+      "energy": {
+        "threshold": -1.4511218764785707,
+        "in_distribution_false_unknown_rate": 0.04666666666666667,
+        "in_distribution_accuracy_on_answered": 0.992467043314501,
+        "in_distribution_answered_share": 0.885,
+        "ood_unknown_1p3x": {
+          "n": 216,
+          "unknown_rate": 0.0,
+          "auroc_vs_id_test": 0.7916743827160495,
+          "abstained_or_unknown_rate": 0.16666666666666666,
+          "unknown_or_called_fault_rate": 1.0,
+          "confident_wrong_answer_rate_without_ood": 0.8333333333333334
+        },
+        "ood_unknown_6p5x": {
+          "n": 216,
+          "unknown_rate": 0.0,
+          "auroc_vs_id_test": 0.012500000000000011,
+          "abstained_or_unknown_rate": 0.0,
+          "unknown_or_called_fault_rate": 1.0,
+          "confident_wrong_answer_rate_without_ood": 1.0
+        },
+        "benign_speed_50_rad_s": {
+          "n": 54,
+          "unknown_rate": 0.18518518518518517,
+          "auroc_vs_id_test": 0.7208024691358024,
+          "abstained_or_unknown_rate": 0.5185185185185185,
+          "accuracy_on_answered": 1.0
+        },
+        "benign_speed_300_rad_s": {
+          "n": 54,
+          "unknown_rate": 0.0,
+          "auroc_vs_id_test": 0.375462962962963,
+          "abstained_or_unknown_rate": 0.3333333333333333,
+          "accuracy_on_answered": 0.7222222222222222
+        },
+        "benign_noise_150pct": {
+          "n": 54,
+          "unknown_rate": 0.0,
+          "auroc_vs_id_test": 0.27055555555555555,
+          "abstained_or_unknown_rate": 0.0,
+          "accuracy_on_answered": 1.0
+        },
+        "targets": {
+          "unknown_1p3x_unknown_ge_90pct": false,
+          "unknown_6p5x_unknown_or_fault_ge_90pct": true,
+          "id_accuracy_drop_le_1pt": true
+        }
+      }
+    }
+  },
+  "stem": "ood_detector_custom_orders_dcm_rpi5"
+}

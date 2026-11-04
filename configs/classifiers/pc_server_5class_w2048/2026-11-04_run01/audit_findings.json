@@ -15,6 +15,13 @@
       "evidence": "docs/AI_TECHNICAL_AUDIT.md Sec. 13.1; docs/SIMULATION_STABILITY_REPORT.md S-21; docs/audit/assistant/ai_n27_regen.md"
     },
     {
+      "id": "AI-N29",
+      "severity": "high",
+      "date": "2026-11-04",
+      "summary": "Low speed (AI-N29, open): at 50 rad/s, below the 80-220 rad/s training grid, it abstains on 44 % of the known-class windows and gets 2 of the 30 answered right (0.067); the previous PC answered the same windows correctly. The OOD filter that would flag them is not active in the GUI (AI-N17). 54 windows, 2 seeds per class.",
+      "evidence": "docs/AI_TECHNICAL_AUDIT.md Sec. 13.3; docs/audit/ai/ood_detector_custom_orders_dcm.md"
+    },
+    {
       "id": "startup",
       "severity": "medium",
       "date": "2026-11-04",

@@ -245,6 +245,7 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N26 | Medium | Defect (sample rate) | **Fixed in code; pre-registered C2000 verdicts kept** (§12.3): the C2000 real-time budget and the edge examples assumed 5 kHz, the data are 10 kHz. Post-hoc: `esp32_dscnn/2026-10-18_run01` takes 68.5 ms for a 51.2 ms window |
 | AI-N27 | **High** | Training-data defect (simulator artifact S-21) | **Mitigated for PC and RPi5** (dcm-trained runs promoted 2026-11-04); **open for ESP32** (§13.1): 7.1 % (ESP32, 3 classes) and 17.8 % (PC and RPi5, 5 classes) of the promoted dc_motor classifiers' training windows contain the one-quadrant converter artifact of S-21; all of them fault classes, none healthy |
 | AI-N28 | **High** | Robustness defect (int8 quantization) | **Open** (§13.2): the ESP32 DS-CNN retrained on the corrected (dcm) grid loses outer_race in int8 (recall 0.38 / 0.05 / 0.21 on test / affected-regime held-out / generalization; Keras 0.76 / 0.31 / 0.90); the 3-class int8 path is fragile to a change of training data |
+| AI-N29 | **High** | Generalization regression (low speed) | **Open** (§13.3): the dcm-trained PC classifier promoted on 2026-11-04 is confidently wrong at 50 rad/s (below the 80–220 rad/s grid): of 54 known-class windows it abstains on 44 % and gets 2 of the 30 answered right (0.067); the previous PC on the same data answered 54 % with 1.000; the new RPi5 is not affected (1.000 on 81 % answered) |
 | AI-N19 | Medium | Evaluation limit | **Documented** (§10): simulated healthy current/rpm are constant in steady state, so the residual AUROC (1.000) and the persistence baseline are optimistic |
 | AI-N15 | Medium | Defect (estimator bias) | **Open** (§9.1): the VSC PINN estimates C systematically low, −1.3 % to −9.1 % mean error at 0–5 % noise |
 | AI-N16 | Medium | Defect (uncertainty) | **Open** (§9.2): the PINN's 5–95 % bootstrap interval covers the truth in 52–78 % of noisy runs for C; the GUI says "Coverage not validated" |
@@ -823,4 +824,28 @@ Found 2026-11-04 by the pre-registered evaluation of AI-N27 option 2 ([`docs/aud
   - int8 per tensor or per channel;
   - the variant is chosen on validation by a fixed rule, and only that one is tested once.
   - Then, only if needed: another distillation alpha or no distillation.
+
+### 13.3 AI-N29 — the promoted PC classifier is confidently wrong at 50 rad/s · **High** · Generalization regression · **Open**
+
+Found 2026-11-04 while regenerating the evaluation caches after the promotion of AI-N27 option 2.
+- **Evidence:** [`ood_detector_custom_orders_dcm.md`](audit/ai/ood_detector_custom_orders_dcm.md) (new PC), [`ood_detector_custom_orders_dcm_previous_pc.md`](audit/ai/ood_detector_custom_orders_dcm_previous_pc.md) (previous PC on the same data) and [`ood_detector_custom_orders_dcm_rpi5.md`](audit/ai/ood_detector_custom_orders_dcm_rpi5.md) (new RPi5).
+- **Cache:** `data/ood_eval_cache_custom_dcm.parquet`, the AI-N14 benign shifts and the A2 custom faults, simulated with dcm ×1000.
+
+| Benign shift (known classes, 54 windows each) | Previous PC (`2026-10-20_run01`) | New PC (`2026-11-04_run01`) | New RPi5 (`2026-11-04_run01`) |
+|---|---|---|---|
+| 50 rad/s: abstained or unknown (energy) / accuracy on answered | 0.46 / **1.000** | 0.44 / **0.067** | 0.19 / 1.000 |
+| 300 rad/s: accuracy on answered (energy) | 0.778 | 1.000 | 0.722 |
+| 150 % noise: accuracy on answered | 1.000 | 1.000 | 1.000 |
+
+- **Reading:**
+  - Below the training grid (80–220 rad/s), the new PC model answers more than half of the windows wrongly with confidence above its abstention threshold. The previous model, on the same windows, answered the same share correctly.
+  - Neither the pre-registered evaluation of option 2 nor the promotion criterion covered speeds below 80 rad/s (E3 holds the grid's held-out conditions only).
+  - The Mahalanobis OOD filter flags these windows as unknown, but it is not active in the GUI (AI-N17).
+- **Caveat X1:** 2 seeds per class, and the seed does not change the simulated current, rpm or torque.
+- **Not done:** no model change. Possible actions are Luciano's decision:
+  - keep it, with this warning;
+  - extend the training grid below 80 rad/s;
+  - activate the OOD filter;
+  - revert the PC entry.
+
 
