@@ -121,8 +121,8 @@ _DIAGRAM_COMPONENT_DETAILS = {
     ),
     "Classifier (CNN)": (
         "`models/classifiers/builder.py` -- Conv1D+SE blocks, config-driven. `dc_motor` only. Promoted PC tier: "
-        "`pc_server_5class_w2048/2026-10-20_run01`, 5 classes (ball, cage, inner_race, normal, outer_race), "
-        "test accuracy 90.3 % and macro-F1 0.90 on 600 test windows. No `vsc_dpc` classifier is promoted: "
+        "`pc_server_5class_w2048/2026-11-04_run01` (trained on the corrected-converter grid, AI-N27), 5 classes (ball, cage, inner_race, normal, outer_race), "
+        "test accuracy 93.0 % and macro-F1 0.93 on 600 test windows (wrong at 50 rad/s, below its grid: AI-N29). No `vsc_dpc` classifier is promoted: "
         "capacitor degradation is synthetic-only. A classifier can be trained from AI Diagnostics → Train a model."
     ),
     "Regressor (LSTM/TCN)": (
@@ -159,7 +159,7 @@ _DIAGRAM_COMPONENT_DETAILS = {
         "blends the true label/value with the teacher's own prediction (`--distill-alpha` 0.5). Smaller "
         "architectures: a ResNet1D-SE classifier with 2 Conv1D blocks instead of 3, and a dilated causal TCN "
         "regressor (7 × 32 filters) instead of the PC tier's LSTM. Exported to TFLite as **float16** (no "
-        "calibration data needed). Current numbers: dc_motor classifier 90.2 % (teacher 90.3 %, same 5 classes "
+        "calibration data needed). Current numbers: dc_motor classifier 92.5 % (teacher 93.0 %, same 5 classes "
         "and test split); vsc_dpc regressor RMSE 0.064 (teacher 0.073)."
     ),
     "ESP32": (
