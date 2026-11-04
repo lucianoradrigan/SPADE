@@ -13,6 +13,13 @@
       "date": "2026-11-04",
       "summary": "Trained and evaluated on simulated data only (speed x severity x noise x plant-drift grid, DC plant with dcm x1000); no real-machine validation exists.",
       "evidence": "docs/audit/assistant/ai_n27_regen.md"
+    },
+    {
+      "id": "A2-synthetic-ball-cage",
+      "severity": "high",
+      "summary": "ball/cage: synthetic-only, uncalibrated amplitude. The ball and cage classes were trained on simulated faults whose mechanical amplitude (CALIBRATED_MECHANICAL_SEVERITY in datagen/scenario.py) is a placeholder: KAt has no clean single-defect code for these faults, so it cannot be calibrated without real data.",
+      "evidence": "docs/AI_TECHNICAL_AUDIT.md Sec. 8.4-8.5",
+      "date": "2026-11-04"
     }
   ]
 }
