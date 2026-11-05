@@ -35,6 +35,12 @@ guards:
   objective_needs_plant: true
   nudge_draft: true
   nudge_docs: true
+  # Round 3 (Luciano 2026-11-04): SPADE data shown verbatim as cards (cards.py), verified citations,
+  # "no lo tengo documentado" only after two empty distinct searches, glossary terms trigger the look-up.
+  cards: true
+  verified_cite: true
+  nodoc_rule: true
+  glossary_trigger: true
 
 # Plan §4.4. driveflow.assistant.draft.DEFAULT_LIMITS must match (tests/assistant/test_assistant_llm.py).
 limits:

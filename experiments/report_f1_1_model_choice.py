@@ -87,8 +87,10 @@ def run_one(tag: str, digest: str, prompt: dict, system_prompt: str, seed: int, 
     try:
         res = agent.user_turn(prompt["text"])
         stopped, text = res.stopped, res.text
+        cards_shown = [{"title": c["title"], "source": c["source"]} for c in res.cards]
     except Exception as exc:  # noqa: BLE001
         stopped, text, error = "exception", "", f"{type(exc).__name__}: {exc}"
+        cards_shown = []
     finally:
         loop.visible_tools = saved
     wall = time.perf_counter() - t0
@@ -114,6 +116,7 @@ def run_one(tag: str, digest: str, prompt: dict, system_prompt: str, seed: int, 
             "n_calls": len(calls), "n_valid": valid, "correct_tool": bool(correct),
             "launch_attempts": sum(n in LAUNCH for n in names), "launches_executed": sum(n in LAUNCH for n in executed),
             "invented_numbers_refused": len(refused_invented), "audit_trace_problems": len(audit_trace(agent.trace.draft_events)),
+            "cards": cards_shown, "notes": [e["key"] for e in agent.trace.events if e["kind"] == "note"],
             "wall_s": wall, "gen_tokens": gen_tokens, "gen_s": gen_time, "stopped": stopped, "error": error, "answer": text[:600],
             "trace": agent.trace.events}
 

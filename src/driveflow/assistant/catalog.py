@@ -24,6 +24,9 @@ CATALOG_PATH = REPO / "configs" / "assistant_catalog.yaml"
 GUIDE_PATH = REPO / "configs" / "algorithm_guide.yaml"
 DOC_ROOTS = ("docs", "README.md")
 MAX_HITS = 5
+#: The assistant's own benchmark reports quote the model's wrong answers verbatim; searching them would
+#: feed those errors back (F1.1 round 3).
+EXCLUDED_DOCS = re.compile(r"docs/audit/assistant/f1_1")
 
 
 @lru_cache(maxsize=1)
@@ -81,7 +84,7 @@ def _doc_paragraphs() -> list:
     out = []
     for root in DOC_ROOTS:
         p = REPO / root
-        files = [p] if p.is_file() else sorted(p.rglob("*.md"))
+        files = [p] if p.is_file() else sorted(f for f in p.rglob("*.md") if not EXCLUDED_DOCS.match(str(f.relative_to(REPO))))
         for f in files:
             section = ""
             for para in re.split(r"\n\s*\n", f.read_text(errors="replace")):
@@ -104,7 +107,28 @@ def search_docs(state: SessionState, query: str) -> dict:
             scored.append((score, path, section, para))
     scored.sort(key=lambda x: -x[0])
     hits = [{"file": p, "section": s, "snippet": para[:600]} for _sc, p, s, para in scored[:MAX_HITS]]
-    return {"query": query, "hits": hits, "note": "cite file and section; if nothing relevant is here, say SPADE does not document it"}
+    # F1.1 round 3: generated glossary of aliases (glossary.py). A finding or catalog entry whose
+    # distinctive words are in the query is returned, and its own paragraph comes first.
+    from driveflow.assistant import glossary
+
+    matches = glossary.lookup(query)
+    first = []
+    for g in matches:
+        if g["file"].startswith("docs/"):
+            in_file = [(pth, sec, txt) for pth, sec, txt in _doc_paragraphs() if pth == g["file"] and re.search(rf"\b{re.escape(g['id'])}\b", txt)]
+            own = rf"(^|\n)(\| |#+ (?:[\d.]+ )?){re.escape(g['id'])}\b"  # the finding's own table row or heading
+            para = next((x for x in in_file if re.search(own, x[2])), in_file[0] if in_file else None)
+            if para:
+                m = re.search(own, para[2])
+                start = m.start() + (1 if m and para[2][m.start()] == "\n" else 0) if m else 0
+                h = {"file": para[0], "section": para[1], "snippet": para[2][start:start + 600]}
+                if h not in first:
+                    first.append(h)
+    hits = (first + [h for h in hits if h not in first])[:MAX_HITS]
+    out = {"query": query, "hits": hits, "note": "cite file and section (a docs/ path) or the finding ID; if nothing relevant is here, run one more, different query before saying SPADE does not document it"}
+    if matches:
+        out["glossary"] = matches
+    return out
 
 
 def _schema(props: dict, required: list) -> dict:

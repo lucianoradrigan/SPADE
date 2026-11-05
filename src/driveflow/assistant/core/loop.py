@@ -26,6 +26,18 @@ docs/audit/assistant/f1_1_model_choice_round2_rule.md), each switchable in ``gua
   a text-only answer before any search_docs / explain_spade gets, once, a note to look it up; an answer
   that then cites no source gets, once, a note to cite it or to say "no lo tengo documentado".
 
+Round 3 (Luciano, 2026-11-04; round 2 found false statements in every configuration):
+
+- ``cards``: explain_spade / search_docs / describe_plant results become verbatim cards with their source
+  (``TurnResult.cards``, cards.py), shown by the interface; the model is told to add at most two
+  sentences, and a long answer next to cards gets, once, a note to shorten it; plants named in the
+  answer get a catalog card;
+- ``verified_cite``: the citation of an answer about SPADE must be a docs/ path that exists or a finding
+  ID that exists (glossary.verified_citation); otherwise one note;
+- ``nodoc_rule``: "no lo tengo documentado" only after search_docs found nothing for two distinct
+  queries in the turn; otherwise one note;
+- ``glossary_trigger``: the look-up nudge also fires on the generated glossary's terms (glossary.py).
+
 Notes go to the model as a user-role message marked as coming from SPADE, never from the user; they
 carry no numbers and are not evidence for the draft (the ledger only records real user messages).
 """
@@ -45,8 +57,12 @@ DEFAULT_TURN_LIMITS = {"max_tool_calls_per_turn": 12, "max_model_calls_per_turn"
 MAX_CONSECUTIVE_ERRORS = 3
 #: F1.1 round 2: the guards configs/assistant.yaml enables (``guards``). Agent(guards=None) keeps them all off.
 DEFAULT_GUARDS = {"reject_repeats": True, "per_turn_caps": {"search_docs": 2, "explain_spade": 2}, "final_answer": True,
-                  "objective_needs_plant": True, "nudge_draft": True, "nudge_docs": True}
-GUARDS_OFF = {"reject_repeats": False, "per_turn_caps": {}, "final_answer": False, "objective_needs_plant": False, "nudge_draft": False, "nudge_docs": False}
+                  "objective_needs_plant": True, "nudge_draft": True, "nudge_docs": True,
+                  "cards": True, "verified_cite": True, "nodoc_rule": True, "glossary_trigger": True}
+GUARDS_OFF = {"reject_repeats": False, "per_turn_caps": {}, "final_answer": False, "objective_needs_plant": False, "nudge_draft": False, "nudge_docs": False,
+              "cards": False, "verified_cite": False, "nodoc_rule": False, "glossary_trigger": False}
+BRIEF_MAX_CHARS = 400
+_NODOC = re.compile(r"(no lo tengo documentado|not documented|no est[aá] documentad|sin documentaci[oó]n|no documenta)", re.I)
 NOTE_PREFIX = "[SPADE runtime note, not from the user] "
 NOTES = {
     "final": "Stop calling tools. Answer the user now, in their language, with what you already have; say what is missing.",
@@ -54,7 +70,11 @@ NOTES = {
     "draft": "You answered without recording anything. If the user gave what you need, record it now with update_draft (configuration) or "
              "update_objective (objective); if something required is missing, ask the user for it.",
     "docs": "The user asked about SPADE. Look it up with search_docs or explain_spade before answering; answer only from what they return.",
-    "cite": "Cite the source you used (file and section, page, or finding ID). If the tools returned nothing relevant, say \"no lo tengo documentado\".",
+    "cite": "Cite the source you used: a docs/ path or a finding ID that the tools returned. If the tools returned nothing relevant, say \"no lo tengo documentado\".",
+    "verified": "Your citation is not a docs/ path or a finding ID that exists. Cite one that the tools returned (e.g. docs/VALIDATION_SUMMARY.md or AI-N12).",
+    "nodoc": "You said it is not documented, but search_docs returned results (or you ran fewer than two different queries). Answer from those results and cite them, "
+             "or run one more, different search_docs query first.",
+    "brief": "The user already sees the tool results verbatim as cards. Reply in at most two sentences, without restating them, and cite the source.",
 }
 EMPTY_FALLBACK = "The assistant could not produce an answer; please rephrase. / El asistente no pudo generar una respuesta; reformula el pedido."
 _SPADE_REF = re.compile(r"\b(S-\d+|AI-N\d+|AI-\d+|F\d\.\d+|FE-\d+|SPADE)\b", re.I)
@@ -98,6 +118,7 @@ SET_MODE = Tool("set_mode", "Set what the user wants: 'configuration' (simulate 
 class TurnResult:
     text: str
     stopped: str | None = None  # None, "errors", or the name of the limit that stopped the turn
+    cards: list = field(default_factory=list)  # verbatim SPADE data shown by the interface (round 3, cards.py)
     model_calls: int = 0
     tool_calls: int = 0
     tokens: int = 0
@@ -163,6 +184,11 @@ class Agent:
     def _spade_reference(self, text: str) -> bool:
         if _SPADE_REF.search(text or ""):
             return True
+        if self.guards.get("glossary_trigger"):
+            from driveflow.assistant import glossary
+
+            if glossary.lookup(text):
+                return True
         low = (text or "").lower()
         return any(name in low for name in self.tools if "_" in name)
 
@@ -175,6 +201,8 @@ class Agent:
         errors_in_row = 0
         self._turn_calls: dict = {}
         self._turn_counts: dict = {}
+        self._turn_searches: list = []  # (normalised query, number of hits) of search_docs in this turn
+        self._res = res
         start_hash, start_obj = self.state.draft.hash(), json.dumps(self.state.draft.objective, sort_keys=True, default=str)
         user_text = next((m["content"] for m in reversed(self.messages) if m["role"] == "user"), "")
         asks_spade = self.guards["nudge_docs"] and self._spade_reference(user_text)
@@ -205,13 +233,30 @@ class Agent:
                     nudged.add("docs")
                     self._note("docs", res)
                     continue
-                if asks_spade and looked_up and "cite" not in nudged and reply.text.strip() and not _CITED.search(reply.text):
-                    nudged.add("cite")
-                    self._note("cite", res)
+                if self.guards.get("nodoc_rule") and "nodoc" not in nudged and _NODOC.search(reply.text or "") and not self._nodoc_allowed():
+                    nudged.add("nodoc")
+                    self._note("nodoc", res)
+                    continue
+                if asks_spade and looked_up and reply.text.strip() and not _NODOC.search(reply.text):
+                    if self.guards.get("verified_cite"):
+                        from driveflow.assistant import glossary
+
+                        if "verified" not in nudged and not glossary.verified_citation(reply.text):
+                            nudged.add("verified")
+                            self._note("verified", res)
+                            continue
+                    elif "cite" not in nudged and not _CITED.search(reply.text):
+                        nudged.add("cite")
+                        self._note("cite", res)
+                        continue
+                if self.guards.get("cards") and res.cards and "brief" not in nudged and len(reply.text.strip()) > BRIEF_MAX_CHARS:
+                    nudged.add("brief")
+                    self._note("brief", res)
                     continue
                 if not reply.text.strip() and self.guards["final_answer"]:
                     return self._final_answer(res, "empty", stopped=None)
                 res.text = reply.text if reply.text.strip() or not self.guards["final_answer"] else EMPTY_FALLBACK
+                self._plant_cards(res)
                 return res
             for i, call in enumerate(reply.tool_calls):
                 if res.tool_calls >= self.limits["max_tool_calls_per_turn"]:
@@ -270,6 +315,15 @@ class Agent:
             self.trace.add("tool_error", name=call.name, arguments=call.arguments, error=f"{type(exc).__name__}: {exc}")
             return {"error": f"{type(exc).__name__}: {exc}"}, True
         self.state.ledger.add_tool_result(call.name, call.id, result)
+        if call.name == "search_docs" and isinstance(result, dict) and hasattr(self, "_turn_searches"):
+            self._turn_searches.append((" ".join(sorted(str(call.arguments.get("query", "")).lower().split())), len(result.get("hits") or [])))
+        if self.guards.get("cards") and isinstance(result, dict):
+            from driveflow.assistant import cards
+
+            new = cards.card_from_tool(call.name, call.arguments, result)
+            if new and hasattr(self, "_res"):
+                self._res.cards.extend(new)
+                result = {**result, "shown_to_user": cards.SHOWN_NOTE}
         self.trace.add("tool_result", name=call.name, arguments=call.arguments, result=result)
         self.trace.draft_events.append({"role": "tool", "name": call.name, "call_id": call.id, "result": result})
         self._record_patch(call, result)
@@ -318,6 +372,23 @@ class Agent:
         self.trace.add("stopped", reason=why)
         return res
 
+    def _nodoc_allowed(self) -> bool:
+        """'Not documented' only after search_docs found nothing for two distinct queries (round 3)."""
+        empty = {q for q, n in getattr(self, "_turn_searches", []) if n == 0}
+        return len(empty) >= 2
+
+    def _plant_cards(self, res: TurnResult) -> None:
+        if not self.guards.get("cards"):
+            return
+        from driveflow.assistant import cards
+
+        have = {c["title"] for c in res.cards}
+        for plant in cards.plants_named(res.text):
+            c = cards.plant_card(plant)
+            if c and c["title"] not in have:
+                res.cards.append(c)
+                have.add(c["title"])
+
     def _final_answer(self, res: TurnResult, note: str, stopped: str | None) -> TurnResult:
         """One model call WITHOUT tools so the user gets an answer with what the turn has (guard
         ``final_answer``); a still-empty reply falls back to a fixed message, never to nothing."""
@@ -335,4 +406,5 @@ class Agent:
         text = reply.text.strip() if not reply.tool_calls else ""
         res.text = text or (STOP_MESSAGES[stopped] if stopped else EMPTY_FALLBACK)
         self.messages.append({"role": "assistant", "content": res.text})
+        self._plant_cards(res)
         return res

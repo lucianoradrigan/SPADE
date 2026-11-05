@@ -99,14 +99,68 @@ def test_text_only_answer_without_recording_gets_one_note():
     assert [n["key"] for n in notes] == ["draft"] and res.text == "¿Qué planta quieres usar?"
 
 
-def test_question_about_spade_requires_a_lookup_and_a_citation():
-    a, _ = agent(reply("S-21 es un conjunto de decisiones."),
+def test_question_about_spade_requires_a_lookup_and_a_verified_citation():
+    a, _ = agent(reply("Es un conjunto de decisiones."),
                  reply("", call("set_mode", mode="question"), call("search_docs", query="S-21 converter")),
-                 reply("S-21 es un artefacto del convertidor."),
-                 reply("S-21 es un artefacto del convertidor de un cuadrante (docs/SIMULATION_STABILITY_REPORT.md, S-21)."))
+                 reply("Es un artefacto del convertidor (según los documentos)."),
+                 reply("Es un artefacto del convertidor de un cuadrante (docs/SIMULATION_STABILITY_REPORT.md)."))
     res = a.user_turn("¿Qué es el hallazgo S-21?")
-    assert [n["key"] for n in kinds(a, "note")] == ["docs", "cite"]
+    assert [n["key"] for n in kinds(a, "note")] == ["docs", "verified"]  # "según los documentos" is not a citation
     assert "SIMULATION_STABILITY_REPORT" in res.text
+
+
+def test_verified_citation_needs_an_existing_path_or_id():
+    from driveflow.assistant.glossary import verified_citation
+
+    assert verified_citation("ver docs/VALIDATION_SUMMARY.md") and verified_citation("ver AI-N12")
+    assert not verified_citation("según los documentos") and not verified_citation("docs/NO_EXISTE.md") and not verified_citation("AI-N999")
+
+
+def test_not_documented_only_after_two_empty_distinct_searches():
+    # search_docs returned hits: "not documented" gets a note
+    a, _ = agent(reply("", call("set_mode", mode="question"), call("search_docs", query="abstention threshold")),
+                 reply("No lo tengo documentado."), reply("Es el umbral de AI-N12 (docs/VALIDATION_SUMMARY.md)."))
+    res = a.user_turn("What does the abstention threshold of the classifiers mean?")
+    assert "nodoc" in [n["key"] for n in kinds(a, "note")] and "AI-N12" in res.text
+    # two distinct queries with no hits: allowed
+    b, _ = agent(reply("", call("set_mode", mode="question"), call("search_docs", query="zzqx wvyk"), call("search_docs", query="qqzz kkvw")),
+                 reply("No lo tengo documentado."))
+    b.user_turn("¿Qué es el módulo zzqx de SPADE?")
+    assert "nodoc" not in [n["key"] for n in kinds(b, "note")]
+
+
+def test_glossary_term_triggers_the_lookup():
+    a, _ = agent(reply("It is when the classifier does not answer."), reply("", call("set_mode", mode="question"), call("search_docs", query="abstention threshold")),
+                 reply("See AI-N12 in docs/VALIDATION_SUMMARY.md."))
+    a.user_turn("What does the abstention threshold of the classifiers mean?")
+    assert [n["key"] for n in kinds(a, "note")][0] == "docs"
+
+
+def test_tool_results_become_verbatim_cards_and_named_plants_get_catalog_cards():
+    a, _ = agent(reply("", call("set_mode", mode="question"), call("search_docs", query="abstention threshold")),
+                 reply("El umbral de abstención está en AI-N12 (docs/VALIDATION_SUMMARY.md); el motor dc_perm_ex_v1 no se usa aquí."))
+    res = a.user_turn("What does the abstention threshold of the classifiers mean?")
+    srcs = [c["source"] for c in res.cards]
+    assert "docs/VALIDATION_SUMMARY.md" in srcs
+    plant = [c for c in res.cards if c["title"] == "Plant dc_perm_ex_v1"]
+    assert plant and any(ln.startswith("Nominal values: omega 300") for ln in plant[0]["lines"])  # from the catalog, not the model
+    sent = [m for m in a.messages if m["role"] == "tool" and m.get("tool_name") == "search_docs"][0]["content"]
+    assert "shown to the user verbatim" in sent
+
+
+def test_long_answer_next_to_cards_gets_one_brief_note():
+    long = "Bla. " * 120 + "AI-N12"
+    a, _ = agent(reply("", call("set_mode", mode="question"), call("search_docs", query="abstention threshold")), reply(long),
+                 reply("Ver AI-N12 (docs/VALIDATION_SUMMARY.md)."))
+    res = a.user_turn("What does the abstention threshold of the classifiers mean?")
+    assert [n["key"] for n in kinds(a, "note")] == ["brief"] and res.text.startswith("Ver AI-N12")
+
+
+def test_cards_render_for_the_cli():
+    from driveflow.assistant.cards import plant_card, render_text
+
+    out = render_text([plant_card("dc_perm_ex_v1")])
+    assert "source: configs/plant_catalog.yaml" in out and "Nominal values" in out
 
 
 def test_notes_are_not_evidence_for_the_draft():
