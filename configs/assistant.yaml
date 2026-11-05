@@ -24,7 +24,7 @@ temperature: 0
 seed: 0
 context_tokens: 16384
 # Models that "think" before answering: false asks Ollama not to; null sends nothing.
-think: true   # with qwen3.5:9b (decision 2026-11-04); see F1.9 for think only on tool-choosing calls
+think: true   # qwen3.5:9b (decision 2026-11-04): on the calls that choose tools; guards.final_think for the final answer
 # Output-token cap per model call (F1.1 round 2). The F1.1 timeouts were runaway generations (> 8000
 # tokens in the 180 s timeout); normal calls used at most 393 tokens (think false) and 2126 (think true,
 # p95 818). Thinking tokens count toward the cap.
@@ -44,6 +44,13 @@ guards:
   verified_cite: true
   nodoc_rule: true
   glossary_trigger: true
+  # F1.9 (Luciano 2026-11-04): SPADE answers = cards + at most one checked sentence; draft numbers are
+  # not repeated by the model (the draft panel shows them); 2 update_draft retries then ask the user;
+  # no thinking on the final call without tools.
+  spade_answer_cards: true
+  strip_draft_numbers: true
+  update_draft_retries: 2
+  final_think: false
 
 # Plan §4.4. driveflow.assistant.draft.DEFAULT_LIMITS must match (tests/assistant/test_assistant_llm.py).
 limits:

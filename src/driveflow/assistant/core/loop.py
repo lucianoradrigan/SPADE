@@ -38,6 +38,18 @@ Round 3 (Luciano, 2026-11-04; round 2 found false statements in every configurat
   queries in the turn; otherwise one note;
 - ``glossary_trigger``: the look-up nudge also fires on the generated glossary's terms (glossary.py).
 
+F1.9 (Luciano, 2026-11-04; F1.1 round 3 not met, model pinned for the internal demo):
+
+- ``spade_answer_cards``: for a question about SPADE the user reads the cards plus at most ONE context
+  sentence, kept only if its numbers, IDs, parameter names and negations are in the cards (answer.py);
+  the card carries the source, so no citation note is sent;
+- ``strip_draft_numbers``: in configuration/objective mode, sentences of the final text that contain a
+  number of the draft are removed; the draft panel shows the values with their origin chips;
+- ``update_draft_retries``: after 1 + N failed update_draft calls in a turn, the turn ends with one
+  final call without tools that asks the user for what is missing;
+- ``final_think``: the final calls WITHOUT tools are sent with this ``think`` (False): thinking only on
+  the calls that choose tools. The "brief" note (an extra model call) is removed.
+
 Notes go to the model as a user-role message marked as coming from SPADE, never from the user; they
 carry no numbers and are not evidence for the draft (the ledger only records real user messages).
 """
@@ -58,10 +70,11 @@ MAX_CONSECUTIVE_ERRORS = 3
 #: F1.1 round 2: the guards configs/assistant.yaml enables (``guards``). Agent(guards=None) keeps them all off.
 DEFAULT_GUARDS = {"reject_repeats": True, "per_turn_caps": {"search_docs": 2, "explain_spade": 2}, "final_answer": True,
                   "objective_needs_plant": True, "nudge_draft": True, "nudge_docs": True,
-                  "cards": True, "verified_cite": True, "nodoc_rule": True, "glossary_trigger": True}
+                  "cards": True, "verified_cite": True, "nodoc_rule": True, "glossary_trigger": True,
+                  "spade_answer_cards": True, "strip_draft_numbers": True, "update_draft_retries": 2, "final_think": False}
 GUARDS_OFF = {"reject_repeats": False, "per_turn_caps": {}, "final_answer": False, "objective_needs_plant": False, "nudge_draft": False, "nudge_docs": False,
-              "cards": False, "verified_cite": False, "nodoc_rule": False, "glossary_trigger": False}
-BRIEF_MAX_CHARS = 400
+              "cards": False, "verified_cite": False, "nodoc_rule": False, "glossary_trigger": False,
+              "spade_answer_cards": False, "strip_draft_numbers": False, "update_draft_retries": None, "final_think": None}
 _NODOC = re.compile(r"(no lo tengo documentado|not documented|no est[aá] documentad|sin documentaci[oó]n|no documenta)", re.I)
 NOTE_PREFIX = "[SPADE runtime note, not from the user] "
 NOTES = {
@@ -74,7 +87,7 @@ NOTES = {
     "verified": "Your citation is not a docs/ path or a finding ID that exists. Cite one that the tools returned (e.g. docs/VALIDATION_SUMMARY.md or AI-N12).",
     "nodoc": "You said it is not documented, but search_docs returned results (or you ran fewer than two different queries). Answer from those results and cite them, "
              "or run one more, different search_docs query first.",
-    "brief": "The user already sees the tool results verbatim as cards. Reply in at most two sentences, without restating them, and cite the source.",
+    "ask": "update_draft failed several times in this turn. Stop retrying: ask the user, in their language, for what is missing or unclear.",
 }
 EMPTY_FALLBACK = "The assistant could not produce an answer; please rephrase. / El asistente no pudo generar una respuesta; reformula el pedido."
 _SPADE_REF = re.compile(r"\b(S-\d+|AI-N\d+|AI-\d+|F\d\.\d+|FE-\d+|SPADE)\b", re.I)
@@ -84,6 +97,7 @@ STOP_MESSAGES = {
     "max_tool_calls_per_turn": "The assistant reached its limit of tool calls for one turn. / El asistente llegó al límite de llamadas a herramientas en un turno.",
     "max_model_calls_per_turn": "The assistant reached its limit of steps for one turn. / El asistente llegó al límite de pasos en un turno.",
     "max_tokens_per_turn": "The assistant reached its token limit for one turn. / El asistente llegó al límite de tokens en un turno.",
+    "update_draft_retries": "The draft could not be updated; please give the missing value. / No pude actualizar el borrador; indica el valor que falta.",
 }
 
 
@@ -202,6 +216,7 @@ class Agent:
         self._turn_calls: dict = {}
         self._turn_counts: dict = {}
         self._turn_searches: list = []  # (normalised query, number of hits) of search_docs in this turn
+        self._draft_failures = 0
         self._res = res
         start_hash, start_obj = self.state.draft.hash(), json.dumps(self.state.draft.objective, sort_keys=True, default=str)
         user_text = next((m["content"] for m in reversed(self.messages) if m["role"] == "user"), "")
@@ -225,7 +240,10 @@ class Agent:
             if not reply.tool_calls:
                 looked_up = any(self._turn_counts.get(t) for t in ("search_docs", "explain_spade"))
                 changed = self.state.draft.hash() != start_hash or json.dumps(self.state.draft.objective, sort_keys=True, default=str) != start_obj
-                if self.guards["nudge_draft"] and "draft" not in nudged and self.state.mode in ("configuration", "objective") and not changed:
+                worked = any(n not in ("set_mode", "explain_spade", "search_docs", "recommend_plant", "describe_plant", "describe_tunable", "suggest_value")
+                             for n in self._turn_counts)
+                if (self.guards["nudge_draft"] and "draft" not in nudged and self.state.mode in ("configuration", "objective") and not changed
+                        and not worked and self.state.proposal is None and not self.state.jobs):
                     nudged.add("draft")
                     self._note("draft", res)
                     continue
@@ -237,7 +255,7 @@ class Agent:
                     nudged.add("nodoc")
                     self._note("nodoc", res)
                     continue
-                if asks_spade and looked_up and reply.text.strip() and not _NODOC.search(reply.text):
+                if asks_spade and looked_up and reply.text.strip() and not _NODOC.search(reply.text) and not self.guards.get("spade_answer_cards"):
                     if self.guards.get("verified_cite"):
                         from driveflow.assistant import glossary
 
@@ -249,14 +267,10 @@ class Agent:
                         nudged.add("cite")
                         self._note("cite", res)
                         continue
-                if self.guards.get("cards") and res.cards and "brief" not in nudged and len(reply.text.strip()) > BRIEF_MAX_CHARS:
-                    nudged.add("brief")
-                    self._note("brief", res)
-                    continue
                 if not reply.text.strip() and self.guards["final_answer"]:
                     return self._final_answer(res, "empty", stopped=None)
                 res.text = reply.text if reply.text.strip() or not self.guards["final_answer"] else EMPTY_FALLBACK
-                self._plant_cards(res)
+                self._postprocess(res, asks_spade, user_text)
                 return res
             for i, call in enumerate(reply.tool_calls):
                 if res.tool_calls >= self.limits["max_tool_calls_per_turn"]:
@@ -266,6 +280,14 @@ class Agent:
                 res.tool_calls += 1
                 self._emit(ev.ToolCallEvent(phase="start", tool=call.name))
                 result, failed = self._execute(call)
+                if call.name == "update_draft" and failed:
+                    self._draft_failures += 1
+                    retries = self.guards.get("update_draft_retries")
+                    if retries is not None and self._draft_failures > retries:
+                        self._tool_message(call, result)
+                        for skipped in reply.tool_calls[i + 1:]:
+                            self._tool_message(skipped, {"error": "not executed: update_draft failed too many times; ask the user"})
+                        return self._final_answer(res, "ask", stopped="update_draft_retries")
                 self._emit(ev.ToolCallEvent(phase="end", tool=call.name, ok=not failed))
                 self._emit_outcome(call.name, result, failed)
                 self._tool_message(call, result)
@@ -397,7 +419,8 @@ class Agent:
             self.trace.add("stopped", reason=stopped)
         self._note(note, res)
         self._emit(ev.LlmCall(phase="start"))
-        reply = self.client.chat(self.messages, [], seed=self.seed)
+        think = self.guards.get("final_think")
+        reply = self.client.chat(self.messages, [], seed=self.seed, **({"think": think} if think is not None else {}))
         res.model_calls += 1
         res.tokens += (reply.prompt_tokens or 0) + (reply.completion_tokens or 0)
         self._emit(ev.LlmCall(phase="end", tokens=(reply.prompt_tokens or 0) + (reply.completion_tokens or 0)))
@@ -406,5 +429,25 @@ class Agent:
         text = reply.text.strip() if not reply.tool_calls else ""
         res.text = text or (STOP_MESSAGES[stopped] if stopped else EMPTY_FALLBACK)
         self.messages.append({"role": "assistant", "content": res.text})
-        self._plant_cards(res)
+        if text:
+            user_text = next((m["content"] for m in reversed(self.messages) if m["role"] == "user" and not m["content"].startswith(NOTE_PREFIX)), "")
+            self._postprocess(res, self.guards["nudge_docs"] and self._spade_reference(user_text), user_text)
+        else:
+            self._plant_cards(res)
         return res
+
+    def _postprocess(self, res: TurnResult, asks_spade: bool, user_text: str) -> None:
+        """F1.9: what the user reads (answer.py). The model's own text stays in the trace."""
+        from driveflow.assistant import answer
+
+        raw, lang = res.text, answer.language(user_text)
+        doc_cards = [c for c in res.cards if c.get("tool") in ("search_docs", "explain_spade")]
+        if self.guards.get("spade_answer_cards") and asks_spade and doc_cards:
+            res.text, kept = answer.spade_answer(raw, doc_cards, lang)
+            self.trace.add("postprocess", what="spade_answer", raw=raw, kept_sentence=kept)
+        elif self.guards.get("strip_draft_numbers") and self.state.mode in ("configuration", "objective"):
+            text, removed = answer.strip_draft_numbers(raw, self.state.draft)
+            if removed:
+                res.text = text or answer.SEE_PANEL[lang]
+                self.trace.add("postprocess", what="strip_draft_numbers", raw=raw, removed=removed)
+        self._plant_cards(res)

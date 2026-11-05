@@ -14,9 +14,9 @@ from __future__ import annotations
 
 import re
 
-CARD_TOOLS = ("explain_spade", "search_docs", "describe_plant")
-SHOWN_NOTE = ("This result is shown to the user verbatim, as a card with its source. Do not restate or paraphrase it: "
-              "add at most two sentences and cite the source (a docs/ path or a finding ID).")
+CARD_TOOLS = ("explain_spade", "search_docs", "describe_plant", "describe_tunable", "propose_experiments", "propose_tuning", "summarize_results", "check_requirements")
+SHOWN_NOTE = ("This result is shown to the user verbatim, as a card with its source. Do not restate or paraphrase it, "
+              "do not repeat its values: add at most one sentence.")
 PLANT_SOURCE = "configs/plant_catalog.yaml (driveflow.datagen.plant_catalog)"
 
 
@@ -64,6 +64,29 @@ def card_from_tool(name: str, arguments: dict, result: dict) -> list:
         if not cards:
             cards.append({"tool": name, "title": f"No documentation found for: {result.get('query', '')}", "source": "docs/, README.md", "lines": []})
         return cards
+    if name == "describe_tunable":
+        lines = [f"{p['name']}: range {p.get('range')}, baseline {p.get('baseline')}" for p in result.get("parameters", [])]
+        lines += [f"objective {k}: {v}" for k, v in (result.get("objectives") or {}).items()]
+        lines += [f"algorithms: {_fmt(result.get('algorithms', []))}"]
+        return [{"tool": name, "title": f"Tunable parameters ({result.get('system', '')})", "source": "driveflow.assistant.objective.describe_tunable", "lines": lines}]
+    if name == "propose_experiments":
+        lines = [", ".join(f"{k} {v}" for k, v in e.items() if k != "scenario_id") for e in result.get("experiments", [])]
+        cost = result.get("cost") or {}
+        if cost:
+            lines.append(f"estimated CPU: {cost.get('est_cpu_s')} s ({cost.get('basis', '')})")
+        lines += [f"assumption: {a}" for a in result.get("assumptions", [])]
+        return [{"tool": name, "title": f"Proposal: {len(result.get('experiments', []))} experiment(s) on {result.get('plant')} ({result.get('controller_type')})",
+                 "source": "propose_experiments (draft)", "lines": lines}]
+    if name == "propose_tuning":
+        lines = [f"{k}: {_fmt(v)}" for k, v in result.items() if k not in ("proposal", "draft_hash") and not isinstance(v, (dict, list)) or k in ("requirements", "objective", "algorithm", "evaluations")]
+        return [{"tool": name, "title": "Tuning proposal", "source": "propose_tuning (draft)", "lines": lines[:12]}]
+    if name == "summarize_results":
+        lines = [f"{r.get('condition', {}).get('scenario_id', r.get('index'))}: {r.get('status')}; " + ", ".join(f"{k} {v}" for k, v in (r.get("kpis") or {}).items() if not isinstance(v, (dict, list)))
+                 for r in result.get("rows", [])]
+        return [{"tool": name, "title": f"Results ({result.get('origin', 'SIMULATED')}), run {result.get('run_id')}", "source": "summarize_results (run store)", "lines": lines}]
+    if name == "check_requirements":
+        lines = [f"{k}: {_fmt(v)}" for k, v in result.items() if k not in ("note",)]
+        return [{"tool": name, "title": "Requirements check (SIMULATED)", "source": "check_requirements (run store)", "lines": lines[:12]}]
     return []
 
 

@@ -83,7 +83,7 @@ class Reply:
 
 
 class LLMClient(Protocol):
-    def chat(self, messages: list, tools: list, *, seed: int) -> Reply: ...
+    def chat(self, messages: list, tools: list, *, seed: int, think: bool | None = None) -> Reply: ...
 
 
 def parse_reply(data: dict, latency_s: float | None = None) -> Reply:
@@ -182,7 +182,9 @@ class OllamaClient:
         return {"runtime_version": version, "model": self.tag, "pinned_digest": self.digest, "installed_digest": installed, "digest_match": match,
                 "warnings": list(self.warnings)}
 
-    def chat(self, messages: list, tools: list, *, seed: int | None = None) -> Reply:
+    def chat(self, messages: list, tools: list, *, seed: int | None = None, think: bool | None = None) -> Reply:
+        """``think`` overrides configs/assistant.yaml ``think`` for this call (F1.9: no thinking on the
+        final answer without tools)."""
         if not self.tag:
             raise ModelNotAvailable("no model is pinned in configs/assistant.yaml (model.tag); it is chosen in task F1.1")
         if not self.checked:
@@ -195,7 +197,9 @@ class OllamaClient:
         payload = {"model": self.tag, "messages": messages, "stream": False, "options": options}
         if tools:
             payload["tools"] = tools
-        if self.config.get("think") is not None:
+        if think is not None:
+            payload["think"] = bool(think)
+        elif self.config.get("think") is not None:
             payload["think"] = bool(self.config["think"])
         t0 = time.perf_counter()
         data = self._request("/api/chat", payload)
@@ -221,7 +225,7 @@ class ReplayClient:
         self.position = 0
         self.strict = strict
 
-    def chat(self, messages: list, tools: list, *, seed: int = 0) -> Reply:
+    def chat(self, messages: list, tools: list, *, seed: int = 0, think: bool | None = None) -> Reply:
         if self.position >= len(self.exchanges):
             raise CassetteMismatch(f"cassette ran out after {len(self.exchanges)} exchanges")
         ex = self.exchanges[self.position]
@@ -251,8 +255,8 @@ class RecordingClient:
         self.meta = {"model": model_id, "runtime_version": runtime_version, "prompt_version": prompt_version,
                      "recorded_utc": datetime.now(timezone.utc).isoformat(timespec="seconds")}
 
-    def chat(self, messages: list, tools: list, *, seed: int = 0) -> Reply:
-        reply = self.inner.chat(messages, tools, seed=seed)
+    def chat(self, messages: list, tools: list, *, seed: int = 0, think: bool | None = None) -> Reply:
+        reply = self.inner.chat(messages, tools, seed=seed, **({"think": think} if think is not None else {}))
         self.exchanges.append({"request": {"messages": json.loads(json.dumps(messages)), "tools": json.loads(json.dumps(tools)), "seed": seed},
                                "reply": reply.raw, "latency_s": reply.latency_s})
         return reply

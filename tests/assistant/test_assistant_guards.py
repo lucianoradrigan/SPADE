@@ -29,8 +29,9 @@ class Recording(llm.ReplayClient):
         super().__init__({"format": 1, "exchanges": list(replies)}, strict=False)
         self.offered = []
 
-    def chat(self, messages, tools, *, seed=0):
+    def chat(self, messages, tools, *, seed=0, think=None):
         self.offered.append([t["function"]["name"] for t in tools])
+        self.thinks = getattr(self, "thinks", []) + [think]
         self.last_messages = list(messages)
         return super().chat(messages, tools, seed=seed)
 
@@ -99,11 +100,14 @@ def test_text_only_answer_without_recording_gets_one_note():
     assert [n["key"] for n in notes] == ["draft"] and res.text == "¿Qué planta quieres usar?"
 
 
+ROUND3 = {**DEFAULT_GUARDS, "spade_answer_cards": False, "strip_draft_numbers": False}  # round-3 behaviour, before F1.9
+
+
 def test_question_about_spade_requires_a_lookup_and_a_verified_citation():
     a, _ = agent(reply("Es un conjunto de decisiones."),
                  reply("", call("set_mode", mode="question"), call("search_docs", query="S-21 converter")),
                  reply("Es un artefacto del convertidor (según los documentos)."),
-                 reply("Es un artefacto del convertidor de un cuadrante (docs/SIMULATION_STABILITY_REPORT.md)."))
+                 reply("Es un artefacto del convertidor de un cuadrante (docs/SIMULATION_STABILITY_REPORT.md)."), guards=ROUND3)
     res = a.user_turn("¿Qué es el hallazgo S-21?")
     assert [n["key"] for n in kinds(a, "note")] == ["docs", "verified"]  # "según los documentos" is not a citation
     assert "SIMULATION_STABILITY_REPORT" in res.text
@@ -138,7 +142,7 @@ def test_glossary_term_triggers_the_lookup():
 
 def test_tool_results_become_verbatim_cards_and_named_plants_get_catalog_cards():
     a, _ = agent(reply("", call("set_mode", mode="question"), call("search_docs", query="abstention threshold")),
-                 reply("El umbral de abstención está en AI-N12 (docs/VALIDATION_SUMMARY.md); el motor dc_perm_ex_v1 no se usa aquí."))
+                 reply("El umbral de abstención está en AI-N12 (docs/VALIDATION_SUMMARY.md); el motor dc_perm_ex_v1 no se usa aquí."), guards=ROUND3)
     res = a.user_turn("What does the abstention threshold of the classifiers mean?")
     srcs = [c["source"] for c in res.cards]
     assert "docs/VALIDATION_SUMMARY.md" in srcs
@@ -148,12 +152,61 @@ def test_tool_results_become_verbatim_cards_and_named_plants_get_catalog_cards()
     assert "shown to the user verbatim" in sent
 
 
-def test_long_answer_next_to_cards_gets_one_brief_note():
-    long = "Bla. " * 120 + "AI-N12"
-    a, _ = agent(reply("", call("set_mode", mode="question"), call("search_docs", query="abstention threshold")), reply(long),
-                 reply("Ver AI-N12 (docs/VALIDATION_SUMMARY.md)."))
-    res = a.user_turn("What does the abstention threshold of the classifiers mean?")
-    assert [n["key"] for n in kinds(a, "note")] == ["brief"] and res.text.startswith("Ver AI-N12")
+def test_spade_answer_is_the_card_plus_one_checked_sentence():
+    """F1.9: the first sentence stays only if its numbers, IDs, parameter names and negations are in the cards."""
+    q = "What does the abstention threshold of the classifiers mean?"
+    look = reply("", call("set_mode", mode="question"), call("search_docs", query="abstention threshold"))
+    a, _ = agent(look, reply("AI-N12 covers the abstention threshold. It also explains many other things at length."))
+    res = a.user_turn(q)
+    assert res.text == "AI-N12 covers the abstention threshold." and any(c["source"] == "docs/VALIDATION_SUMMARY.md" for c in res.cards)
+    # an inverted claim (a negation the card does not make) is dropped: only the card remains
+    b, _ = agent(look, reply("Abstention never applies to ball faults since 2019."))
+    res = b.user_turn(q)
+    assert res.text == "From SPADE's documentation (see the card):" and res.cards
+    assert [e for e in b.trace.events if e["kind"] == "postprocess"][0]["kept_sentence"] is False
+    # a parameter name that is not in the card is dropped too
+    c, _ = agent(look, reply("Set `pi_setpoint_weight` to tune it."))
+    assert c.user_turn(q).text.startswith("From SPADE")
+
+
+def test_draft_numbers_are_not_repeated_by_the_model():
+    ops = [{"op": "set_plant", "plant": "dc_perm_ex_v1"}, {"op": "set_controller", "controller_type": "PI"}, {"op": "set", "field": "duration_s", "value": 0.5, "unit": "s"},
+           {"op": "set", "field": "omega_ref_rad_s", "value": 100, "unit": "rad/s"}]
+    a, _ = agent(reply("", call("set_mode", mode="configuration"), call("update_draft", ops=ops)),
+                 reply("Listo: PI a 100 rad/s durante 0,5 s. ¿Lo propongo?"))
+    res = a.user_turn("Simula el motor DC de stock con PI a 100 rad/s durante 0,5 s.")
+    assert res.text == "¿Lo propongo?"
+    from driveflow.assistant.answer import draft_panel
+
+    rows = {r["field"]: r for r in draft_panel(a.state.draft)}
+    assert rows["omega_ref_rad_s"]["value"] == 100 and rows["omega_ref_rad_s"]["origin"] == "USER"
+    b, _ = agent(reply("", call("set_mode", mode="configuration"), call("update_draft", ops=ops)), reply("PI a 100 rad/s."))
+    assert b.user_turn("Simula el motor DC de stock con PI a 100 rad/s durante 0,5 s.").text == "Revisa el borrador en el panel y confirma la propuesta si está bien."
+
+
+def test_update_draft_retries_are_capped_then_the_user_is_asked():
+    bad = [{"op": "set", "field": "omega_ref_rad_s", "value": 777, "unit": "rad/s"}]  # not in the user's words: refused
+    seq = [reply("", call("set_mode", mode="configuration"), call("update_draft", ops=[{"op": "set_plant", "plant": "dc_perm_ex_v1"}]))]
+    seq += [reply("", call("update_draft", ops=bad + [{"op": "set", "field": "duration_s", "value": 0.1 * k, "unit": "s"}])) for k in range(1, 4)]
+    seq += [reply("¿A qué velocidad?")]
+    a, client = agent(*seq)
+    res = a.user_turn("Simula el motor DC con PI a su velocidad nominal.")
+    assert res.stopped == "update_draft_retries" and res.text == "¿A qué velocidad?"
+    assert client.offered[-1] == [] and sum(1 for e in kinds(a, "tool_result") if e["name"] == "update_draft") == 4  # 1 ok + 3 failed (1 try + 2 retries)
+
+
+def test_final_answer_without_tools_has_thinking_off():
+    a, client = agent(reply("", call("nope"), call("nope2"), call("nope3")), reply("No pude; dime la planta."))
+    a.user_turn("algo")
+    assert client.offered[-1] == [] and client.thinks[-1] is False and client.thinks[0] is None
+
+
+def test_objective_mode_shows_a_tunables_card():
+    ops = [{"op": "set_plant", "plant": "dc_perm_ex_v1"}, {"op": "set_controller", "controller_type": "PI"}]
+    a, _ = agent(reply("", call("set_mode", mode="objective"), call("update_draft", ops=ops), call("describe_tunable")), reply("¿Qué sobrepaso máximo quieres?"))
+    res = a.user_turn("quiero que el motor DC responda más rápido")
+    card = [c for c in res.cards if c["title"].startswith("Tunable parameters")][0]
+    assert any(ln.startswith("setpoint_weight: range") for ln in card["lines"])
 
 
 def test_cards_render_for_the_cli():
