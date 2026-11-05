@@ -1,0 +1,812 @@
+{
+  "command": "python experiments/report_f1_10_demo.py",
+  "model": {
+    "tag": "qwen3.5:9b",
+    "digest": "56671c2ab9385f9cfcb404638e32cd62d88e3501d44822208363c010179a3c90",
+    "status": "internal-demo; F1.1 round-3 rule not met"
+  },
+  "think": true,
+  "guards": {
+    "reject_repeats": true,
+    "per_turn_caps": {
+      "search_docs": 2,
+      "explain_spade": 2
+    },
+    "final_answer": true,
+    "objective_needs_plant": true,
+    "nudge_draft": true,
+    "nudge_docs": true,
+    "cards": true,
+    "verified_cite": true,
+    "nodoc_rule": true,
+    "glossary_trigger": true,
+    "spade_answer_cards": true,
+    "strip_draft_numbers": true,
+    "update_draft_retries": 2,
+    "final_think": false
+  },
+  "conversations": {
+    "A_configuration": {
+      "turns": [
+        {
+          "assistant": "Aquí está la propuesta de simulación: - **Planta**: motor DC permanentemente excitado (GEM, Heinzmann PMG 132) - **Controlador**: PI - **Coste estimado**: ~1,6 s de CPU ¿Confirmas que quieres ejecutar esta simulación?",
+          "cards": [
+            {
+              "title": "Plant dc_perm_ex_v1",
+              "source": "configs/plant_catalog.yaml (driveflow.datagen.plant_catalog)"
+            },
+            {
+              "title": "Proposal: 1 experiment(s) on dc_perm_ex_v1 (PI)",
+              "source": "propose_experiments (draft)"
+            }
+          ],
+          "draft": [
+            {
+              "field": "plant",
+              "value": "dc_perm_ex_v1",
+              "unit": null,
+              "origin": "—"
+            },
+            {
+              "field": "controller_type",
+              "value": "PI",
+              "unit": null,
+              "origin": "—"
+            },
+            {
+              "field": "omega_ref_rad_s",
+              "value": 100,
+              "unit": "rad/s",
+              "origin": "USER"
+            },
+            {
+              "field": "duration_s",
+              "value": 0.5,
+              "unit": "s",
+              "origin": "USER"
+            }
+          ],
+          "proposal_pending": true,
+          "jobs": [],
+          "exceptions": [],
+          "input": "Simula el motor DC de stock con un controlador PI a 100 rad/s durante 0,5 s.",
+          "wall_s": 16.471834182739258
+        },
+        {
+          "assistant": "La simulación está en cola y aún no ha terminado. Por favor, espera un momento o vuelve a preguntar para obtener los resultados cuando esté disponible.",
+          "cards": [],
+          "draft": [
+            {
+              "field": "plant",
+              "value": "dc_perm_ex_v1",
+              "unit": null,
+              "origin": "—"
+            },
+            {
+              "field": "controller_type",
+              "value": "PI",
+              "unit": null,
+              "origin": "—"
+            },
+            {
+              "field": "omega_ref_rad_s",
+              "value": 100,
+              "unit": "rad/s",
+              "origin": "USER"
+            },
+            {
+              "field": "duration_s",
+              "value": 0.5,
+              "unit": "s",
+              "origin": "USER"
+            }
+          ],
+          "proposal_pending": false,
+          "jobs": [
+            {
+              "job_id": "job-20261105T025747-2f2e9a18",
+              "kind": "scenario_sweep",
+              "experiment_id": "exp-20261105T025747-285a4654",
+              "status": "queued",
+              "draft_hash": "050adf67ef76dbcc12cf9b9a2d552e12e299388d9e0fbd682a1bbf37ed0a60e4",
+              "n_conditions": 1,
+              "draft_snapshot": {
+                "plant": "dc_perm_ex_v1",
+                "controller_type": "PI",
+                "preset": {},
+                "experiments": {
+                  "base": {
+                    "omega_ref_rad_s": {
+                      "value": 100,
+                      "unit": "rad/s",
+                      "origin": "user",
+                      "source": "user message 1: '100 rad/s'"
+                    },
+                    "duration_s": {
+                      "value": 0.5,
+                      "unit": "s",
+                      "origin": "user",
+                      "source": "user message 1: '0,5 s'"
+                    }
+                  },
+                  "vary": [],
+                  "combine": "product"
+                },
+                "assumptions": [],
+                "objective": null,
+                "name": "assistant"
+              },
+              "confirmed_by_message_seq": 2
+            }
+          ],
+          "exceptions": [],
+          "input": "RUN",
+          "wall_s": 12.02623200416565
+        },
+        {
+          "assistant": "La simulación está en cola y aún no ha terminado. Por favor, espera un momento o vuelve a preguntar para obtener los resultados cuando esté disponible.",
+          "cards": [],
+          "draft": [
+            {
+              "field": "plant",
+              "value": "dc_perm_ex_v1",
+              "unit": null,
+              "origin": "—"
+            },
+            {
+              "field": "controller_type",
+              "value": "PI",
+              "unit": null,
+              "origin": "—"
+            },
+            {
+              "field": "omega_ref_rad_s",
+              "value": 100,
+              "unit": "rad/s",
+              "origin": "USER"
+            },
+            {
+              "field": "duration_s",
+              "value": 0.5,
+              "unit": "s",
+              "origin": "USER"
+            }
+          ],
+          "proposal_pending": false,
+          "jobs": [
+            {
+              "job_id": "job-20261105T025747-2f2e9a18",
+              "kind": "scenario_sweep",
+              "experiment_id": "exp-20261105T025747-285a4654",
+              "status": "queued",
+              "draft_hash": "050adf67ef76dbcc12cf9b9a2d552e12e299388d9e0fbd682a1bbf37ed0a60e4",
+              "n_conditions": 1,
+              "draft_snapshot": {
+                "plant": "dc_perm_ex_v1",
+                "controller_type": "PI",
+                "preset": {},
+                "experiments": {
+                  "base": {
+                    "omega_ref_rad_s": {
+                      "value": 100,
+                      "unit": "rad/s",
+                      "origin": "user",
+                      "source": "user message 1: '100 rad/s'"
+                    },
+                    "duration_s": {
+                      "value": 0.5,
+                      "unit": "s",
+                      "origin": "user",
+                      "source": "user message 1: '0,5 s'"
+                    }
+                  },
+                  "vary": [],
+                  "combine": "product"
+                },
+                "assumptions": [],
+                "objective": null,
+                "name": "assistant"
+              },
+              "confirmed_by_message_seq": 2
+            }
+          ],
+          "exceptions": [],
+          "input": "WORKER",
+          "wall_s": 1.7781031131744385
+        },
+        {
+          "assistant": "La simulación ha finalizado con éxito. Aquí están los resultados: **Resumen del experimento:** - **Controlador**: PI **KPIs principales:** - Corriente en estado estable: 30,36 A - Corriente pico: 168,0 A - Voltaje pico: 18,03 V - Par en estado estable: 5,01 N·m **Respuesta de velocidad:** - Tiempo de subida: 0,0874 s - Tiempo de asentamiento: 0,11 s - Sobrepaso: 0,49% - Error en estado estable: 0,0 rad/s",
+          "cards": [
+            {
+              "title": "Results (SIMULATED · AI-PLANNED), run run-20261105T025756-600bd1dc",
+              "source": "summarize_results (run store)"
+            }
+          ],
+          "draft": [
+            {
+              "field": "plant",
+              "value": "dc_perm_ex_v1",
+              "unit": null,
+              "origin": "—"
+            },
+            {
+              "field": "controller_type",
+              "value": "PI",
+              "unit": null,
+              "origin": "—"
+            },
+            {
+              "field": "omega_ref_rad_s",
+              "value": 100,
+              "unit": "rad/s",
+              "origin": "USER"
+            },
+            {
+              "field": "duration_s",
+              "value": 0.5,
+              "unit": "s",
+              "origin": "USER"
+            }
+          ],
+          "proposal_pending": false,
+          "jobs": [
+            {
+              "job_id": "job-20261105T025747-2f2e9a18",
+              "kind": "scenario_sweep",
+              "experiment_id": "exp-20261105T025747-285a4654",
+              "status": "completed",
+              "draft_hash": "050adf67ef76dbcc12cf9b9a2d552e12e299388d9e0fbd682a1bbf37ed0a60e4",
+              "n_conditions": 1,
+              "draft_snapshot": {
+                "plant": "dc_perm_ex_v1",
+                "controller_type": "PI",
+                "preset": {},
+                "experiments": {
+                  "base": {
+                    "omega_ref_rad_s": {
+                      "value": 100,
+                      "unit": "rad/s",
+                      "origin": "user",
+                      "source": "user message 1: '100 rad/s'"
+                    },
+                    "duration_s": {
+                      "value": 0.5,
+                      "unit": "s",
+                      "origin": "user",
+                      "source": "user message 1: '0,5 s'"
+                    }
+                  },
+                  "vary": [],
+                  "combine": "product"
+                },
+                "assumptions": [],
+                "objective": null,
+                "name": "assistant"
+              },
+              "confirmed_by_message_seq": 2,
+              "run_id": "run-20261105T025756-600bd1dc"
+            }
+          ],
+          "exceptions": [],
+          "input": "¿Cuáles son los resultados?",
+          "wall_s": 9.136484861373901
+        }
+      ],
+      "total_s": 41.64345908164978,
+      "avatar_states": [
+        "idle",
+        "thinking",
+        "idle",
+        "using_tool",
+        "idle",
+        "thinking",
+        "idle",
+        "using_tool",
+        "idle",
+        "thinking",
+        "idle",
+        "using_tool",
+        "idle",
+        "thinking",
+        "idle",
+        "using_tool",
+        "idle",
+        "thinking",
+        "idle",
+        "using_tool",
+        "idle",
+        "awaiting_confirmation",
+        "thinking",
+        "awaiting_confirmation",
+        "confirmed",
+        "error",
+        "running",
+        "thinking",
+        "running",
+        "using_tool",
+        "running",
+        "idle",
+        "thinking",
+        "idle",
+        "using_tool",
+        "idle",
+        "results_ready",
+        "thinking",
+        "results_ready"
+      ],
+      "confirmations": [
+        {
+          "kind": "confirmation",
+          "seq": 2,
+          "how": "button",
+          "recorded": true
+        }
+      ],
+      "launch_without_confirmation": 0,
+      "notes": [
+        "final"
+      ]
+    },
+    "B_objective": {
+      "turns": [
+        {
+          "assistant": "Entendido. Para sintonizar el controlador PI del motor DC de stock, primero necesito identificar la planta específica que utilizaremos. Voy a consultar las plantas disponibles para encontrar el motor DC estándar y sus parámetros ajustables. ¿Podrías confirmar si deseas usar la planta por defecto o prefieres otra configuración? Una vez confirmado, procederé con la definición de los objetivos de sintonización (sobrepaso < 5% y tiempo de establecimiento < 0,2 s) y propondré los experimentos necesarios para su validación.",
+          "cards": [],
+          "draft": [],
+          "proposal_pending": false,
+          "jobs": [],
+          "exceptions": [],
+          "input": "Sintoniza el PI del motor DC de stock para que el sobrepaso sea menor a 5 % y el tiempo de establecimiento menor a 0,2 s.",
+          "wall_s": 5.45487117767334
+        },
+        {
+          "assistant": "He preparado la propuesta de sintonización para el motor DC de stock (dc_perm_ex_v1) con controlador PI: - **Objetivo**: Minimizar el criterio J estándar - **Algoritmo**: PSO (por defecto) - **Evaluaciones**: 48 (por defecto) - **Requisitos**: ¿Confirmas que deseas lanzar esta sintonización?",
+          "cards": [
+            {
+              "title": "Plant dc_perm_ex_v1",
+              "source": "configs/plant_catalog.yaml (driveflow.datagen.plant_catalog)"
+            },
+            {
+              "title": "Tunable parameters (dc_motor_pi)",
+              "source": "driveflow.assistant.objective.describe_tunable"
+            },
+            {
+              "title": "Tuning proposal",
+              "source": "propose_tuning (draft)"
+            }
+          ],
+          "draft": [
+            {
+              "field": "plant",
+              "value": "dc_perm_ex_v1",
+              "unit": null,
+              "origin": "—"
+            },
+            {
+              "field": "controller_type",
+              "value": "PI",
+              "unit": null,
+              "origin": "—"
+            },
+            {
+              "field": "requirement overshoot_pct",
+              "value": "<= 5",
+              "unit": "%",
+              "origin": "USER"
+            },
+            {
+              "field": "requirement settling_time_s",
+              "value": "<= 0.2",
+              "unit": "s",
+              "origin": "USER"
+            }
+          ],
+          "proposal_pending": true,
+          "jobs": [],
+          "exceptions": [],
+          "input": "Usa el motor dc_perm_ex_v1 y el algoritmo por defecto.",
+          "wall_s": 21.920187950134277
+        },
+        {
+          "assistant": "La sintonización ha sido lanzada con el ID `job-20261105T025838-5a87e009`. El trabajo está en cola y será ejecutado por un trabajador de SPADE. \n\nPuedo verificar el progreso del trabajo cuando lo desees. ¿Quieres que revise el estado ahora o prefieres esperar a que termine?",
+          "cards": [],
+          "draft": [
+            {
+              "field": "plant",
+              "value": "dc_perm_ex_v1",
+              "unit": null,
+              "origin": "—"
+            },
+            {
+              "field": "controller_type",
+              "value": "PI",
+              "unit": null,
+              "origin": "—"
+            },
+            {
+              "field": "requirement overshoot_pct",
+              "value": "<= 5",
+              "unit": "%",
+              "origin": "USER"
+            },
+            {
+              "field": "requirement settling_time_s",
+              "value": "<= 0.2",
+              "unit": "s",
+              "origin": "USER"
+            }
+          ],
+          "proposal_pending": false,
+          "jobs": [
+            {
+              "job_id": "job-20261105T025838-5a87e009",
+              "kind": "controller_tuning",
+              "experiment_id": "exp-20261105T025838-99e5d6ed",
+              "status": "queued",
+              "draft_hash": "66be60450df1d7dc149e9b5be5a35863d8996b9ef1f050bcdba73f33575cab3a",
+              "requirements": [
+                {
+                  "metric": "overshoot_pct",
+                  "op": "<=",
+                  "value": 5,
+                  "unit": "%",
+                  "value_si": 5,
+                  "unit_si": "%",
+                  "origin": "user",
+                  "source": "user message 1: '5 %'"
+                },
+                {
+                  "metric": "settling_time_s",
+                  "op": "<=",
+                  "value": 0.2,
+                  "unit": "s",
+                  "value_si": 0.2,
+                  "unit_si": "s",
+                  "origin": "user",
+                  "source": "user message 1: '0,2 s'"
+                }
+              ],
+              "draft_snapshot": {
+                "plant": "dc_perm_ex_v1",
+                "controller_type": "PI",
+                "preset": {},
+                "experiments": {
+                  "base": {},
+                  "vary": [],
+                  "combine": "product"
+                },
+                "assumptions": [],
+                "objective": {
+                  "system": "dc_motor_pi",
+                  "objective": "J",
+                  "algorithm": "pso",
+                  "evaluations": {
+                    "value": 48,
+                    "origin": "default",
+                    "source": "Tuning Studio defaults for the DC-motor PI (viz/views/tuning_studio.py)"
+                  },
+                  "seed": 0,
+                  "requirements": [
+                    {
+                      "metric": "overshoot_pct",
+                      "op": "<=",
+                      "value": 5,
+                      "unit": "%",
+                      "value_si": 5,
+                      "unit_si": "%",
+                      "origin": "user",
+                      "source": "user message 1: '5 %'"
+                    },
+                    {
+                      "metric": "settling_time_s",
+                      "op": "<=",
+                      "value": 0.2,
+                      "unit": "s",
+                      "value_si": 0.2,
+                      "unit_si": "s",
+                      "origin": "user",
+                      "source": "user message 1: '0,2 s'"
+                    }
+                  ],
+                  "complete": true
+                },
+                "name": "assistant"
+              },
+              "confirmed_by_message_seq": 3
+            }
+          ],
+          "exceptions": [],
+          "input": "RUN",
+          "wall_s": 6.986852645874023
+        },
+        {
+          "assistant": "La sintonización ha sido lanzada con el ID `job-20261105T025838-5a87e009`. El trabajo está en cola y será ejecutado por un trabajador de SPADE. \n\nPuedo verificar el progreso del trabajo cuando lo desees. ¿Quieres que revise el estado ahora o prefieres esperar a que termine?",
+          "cards": [],
+          "draft": [
+            {
+              "field": "plant",
+              "value": "dc_perm_ex_v1",
+              "unit": null,
+              "origin": "—"
+            },
+            {
+              "field": "controller_type",
+              "value": "PI",
+              "unit": null,
+              "origin": "—"
+            },
+            {
+              "field": "requirement overshoot_pct",
+              "value": "<= 5",
+              "unit": "%",
+              "origin": "USER"
+            },
+            {
+              "field": "requirement settling_time_s",
+              "value": "<= 0.2",
+              "unit": "s",
+              "origin": "USER"
+            }
+          ],
+          "proposal_pending": false,
+          "jobs": [
+            {
+              "job_id": "job-20261105T025838-5a87e009",
+              "kind": "controller_tuning",
+              "experiment_id": "exp-20261105T025838-99e5d6ed",
+              "status": "queued",
+              "draft_hash": "66be60450df1d7dc149e9b5be5a35863d8996b9ef1f050bcdba73f33575cab3a",
+              "requirements": [
+                {
+                  "metric": "overshoot_pct",
+                  "op": "<=",
+                  "value": 5,
+                  "unit": "%",
+                  "value_si": 5,
+                  "unit_si": "%",
+                  "origin": "user",
+                  "source": "user message 1: '5 %'"
+                },
+                {
+                  "metric": "settling_time_s",
+                  "op": "<=",
+                  "value": 0.2,
+                  "unit": "s",
+                  "value_si": 0.2,
+                  "unit_si": "s",
+                  "origin": "user",
+                  "source": "user message 1: '0,2 s'"
+                }
+              ],
+              "draft_snapshot": {
+                "plant": "dc_perm_ex_v1",
+                "controller_type": "PI",
+                "preset": {},
+                "experiments": {
+                  "base": {},
+                  "vary": [],
+                  "combine": "product"
+                },
+                "assumptions": [],
+                "objective": {
+                  "system": "dc_motor_pi",
+                  "objective": "J",
+                  "algorithm": "pso",
+                  "evaluations": {
+                    "value": 48,
+                    "origin": "default",
+                    "source": "Tuning Studio defaults for the DC-motor PI (viz/views/tuning_studio.py)"
+                  },
+                  "seed": 0,
+                  "requirements": [
+                    {
+                      "metric": "overshoot_pct",
+                      "op": "<=",
+                      "value": 5,
+                      "unit": "%",
+                      "value_si": 5,
+                      "unit_si": "%",
+                      "origin": "user",
+                      "source": "user message 1: '5 %'"
+                    },
+                    {
+                      "metric": "settling_time_s",
+                      "op": "<=",
+                      "value": 0.2,
+                      "unit": "s",
+                      "value_si": 0.2,
+                      "unit_si": "s",
+                      "origin": "user",
+                      "source": "user message 1: '0,2 s'"
+                    }
+                  ],
+                  "complete": true
+                },
+                "name": "assistant"
+              },
+              "confirmed_by_message_seq": 3
+            }
+          ],
+          "exceptions": [],
+          "input": "WORKER",
+          "wall_s": 20.564330339431763
+        },
+        {
+          "assistant": "Sí, **se cumplen ambos requisitos** con el candidato 'best': **Parámetros del controlador PI óptimo encontrado**: - Ancho de banda de velocidad: 150.18 rad/s - Amortiguación: 1.04 - Peso del setpoint: 0.66 Este controlador cumple con todos los requisitos en la cuadrícula de evaluación (incluyendo las condiciones de paso, saturación y deriva). ¿Deseas usar estos parámetros o prefieres explorar otras configuraciones?",
+          "cards": [
+            {
+              "title": "Requirements check (SIMULATED)",
+              "source": "check_requirements (run store)"
+            }
+          ],
+          "draft": [
+            {
+              "field": "plant",
+              "value": "dc_perm_ex_v1",
+              "unit": null,
+              "origin": "—"
+            },
+            {
+              "field": "controller_type",
+              "value": "PI",
+              "unit": null,
+              "origin": "—"
+            },
+            {
+              "field": "requirement overshoot_pct",
+              "value": "<= 5",
+              "unit": "%",
+              "origin": "USER"
+            },
+            {
+              "field": "requirement settling_time_s",
+              "value": "<= 0.2",
+              "unit": "s",
+              "origin": "USER"
+            }
+          ],
+          "proposal_pending": false,
+          "jobs": [
+            {
+              "job_id": "job-20261105T025838-5a87e009",
+              "kind": "controller_tuning",
+              "experiment_id": "exp-20261105T025838-99e5d6ed",
+              "status": "completed",
+              "draft_hash": "66be60450df1d7dc149e9b5be5a35863d8996b9ef1f050bcdba73f33575cab3a",
+              "requirements": [
+                {
+                  "metric": "overshoot_pct",
+                  "op": "<=",
+                  "value": 5,
+                  "unit": "%",
+                  "value_si": 5,
+                  "unit_si": "%",
+                  "origin": "user",
+                  "source": "user message 1: '5 %'"
+                },
+                {
+                  "metric": "settling_time_s",
+                  "op": "<=",
+                  "value": 0.2,
+                  "unit": "s",
+                  "value_si": 0.2,
+                  "unit_si": "s",
+                  "origin": "user",
+                  "source": "user message 1: '0,2 s'"
+                }
+              ],
+              "draft_snapshot": {
+                "plant": "dc_perm_ex_v1",
+                "controller_type": "PI",
+                "preset": {},
+                "experiments": {
+                  "base": {},
+                  "vary": [],
+                  "combine": "product"
+                },
+                "assumptions": [],
+                "objective": {
+                  "system": "dc_motor_pi",
+                  "objective": "J",
+                  "algorithm": "pso",
+                  "evaluations": {
+                    "value": 48,
+                    "origin": "default",
+                    "source": "Tuning Studio defaults for the DC-motor PI (viz/views/tuning_studio.py)"
+                  },
+                  "seed": 0,
+                  "requirements": [
+                    {
+                      "metric": "overshoot_pct",
+                      "op": "<=",
+                      "value": 5,
+                      "unit": "%",
+                      "value_si": 5,
+                      "unit_si": "%",
+                      "origin": "user",
+                      "source": "user message 1: '5 %'"
+                    },
+                    {
+                      "metric": "settling_time_s",
+                      "op": "<=",
+                      "value": 0.2,
+                      "unit": "s",
+                      "value_si": 0.2,
+                      "unit_si": "s",
+                      "origin": "user",
+                      "source": "user message 1: '0,2 s'"
+                    }
+                  ],
+                  "complete": true
+                },
+                "name": "assistant"
+              },
+              "confirmed_by_message_seq": 3,
+              "run_id": "run-20261105T025842-f83d5371"
+            }
+          ],
+          "exceptions": [],
+          "input": "¿Se cumplen los requisitos?",
+          "wall_s": 9.052278757095337
+        }
+      ],
+      "total_s": 64.17489051818848,
+      "avatar_states": [
+        "idle",
+        "thinking",
+        "idle",
+        "thinking",
+        "idle",
+        "thinking",
+        "idle",
+        "using_tool",
+        "idle",
+        "using_tool",
+        "idle",
+        "thinking",
+        "idle",
+        "using_tool",
+        "idle",
+        "using_tool",
+        "idle",
+        "thinking",
+        "idle",
+        "using_tool",
+        "idle",
+        "thinking",
+        "idle",
+        "using_tool",
+        "idle",
+        "awaiting_confirmation",
+        "thinking",
+        "awaiting_confirmation",
+        "confirmed",
+        "running",
+        "thinking",
+        "running",
+        "using_tool",
+        "running",
+        "idle",
+        "thinking",
+        "idle",
+        "using_tool",
+        "idle",
+        "results_ready",
+        "thinking",
+        "results_ready"
+      ],
+      "confirmations": [
+        {
+          "kind": "confirmation",
+          "seq": 3,
+          "how": "button",
+          "recorded": true
+        }
+      ],
+      "launch_without_confirmation": 0,
+      "notes": [
+        "empty"
+      ]
+    }
+  }
+}

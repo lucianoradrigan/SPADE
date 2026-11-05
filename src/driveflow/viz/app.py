@@ -39,6 +39,7 @@ PAGES = {
         ("pages/edge_deployment.py", "Edge Deployment", ":material/developer_board:"),
         ("pages/transfer_learning.py", "Transfer Learning", ":material/sync_alt:"),
         ("pages/model_registry.py", "Model Registry", ":material/inventory_2:"),
+        ("pages/assistant.py", "Assistant", ":material/forum:"),
     ],
     "Operations": [
         ("pages/monitoring.py", "Monitoring", ":material/monitor_heart:"),

@@ -138,6 +138,26 @@ def check_app():
     return "AppTest: no exceptions"
 
 
+@check("2c. Assistant page renders, also with the local model runtime down")
+def check_assistant_page():
+    # F1.10: the page must not break without Ollama; the runtime is pointed at a closed port.
+    from streamlit.testing.v1 import AppTest
+
+    script = ("from driveflow.assistant.config import load_config\n"
+              "from driveflow.assistant.core import llm\n"
+              "import driveflow.viz.views.assistant as v\n"
+              "v.CLIENT_FACTORY = lambda: llm.OllamaClient(load_config(overrides={'base_url': 'http://127.0.0.1:9', 'timeout_s': 1}))\n"
+              "v.render()\n")
+    at = AppTest.from_string(script, default_timeout=120)
+    at.run()
+    if at.exception:
+        raise AssertionError(f"exceptions on the Assistant page: {[e.message for e in at.exception]}")
+    shown = " ".join(w.value for w in at.warning)
+    if "Assistant unavailable" not in shown:
+        raise AssertionError("the page does not say the assistant is unavailable")
+    return "AppTest: no exceptions; 'Assistant unavailable' shown"
+
+
 def _free_port() -> int:
     with socket.socket() as s:
         s.bind(("127.0.0.1", 0))
@@ -179,6 +199,7 @@ def main(argv=None) -> int:
     check_imports()
     if not args.skip_app:
         check_app()
+        check_assistant_page()
     if args.launch:
         check_server()
     check_modules()
