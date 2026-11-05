@@ -141,6 +141,16 @@ entries:
     implemented_by: [driveflow.viz.views.transfer_learning, driveflow.ai.transfer.workflow]
     assistant_can_drive: false
     docs: [README.md]
+  assistant:
+    kind: page
+    page: pages/assistant.py
+    title: Assistant
+    what: "Chat with SPADE's local assistant (Ollama): it configures and launches simulations and controller tuning after your confirmation (Run button or a yes right after a proposal), and answers questions about SPADE from its documentation, shown as cards with their source."
+    when: "To set up a simulation or a tuning by chat, or to ask what SPADE documents."
+    limitations: ["Local model qwen3.5:9b pinned for the internal demo only: the F1.1 round-3 rule was not met (docs/audit/assistant/f1_1_decision.md).", "All results are simulated."]
+    implemented_by: [driveflow.viz.views.assistant, driveflow.assistant]
+    assistant_can_drive: false
+    docs: [docs/audit/assistant/f1_10_demo.md]
   model_registry:
     kind: page
     page: pages/model_registry.py
