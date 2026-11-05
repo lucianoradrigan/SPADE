@@ -18,6 +18,8 @@ CARD_TOOLS = ("explain_spade", "search_docs", "describe_plant", "describe_tunabl
 SHOWN_NOTE = ("This result is shown to the user verbatim, as a card with its source. Do not restate or paraphrase it, "
               "do not repeat its values: add at most one sentence.")
 PLANT_SOURCE = "configs/plant_catalog.yaml (driveflow.datagen.plant_catalog)"
+MAX_SEARCH_CARDS = 3
+SNIPPET_CHARS = 450
 
 
 def _fmt(v) -> str:
@@ -58,9 +60,10 @@ def card_from_tool(name: str, arguments: dict, result: dict) -> list:
                           "lines": lines})
         return cards
     if name == "search_docs":
-        cards = [{"tool": name, "title": f"{g['id']} — {g['title']}", "source": g["file"], "lines": ["(glossary match)"]} for g in result.get("glossary", [])]
-        for h in result.get("hits", []):
-            cards.append({"tool": name, "title": h.get("section") or h["file"], "source": h["file"], "lines": [h.get("snippet", "")]})
+        # At most MAX_SEARCH_CARDS: the glossary's own rows come first (search_docs puts them first).
+        cards = []
+        for h in result.get("hits", [])[:MAX_SEARCH_CARDS]:
+            cards.append({"tool": name, "title": h.get("section") or h["file"], "source": h["file"], "lines": [h.get("snippet", "")[:SNIPPET_CHARS]]})
         if not cards:
             cards.append({"tool": name, "title": f"No documentation found for: {result.get('query', '')}", "source": "docs/, README.md", "lines": []})
         return cards
@@ -81,7 +84,16 @@ def card_from_tool(name: str, arguments: dict, result: dict) -> list:
         lines = [f"{k}: {_fmt(v)}" for k, v in result.items() if k not in ("proposal", "draft_hash") and not isinstance(v, (dict, list)) or k in ("requirements", "objective", "algorithm", "evaluations")]
         return [{"tool": name, "title": "Tuning proposal", "source": "propose_tuning (draft)", "lines": lines[:12]}]
     if name == "summarize_results":
-        lines = [f"{r.get('condition', {}).get('scenario_id', r.get('index'))}: {r.get('status')}; " + ", ".join(f"{k} {v}" for k, v in (r.get("kpis") or {}).items() if not isinstance(v, (dict, list)))
+        def flat(kpis: dict, prefix: str = "") -> list:
+            out = []
+            for k, v in (kpis or {}).items():
+                if isinstance(v, dict):
+                    out += flat(v, f"{prefix}{k}.")
+                elif not isinstance(v, (list, bool)) and k != "units":
+                    out.append(f"{prefix}{k} {v}")
+            return out
+
+        lines = [f"{r.get('condition', {}).get('scenario_id', r.get('index'))}: {r.get('status')}; " + ", ".join(flat(r.get("kpis")))
                  for r in result.get("rows", [])]
         return [{"tool": name, "title": f"Results ({result.get('origin', 'SIMULATED')}), run {result.get('run_id')}", "source": "summarize_results (run store)", "lines": lines}]
     if name == "check_requirements":
