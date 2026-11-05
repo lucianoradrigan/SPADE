@@ -1,0 +1,375 @@
+{
+  "command": "python experiments/report_f1_1_model_choice.py --models qwen3.5:9b --visibility state --think true --guards config --out-stem f1_1_round3 --label round 3: qwen3.5:9b think=true + all fixes --traces /tmp/claude-1000/-home-seven-post-doc-plataform-proposed/3b387af5-16b9-4a3f-a6b0-f810f07a05d0/scratchpad/f1_1_traces",
+  "host": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "runtime_version": "0.40.13",
+  "gpu_vram_idle_mib": 1471,
+  "config": {
+    "temperature": 0,
+    "context_tokens": 16384,
+    "think": true,
+    "limits": {
+      "max_tool_calls_per_turn": 12,
+      "max_experiments_per_launch": 50,
+      "max_total_sim_seconds": 600,
+      "max_model_calls_per_turn": 16,
+      "max_tokens_per_turn": 60000
+    },
+    "num_predict": 2048,
+    "guards": {
+      "reject_repeats": true,
+      "per_turn_caps": {
+        "search_docs": 2,
+        "explain_spade": 2
+      },
+      "final_answer": true,
+      "objective_needs_plant": true,
+      "nudge_draft": true,
+      "nudge_docs": true,
+      "cards": true,
+      "verified_cite": true,
+      "nodoc_rule": true,
+      "glossary_trigger": true
+    }
+  },
+  "label": "round 3: qwen3.5:9b think=true + all fixes",
+  "models": {
+    "qwen3.5:9b": {
+      "tag": "qwen3.5:9b",
+      "digest": "56671c2ab9385f9cfcb404638e32cd62d88e3501d44822208363c010179a3c90",
+      "size_bytes": 6550825550,
+      "parameter_size": "9.0B",
+      "quantization": "Q4_K_M",
+      "family": "qwen35",
+      "license": "Apache-2.0",
+      "vram_loaded_mib": 8334,
+      "ollama_ps": [
+        {
+          "name": "qwen3.5:9b",
+          "size": 6147423600,
+          "size_vram": 6147423600,
+          "context_length": 16384
+        }
+      ],
+      "elapsed_s": 1077.277844429016,
+      "by_visibility": {
+        "state": {
+          "turns": 36,
+          "errors": 0,
+          "valid_calls_pct": 100.0,
+          "tool_calls": 159,
+          "correct_tool_pct": 91.66666666666666,
+          "launch_attempts_unconfirmed": 0,
+          "launches_executed": 0,
+          "invented_numbers_refused": 0,
+          "audit_trace_problems": 0,
+          "latency_median_s": 23.848623079014942,
+          "latency_p95_s": 90.52057243592571,
+          "tokens_per_s": 58.09044618425546,
+          "stopped_by_limit": 3,
+          "answered_nonempty": 36,
+          "timeouts": 0,
+          "correct_by_kind": {
+            "c": 100.0,
+            "o": 66.66666666666666,
+            "q": 100.0
+          }
+        }
+      },
+      "per_prompt": {
+        "state": {
+          "c1": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments"
+              ]
+            ]
+          },
+          "c2": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments"
+              ]
+            ]
+          },
+          "c3": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments"
+              ]
+            ]
+          },
+          "c4": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments"
+              ]
+            ]
+          },
+          "c5": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "update_draft",
+                "update_draft",
+                "propose_experiments",
+                "update_draft",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "update_draft",
+                "update_draft",
+                "propose_experiments",
+                "update_draft",
+                "update_draft"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "update_draft",
+                "update_draft",
+                "update_draft",
+                "propose_experiments",
+                "update_draft",
+                "update_draft"
+              ]
+            ]
+          },
+          "c6": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments"
+              ],
+              [
+                "set_mode",
+                "recommend_plant",
+                "describe_plant",
+                "update_draft",
+                "propose_experiments"
+              ]
+            ]
+          },
+          "o1": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "describe_tunable",
+                "describe_plant",
+                "update_draft",
+                "update_objective",
+                "propose_tuning"
+              ],
+              [
+                "set_mode",
+                "describe_tunable",
+                "describe_plant",
+                "update_draft",
+                "update_objective",
+                "propose_tuning"
+              ],
+              [
+                "set_mode",
+                "describe_tunable",
+                "describe_plant",
+                "update_draft",
+                "update_objective",
+                "propose_tuning"
+              ]
+            ]
+          },
+          "o2": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "describe_plant",
+                "describe_tunable",
+                "suggest_value",
+                "suggest_value",
+                "suggest_value"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "describe_tunable",
+                "suggest_value",
+                "suggest_value",
+                "suggest_value"
+              ],
+              [
+                "set_mode",
+                "describe_plant",
+                "describe_tunable",
+                "suggest_value",
+                "suggest_value",
+                "suggest_value"
+              ]
+            ]
+          },
+          "o3": {
+            "correct": 0,
+            "tools": [
+              [
+                "set_mode",
+                "describe_plant"
+              ],
+              [
+                "set_mode",
+                "describe_plant"
+              ],
+              [
+                "set_mode",
+                "describe_plant"
+              ]
+            ]
+          },
+          "q1": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "explain_spade",
+                "search_docs"
+              ],
+              [
+                "set_mode",
+                "explain_spade",
+                "search_docs"
+              ],
+              [
+                "set_mode",
+                "explain_spade",
+                "search_docs"
+              ]
+            ]
+          },
+          "q2": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "search_docs"
+              ],
+              [
+                "set_mode",
+                "search_docs"
+              ],
+              [
+                "set_mode",
+                "search_docs"
+              ]
+            ]
+          },
+          "q3": {
+            "correct": 3,
+            "tools": [
+              [
+                "set_mode",
+                "explain_spade",
+                "search_docs",
+                "search_docs"
+              ],
+              [
+                "set_mode",
+                "explain_spade",
+                "search_docs",
+                "search_docs"
+              ],
+              [
+                "set_mode",
+                "explain_spade",
+                "search_docs",
+                "search_docs"
+              ]
+            ]
+          }
+        }
+      }
+    }
+  }
+}
