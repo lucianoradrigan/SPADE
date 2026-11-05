@@ -43,3 +43,12 @@ Luciano chose `ornith:9b` (tools by state) **on condition** that its publisher, 
   - On q3 it answers from general knowledge, with no search and no citation.
   - On q2 it reads the search results as "S-21 parece ser una referencia a un conjunto de decisiones…". That is inaccurate: S-21 is a simulator finding, and it would count as a false statement under the F1.11 criteria.
 - The renamed outputs are `f1_1_model_choice_qwen3.5_9b.{md,json}`. The script's `Path.with_suffix` cut the stem at "3.5", so the files were renamed after the run.
+
+## Decision (Luciano, 2026-11-04): `ornith:9b` discarded
+
+`ornith:9b` is not used because its provenance and license could not be confirmed from the original source:
+- inconsistent publisher namespaces;
+- the license link returns 404, and there is no LICENSE or NOTICE file;
+- no declared base model, while the architecture suggests an Apache-2.0 base whose notices are absent.
+
+It was uninstalled (`ollama rm ornith:9b`) on 2026-11-04. Its F1.1 numbers stay in `f1_1_model_choice.md` as measured. The assistant continues with the official `qwen3.5:9b` (round 2, `f1_1_model_choice_round2_rule.md`).
