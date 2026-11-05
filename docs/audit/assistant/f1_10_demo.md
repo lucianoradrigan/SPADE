@@ -29,7 +29,7 @@
 | Complete configuration conversation on the page with the chosen model: request → (questions) → proposal → "sí"/Run → job → results | Live run below, conversation A; ReplayClient AppTest `test_complete_configuration_conversation_with_the_run_button` | **Met** |
 | Objective-mode conversation | Live run, conversation B (the assistant first asked which plant; then proposal → Run → tuning job → requirements check) | **Met** |
 | Avatar in all its states | All 11 states reached from recorded events (FE-1/FE-3 tests: `test_assistant_events.py`, `test_assistant_avatar_component.py`). Live: idle, thinking, using_tool, awaiting_confirmation, confirmed, running, results_ready, error (A, a summarize call before the job ended); `unavailable` with Ollama down (page test, smoke 2c). `listening` and `extracting` (the datasheet step, phase 2) only from recorded events. | **Met** (as FE-4 defines it: "todos los estados se alcanzan desde eventos grabados") |
-| Full suite green | See the integration at the end of this round | (filled at integration) |
+| Full suite green | `pytest` on the integrated stack: 1736 passed, 1 skipped, 9 xfailed (19:43) | **Met** |
 | `smoke --launch` green | `python scripts/smoke_test.py --launch`: **7/7** (the 6 existing checks plus 2c, the Assistant page without Ollama) | **Met** |
 
 ## Live run (`python experiments/report_f1_10_demo.py`, AppTest of the real page, Ollama 0.40.13, RTX 5060 Ti; raw in `f1_10_demo.json`)
