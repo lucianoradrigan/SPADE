@@ -607,7 +607,10 @@ def audit_trace(events: list) -> list:
         elif ev["role"] == "tool":
             led.add_tool_result(ev["name"], ev["call_id"], ev["result"])
         elif ev["role"] == "patch":
-            r = draft.patch(ev["ops"], led)
+            try:
+                r = draft.patch(ev["ops"], led)
+            except PatchError as exc:  # a malformed patch (e.g. ops = []) is refused, not a crash of the replay
+                r = {"ok": False, "errors": [{"op": None, "error": str(exc)}]}
             if r["ok"] != ev.get("accepted", True):
                 problems.append({"event": i, "accepted_in_session": ev.get("accepted", True), "accepted_now": r["ok"], "errors": r["errors"]})
     return problems

@@ -223,3 +223,12 @@ def test_ambiguous_number_resolved_by_the_field_range_is_reported():
     led = ledger("motor DC con psi_e 1,146 V*s/rad")
     d = dc_draft(led)
     assert not d.patch([{"op": "set", "field": "motor_parameter_overrides.psi_e", "value": 1.146, "unit": "V*s/rad"}], led)["ok"]
+
+
+def test_audit_trace_treats_a_malformed_patch_as_refused():
+    """F1.1 round 2: a model sent update_draft with ops = []; the session refused it and the replay must too."""
+    from driveflow.assistant.draft import audit_trace
+
+    events = [{"role": "user", "seq": 1, "text": "motor DC"}, {"role": "patch", "ops": [], "accepted": False}]
+    assert audit_trace(events) == []
+    assert audit_trace([{"role": "patch", "ops": [], "accepted": True}])[0]["accepted_now"] is False
