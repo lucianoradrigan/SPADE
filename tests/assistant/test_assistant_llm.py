@@ -75,10 +75,12 @@ def ok_reply(content="", tool_calls=None):
 
 # --- configuration ------------------------------------------------------------------------------
 
-def test_config_file_is_local_unpinned_and_matches_the_draft_limits():
+def test_config_file_is_local_pinned_for_the_demo_and_matches_the_draft_limits():
     c = acfg.load_config()
     assert c["runtime"] == "ollama" and acfg.is_loopback(c["base_url"]) and c["allow_remote_runtime"] is False and c["warnings"] == []
-    assert c["model"] == {"tag": None, "digest": None}  # chosen in F1.1
+    # Pinned by Luciano's decision on 2026-11-04 for the internal demo (docs/audit/assistant/f1_1_decision.md).
+    assert c["model"]["tag"] == "qwen3.5:9b" and len(c["model"]["digest"]) == 64
+    assert c["model"]["status"] == "internal-demo; F1.1 round-3 rule not met"
     assert c["temperature"] == 0 and isinstance(c["seed"], int)
     assert {k: c["limits"][k] for k in DEFAULT_LIMITS} == DEFAULT_LIMITS
     assert "provider" not in c and "privacy" not in c  # no cloud provider (B1)
@@ -149,7 +151,7 @@ def test_missing_model_and_unpinned_model():
     with FakeOllama([], models=[]) as url:
         with pytest.raises(llm.ModelNotAvailable, match="ollama pull fake:1b"):
             llm.OllamaClient(cfg(url)).check()
-        unpinned = acfg.load_config(overrides={"base_url": url})
+        unpinned = acfg.load_config(overrides={"base_url": url, "model": {"tag": None, "digest": None}})
         with pytest.raises(llm.ModelNotAvailable, match="F1.1"):
             llm.OllamaClient(unpinned).chat([], [], seed=0)
 
