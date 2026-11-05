@@ -39,7 +39,7 @@ OUT = ROOT / "docs" / "audit" / "assistant" / "f1_1_model_choice"
 PROMPTS = ROOT / "docs" / "audit" / "assistant" / "f1_1_prompts.json"
 LAUNCH = ("run_experiments", "run_tuning")
 NO_EVIDENCE = ("the user did not write this quantity", "no suggest_value result", "no tool result contains this number")
-LICENSES = {"qwen3": "Apache-2.0", "ornith": "MIT"}  # verified on ollama.com / Hugging Face model cards, 2026-11-04
+LICENSES = {"qwen3": "Apache-2.0", "qwen3.5": "Apache-2.0", "ornith": "MIT"}  # verified on ollama.com / Hugging Face model cards, 2026-11-04
 
 
 def _nvidia_used_mib() -> int | None:
@@ -64,7 +64,7 @@ def _loaded(client) -> list:
         return []
 
 
-def run_one(tag: str, digest: str, prompt: dict, system_prompt: str, seed: int, visibility: str) -> dict:
+def run_one(tag: str, digest: str, prompt: dict, system_prompt: str, seed: int, visibility: str, overrides: dict | None = None) -> dict:
     import jsonschema
 
     from driveflow.assistant import catalog, objective, tools
@@ -74,9 +74,10 @@ def run_one(tag: str, digest: str, prompt: dict, system_prompt: str, seed: int, 
     from driveflow.assistant.draft import audit_trace
 
     cfg = load_config()
-    cfg = {**cfg, "model": {"tag": tag, "digest": digest}}
+    cfg = {**cfg, **(overrides or {}), "model": {"tag": tag, "digest": digest}}
     all_tools = tools.CONFIG_TOOLS + objective.OBJECTIVE_TOOLS + catalog.CATALOG_TOOLS
-    agent = Agent(llm.OllamaClient(cfg), all_tools, system_prompt=system_prompt, seed=seed, limits=cfg.get("limits"))
+    agent = Agent(llm.OllamaClient(cfg), all_tools, system_prompt=system_prompt, seed=seed, limits=cfg.get("limits"),
+                  **({"guards": cfg["guards"]} if "guards" in cfg else {}))
     schemas = {t.name: t.parameters for t in [loop.SET_MODE, *all_tools]}
     saved = loop.visible_tools
     if visibility == "all":
@@ -128,6 +129,8 @@ def summarise(rows: list) -> dict:
             "latency_median_s": float(np.median(lat)), "latency_p95_s": float(np.percentile(lat, 95)),
             "tokens_per_s": float(sum(r["gen_tokens"] for r in rows) / max(sum(r["gen_s"] for r in rows), 1e-9)),
             "stopped_by_limit": int(sum(r["stopped"] not in (None, "exception") for r in rows)),
+            "answered_nonempty": int(sum(r["error"] is None and bool(r["answer"].strip()) for r in rows)),
+            "timeouts": int(sum("timed out" in (r["error"] or "") for r in rows)),
             "correct_by_kind": {k: 100.0 * np.mean([r["correct_tool"] for r in rows if r["prompt"][0] == k]) for k in ("c", "o", "q")}}
 
 
@@ -136,40 +139,54 @@ def main(argv=None) -> None:
     ap.add_argument("--models", nargs="+", required=True)
     ap.add_argument("--seeds", nargs="+", type=int, default=[0, 1, 2])
     ap.add_argument("--traces", type=Path, default=None)
+    ap.add_argument("--visibility", nargs="+", choices=("all", "state"), default=["all", "state"])
+    ap.add_argument("--think", choices=("true", "false", "config"), default="config", help="override configs/assistant.yaml think")
+    ap.add_argument("--guards", choices=("on", "off", "config"), default="config", help="loop guards and nudges (round 2)")
+    ap.add_argument("--out-stem", default=None, help="output stem in docs/audit/assistant (default f1_1_model_choice)")
+    ap.add_argument("--label", default=None, help="label of this configuration in the report")
     args = ap.parse_args(argv)
     os.environ.setdefault("SPADE_WORKSPACE", tempfile.mkdtemp(prefix="spade_f1_1_"))
     from driveflow.assistant.config import load_config
     from driveflow.assistant.core import llm
 
     bench = json.loads(PROMPTS.read_text())
+    out = OUT.parent / (args.out_stem or OUT.name)
+    overrides = {}
+    if args.think != "config":
+        overrides["think"] = args.think == "true"
+    if args.guards != "config":
+        from driveflow.assistant.core.loop import DEFAULT_GUARDS, GUARDS_OFF
+
+        overrides["guards"] = dict(DEFAULT_GUARDS if args.guards == "on" else GUARDS_OFF)
     client = llm.OllamaClient({**load_config(), "model": {"tag": "probe", "digest": None}})
     res = {"command": "python experiments/report_f1_1_model_choice.py " + " ".join(argv if argv is not None else sys.argv[1:]),
            "host": platform.platform(), "runtime_version": client.version(), "gpu_vram_idle_mib": _nvidia_used_mib(),
-           "config": {k: load_config().get(k) for k in ("temperature", "context_tokens", "think", "limits")}, "models": {}}
+           "config": {**{k: load_config().get(k) for k in ("temperature", "context_tokens", "think", "limits", "num_predict", "guards")}, **overrides},
+           "label": args.label, "models": {}}
     for tag in args.models:
         info = _model_info(client, tag)
         rows = []
         t0 = time.time()
-        for vis in ("all", "state"):
+        for vis in args.visibility:
             for p in bench["prompts"]:
                 for seed in args.seeds:
-                    r = run_one(tag, info["digest"], p, bench["system_prompt"], seed, vis)
+                    r = run_one(tag, info["digest"], p, bench["system_prompt"], seed, vis, overrides)
                     rows.append(r)
                     print(tag, vis, p["id"], seed, r["mode"], r["tools_called"], f"{r['wall_s']:.1f}s", r["error"] or "", flush=True)
         info["vram_loaded_mib"] = _nvidia_used_mib()
         info["ollama_ps"] = [{k: m.get(k) for k in ("name", "size", "size_vram", "context_length")} for m in _loaded(client)]
         info["elapsed_s"] = time.time() - t0
-        info["by_visibility"] = {vis: summarise([r for r in rows if r["visibility"] == vis]) for vis in ("all", "state")}
+        info["by_visibility"] = {vis: summarise([r for r in rows if r["visibility"] == vis]) for vis in args.visibility}
         info["per_prompt"] = {vis: {p["id"]: {"correct": int(sum(r["correct_tool"] for r in rows if r["visibility"] == vis and r["prompt"] == p["id"])),
                                               "tools": [r["tools_called"] for r in rows if r["visibility"] == vis and r["prompt"] == p["id"]]}
-                                    for p in bench["prompts"]} for vis in ("all", "state")}
+                                    for p in bench["prompts"]} for vis in args.visibility}
         res["models"][tag] = info
         if args.traces:
             args.traces.mkdir(parents=True, exist_ok=True)
-            (args.traces / f"{tag.replace(':', '_')}.json").write_text(json.dumps(rows, indent=1, ensure_ascii=False, default=str))
+            (args.traces / f"{out.name}_{tag.replace(':', '_')}.json").write_text(json.dumps(rows, indent=1, ensure_ascii=False, default=str))
         subprocess.run(["ollama", "stop", tag], capture_output=True)
-    OUT.with_suffix(".json").write_text(json.dumps(res, indent=2, ensure_ascii=False, default=str) + "\n")
-    OUT.with_suffix(".md").write_text(_md(res))
+    out.parent.joinpath(out.name + ".json").write_text(json.dumps(res, indent=2, ensure_ascii=False, default=str) + "\n")
+    out.parent.joinpath(out.name + ".md").write_text(_md(res))
     print(_md(res))
 
 
@@ -188,9 +205,10 @@ def _md(r: dict) -> str:
                      f"{s['latency_median_s']:.1f} / {s['latency_p95_s']:.1f} s | {s['tokens_per_s']:.0f} | {s['errors']} / {s['stopped_by_limit']} |")
     L += ["", "Digests: " + "; ".join(f"`{t}` {m['digest']}" for t, m in r["models"].items()) + ".", ""]
     for tag, m in r["models"].items():
-        L += [f"## `{tag}` per prompt (correct of 3)", "", "| Prompt | all | state |", "|---|---|---|"]
-        for pid in m["per_prompt"]["state"]:
-            L.append(f"| {pid} | {m['per_prompt']['all'][pid]['correct']} | {m['per_prompt']['state'][pid]['correct']} |")
+        vis = list(m["per_prompt"])
+        L += [f"## `{tag}` per prompt (correct of 3)", "", "| Prompt | " + " | ".join(vis) + " |", "|---|" + "---|" * len(vis)]
+        for pid in m["per_prompt"][vis[0]]:
+            L.append(f"| {pid} | " + " | ".join(str(m["per_prompt"][v][pid]["correct"]) for v in vis) + " |")
         L.append("")
     return "\n".join(L)
 

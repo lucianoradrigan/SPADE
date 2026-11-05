@@ -22,6 +22,19 @@ seed: 0
 context_tokens: 16384
 # Models that "think" before answering: false asks Ollama not to; null sends nothing.
 think: false
+# Output-token cap per model call (F1.1 round 2). The F1.1 timeouts were runaway generations (> 8000
+# tokens in the 180 s timeout); normal calls used at most 393 tokens (think false) and 2126 (think true,
+# p95 818). Thinking tokens count toward the cap.
+num_predict: 2048
+# Loop guards and nudges (F1.1 round 2, agreed with Luciano 2026-11-04; core/loop.py DEFAULT_GUARDS).
+# The CLI and the Assistant page pass them to the Agent; Agent(guards=None) in code keeps them off.
+guards:
+  reject_repeats: true
+  per_turn_caps: {search_docs: 2, explain_spade: 2}
+  final_answer: true
+  objective_needs_plant: true
+  nudge_draft: true
+  nudge_docs: true
 
 # Plan §4.4. driveflow.assistant.draft.DEFAULT_LIMITS must match (tests/assistant/test_assistant_llm.py).
 limits:

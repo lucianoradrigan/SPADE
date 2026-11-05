@@ -190,6 +190,8 @@ class OllamaClient:
         options = {"temperature": self.config.get("temperature", 0), "seed": self.config.get("seed", 0) if seed is None else seed}
         if self.config.get("context_tokens"):
             options["num_ctx"] = int(self.config["context_tokens"])
+        if self.config.get("num_predict"):
+            options["num_predict"] = int(self.config["num_predict"])  # output-token cap per call (F1.1 round 2)
         payload = {"model": self.tag, "messages": messages, "stream": False, "options": options}
         if tools:
             payload["tools"] = tools

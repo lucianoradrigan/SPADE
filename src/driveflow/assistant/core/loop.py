@@ -11,11 +11,29 @@ tool, or when a limit of configs/assistant.yaml is hit:
 
 Errors are never dropped: the model sees them. ``AgentTrace`` keeps every message, call, result
 and limit; ``draft_events`` is the record ``draft.audit_trace`` replays (no-invention check).
+
+Loop guards (F1.1 round 2, agreed with Luciano 2026-11-04; designed by reading the F1.1 conversations,
+docs/audit/assistant/f1_1_model_choice_round2_rule.md), each switchable in ``guards``:
+
+- ``reject_repeats``: a call identical (tool + arguments) to an earlier one of the same turn is refused;
+- ``per_turn_caps``: at most N calls of a tool per turn (search_docs 2, explain_spade 2);
+- ``final_answer``: when a limit stops the turn, or the model ends with an empty text, one more model
+  call WITHOUT tools asks it to answer with what it has; no turn ends with an empty answer;
+- ``objective_needs_plant``: update_objective is hidden until the draft has a plant (policy);
+- ``nudge_draft``: in configuration/objective mode, a text-only answer while the draft and objective
+  did not change in the turn gets, once, a note to use update_draft / update_objective or to ask;
+- ``nudge_docs``: when the user asks about something of SPADE (a finding ID, a page, a tool, "SPADE"),
+  a text-only answer before any search_docs / explain_spade gets, once, a note to look it up; an answer
+  that then cites no source gets, once, a note to cite it or to say "no lo tengo documentado".
+
+Notes go to the model as a user-role message marked as coming from SPADE, never from the user; they
+carry no numbers and are not evidence for the draft (the ledger only records real user messages).
 """
 
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 from typing import Callable
 
@@ -25,6 +43,22 @@ from driveflow.assistant.core.policy import MODES, SessionState, check_call, vis
 
 DEFAULT_TURN_LIMITS = {"max_tool_calls_per_turn": 12, "max_model_calls_per_turn": 16, "max_tokens_per_turn": 60_000}
 MAX_CONSECUTIVE_ERRORS = 3
+#: F1.1 round 2: the guards configs/assistant.yaml enables (``guards``). Agent(guards=None) keeps them all off.
+DEFAULT_GUARDS = {"reject_repeats": True, "per_turn_caps": {"search_docs": 2, "explain_spade": 2}, "final_answer": True,
+                  "objective_needs_plant": True, "nudge_draft": True, "nudge_docs": True}
+GUARDS_OFF = {"reject_repeats": False, "per_turn_caps": {}, "final_answer": False, "objective_needs_plant": False, "nudge_draft": False, "nudge_docs": False}
+NOTE_PREFIX = "[SPADE runtime note, not from the user] "
+NOTES = {
+    "final": "Stop calling tools. Answer the user now, in their language, with what you already have; say what is missing.",
+    "empty": "Your last message to the user was empty. Answer the user now, in their language, in a few sentences.",
+    "draft": "You answered without recording anything. If the user gave what you need, record it now with update_draft (configuration) or "
+             "update_objective (objective); if something required is missing, ask the user for it.",
+    "docs": "The user asked about SPADE. Look it up with search_docs or explain_spade before answering; answer only from what they return.",
+    "cite": "Cite the source you used (file and section, page, or finding ID). If the tools returned nothing relevant, say \"no lo tengo documentado\".",
+}
+EMPTY_FALLBACK = "The assistant could not produce an answer; please rephrase. / El asistente no pudo generar una respuesta; reformula el pedido."
+_SPADE_REF = re.compile(r"\b(S-\d+|AI-N\d+|AI-\d+|F\d\.\d+|FE-\d+|SPADE)\b", re.I)
+_CITED = re.compile(r"(docs/|\.md\b|\.ya?ml\b|no lo tengo documentado|not documented|fuente|source|según|according to|p[aá]gina|page)", re.I)
 STOP_MESSAGES = {
     "errors": "The assistant stopped after 3 failed tool calls in a row; please rephrase. / El asistente se detuvo tras 3 llamadas fallidas seguidas; reformula el pedido.",
     "max_tool_calls_per_turn": "The assistant reached its limit of tool calls for one turn. / El asistente llegó al límite de llamadas a herramientas en un turno.",
@@ -81,7 +115,7 @@ class AgentTrace:
 
 class Agent:
     def __init__(self, client: LLMClient, tools: list, *, system_prompt: str = "", state: SessionState | None = None, limits: dict | None = None, seed: int = 0,
-                 on_event: Callable[[ev.AgentEvent], None] | None = None):
+                 on_event: Callable[[ev.AgentEvent], None] | None = None, guards: dict | None = None):
         self.client = client
         self.tools = {t.name: t for t in [SET_MODE, *tools]}
         self.state = state or SessionState()
@@ -90,6 +124,10 @@ class Agent:
         self.messages: list[dict] = [{"role": "system", "content": system_prompt}] if system_prompt else []
         self.trace = AgentTrace()
         self.on_event = on_event
+        # Library default: guards off (the recorded cassettes of the tests predate them); the CLI and the
+        # Assistant page pass configs/assistant.yaml ``guards`` (= DEFAULT_GUARDS).
+        self.guards = {**GUARDS_OFF, **(guards or {})}
+        self.state.objective_needs_plant = bool(self.guards["objective_needs_plant"])
 
     def _emit(self, event: ev.AgentEvent) -> None:
         self.trace.agent_events.append(event.to_dict())
@@ -122,9 +160,25 @@ class Agent:
         return res
 
     # --- the loop ------------------------------------------------------------------------------
+    def _spade_reference(self, text: str) -> bool:
+        if _SPADE_REF.search(text or ""):
+            return True
+        low = (text or "").lower()
+        return any(name in low for name in self.tools if "_" in name)
+
+    def _note(self, key: str, res: TurnResult) -> None:
+        self.messages.append({"role": "user", "content": NOTE_PREFIX + NOTES[key]})
+        self.trace.add("note", key=key)
+
     def _run(self) -> TurnResult:
         res = TurnResult(text="")
         errors_in_row = 0
+        self._turn_calls: dict = {}
+        self._turn_counts: dict = {}
+        start_hash, start_obj = self.state.draft.hash(), json.dumps(self.state.draft.objective, sort_keys=True, default=str)
+        user_text = next((m["content"] for m in reversed(self.messages) if m["role"] == "user"), "")
+        asks_spade = self.guards["nudge_docs"] and self._spade_reference(user_text)
+        nudged: set = set()
         while True:
             if res.model_calls >= self.limits["max_model_calls_per_turn"]:
                 return self._stop(res, "max_model_calls_per_turn")
@@ -141,7 +195,23 @@ class Agent:
             self.trace.add("model", visible_tools=names, text=reply.text, tool_calls=[{"name": c.name, "arguments": c.arguments, "error": c.error} for c in reply.tool_calls],
                            prompt_tokens=reply.prompt_tokens, completion_tokens=reply.completion_tokens, latency_s=reply.latency_s)
             if not reply.tool_calls:
-                res.text = reply.text
+                looked_up = any(self._turn_counts.get(t) for t in ("search_docs", "explain_spade"))
+                changed = self.state.draft.hash() != start_hash or json.dumps(self.state.draft.objective, sort_keys=True, default=str) != start_obj
+                if self.guards["nudge_draft"] and "draft" not in nudged and self.state.mode in ("configuration", "objective") and not changed:
+                    nudged.add("draft")
+                    self._note("draft", res)
+                    continue
+                if asks_spade and not looked_up and "docs" not in nudged:
+                    nudged.add("docs")
+                    self._note("docs", res)
+                    continue
+                if asks_spade and looked_up and "cite" not in nudged and reply.text.strip() and not _CITED.search(reply.text):
+                    nudged.add("cite")
+                    self._note("cite", res)
+                    continue
+                if not reply.text.strip() and self.guards["final_answer"]:
+                    return self._final_answer(res, "empty", stopped=None)
+                res.text = reply.text if reply.text.strip() or not self.guards["final_answer"] else EMPTY_FALLBACK
                 return res
             for i, call in enumerate(reply.tool_calls):
                 if res.tool_calls >= self.limits["max_tool_calls_per_turn"]:
@@ -169,6 +239,20 @@ class Agent:
             out = {"error": f"unknown tool {call.name!r}; available: {visible_tools(self.state)}"}
             self.trace.add("tool_error", name=call.name, error=out["error"])
             return out, True
+        key = (call.name, json.dumps(call.arguments, sort_keys=True, default=str))
+        if self.guards["reject_repeats"] and key in getattr(self, "_turn_calls", {}):
+            out = {"error": f"identical {call.name} call already made in this turn; use its result above instead of repeating it"}
+            self.trace.add("tool_refused", name=call.name, arguments=call.arguments, reason="repeat")
+            return out, True
+        cap = (self.guards.get("per_turn_caps") or {}).get(call.name)
+        counts = getattr(self, "_turn_counts", {})
+        if cap is not None and counts.get(call.name, 0) >= cap:
+            out = {"error": f"limit of {cap} {call.name} calls per turn reached; answer with what you already have"}
+            self.trace.add("tool_refused", name=call.name, arguments=call.arguments, reason="cap")
+            return out, True
+        if hasattr(self, "_turn_calls"):
+            self._turn_calls[key] = True
+            counts[call.name] = counts.get(call.name, 0) + 1
         refusal = check_call(self.state, call.name)
         if refusal:
             self.trace.add("tool_refused", name=call.name, arguments=call.arguments, reason=refusal)
@@ -227,7 +311,28 @@ class Agent:
         self.messages.append({"role": "tool", "tool_name": call.name, "content": json.dumps(result, ensure_ascii=False, default=str)})
 
     def _stop(self, res: TurnResult, why: str) -> TurnResult:
+        if self.guards["final_answer"]:
+            return self._final_answer(res, "final", stopped=why)
         res.stopped, res.text = why, STOP_MESSAGES[why]
         self.messages.append({"role": "assistant", "content": res.text})
         self.trace.add("stopped", reason=why)
+        return res
+
+    def _final_answer(self, res: TurnResult, note: str, stopped: str | None) -> TurnResult:
+        """One model call WITHOUT tools so the user gets an answer with what the turn has (guard
+        ``final_answer``); a still-empty reply falls back to a fixed message, never to nothing."""
+        res.stopped = stopped
+        if stopped:
+            self.trace.add("stopped", reason=stopped)
+        self._note(note, res)
+        self._emit(ev.LlmCall(phase="start"))
+        reply = self.client.chat(self.messages, [], seed=self.seed)
+        res.model_calls += 1
+        res.tokens += (reply.prompt_tokens or 0) + (reply.completion_tokens or 0)
+        self._emit(ev.LlmCall(phase="end", tokens=(reply.prompt_tokens or 0) + (reply.completion_tokens or 0)))
+        self.trace.add("model", visible_tools=[], text=reply.text, tool_calls=[], prompt_tokens=reply.prompt_tokens,
+                       completion_tokens=reply.completion_tokens, latency_s=reply.latency_s, final=True)
+        text = reply.text.strip() if not reply.tool_calls else ""
+        res.text = text or (STOP_MESSAGES[stopped] if stopped else EMPTY_FALLBACK)
+        self.messages.append({"role": "assistant", "content": res.text})
         return res

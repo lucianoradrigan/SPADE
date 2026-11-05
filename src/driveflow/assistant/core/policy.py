@@ -28,6 +28,8 @@ BY_MODE = {
     "configuration": ("recommend_plant", "describe_plant", "suggest_value", "update_draft", "validate_draft", "estimate_cost"),
     "objective": ("recommend_plant", "describe_plant", "suggest_value", "update_draft", "describe_tunable", "update_objective", "validate_draft"),
 }
+#: objective-mode tools hidden until the draft has a plant when SessionState.objective_needs_plant (F1.1 round 2)
+NEEDS_PLANT = ("update_objective",)
 LAUNCH_TOOLS = {"configuration": "run_experiments", "objective": "run_tuning"}
 PROPOSE_TOOLS = {"configuration": "propose_experiments", "objective": "propose_tuning"}
 NEEDS_CONFIRMATION = ("run_experiments", "run_tuning")
@@ -57,6 +59,7 @@ class SessionState:
     jobs: list = field(default_factory=list)  # [{"job_id", "kind", "status", "run_id"?}]
     last_user_seq: int = 0
     seq: int = 0  # every message of the conversation gets the next number
+    objective_needs_plant: bool = False  # set by the Agent from its guards (F1.1 round 2)
 
     def next_seq(self) -> int:
         self.seq += 1
@@ -88,6 +91,8 @@ def draft_ready(state: SessionState) -> bool:
 def visible_tools(state: SessionState) -> list[str]:
     """Names of the tools the model may see in this state (order: always, mode, state)."""
     names = list(ALWAYS) + list(BY_MODE[state.mode])
+    if state.objective_needs_plant and not state.draft.plant:
+        names = [n for n in names if n not in NEEDS_PLANT]
     if state.mode in LAUNCH_TOOLS:
         ready = draft_ready(state) if state.mode == "configuration" else (draft_ready(state) and bool((state.draft.objective or {}).get("complete")))
         if ready:
