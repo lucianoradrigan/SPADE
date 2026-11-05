@@ -117,7 +117,7 @@ def test_chat_sends_determinism_options_and_parses_tool_calls():
     assert client.checked and client.warnings == []  # version, model and digest checked before chatting
     p = fo.requests[0]
     assert p["model"] == "fake:1b" and p["stream"] is False and p["think"] is False and p["tools"] == TOOLS
-    assert p["options"] == {"temperature": 0, "seed": 3, "num_ctx": 8192}
+    assert p["options"] == {"temperature": 0, "seed": 3, "num_ctx": 8192, "num_predict": 2048}  # num_predict: F1.1 round 2 output cap
     assert reply.to_message() == {"role": "assistant", "content": "", "tool_calls": tc}
 
 
