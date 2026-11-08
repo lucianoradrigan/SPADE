@@ -27,7 +27,7 @@ def available_systems() -> dict:
     try:
         return systems.available()
     except Exception:  # pragma: no cover -- the page must render
-        return {systems.DC_MOTOR: "DC motor PI speed loop (native:dc_perm_ex_v1)"}
+        return {systems.DC_MOTOR: "DC motor PI speed loop (native:dc_perm_ex_v2)"}
 
 
 def get_system(key: str):
@@ -58,8 +58,9 @@ def submit(method: str, bounds: list, evaluations: int, seed: int, system_key: s
                                      objectives=("J",), budget={"evaluations": int(evaluations)},
                                      conditions=tuple({"grid": "tuning", "name": c.name} for c in sysm.tuning_grid))
         return JobService().submit(spec)
-    spec = ExperimentSpec.create("controller_tuning", plant_profile_id="native:dc_perm_ex_v1", algorithm=method, seed=int(seed),
-                                 params={"bounds": [[float(lo), float(hi)] for lo, hi in bounds], "parameters": list(ob.PARAMS)},
+    # E3: Tuning Studio tunes on the v2 plant (the bench simulates the converter in discontinuous conduction)
+    spec = ExperimentSpec.create("controller_tuning", plant_profile_id="native:dc_perm_ex_v2", algorithm=method, seed=int(seed),
+                                 params={"bounds": [[float(lo), float(hi)] for lo, hi in bounds], "parameters": list(ob.PARAMS), "motor": {"dc_converter_model": "dcm_exact"}},
                                  controller_spec={"controller": "PICascadeController", "baseline": ob.BASELINE},
                                  objectives=("mean_overshoot_pct", "mean_settling_ms", "mean_dip_rad_s"), budget={"evaluations": int(evaluations)},
                                  conditions=tuple({"grid": "tuning", "name": c.name} for c in ob.TUNING_GRID))

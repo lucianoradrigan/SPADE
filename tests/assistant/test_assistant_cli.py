@@ -6,7 +6,7 @@ from driveflow.assistant import cli
 from driveflow.assistant.config import load_config
 from driveflow.assistant.core import llm
 
-OPS = [{"op": "set_plant", "plant": "dc_perm_ex_v1"}, {"op": "set_controller", "controller_type": "PI"},
+OPS = [{"op": "set_plant", "plant": "dc_perm_ex_v2"}, {"op": "set_controller", "controller_type": "PI"},
        {"op": "set", "field": "omega_ref_rad_s", "value": 100, "unit": "rad/s"}, {"op": "set", "field": "duration_s", "value": 0.1, "unit": "s"}]
 
 
@@ -24,7 +24,7 @@ def replay(*replies):
 
 
 def test_complete_configuration_conversation():
-    client = replay(reply("", call("set_mode", mode="configuration"), call("describe_plant", plant="dc_perm_ex_v1"), call("update_draft", ops=OPS)),
+    client = replay(reply("", call("set_mode", mode="configuration"), call("describe_plant", plant="dc_perm_ex_v2"), call("update_draft", ops=OPS)),
                     reply("", call("propose_experiments")), reply("¿Confirmas la simulación de 100 rad/s?"),
                     reply("", call("run_experiments")), reply("Lanzado."),
                     reply("", call("get_job_status"), call("summarize_results")), reply("Listo, revisa los resultados."))
@@ -33,7 +33,7 @@ def test_complete_configuration_conversation():
     text = "\n".join(out)
     assert out[0].startswith("I'm SPADE's AI assistant") and "internal-demo" in out[0]
     assert "omega_ref_rad_s  100 rad/s  [USER]" in text  # the draft panel, with the origin chip
-    assert "Proposal: 1 experiment(s) on dc_perm_ex_v1 (PI)" in text and "Plant dc_perm_ex_v1" in text
+    assert "Proposal: 1 experiment(s) on dc_perm_ex_v2 (PI)" in text and "Plant dc_perm_ex_v2" in text
     assert "¿Confirmas la simulación?" not in text and "assistant> ¿Confirmas la simulación de 100 rad/s?" not in text  # draft number removed
     conf = [e for e in agent.trace.events if e["kind"] == "confirmation"]
     assert conf and conf[0]["how"] == "typed: sí" and conf[0]["recorded"] is True

@@ -108,13 +108,13 @@ def test_only_the_ollama_runtime_is_accepted():
 # --- OllamaClient against a fake Ollama ----------------------------------------------------------
 
 def test_chat_sends_determinism_options_and_parses_tool_calls():
-    tc = [{"function": {"name": "describe_plant", "arguments": {"plant": "dc_perm_ex_v1"}}}]
+    tc = [{"function": {"name": "describe_plant", "arguments": {"plant": "dc_perm_ex_v2"}}}]
     fo = FakeOllama([ok_reply("", tc)])
     with fo as url:
         client = llm.OllamaClient(cfg(url, context_tokens=8192, think=False))
         reply = client.chat([{"role": "user", "content": "hola"}], TOOLS, seed=3)
     call = reply.tool_calls[0]
-    assert (call.name, call.arguments, call.error) == ("describe_plant", {"plant": "dc_perm_ex_v1"}, None)
+    assert (call.name, call.arguments, call.error) == ("describe_plant", {"plant": "dc_perm_ex_v2"}, None)
     assert (reply.prompt_tokens, reply.completion_tokens) == (42, 7) and reply.latency_s >= 0
     assert client.checked and client.warnings == []  # version, model and digest checked before chatting
     p = fo.requests[0]
@@ -124,7 +124,7 @@ def test_chat_sends_determinism_options_and_parses_tool_calls():
 
 
 @pytest.mark.parametrize("arguments, error", [
-    ('{"plant": "dc_perm_ex_v1"}', None),  # string JSON is accepted
+    ('{"plant": "dc_perm_ex_v2"}', None),  # string JSON is accepted
     ('{"plant": ', "not valid JSON"),
     ('["a"]', "JSON object"),
     ([1, 2], "JSON object"),
@@ -133,7 +133,7 @@ def test_tool_arguments_that_are_not_an_object_are_kept_as_errors(arguments, err
     r = llm.parse_reply({"message": {"role": "assistant", "content": "", "tool_calls": [{"function": {"name": "describe_plant", "arguments": arguments}}]}})
     call = r.tool_calls[0]
     if error is None:
-        assert call.arguments == {"plant": "dc_perm_ex_v1"} and call.error is None
+        assert call.arguments == {"plant": "dc_perm_ex_v2"} and call.error is None
     else:
         assert call.arguments is None and error in call.error and call.raw_arguments is not None
 

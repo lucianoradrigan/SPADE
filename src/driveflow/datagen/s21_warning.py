@@ -1,5 +1,8 @@
 """S-21 mitigation in the assistant (decision S21-3, approved by Luciano 2026-11-02; implemented 2026-11-08).
 
+Decision E3 (Luciano, 2026-11-08): S-21 is corrected in the v2 plants (dc_perm_ex_v2 / dc_pmg132_v2, converter
+"dcm_exact"), which the GUI and the assistant use; this warning is for the frozen v1 plants only.
+
 S-21 (docs/SIMULATION_STABILITY_REPORT.md, docs/audit/assistant/s21_one_quadrant.md): when the speed PI
 asks GEM's one-quadrant converter to brake and friction plus load are small, the simulated speed RISES
 instead of coasting. Nothing here changes the plant, a default or a run: it only says so, as a

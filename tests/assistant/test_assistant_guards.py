@@ -84,7 +84,7 @@ def test_update_objective_hidden_until_a_plant_is_set():
     s.objective_needs_plant = True
     assert "update_objective" not in visible_tools(s)
     s.ledger.add_user_message(1, "motor DC")
-    assert s.draft.patch([{"op": "set_plant", "plant": "dc_perm_ex_v1"}], s.ledger)["ok"]
+    assert s.draft.patch([{"op": "set_plant", "plant": "dc_perm_ex_v2"}], s.ledger)["ok"]
     assert "update_objective" in visible_tools(s)
     s.objective_needs_plant = False
     assert "update_objective" in visible_tools(SessionState(mode="objective"))
@@ -142,11 +142,11 @@ def test_glossary_term_triggers_the_lookup():
 
 def test_tool_results_become_verbatim_cards_and_named_plants_get_catalog_cards():
     a, _ = agent(reply("", call("set_mode", mode="question"), call("search_docs", query="abstention threshold")),
-                 reply("El umbral de abstención está en AI-N12 (docs/VALIDATION_SUMMARY.md); el motor dc_perm_ex_v1 no se usa aquí."), guards=ROUND3)
+                 reply("El umbral de abstención está en AI-N12 (docs/VALIDATION_SUMMARY.md); el motor dc_perm_ex_v2 no se usa aquí."), guards=ROUND3)
     res = a.user_turn("What does the abstention threshold of the classifiers mean?")
     srcs = [c["source"] for c in res.cards]
     assert "docs/VALIDATION_SUMMARY.md" in srcs
-    plant = [c for c in res.cards if c["title"] == "Plant dc_perm_ex_v1"]
+    plant = [c for c in res.cards if c["title"] == "Plant dc_perm_ex_v2"]
     assert plant and any(ln.startswith("Nominal values: omega 300") for ln in plant[0]["lines"])  # from the catalog, not the model
     sent = [m for m in a.messages if m["role"] == "tool" and m.get("tool_name") == "search_docs"][0]["content"]
     assert "shown to the user verbatim" in sent
@@ -170,7 +170,7 @@ def test_spade_answer_is_the_card_plus_one_checked_sentence():
 
 
 def test_draft_numbers_are_not_repeated_by_the_model():
-    ops = [{"op": "set_plant", "plant": "dc_perm_ex_v1"}, {"op": "set_controller", "controller_type": "PI"}, {"op": "set", "field": "duration_s", "value": 0.5, "unit": "s"},
+    ops = [{"op": "set_plant", "plant": "dc_perm_ex_v2"}, {"op": "set_controller", "controller_type": "PI"}, {"op": "set", "field": "duration_s", "value": 0.5, "unit": "s"},
            {"op": "set", "field": "omega_ref_rad_s", "value": 100, "unit": "rad/s"}]
     a, _ = agent(reply("", call("set_mode", mode="configuration"), call("update_draft", ops=ops)),
                  reply("Listo: PI a 100 rad/s durante 0,5 s. ¿Lo propongo?"))
@@ -186,7 +186,7 @@ def test_draft_numbers_are_not_repeated_by_the_model():
 
 def test_update_draft_retries_are_capped_then_the_user_is_asked():
     bad = [{"op": "set", "field": "omega_ref_rad_s", "value": 777, "unit": "rad/s"}]  # not in the user's words: refused
-    seq = [reply("", call("set_mode", mode="configuration"), call("update_draft", ops=[{"op": "set_plant", "plant": "dc_perm_ex_v1"}]))]
+    seq = [reply("", call("set_mode", mode="configuration"), call("update_draft", ops=[{"op": "set_plant", "plant": "dc_perm_ex_v2"}]))]
     seq += [reply("", call("update_draft", ops=bad + [{"op": "set", "field": "duration_s", "value": 0.1 * k, "unit": "s"}])) for k in range(1, 4)]
     seq += [reply("¿A qué velocidad?")]
     a, client = agent(*seq)
@@ -202,7 +202,7 @@ def test_final_answer_without_tools_has_thinking_off():
 
 
 def test_objective_mode_shows_a_tunables_card():
-    ops = [{"op": "set_plant", "plant": "dc_perm_ex_v1"}, {"op": "set_controller", "controller_type": "PI"}]
+    ops = [{"op": "set_plant", "plant": "dc_perm_ex_v2"}, {"op": "set_controller", "controller_type": "PI"}]
     a, _ = agent(reply("", call("set_mode", mode="objective"), call("update_draft", ops=ops), call("describe_tunable")), reply("¿Qué sobrepaso máximo quieres?"))
     res = a.user_turn("quiero que el motor DC responda más rápido")
     card = [c for c in res.cards if c["title"].startswith("Tunable parameters")][0]
@@ -212,7 +212,7 @@ def test_objective_mode_shows_a_tunables_card():
 def test_cards_render_for_the_cli():
     from driveflow.assistant.cards import plant_card, render_text
 
-    out = render_text([plant_card("dc_perm_ex_v1")])
+    out = render_text([plant_card("dc_perm_ex_v2")])
     assert "source: configs/plant_catalog.yaml" in out and "Nominal values" in out
 
 

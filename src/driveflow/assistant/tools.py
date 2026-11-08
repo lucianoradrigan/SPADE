@@ -24,8 +24,9 @@ import math
 import numpy as np
 
 from driveflow.assistant.core.loop import Tool, ToolFailure
+from driveflow.datagen.scenario import Scenario
 from driveflow.assistant.core.policy import SessionState
-from driveflow.assistant.draft import NATIVE_PLANTS, PatchError, _catalog, field_meta
+from driveflow.assistant.draft import ASSISTANT_PLANTS, FROZEN_V1, NATIVE_PLANTS, PatchError, _catalog, field_meta
 
 AI_ORIGIN = "SIMULATED · AI-PLANNED"  # = jobs.handlers.AI_PLANNED
 RPM_TO_RAD_S = 2 * math.pi / 60
@@ -35,8 +36,8 @@ OBJ_EMPTY = {"type": "object", "properties": {}, "additionalProperties": False}
 #: (keywords, plant or None, note). Matched on the lower-cased description; first match wins per
 #: plant. A None plant means "not simulable in SPADE today", with the closest alternative.
 _KEYWORDS = [
-    (("pmg 132", "pmg132", "perm-motor", "perm motor"), "dc_pmg132_v1", "the Perm-Motor PMG 132 with its datasheet values at 60 V"),
-    (("motor dc", "dc motor", "motor de corriente continua", "corriente continua", "imanes permanentes dc", "permanent magnet dc", "pmdc", "motor cc", "brushed"), "dc_perm_ex_v1",
+    (("pmg 132", "pmg132", "perm-motor", "perm motor"), "dc_pmg132_v2", "the Perm-Motor PMG 132 with its datasheet values at 60 V"),
+    (("motor dc", "dc motor", "motor de corriente continua", "corriente continua", "imanes permanentes dc", "permanent magnet dc", "pmdc", "motor cc", "brushed"), "dc_perm_ex_v2",
      "permanently excited DC motor, one-quadrant converter, speed PI or MPC; motor, supply, limits, ratings and load are configurable"),
     (("pmsm", "síncrono", "sincrono", "synchronous", "brushless", "bldc", "imanes permanentes ac", "servo"), "pmsm_v1",
      "salient PMSM with dq current control near standstill (current-step bench), MTPA or i_d = 0; not a speed loop"),
@@ -46,11 +47,11 @@ _KEYWORDS = [
 ]
 _NOT_SIMULABLE = [
     (("inducción", "induccion", "induction", "asíncrono", "asincrono", "asynchronous", "jaula de ardilla", "squirrel"),
-     "induction motors are not simulated in SPADE today (planned after phase 2, decision D3)", ["pmsm_v1", "dc_perm_ex_v1"]),
+     "induction motors are not simulated in SPADE today (planned after phase 2, decision D3)", ["pmsm_v1", "dc_perm_ex_v2"]),
     (("boost", "elevador", "step-up", "flyback", "forward converter", "buck-boost", "ćuk", "cuk"),
      "only the buck (step-down) DC-DC converter exists in SPADE", ["buck_v1"]),
     (("reluctancia", "reluctance", "srm", "stepper", "paso a paso", "universal"),
-     "this machine type is not simulated in SPADE", ["dc_perm_ex_v1", "pmsm_v1"]),
+     "this machine type is not simulated in SPADE", ["dc_perm_ex_v2", "pmsm_v1"]),
 ]
 
 
@@ -63,8 +64,8 @@ def recommend_plant(state: SessionState, description: str) -> dict:
             seen.add(plant)
             cat = _catalog(plant)
             matches.append({"plant": plant, "title": cat["title"], "controllers": cat["controllers"], "why": note})
-    if "dc_pmg132_v1" in seen and "dc_perm_ex_v1" in seen:
-        matches = [m for m in matches if m["plant"] != "dc_perm_ex_v1"]
+    if "dc_pmg132_v2" in seen and "dc_perm_ex_v2" in seen:
+        matches = [m for m in matches if m["plant"] != "dc_perm_ex_v2"]
     out: dict = {"matches": matches}
     if blocked:
         why, alts = blocked[0]
@@ -72,14 +73,16 @@ def recommend_plant(state: SessionState, description: str) -> dict:
                                 "note": "a substitute must be labelled as such to the user"}
     if not matches and not blocked:
         out["note"] = "no plant recognised in the description; ask the user, listing the plants"
-        out["plants"] = [{"plant": p, "title": _catalog(p)["title"]} for p in NATIVE_PLANTS]
+        out["plants"] = [{"plant": p, "title": _catalog(p)["title"]} for p in ASSISTANT_PLANTS]
     return out
 
 
 # ---------------------------------------------------------------------------------- describe_plant
 def describe_plant(state: SessionState, plant: str) -> dict:
-    if plant not in NATIVE_PLANTS:
-        raise ToolFailure(f"unknown plant {plant!r}; plants: {list(NATIVE_PLANTS)}")
+    if plant in FROZEN_V1:
+        raise ToolFailure(f"{plant} is the frozen GEM-faithful plant (S-21), kept only to reproduce results; the assistant uses {plant.replace('_v1', '_v2')}")
+    if plant not in ASSISTANT_PLANTS:
+        raise ToolFailure(f"unknown plant {plant!r}; plants: {list(ASSISTANT_PLANTS)}")
     cat = _catalog(plant)
     fields = []
     for e in cat["fields"]:
@@ -146,7 +149,7 @@ def suggest_value(state: SessionState, field: str) -> dict:
     except PatchError as exc:
         raise ToolFailure(str(exc)) from None
     out = {"field": field, "unit": meta["unit"]}
-    if d.plant in ("dc_perm_ex_v1", "dc_pmg132_v1"):
+    if d.plant in Scenario.DC_PLANTS:
         rated = {"omega_ref_rad_s": ("omega", "the motor's rated speed"), "load_torque_nm": ("torque", "the motor's rated torque (100 % load)")}.get(field)
         if rated:
             r = _rated(state, rated[0])
@@ -308,14 +311,12 @@ def condition_kpis(df, condition: dict) -> dict:
     plant = condition.get("plant_config_id", "dc_perm_ex_v1")
     t = df["timestamp_s"].to_numpy()
     tail = slice(int(len(df) * 0.9), None)
-    if plant in ("dc_perm_ex_v1", "dc_pmg132_v1"):
+    if plant in Scenario.DC_PLANTS:
         w = df["rpm"].to_numpy() * RPM_TO_RAD_S
         i = df["current_r"].to_numpy()
         out = {"final_speed_rad_s": _f(w[tail].mean()), "steady_current_a": _f(i[tail].mean()), "peak_current_a": _f(np.max(np.abs(i))),
                "peak_voltage_v": _f(df["voltage_v"].max()), "steady_torque_nm": _f(df["torque_nm"].to_numpy()[tail].mean())}
         if condition.get("torque_ref_nm") is None:
-            from driveflow.datagen.scenario import Scenario
-
             ref = float(condition.get("omega_ref_rad_s", Scenario.omega_ref_rad_s))
             out["speed_reference_rad_s"] = ref
             out["speed_step"] = _step(t, w, ref, float(w[0]))
@@ -391,7 +392,7 @@ CONFIG_TOOLS = [
     Tool("recommend_plant", "Which SPADE plant fits what the user describes, or that it cannot be simulated and the closest substitute.",
          _schema({"description": {"type": "string", "description": "the user's description, in their words"}}, ["description"]), recommend_plant),
     Tool("describe_plant", "Fields a plant lets you configure: units, conventions, ranges, defaults, importance; for DC motors, the stock motor.",
-         _schema({"plant": {"type": "string", "enum": list(NATIVE_PLANTS)}}, ["plant"]), describe_plant),
+         _schema({"plant": {"type": "string", "enum": list(ASSISTANT_PLANTS)}}, ["plant"]), describe_plant),
     Tool("suggest_value", "A suggested value for one field of the draft's plant, with its rule and source; value null means: ask the user without suggesting.",
          _schema({"field": {"type": "string", "description": "field name, or group.key like dc_nominal_overrides.torque"}}, ["field"]), suggest_value),
     Tool("update_draft", "Change the draft with a list of operations (applied all or none). Returns the draft status: what is missing, invalid, the cost.",

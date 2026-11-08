@@ -15,7 +15,7 @@ from driveflow.assistant.tools import CONFIG_TOOLS
 REQS = [{"metric": "overshoot_pct", "op": "<", "value": 5, "unit": "%"}, {"metric": "settling_time_s", "op": "<", "value": 50, "unit": "ms"}]
 
 
-def objective_state(text, plant="dc_perm_ex_v1", controller="PI", extra_ops=()):
+def objective_state(text, plant="dc_perm_ex_v2", controller="PI", extra_ops=()):
     s = SessionState(mode="objective")
     s.last_user_seq = s.next_seq()
     s.ledger.add_user_message(1, text)
@@ -66,7 +66,7 @@ def test_budget_from_the_user_or_the_default():
         O.update_objective(s, evaluations=1)
 
 
-@pytest.mark.parametrize("plant, controller, message", [("pmsm_v1", "FOC_MTPA", "only the DC-motor speed PI"), ("dc_perm_ex_v1", "MPC", "no tunable gains")])
+@pytest.mark.parametrize("plant, controller, message", [("pmsm_v1", "FOC_MTPA", "only the DC-motor speed PI"), ("dc_perm_ex_v2", "MPC", "no tunable gains")])
 def test_what_cannot_be_tuned_is_said(plant, controller, message):
     s = SessionState(mode="objective")
     s.ledger.add_user_message(1, "x")
@@ -83,18 +83,18 @@ def test_j_effort_needs_the_rated_current_of_another_motor():
 
 
 def test_motor_block():
-    assert O.motor_block(objective_state("x")) is None  # stock motor
+    assert O.motor_block(objective_state("x")) == {"dc_converter_model": "dcm_exact"}  # stock motor on the v2 converter (E3)
     s = objective_state("220 V", extra_ops=[{"op": "set", "field": "dc_supply_v", "value": 220, "unit": "V"}])
-    assert O.motor_block(s) == {"dc_supply_v": 220.0}
+    assert O.motor_block(s) == {"dc_supply_v": 220.0, "dc_converter_model": "dcm_exact"}
 
 
 def test_pmg132_as_motor_values_gives_the_same_simulation():
-    """The tuning benches use dc_perm_ex_v1; dc_pmg132_v1 is passed as its datasheet values."""
+    """The tuning benches use dc_perm_ex_v2; dc_pmg132_v2 is passed as its datasheet values."""
     from driveflow.datagen import Scenario, run_scenario
 
-    block = O.motor_block(objective_state("PMG 132", plant="dc_pmg132_v1"))
-    a = run_scenario(Scenario("a", plant_config_id="dc_pmg132_v1", omega_ref_rad_s=200.0, duration_s=0.2))
-    b = run_scenario(Scenario("a", plant_config_id="dc_perm_ex_v1", omega_ref_rad_s=200.0, duration_s=0.2, **block))
+    block = O.motor_block(objective_state("PMG 132", plant="dc_pmg132_v2"))
+    a = run_scenario(Scenario("a", plant_config_id="dc_pmg132_v2", omega_ref_rad_s=200.0, duration_s=0.2))
+    b = run_scenario(Scenario("a", plant_config_id="dc_perm_ex_v2", omega_ref_rad_s=200.0, duration_s=0.2, **block))
     for key in ("rpm", "current_r", "voltage_v", "torque_nm"):
         assert [r[key] for r in a] == [r[key] for r in b], key
 
@@ -123,7 +123,7 @@ def test_objective_conversation_tunes_and_reports_met_or_not():
     from driveflow.jobs.worker import Worker
     from driveflow.runs.store import workspace_root
 
-    ops = [{"op": "set_plant", "plant": "dc_perm_ex_v1"}, {"op": "set_controller", "controller_type": "PI"}]
+    ops = [{"op": "set_plant", "plant": "dc_perm_ex_v2"}, {"op": "set_controller", "controller_type": "PI"}]
     script = [reply("", call("set_mode", mode="objective"), call("update_draft", ops=ops)),
               reply("", call("update_objective", requirements=REQS, evaluations=4, use_defaults=True)), reply("", call("propose_tuning")),
               reply("Busco un PI con sobrepaso < 5 % y asentamiento < 50 ms, 4 evaluaciones. ¿Lanzo?"),
@@ -143,10 +143,10 @@ def test_objective_conversation_tunes_and_reports_met_or_not():
         assert all(c["met"] in (True, False) for c in r["checks"])
     assert res["verdict"].startswith("candidate ") is res["all_met"] and (res["all_met"] or res["verdict"].startswith("no candidate meets all"))
     assert audit_trace(a.trace.draft_events) == []
-    # The launched job carried the stock motor (no params.motor) and the full bounds.
+    # The launched job carried the stock motor on the v2 converter (E3: params.motor has only dc_converter_model) and the full bounds.
     from driveflow.jobs.service import JobService
     spec = JobService().experiment(JobService().get(a.state.jobs[0]["job_id"]))
-    assert "motor" not in spec.params and spec.params["objective"] == "J" and spec.algorithm == "pso" and spec.budget == {"evaluations": 4}
+    assert spec.params["motor"] == {"dc_converter_model": "dcm_exact"} and spec.plant_profile_id == "native:dc_perm_ex_v2" and spec.params["objective"] == "J" and spec.algorithm == "pso" and spec.budget == {"evaluations": 4}
 
 
 def test_check_requirements_needs_a_tuning_job():

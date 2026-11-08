@@ -63,7 +63,9 @@ def test_tuning_job_end_to_end(method):
     at.button(key="tun_refresh").click().run()
     assert not at.exception
     text = _text(at)
-    assert "Evaluation-grid J: baseline 27.83" in text
+    # Decision E3 (2026-11-08): Tuning Studio tunes on the v2 plant (converter dcm_exact); the baseline's
+    # evaluation-grid J is 27.78 there (27.83 on the frozen v1 plant: test_baseline_j_on_v1_and_v2 below).
+    assert "Evaluation-grid J: baseline 27.78" in text
     assert ta.NOT_AUTHORIZED in " ".join(str(h.body) for h in at.get("html")) or ta.NOT_AUTHORIZED in text
     table = next(d.value for d in at.dataframe if "Metric" in getattr(d.value, "columns", []))
     assert set(table["Evaluation condition"]) >= {c.name for c in ob.EVALUATION_GRID}
@@ -100,3 +102,11 @@ def test_spec_validation():
                         (dict(algorithm="pso", seed=0, params={"bounds": [list(b) for b in ob.BOUNDS]}, budget={"evaluations": 2}), "budget")]:
         with pytest.raises(SpadeError, match=msg):
             s.submit(ExperimentSpec.create("controller_tuning", **fields))
+
+
+def test_baseline_j_on_v1_and_v2():
+    """The baseline PI's evaluation-grid J: 27.83 on GEM's converter (v1, frozen, unchanged) and 27.78 on the
+    v2 converter (dcm_exact) that Tuning Studio uses since decision E3."""
+    x = [ob.BASELINE[p] for p in ob.PARAMS]
+    assert round(ob.evaluate(x, ob.EVALUATION_GRID, ob.STOCK)[0]["J"], 2) == 27.83
+    assert round(ob.evaluate(x, ob.EVALUATION_GRID, ob.motor_from_spec({"dc_converter_model": "dcm_exact"}))[0]["J"], 2) == 27.78

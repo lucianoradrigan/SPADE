@@ -22,7 +22,7 @@ import pandas as pd
 #: plant_config_id values that carry the physical signals (vibration, MCSA) Fase C's models
 #: consume. Currently just the DC motor domain from Fase A -- "vsc_dpc_v1" (Fase B) is
 #: deliberately NOT here, see module docstring.
-DIAGNOSIS_PLANT_CONFIG_IDS = frozenset({"dc_perm_ex_v1"})
+DIAGNOSIS_PLANT_CONFIG_IDS = frozenset({"dc_perm_ex_v1", "dc_perm_ex_v2"})  # v2 added by decision E3 (2026-11-08)
 
 
 def load_diagnosis_dataset(parquet_path) -> pd.DataFrame:

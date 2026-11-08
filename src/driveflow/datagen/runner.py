@@ -39,6 +39,7 @@ scenario.plant_config_id (see scenario.py's docstring for the valid pairings):
   period is the buck's own TAU (20 us), not this module's 100 us.
 """
 
+import dataclasses
 from pathlib import Path
 
 import numpy as np
@@ -169,6 +170,11 @@ def build_plant(scenario: Scenario) -> DcMotorSystem:
     (dc_perm_ex_v1) or of the PMG 132 datasheet (dc_pmg132_v1). The other plants have their own
     runners below.
     """
+    if scenario.plant_config_id in Scenario.DC_V2_BASE:
+        # v2 (decision E3): the v1 plant with the discontinuous-conduction converter "dcm_exact" unless another
+        # v2 converter model is given; the records keep the v2 id (the caller's scenario is not changed).
+        return build_plant(dataclasses.replace(scenario, plant_config_id=Scenario.DC_V2_BASE[scenario.plant_config_id],
+                                               dc_converter_model=scenario.dc_converter_model or "dcm_exact"))
     if scenario.plant_config_id not in ("dc_perm_ex_v1", "dc_pmg132_v1"):
         raise NotImplementedError(f"Unknown plant_config_id {scenario.plant_config_id!r}")
     if scenario.plant_config_id == "dc_pmg132_v1":
@@ -580,6 +586,8 @@ def _run_buck_scenario(scenario: Scenario) -> list:
 _SCENARIO_RUNNERS = {
     "dc_perm_ex_v1": _run_dc_motor_scenario,
     "dc_pmg132_v1": _run_dc_motor_scenario,
+    "dc_perm_ex_v2": _run_dc_motor_scenario,
+    "dc_pmg132_v2": _run_dc_motor_scenario,
     "vsc_dpc_v1": _run_vsc_scenario,
     "pmsm_v1": _run_pmsm_scenario,
     "buck_v1": _run_buck_scenario,

@@ -97,7 +97,7 @@ def _simulate(job: dict) -> pd.DataFrame:
         kw = {"electrical_severity": 8.0 * job["severity_scale"], "mechanical_severity": CALIBRATED_MECHANICAL_SEVERITY[fault] * job["severity_scale"]}
     sid = f"grid_{fault or 'normal'}_w{job['speed']:.0f}_s{job['severity_scale']:.2f}_seed{job['seed']}"
     sc = Scenario(
-        scenario_id=sid, fault_type=fault, seed=job["seed"], duration_s=job["duration_s"], omega_ref_rad_s=job["speed"],
+        scenario_id=sid, **({"plant_config_id": job["plant_config_id"]} if job.get("plant_config_id") else {}), fault_type=fault, seed=job["seed"], duration_s=job["duration_s"], omega_ref_rad_s=job["speed"],
         electrical_noise_pct=job["electrical_noise_pct"], mechanical_noise_pct=job["mechanical_noise_pct"],
         motor_parameter_overrides={"psi_e": job["psi_e"], "j_rotor": job["j_rotor"]}, **kw,
         **({"dc_plant_solver": job["dc_plant_solver"]} if job.get("dc_plant_solver") else {}),
@@ -128,6 +128,9 @@ def main(argv=None):
     ap.add_argument("--dc-converter-model", choices=("gem", "dcm"), default=None,
                     help="S-21/AI-N27: Scenario.dc_converter_model (default: not set = the production GEM converter)")
     ap.add_argument("--dc-plant-substeps", type=int, default=None, help="Scenario.dc_plant_substeps (default: not set)")
+    ap.add_argument("--plant", choices=("dc_perm_ex_v2", "dc_perm_ex_v1"), default="dc_perm_ex_v2",
+                    help="DC plant (decision E3, 2026-11-08): dc_perm_ex_v2 = converter in discontinuous conduction (default of new datasets); "
+                         "dc_perm_ex_v1 = the frozen GEM-faithful plant, to reproduce the grids made before 2026-11-08 (with --dc-converter-model as they were made)")
     ap.add_argument("--faults", default=",".join(f for f in FAULTS if f), help="comma-separated fault classes besides healthy (default: outer_race,inner_race)")
     args = ap.parse_args(argv)
 
@@ -137,6 +140,8 @@ def main(argv=None):
         for j in jobs:
             j["dc_plant_solver"] = "rk45"
     for j in jobs:
+        if args.plant != "dc_perm_ex_v1":
+            j["plant_config_id"] = args.plant
         if args.dc_converter_model:
             j["dc_converter_model"] = args.dc_converter_model
         if args.dc_plant_substeps:

@@ -19,6 +19,11 @@ SETTLE_FRACTION = 0.2
 VIBRATION_PROVENANCE = "synthetic_approximate — acc_x calibrated against KAt-DataCenter PSDs (one axis); acc_y/acc_z use assumed scale factors, not measured"
 
 
+#: Decision E3 (Luciano, 2026-11-08): the DC plant the GUI simulates -- v2, the converter in discontinuous
+#: conduction (S-21 corrected). dc_perm_ex_v1 (GEM's converter) is frozen and not offered by the GUI.
+DC_PLANT = "dc_perm_ex_v2"
+
+
 def dc_defaults() -> dict:
     m = DcPermanentlyExcitedMotor()
     return {"params": dict(m.motor_parameter), "limits": dict(m.limits), "nominal": dict(m.nominal_values)}
@@ -37,7 +42,7 @@ def resolve_fault(fault_label: str, custom_faults: dict) -> tuple:
 def run_dc(params: dict, custom_faults: dict, scenario_id: str = "dashboard_run") -> pd.DataFrame:
     fault_type, override, extras = resolve_fault(params["fault_label"], custom_faults)
     kwargs = dict(
-        scenario_id=scenario_id, controller_type=params["controller"], fault_type=fault_type, duration_s=params["duration_s"], seed=int(params["seed"]),
+        scenario_id=scenario_id, plant_config_id=DC_PLANT, controller_type=params["controller"], fault_type=fault_type, duration_s=params["duration_s"], seed=int(params["seed"]),
         electrical_severity=params["electrical_severity"], mechanical_severity=params["mechanical_severity"],
         motor_parameter_overrides=params["motor"], electrical_noise_pct=params["electrical_noise_pct"], mechanical_noise_pct=params["mechanical_noise_pct"],
         fault_order_override=override, extra_faults=extras,

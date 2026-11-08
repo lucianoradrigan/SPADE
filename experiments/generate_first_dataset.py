@@ -66,6 +66,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", default=None, help="Optional path to save the dataset as .parquet")
     parser.add_argument("--duration-s", type=float, default=0.4)
+    parser.add_argument("--plant", choices=("dc_perm_ex_v2", "dc_perm_ex_v1"), default="dc_perm_ex_v2",
+                        help="DC plant (decision E3, 2026-11-08): dc_perm_ex_v2 = converter in discontinuous conduction (default of new datasets); "
+                             "dc_perm_ex_v1 = the frozen GEM-faithful plant, to reproduce the datasets made before 2026-11-08")
     args = parser.parse_args()
 
     scenarios = healthy_and_faulted_grid(
@@ -78,6 +81,7 @@ def main():
         seeds=(0,),
         duration_s=args.duration_s,
         omega_ref_rad_s=150.0,
+        plant_config_id=args.plant,
     )
     print(f"Running {len(scenarios)} scenarios ({[s.label for s in scenarios]})...")
     runs = run_scenarios(scenarios)

@@ -16,6 +16,9 @@ FIELDS = {f.name for f in dataclasses.fields(Scenario)}
 BASE = {
     "dc_perm_ex_v1": {},
     "dc_pmg132_v1": dict(plant_config_id="dc_pmg132_v1"),
+    # v2 plants (decision E3, 2026-11-08): added entries only; no assertion changed
+    "dc_perm_ex_v2": dict(plant_config_id="dc_perm_ex_v2"),
+    "dc_pmg132_v2": dict(plant_config_id="dc_pmg132_v2"),
     "pmsm_v1": dict(controller_type="FOC_MTPA", plant_config_id="pmsm_v1", pmsm_current_ref_a=50.0),
     "vsc_dpc_v1": dict(controller_type="DPC", plant_config_id="vsc_dpc_v1"),
     "buck_v1": dict(controller_type="PI", plant_config_id="buck_v1"),
@@ -95,7 +98,7 @@ def test_describe_plant(plant):
         mp = next(f for f in d["fields"] if f["name"] == "motor_parameter_overrides")
         assert mp["keys"]["psi_e"]["default"] == 0.165 and "V*s/rad" in mp["keys"]["psi_e"]["unit"]
     by_name = {f["name"]: f for f in d["fields"]}
-    expected_controller = "PI" if plant in ("dc_perm_ex_v1", "dc_pmg132_v1", "buck_v1") else None
+    expected_controller = "PI" if plant in ("dc_perm_ex_v1", "dc_pmg132_v1", "dc_perm_ex_v2", "dc_pmg132_v2", "buck_v1") else None  # v2 added (E3)
     assert by_name["controller_type"]["default"] == expected_controller
     assert by_name["plant_config_id"]["default"] == ("dc_perm_ex_v1" if plant == "dc_perm_ex_v1" else None)
     if plant == "pmsm_v1":

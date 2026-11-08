@@ -17,7 +17,7 @@ from driveflow.runs.store import RunStore
 from driveflow.viz.adapters.simulation_adapter import resolve_fault
 
 KIND = "classifier_training"
-PLANT = {"dc_motor": "dc_perm_ex_v1", "vsc_dpc": "vsc_dpc_v1"}
+PLANT = {"dc_motor": "dc_perm_ex_v2", "vsc_dpc": "vsc_dpc_v1"}  # E3: DC data of new runs is v2
 
 
 def default_workers() -> int:

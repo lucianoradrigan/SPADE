@@ -22,7 +22,7 @@ import yaml
 from driveflow.datagen.scenario import Scenario
 
 CATALOG_PATH = Path(__file__).resolve().parents[3] / "configs" / "plant_catalog.yaml"
-NATIVE_PLANTS = ("dc_perm_ex_v1", "dc_pmg132_v1", "pmsm_v1", "vsc_dpc_v1", "buck_v1")
+NATIVE_PLANTS = ("dc_perm_ex_v1", "dc_pmg132_v1", "dc_perm_ex_v2", "dc_pmg132_v2", "pmsm_v1", "vsc_dpc_v1", "buck_v1")
 
 
 @lru_cache(maxsize=1)

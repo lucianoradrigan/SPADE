@@ -51,9 +51,11 @@ def test_grid_cli_tags_every_job(monkeypatch, tmp_path):
     except SystemExit:
         pass
     assert seen and all(j["dc_converter_model"] == "dcm" and j["dc_plant_substeps"] == 1000 for j in seen)
-    # same acquisitions, draws and names as without the options
+    # same acquisitions, draws and names as without the options; since decision E3 (2026-11-08) the CLI's
+    # default plant is dc_perm_ex_v2 (--plant dc_perm_ex_v1 reproduces the grids made before)
     base = g.build_jobs(1, 2.5, 7, (None, "outer_race", "inner_race"))
-    assert [{k: v for k, v in j.items() if not k.startswith("dc_")} for j in seen] == base
+    assert all(j["plant_config_id"] == "dc_perm_ex_v2" for j in seen)
+    assert [{k: v for k, v in j.items() if not k.startswith("dc_") and k != "plant_config_id"} for j in seen] == base
 
 
 def test_eval_cache_simulation_takes_plant_options():

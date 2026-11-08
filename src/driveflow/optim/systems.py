@@ -129,8 +129,8 @@ def buck_system(env_id: str) -> TuningSystem:
 def dc_motor_system() -> TuningSystem:
     from driveflow.optim import objectives as ob
 
-    return TuningSystem(key=DC_MOTOR, plant_label="DC motor (native:dc_perm_ex_v1)", controller_label="PI cascade — speed loop (PICascadeController)",
-                        plant_profile_id="native:dc_perm_ex_v1", params=ob.PARAMS, bounds=ob.BOUNDS, baseline=ob.BASELINE, param_labels={},
+    return TuningSystem(key=DC_MOTOR, plant_label="DC motor (native:dc_perm_ex_v2)", controller_label="PI cascade — speed loop (PICascadeController)",
+                        plant_profile_id="native:dc_perm_ex_v2", params=ob.PARAMS, bounds=ob.BOUNDS, baseline=ob.BASELINE, param_labels={},
                         tuning_grid=ob.TUNING_GRID, evaluation_grid=ob.EVALUATION_GRID, methods=("pso", "bayes", "nsga2"),
                         objective_text="J = mean overshoot % + 0.1 × mean settling time (ms) + 2 × mean load-step dip (rad/s)",
                         evaluate=ob.evaluate, scalar_objective=ob.scalar_objective, subject="dc_motor PI speed loop (PICascadeController)")
@@ -140,7 +140,7 @@ def available() -> dict:
     """{key: label} of every system that can be tuned here, the DC motor first."""
     from driveflow.envs import registry
 
-    out = {DC_MOTOR: "DC motor PI speed loop (native:dc_perm_ex_v1)"}
+    out = {DC_MOTOR: "DC motor PI speed loop (native:dc_perm_ex_v2)"}
     for env_id in registry.rl_env_ids():
         if registry.rl_kind(env_id) == "buck":
             out[BUCK_PREFIX + env_id] = f"Buck PI on {env_id} ({registry.ENVIRONMENTS[env_id].source})"

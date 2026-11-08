@@ -21,7 +21,7 @@ from driveflow.assistant.draft import Draft
 from driveflow.viz.adapters.assistant_adapter import avatar_state
 
 ALL = tools.CONFIG_TOOLS + objective.OBJECTIVE_TOOLS + catalog.CATALOG_TOOLS
-OPS = [{"op": "set_plant", "plant": "dc_perm_ex_v1"}, {"op": "set_controller", "controller_type": "PI"},
+OPS = [{"op": "set_plant", "plant": "dc_perm_ex_v2"}, {"op": "set_controller", "controller_type": "PI"},
        {"op": "set", "field": "omega_ref_rad_s", "value": 100, "unit": "rad/s"}, {"op": "set", "field": "duration_s", "value": 0.1, "unit": "s"}]
 USER = "Simula el motor DC de stock con PI a 100 rad/s durante 0,1 s."
 
@@ -65,7 +65,7 @@ def objective_draft():
 
 # ------------------------------------------------------------------------------------ 1. truncated text
 #: what the model wrote in the milestone demo (B_objective, turn 2), with its line breaks
-DEMO_RAW = ("He preparado la propuesta de sintonización para el motor DC de stock (dc_perm_ex_v1) con controlador PI:\n"
+DEMO_RAW = ("He preparado la propuesta de sintonización para el motor DC de stock (dc_perm_ex_v2) con controlador PI:\n"
             "- **Objetivo**: Minimizar el criterio J estándar\n- **Algoritmo**: PSO (por defecto)\n- **Evaluaciones**: 48 (por defecto)\n"
             "- **Requisitos**:\n  - Sobrepaso < 5 %\n  - Tiempo de establecimiento < 0,2 s\n¿Confirmas que deseas lanzar esta sintonización?")
 
@@ -77,7 +77,7 @@ def _kept_units_are_whole(raw, out):
 
 def test_the_demo_proposal_loses_its_requirement_lines_and_their_header():
     out, removed = answer.strip_draft_numbers(DEMO_RAW, objective_draft())
-    assert out == ("He preparado la propuesta de sintonización para el motor DC de stock (dc_perm_ex_v1) con controlador PI:\n"
+    assert out == ("He preparado la propuesta de sintonización para el motor DC de stock (dc_perm_ex_v2) con controlador PI:\n"
                    "- **Objetivo**: Minimizar el criterio J estándar\n- **Algoritmo**: PSO (por defecto)\n¿Confirmas que deseas lanzar esta sintonización?")
     assert removed == 4  # evaluations, the two requirement lines and the "Requisitos" header left empty
     assert "Requisitos" not in out and _kept_units_are_whole(DEMO_RAW, out)
@@ -109,7 +109,7 @@ def test_units_rejoin_to_the_text():
 
 
 def test_the_tuning_proposal_card_lists_every_requirement_with_its_value():
-    result = {"plant": "dc_perm_ex_v1", "base_motor": "stock motor", "tunes": "speed PI", "objective": "J", "algorithm": "pso",
+    result = {"plant": "dc_perm_ex_v2", "base_motor": "stock motor", "tunes": "speed PI", "objective": "J", "algorithm": "pso",
               "evaluations": {"value": 48, "origin": "default", "source": "x"}, "seed": 0,
               "requirements": [{"metric": "overshoot_pct", "op": "<=", "value": 5, "unit": "%"}, {"metric": "settling_time_s", "op": "<=", "value": 0.2, "unit": "s"}],
               "verification": "evaluation grid", "draft_hash": "h", "proposal": "show"}

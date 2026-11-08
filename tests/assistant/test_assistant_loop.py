@@ -53,7 +53,7 @@ OBJ = {"type": "object", "properties": {}, "additionalProperties": False}
 TOOLS = [Tool("update_draft", "patch", {"type": "object", "properties": {"ops": {"type": "array"}}, "required": ["ops"]}, _update_draft),
          Tool("propose_experiments", "propose", OBJ, _propose), Tool("run_experiments", "run", OBJ, _run),
          Tool("describe_plant", "boom", OBJ, _boom), Tool("recommend_plant", "refuse", OBJ, _refuse)]
-READY_OPS = [{"op": "set_plant", "plant": "dc_perm_ex_v1"}, {"op": "set_controller", "controller_type": "PI"},
+READY_OPS = [{"op": "set_plant", "plant": "dc_perm_ex_v2"}, {"op": "set_controller", "controller_type": "PI"},
              {"op": "set", "field": "omega_ref_rad_s", "value": 100, "unit": "rad/s"}]
 
 
@@ -202,7 +202,7 @@ def test_trace_replays_clean_through_the_no_invention_audit():
 
 
 def test_invented_number_in_a_session_is_refused_and_recorded():
-    bad = [{"op": "set_plant", "plant": "dc_perm_ex_v1"}, {"op": "set", "field": "duration_s", "value": 3, "unit": "s"}]
+    bad = [{"op": "set_plant", "plant": "dc_perm_ex_v2"}, {"op": "set", "field": "duration_s", "value": 3, "unit": "s"}]
     a = agent(reply("", call("set_mode", mode="configuration")), reply("", call("update_draft", ops=bad)), reply("¿Cuánto debe durar?"))
     a.user_turn("simula el motor DC")
     assert a.state.draft.plant is None  # atomic: nothing applied

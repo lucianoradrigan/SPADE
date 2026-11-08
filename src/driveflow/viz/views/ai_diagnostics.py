@@ -52,7 +52,9 @@ _PALETTE = ["#38BDF8", "#F59E0B", "#A78BFA", "#F472B6", "#22C55E", "#94A3B8"]
 
 def generate_sample_dataframe(domain: str, **kwargs) -> pd.DataFrame:
     if domain == "dc_motor":
-        return pd.DataFrame.from_records(run_scenario(Scenario(scenario_id="ai_tab_sample_dc", **kwargs)))
+        from driveflow.viz.adapters.simulation_adapter import DC_PLANT
+
+        return pd.DataFrame.from_records(run_scenario(Scenario(scenario_id="ai_tab_sample_dc", **{"plant_config_id": DC_PLANT, **kwargs})))
     kwargs.pop("controller_type", None)
     return pd.DataFrame.from_records(run_scenario(Scenario(scenario_id="ai_tab_sample_vsc", controller_type="DPC", plant_config_id="vsc_dpc_v1", **kwargs)))
 

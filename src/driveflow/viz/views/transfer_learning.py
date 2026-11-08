@@ -166,7 +166,9 @@ def _simulate(domain: str, n: int, duration: float, faults: list, opts: dict | N
             kw = {"omega_ref_rad_s": float(rng.uniform(lo, hi)), "electrical_noise_pct": float(rng.uniform(0, noise)), "mechanical_noise_pct": float(rng.uniform(0, noise))}
             if fault_type is not None and fault_type not in ct.DC_BUILTIN_FAULTS:
                 kw.update(fault_order_override=override, extra_faults=extras or None, mechanical_severity=0.02)
-            sc = Scenario(scenario_id=f"tl_sample_{seed}", fault_type=fault_type, duration_s=duration, seed=seed, **kw)
+            from driveflow.viz.adapters.simulation_adapter import DC_PLANT
+
+            sc = Scenario(scenario_id=f"tl_sample_{seed}", plant_config_id=DC_PLANT, fault_type=fault_type, duration_s=duration, seed=seed, **kw)
         elif fault == ct.VSC_DEGRADED:
             sc = Scenario(scenario_id=f"tl_sample_{seed}", controller_type="DPC", plant_config_id="vsc_dpc_v1", duration_s=duration, seed=seed,
                           vsc_capacitor_scale=float(opts.get("capacitor_scale", 0.6)))

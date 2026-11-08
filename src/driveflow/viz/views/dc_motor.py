@@ -2,7 +2,7 @@
 
 Left 25 %: scenario controls; right 75 %: KPIs, then Time signals / Spectrum (FFT) / AI diagnosis /
 Operating envelope / Parameters tabs, then provenance + export. Same physics as the legacy Fase A
-single-simulation mode (run_scenario on dc_perm_ex_v1), plus the PI/MPC controller choice the
+single-simulation mode (run_scenario on dc_perm_ex_v2, decision E3), plus the PI/MPC controller choice the
 backend already supported but the old UI never exposed. Advanced Flow (segment sequences) is the
 second mode of this page.
 
@@ -245,7 +245,7 @@ def _single() -> None:
         c1, c2 = st.columns([3, 1])
         with c1:
             provenance_table({
-                "Run ID": run["run_id"], "Data origin": "Synthetic simulation (driveflow.datagen.run_scenario, dc_perm_ex_v1)",
+                "Run ID": run["run_id"], "Data origin": f"Synthetic simulation (driveflow.datagen.run_scenario, {sim.DC_PLANT})",
                 "Controller": p["controller"], "Injected condition": p["fault_label"], "Seed": p["seed"], "Duration": f"{p['duration_s']} s",
                 "Configuration hash": run["config_hash"], "Timestamp (UTC)": run["utc"], "Validation": "Not gated (simulation output)",
                 "Vibration": "synthetic_approximate (1 calibrated axis)",
@@ -343,7 +343,7 @@ def _flow() -> None:
             scenarios = []
             for i, seg in enumerate(segments):
                 ft, override, extras = sim.resolve_fault(seg["fault_label"], custom_faults)
-                kw = dict(scenario_id=f"flow_segment_{i}", controller_type=controller, fault_type=ft, duration_s=seg["duration_s"], seed=int(seed), electrical_severity=seg["electrical_severity"], mechanical_severity=seg["mechanical_severity"], motor_parameter_overrides=motor, electrical_noise_pct=seg["electrical_noise_pct"], mechanical_noise_pct=seg["mechanical_noise_pct"], fault_order_override=override, extra_faults=extras)
+                kw = dict(scenario_id=f"flow_segment_{i}", plant_config_id=sim.DC_PLANT, controller_type=controller, fault_type=ft, duration_s=seg["duration_s"], seed=int(seed), electrical_severity=seg["electrical_severity"], mechanical_severity=seg["mechanical_severity"], motor_parameter_overrides=motor, electrical_noise_pct=seg["electrical_noise_pct"], mechanical_noise_pct=seg["mechanical_noise_pct"], fault_order_override=override, extra_faults=extras)
                 kw["omega_ref_rad_s" if seg["control_mode"] == "speed" else "torque_ref_nm"] = seg["setpoint"]
                 scenarios.append(Scenario(**kw))
             df = pd.DataFrame.from_records(run_flow(scenarios))

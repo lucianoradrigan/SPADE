@@ -238,7 +238,7 @@ class Scenario:
     dc_converter_model: str = None
 
     _VALID_PAIRS = {("PI", "dc_perm_ex_v1"), ("MPC", "dc_perm_ex_v1"), ("PI", "dc_pmg132_v1"), ("MPC", "dc_pmg132_v1"), ("DPC", "vsc_dpc_v1"), ("FOC_MTPA", "pmsm_v1"), ("FOC_naive", "pmsm_v1"),
-                    ("PI", "buck_v1")}
+                    ("PI", "buck_v1"), ("PI", "dc_perm_ex_v2"), ("MPC", "dc_perm_ex_v2"), ("PI", "dc_pmg132_v2"), ("MPC", "dc_pmg132_v2")}
     _BUCK_PARAMETERS = ("l_h", "c_f", "r_l_ohm", "i_max_a")
     #: |i_s| limit of the PMSM (control/classical/pmsm_foc.py I_LIM).
     _PMSM_CURRENT_LIMIT_A = 400.0
@@ -372,8 +372,16 @@ class Scenario:
             warnings.warn(f"Scenario.pmsm_motor_parameters: l_d ({merged['l_d']:g} H) > l_q ({merged['l_q']:g} H). The MTPA policy assumes l_q >= l_d "
                           "(salient interior-magnet machine) and may not be meaningful for this motor.", UserWarning, stacklevel=3)
 
-    #: The DC motor plants: GEM's port (dc_perm_ex_v1) and the PMG 132 datasheet motor (dc_pmg132_v1, round Assistant 0b D3).
-    DC_PLANTS = ("dc_perm_ex_v1", "dc_pmg132_v1")
+    #: The DC motor plants: GEM's port (dc_perm_ex_v1) and the PMG 132 datasheet motor (dc_pmg132_v1, round Assistant 0b D3),
+    #: and their v2 versions (decision E3, Luciano 2026-11-08): the same motor, load, supply, controllers and fault /
+    #: vibration models, with the one-quadrant converter in discontinuous conduction ("dcm_exact", S-21 corrected) by
+    #: default. The v1 plants are frozen as the "GEM-faithful mode" (byte-identical, to reproduce results); the Scenario
+    #: default stays dc_perm_ex_v1 -- the v2 default is set by the entry points (GUI, assistant, dataset scripts).
+    DC_PLANTS = ("dc_perm_ex_v1", "dc_pmg132_v1", "dc_perm_ex_v2", "dc_pmg132_v2")
+    #: v2 plant -> the v1 plant it is built from
+    DC_V2_BASE = {"dc_perm_ex_v2": "dc_perm_ex_v1", "dc_pmg132_v2": "dc_pmg132_v1"}
+    #: converter models a v2 plant accepts (None = "dcm_exact"); "gem" is v1 only
+    DC_V2_CONVERTER_MODELS = ("dcm_exact", "dcm")
     #: Fields of round Assistant phase 0 that only the DC motor plants accept.
     _DC_MOTOR_ONLY_FIELDS = ("load_torque_nm", "dc_supply_v", "dc_limit_overrides", "dc_nominal_overrides")
     #: Keys of dc_limit_overrides / dc_nominal_overrides (DcPermanentlyExcitedMotor limits).
@@ -386,7 +394,7 @@ class Scenario:
         if not used:
             return
         if self.plant_config_id not in self.DC_PLANTS:
-            raise ValueError(f"Scenario.{used[0]} applies only to plant_config_id='dc_perm_ex_v1' or 'dc_pmg132_v1' (the DC motor plants), got {self.plant_config_id!r}")
+            raise ValueError(f"Scenario.{used[0]} applies only to plant_config_id='dc_perm_ex_v1' or 'dc_pmg132_v1' (the DC motor plants; also their v2 versions dc_perm_ex_v2 / dc_pmg132_v2), got {self.plant_config_id!r}")
 
         def real(value) -> bool:
             return not isinstance(value, bool) and isinstance(value, numbers.Real) and math.isfinite(value)
@@ -426,9 +434,12 @@ class Scenario:
         model = self.dc_converter_model
         if model is not None:
             if self.plant_config_id not in self.DC_PLANTS:
-                raise ValueError("Scenario.dc_converter_model applies only to plant_config_id='dc_perm_ex_v1' or 'dc_pmg132_v1' (the DC motor plants)")
+                raise ValueError("Scenario.dc_converter_model applies only to plant_config_id='dc_perm_ex_v1' or 'dc_pmg132_v1' (the DC motor plants; also their v2 versions)")
             if model not in self.DC_CONVERTER_MODELS:
                 raise ValueError(f"Scenario.dc_converter_model must be one of {self.DC_CONVERTER_MODELS}, got {model!r}")
+            if self.plant_config_id in self.DC_V2_BASE and model not in self.DC_V2_CONVERTER_MODELS:
+                raise ValueError(f"Scenario.dc_converter_model={model!r} is not available on {self.plant_config_id} (v2 plants: {self.DC_V2_CONVERTER_MODELS}); "
+                                 f"GEM's converter is the frozen v1 plant {self.DC_V2_BASE[self.plant_config_id]!r}")
             if model == "dcm" and solver == "rk45":
                 raise ValueError("Scenario.dc_converter_model='dcm' integrates with its own substeps (dc_plant_substeps); it does not combine with dc_plant_solver='rk45'")
             if model == "dcm_exact" and (solver is not None or n is not None):
@@ -436,7 +447,7 @@ class Scenario:
         if solver is None and n is None:
             return
         if self.plant_config_id not in self.DC_PLANTS:
-            raise ValueError("Scenario.dc_plant_solver / dc_plant_substeps apply only to plant_config_id='dc_perm_ex_v1' or 'dc_pmg132_v1' (the DC motor plants)")
+            raise ValueError("Scenario.dc_plant_solver / dc_plant_substeps apply only to plant_config_id='dc_perm_ex_v1' or 'dc_pmg132_v1' (the DC motor plants; also their v2 versions)")
         if solver is not None and solver not in self.DC_PLANT_SOLVERS:
             raise ValueError(f"Scenario.dc_plant_solver must be one of {self.DC_PLANT_SOLVERS}, got {solver!r}")
         if n is not None:

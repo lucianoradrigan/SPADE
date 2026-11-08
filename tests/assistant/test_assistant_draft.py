@@ -22,7 +22,7 @@ def ledger(*texts, tools=()):
 
 def dc_draft(led, *extra):
     d = Draft()
-    r = d.patch([{"op": "set_plant", "plant": "dc_perm_ex_v1"}, {"op": "set_controller", "controller_type": "PI"}, *extra], led)
+    r = d.patch([{"op": "set_plant", "plant": "dc_perm_ex_v2"}, {"op": "set_controller", "controller_type": "PI"}, *extra], led)
     assert r["ok"], r["errors"]
     return d
 
@@ -34,10 +34,10 @@ def test_configuration_request_expands_to_the_scenarios_a_caller_would_write():
     scenarios = d.expand()
     assert len(scenarios) == 5
     for i, (s, frac) in enumerate(zip(scenarios, (0.2, 0.4, 0.6, 0.8, 1.0))):
-        expected = Scenario(f"assistant_{i:03d}", controller_type="PI", plant_config_id="dc_perm_ex_v1", omega_ref_rad_s=1500 * RPM, duration_s=2.0, load_torque_nm=frac * 16.0)
+        expected = Scenario(f"assistant_{i:03d}", controller_type="PI", plant_config_id="dc_perm_ex_v2", omega_ref_rad_s=1500 * RPM, duration_s=2.0, load_torque_nm=frac * 16.0)
         assert s.omega_ref_rad_s == pytest.approx(expected.omega_ref_rad_s, rel=1e-12)
         assert s.load_torque_nm == pytest.approx(expected.load_torque_nm, rel=1e-12)
-        assert (s.duration_s, s.plant_config_id, s.controller_type, s.scenario_id) == (2.0, "dc_perm_ex_v1", "PI", expected.scenario_id)
+        assert (s.duration_s, s.plant_config_id, s.controller_type, s.scenario_id) == (2.0, "dc_perm_ex_v2", "PI", expected.scenario_id)
     st = d.status()
     assert st["ready"] and st["experiments"] == 5 and st["missing_required"] == [] and st["invalid"] == []
     assert [x["value"] for x in st["derived"]] == pytest.approx([3.2, 6.4, 9.6, 12.8, 16.0])
@@ -51,7 +51,7 @@ def test_untouched_fields_give_the_scenario_defaults_bit_for_bit():
     led = ledger("motor DC con PI")
     d = dc_draft(led)
     [kw] = d.conditions()
-    assert kw == {"scenario_id": "assistant_000", "plant_config_id": "dc_perm_ex_v1", "controller_type": "PI"}
+    assert kw == {"scenario_id": "assistant_000", "plant_config_id": "dc_perm_ex_v2", "controller_type": "PI"}
     # Accepting the defaults shows them in the draft but passes nothing to Scenario.
     r = d.patch([{"op": "use_defaults", "fields": ["motor_parameter_overrides", "dc_supply_v", "duration_s"]}], led)
     assert r["ok"], r["errors"]
@@ -132,7 +132,7 @@ def test_load_percent_needs_the_rated_torque_of_the_motor():
 def test_pmg132_rated_torque_is_its_own():
     led = ledger("PMG 132 al 100 % de carga")
     d = Draft()
-    assert d.patch([{"op": "set_plant", "plant": "dc_pmg132_v1"}, {"op": "set", "field": "load_torque_nm", "value": 100, "unit": "%"}], led)["ok"]
+    assert d.patch([{"op": "set_plant", "plant": "dc_pmg132_v2"}, {"op": "set", "field": "load_torque_nm", "value": 100, "unit": "%"}], led)["ok"]
     assert d.conditions()[0]["load_torque_nm"] == pytest.approx(20.0)
 
 
@@ -190,8 +190,8 @@ def test_round_trip_and_hash():
 
 
 def test_cost_proxy_is_declared():
-    c = estimate_cost("dc_pmg132_v1", "MPC", [1.0, 1.0])
-    assert c["sim_seconds"] == 2.0 and "proxy for dc_pmg132_v1/MPC" in c["basis"]
+    c = estimate_cost("dc_pmg132_v2", "MPC", [1.0, 1.0])
+    assert c["sim_seconds"] == 2.0 and "proxy for dc_pmg132_v2/MPC" in c["basis"]
     with pytest.raises(PatchError):
         Draft().conditions()
 
@@ -204,7 +204,7 @@ def test_no_invention_on_a_trace_and_on_every_cassette():
     import json
 
     trace = [{"role": "user", "seq": 1, "text": "motor DC a 1500 rpm"},
-             {"role": "patch", "ops": [{"op": "set_plant", "plant": "dc_perm_ex_v1"}, {"op": "set", "field": "omega_ref_rad_s", "value": 1500, "unit": "rpm"}], "accepted": True},
+             {"role": "patch", "ops": [{"op": "set_plant", "plant": "dc_perm_ex_v2"}, {"op": "set", "field": "omega_ref_rad_s", "value": 1500, "unit": "rpm"}], "accepted": True},
              {"role": "patch", "ops": [{"op": "set", "field": "duration_s", "value": 3, "unit": "s"}], "accepted": True}]
     problems = audit_trace(trace)
     assert len(problems) == 1 and problems[0]["event"] == 2  # 3 s was never given: an invented value accepted in a session is caught

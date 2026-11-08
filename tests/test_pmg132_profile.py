@@ -12,7 +12,8 @@ def test_profile():
     p = native_profile_for("dc_pmg132_v1")
     assert p is not None and p.profile_id == "native:dc_pmg132_v1" and p.status == "published"
     assert p.capabilities.can_simulate_batch and not p.capabilities.can_step_interactively and not p.capabilities.can_train_rl
-    assert set(NATIVE_PROFILES) == {"native:dc_perm_ex_v1", "native:dc_pmg132_v1", "native:vsc_dpc_v1", "native:pmsm_v1", "native:buck_v1"}
+    assert set(NATIVE_PROFILES) == {"native:dc_perm_ex_v1", "native:dc_pmg132_v1", "native:vsc_dpc_v1", "native:pmsm_v1", "native:buck_v1",
+                                    "native:dc_perm_ex_v2", "native:dc_pmg132_v2"}  # v2 profiles added by decision E3 (2026-11-08)
 
 
 def test_condition_metric():

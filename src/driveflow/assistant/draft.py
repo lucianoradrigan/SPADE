@@ -51,7 +51,13 @@ LOAD_FIELD = "load_torque_nm"
 DEFAULT_LIMITS = {"max_experiments_per_launch": 50, "max_total_sim_seconds": 600.0}
 SIM_COST_PATH = Path(__file__).resolve().parents[3] / "configs" / "sim_cost.yaml"
 #: plants or controllers without their own measurement in sim_cost.yaml use one of the same structure.
-COST_PROXY = {"dc_pmg132_v1/PI": "dc_perm_ex_v1/PI", "dc_pmg132_v1/MPC": "dc_perm_ex_v1/MPC", "pmsm_v1/FOC_naive": "pmsm_v1/FOC_MTPA"}
+COST_PROXY = {"dc_pmg132_v1/PI": "dc_perm_ex_v1/PI", "dc_pmg132_v1/MPC": "dc_perm_ex_v1/MPC", "pmsm_v1/FOC_naive": "pmsm_v1/FOC_MTPA",
+              # v2 (E3): dcm_exact measured 1.08-1.12x the GEM plant's CPU (dc_perm_ex_v2_convergence.md); the proxy is declared in the basis
+              "dc_perm_ex_v2/PI": "dc_perm_ex_v1/PI", "dc_perm_ex_v2/MPC": "dc_perm_ex_v1/MPC", "dc_pmg132_v2/PI": "dc_perm_ex_v1/PI", "dc_pmg132_v2/MPC": "dc_perm_ex_v1/MPC"}
+#: Decision E3 (Luciano, 2026-11-08): the assistant offers only the v2 DC plants; the v1 plants are the frozen
+#: "GEM-faithful mode" (S-21), kept for reproducing results, not offered.
+FROZEN_V1 = ("dc_perm_ex_v1", "dc_pmg132_v1")
+ASSISTANT_PLANTS = tuple(p for p in NATIVE_PLANTS if p not in FROZEN_V1)
 
 
 class PatchError(ValueError):
@@ -274,8 +280,12 @@ class Draft:
         kind = op["op"]
         if kind == "set_plant":
             plant = op["plant"]
-            if plant not in NATIVE_PLANTS:
-                raise PatchError(f"unknown plant {plant!r}; plants: {list(NATIVE_PLANTS)}")
+            if plant in FROZEN_V1:
+                v2 = plant.replace("_v1", "_v2")
+                raise PatchError(f"{plant} is the frozen GEM-faithful plant (one-quadrant converter artifact S-21), kept only to reproduce results; "
+                                 f"the assistant simulates {v2} (same motor, converter in discontinuous conduction)")
+            if plant not in ASSISTANT_PLANTS:
+                raise PatchError(f"unknown plant {plant!r}; plants: {list(ASSISTANT_PLANTS)}")
             dropped = []
             if plant != self.plant:
                 self.plant = plant
@@ -515,7 +525,7 @@ class Draft:
         st: dict = {"plant": self.plant, "controller_type": self.controller_type, "missing_required": [], "missing_important": [], "defaults_used": [],
                     "invalid": [], "warnings": [], "experiments": 0, "derived": [], "cost": None, "limits": {}, "ready": False, "draft_hash": self.hash()}
         if self.plant is None:
-            st["missing_required"].append({"field": "plant", "why": "which plant to simulate", "choices": list(NATIVE_PLANTS)})
+            st["missing_required"].append({"field": "plant", "why": "which plant to simulate", "choices": list(ASSISTANT_PLANTS)})
             return st
         cat = _catalog(self.plant)
         if self.controller_type is None:

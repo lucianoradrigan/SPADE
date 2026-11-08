@@ -24,7 +24,7 @@ def agent(*replies, tools=CONFIG_TOOLS, seen=None):
     return Agent(llm.ReplayClient({"format": 1, "exchanges": list(replies)}, strict=False), tools, on_event=(seen.append if seen is not None else None))
 
 
-OPS = [{"op": "set_plant", "plant": "dc_perm_ex_v1"}, {"op": "set_controller", "controller_type": "PI"}, {"op": "set", "field": "duration_s", "value": 0.1, "unit": "s"}]
+OPS = [{"op": "set_plant", "plant": "dc_perm_ex_v2"}, {"op": "set_controller", "controller_type": "PI"}, {"op": "set", "field": "duration_s", "value": 0.1, "unit": "s"}]
 
 
 def states_along(events):

@@ -205,18 +205,36 @@ entries:
     plant_config_id: dc_perm_ex_v1
     title: "DC motor (GEM's PMG 132 port)"
     what: "Permanently excited DC motor from gym-electric-motor, one-quadrant converter on a 65 V supply, PI or MPC speed control; motor, supply, limits, ratings and load are configurable."
-    limitations: ["S-07: one-quadrant converter.", "S-21: light-load deceleration with GEM's converter model is not physical."]
+    limitations: ["Frozen GEM-faithful mode (decision E3, 2026-11-08): kept byte-identical to reproduce earlier results; the assistant and the GUI use dc_perm_ex_v2.", "S-07: one-quadrant converter.", "S-21 (open in v1): light-load deceleration with GEM's converter model is not physical."]
+    implemented_by: [driveflow.datagen.runner, driveflow.sim.dc_dcm]
+    assistant_can_drive: false
+    docs: [docs/SIMULATION_STABILITY_REPORT.md]
+  plant_dc_perm_ex_v2:
+    kind: plant
+    plant_config_id: dc_perm_ex_v2
+    title: "DC motor (GEM's PMG 132 port), converter in discontinuous conduction"
+    what: "The dc_perm_ex_v1 motor, load, supply, controllers and fault / vibration models, with the one-quadrant converter in discontinuous conduction (dc_converter_model dcm_exact; S-21 corrected). The default DC plant of new simulations (decision E3, 2026-11-08)."
+    limitations: ["S-07: one-quadrant converter (it cannot brake below the free-wheeling deceleration).", "Batch simulation only: no Gymnasium environment."]
     implemented_by: [driveflow.datagen.runner, driveflow.sim.dc_dcm]
     assistant_can_drive: true
-    docs: [docs/SIMULATION_STABILITY_REPORT.md]
+    docs: [docs/audit/assistant/dc_perm_ex_v2_convergence.md, docs/SIMULATION_STABILITY_REPORT.md]
+  plant_dc_pmg132_v2:
+    kind: plant
+    plant_config_id: dc_pmg132_v2
+    title: "DC motor with the PMG 132 datasheet values, converter in discontinuous conduction"
+    what: "The dc_pmg132_v1 motor (Perm-Motor PMG 132 datasheet at 60 V) with the one-quadrant converter in discontinuous conduction (dcm_exact; S-21 corrected)."
+    limitations: ["Not used by the diagnosis datasets or the Gym environments.", "Batch simulation only."]
+    implemented_by: [driveflow.datagen.runner, driveflow.sim.dc_dcm]
+    assistant_can_drive: true
+    docs: [docs/audit/assistant/dc_perm_ex_v2_convergence.md]
   plant_dc_pmg132_v1:
     kind: plant
     plant_config_id: dc_pmg132_v1
     title: "DC motor with the PMG 132 datasheet values"
     what: "The same plant structure with the Perm-Motor PMG 132 datasheet values at 60 V (S-20): psi_e 0.181, rated 110 A, 20 N*m, 2870 min^-1."
-    limitations: ["Not used by the diagnosis datasets, the Gym environments or the GUI.", "S-21 affects it at light load."]
+    limitations: ["Frozen GEM-faithful mode (decision E3): kept to reproduce results; the assistant uses dc_pmg132_v2.", "S-21 (open in v1) affects it at light load."]
     implemented_by: [driveflow.datagen.runner]
-    assistant_can_drive: true
+    assistant_can_drive: false
     docs: [docs/SIMULATION_STABILITY_REPORT.md]
   plant_pmsm_v1:
     kind: plant

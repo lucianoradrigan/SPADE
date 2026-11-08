@@ -248,7 +248,7 @@ def build_conditions(req: dict, validated: bool = False) -> list:
                 for p, (lo, hi) in op["drift"].items():
                     base = motor.get(p, _NOMINAL_MOTOR[p])
                     motor[p] = base * float(rng.uniform(lo, hi))
-                kw = {"scenario_id": f"custom_{c['label']}_{i:04d}", "controller_type": controller, "duration_s": op["duration_s"], "seed": 1000 + i,
+                kw = {"scenario_id": f"custom_{c['label']}_{i:04d}", "plant_config_id": "dc_perm_ex_v2", "controller_type": controller, "duration_s": op["duration_s"], "seed": 1000 + i,
                       "electrical_noise_pct": e_noise, "mechanical_noise_pct": m_noise, "motor_parameter_overrides": motor or None}
                 if op["control_mode"] == "speed":
                     kw["omega_ref_rad_s"] = setpoint

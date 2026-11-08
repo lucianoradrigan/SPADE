@@ -91,6 +91,8 @@ class BaseMotor:
     supply_v: float | None = None
     limit_overrides: dict | None = None
     nominal_overrides: dict | None = None
+    #: decision E3: None = GEM's one-quadrant converter (unchanged); "dcm_exact" = the v2 plants' converter
+    converter_model: str | None = None
 
     @property
     def is_stock(self) -> bool:
@@ -125,10 +127,12 @@ class BaseMotor:
         return {**self.motor_parameter_overrides, **{k: base[k] * f for k, f in drift_factors.items()}}
 
     def bench_kwargs(self) -> dict:
-        """Extra run_dc_closed_loop arguments; empty for the stock motor so its calls are unchanged."""
-        if self.is_stock:
-            return {}
-        kw = {"design_motor_parameter": self.motor_parameter_overrides}
+        """Extra run_dc_closed_loop arguments; empty for the stock motor so its calls are unchanged.
+        converter_model (E3) only adds the bench's converter argument."""
+        conv = {"converter": self.converter_model} if self.converter_model else {}
+        if dataclasses.replace(self, converter_model=None).is_stock:
+            return conv
+        kw = {**conv, "design_motor_parameter": self.motor_parameter_overrides}
         if self.supply_v is not None:
             kw["supply_v"] = self.supply_v
         if self.limit_overrides is not None:
@@ -151,7 +155,7 @@ def motor_from_spec(block: dict | None) -> BaseMotor:
     dc_supply_v, dc_limit_overrides, dc_nominal_overrides), validated by Scenario itself."""
     if not block:
         return STOCK
-    allowed = ("motor_parameter_overrides", "dc_supply_v", "dc_limit_overrides", "dc_nominal_overrides")
+    allowed = ("motor_parameter_overrides", "dc_supply_v", "dc_limit_overrides", "dc_nominal_overrides", "dc_converter_model")
     unknown = sorted(set(block) - set(allowed))
     if unknown:
         raise MotorSpecError(f"motor: unknown key(s) {unknown}; expected some of {allowed}")
@@ -165,7 +169,10 @@ def motor_from_spec(block: dict | None) -> BaseMotor:
         unknown = sorted(set(mp) - set(DcPermanentlyExcitedMotor._default_motor_parameter))
         if unknown:
             raise MotorSpecError(f"motor.motor_parameter_overrides: unknown parameter(s) {unknown}")
-    return BaseMotor(mp or None, block.get("dc_supply_v"), block.get("dc_limit_overrides"), block.get("dc_nominal_overrides"))
+    conv = block.get("dc_converter_model")
+    if conv not in (None, "dcm_exact"):
+        raise MotorSpecError(f"motor.dc_converter_model: tuning supports GEM's converter (unset) or 'dcm_exact' (v2 plants), got {conv!r}")
+    return BaseMotor(mp or None, block.get("dc_supply_v"), block.get("dc_limit_overrides"), block.get("dc_nominal_overrides"), conv)
 
 
 @dataclasses.dataclass(frozen=True)

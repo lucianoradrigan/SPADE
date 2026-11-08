@@ -2,9 +2,10 @@
 describe_plant and validate_draft (warning, not blocking) for dc_pmg132_v1 and for the motors with the
 0b-D1 friction braking at light load; the assistant shows it on the proposal card.
 
-The recorded conversation (tests/assistant/cassettes/s21_warning_pmg132.json, qwen3.5:9b through
-Ollama, recorded with experiments/report_s21_warning.py) is replayed strictly: the requests must be
-the recorded ones, so a change of prompt or tools breaks this test on purpose."""
+Decision E3 (Luciano, 2026-11-08): the warning stays for the v1 plants only (frozen GEM-faithful mode); S-21 is
+corrected in the v2 plants, which are the only ones the assistant offers. The recorded v1 conversation of
+2026-11-08 (docs/audit/assistant/s21_3_cassette_v1_pmg132.json) is kept as evidence; it can no longer be
+replayed, because the assistant now refuses v1 plants."""
 
 import json
 from pathlib import Path
@@ -20,7 +21,6 @@ from driveflow.control.design_check import S21_MESSAGE, controller_design_check
 from driveflow.datagen.plant_catalog import describe_plant
 from driveflow.datagen.s21_warning import condition_warning, free_speed_rad_s, motor_reason
 
-CASSETTE = Path(__file__).parent / "cassettes" / "s21_warning_pmg132.json"
 CHANGED = {"motor_parameter_overrides": {"r_a": 0.02, "l_a": 2e-4, "psi_e": 0.2, "j_rotor": 0.02}, "dc_nominal_overrides": {"torque": 10.0, "omega": 250.0}}
 
 
@@ -78,85 +78,49 @@ def test_catalog_describe_plant_carries_the_warning():
     assert describe_plant("dc_perm_ex_v1")["warnings"] == []
 
 
-def test_assistant_describe_plant_warns_for_pmg132_and_for_the_drafts_changed_motor():
+def test_v2_plants_are_not_warned_at_any_level():
+    for plant in ("dc_perm_ex_v2", "dc_pmg132_v2"):
+        assert motor_reason(plant) is None and describe_plant(plant)["warnings"] == []
+        assert condition_warning({"plant_config_id": plant, "omega_ref_rad_s": 120.0, **(CHANGED if plant == "dc_perm_ex_v2" else {})}) is None
+    assert describe_plant("dc_pmg132_v1")["warnings"][0]["message"] == S21_MESSAGE  # v1 keeps it
+
+
+def test_assistant_refuses_v1_and_describes_v2_without_warning():
     s = SessionState(mode="configuration")
-    assert tools.describe_plant(s, "dc_pmg132_v1")["warnings"][0]["id"] == "S-21"
-    assert tools.describe_plant(s, "dc_perm_ex_v1")["warnings"] == []
-    text = "motor DC con r_a 0.02 ohm, l_a 0.0002 H, psi_e 0.2 V*s/rad, j_rotor 0.02 kg*m^2, par nominal 10 N*m y velocidad nominal 250 rad/s, a 120 rad/s"
-    ops = [{"op": "set_plant", "plant": "dc_perm_ex_v1"}, {"op": "set_controller", "controller_type": "PI"},
-           {"op": "set", "field": "motor_parameter_overrides.r_a", "value": 0.02, "unit": "ohm"},
-           {"op": "set", "field": "motor_parameter_overrides.l_a", "value": 0.0002, "unit": "H"},
-           {"op": "set", "field": "motor_parameter_overrides.psi_e", "value": 0.2, "unit": "V*s/rad"},
-           {"op": "set", "field": "motor_parameter_overrides.j_rotor", "value": 0.02, "unit": "kg*m^2"},
-           {"op": "set", "field": "dc_nominal_overrides.torque", "value": 10, "unit": "N*m"},
-           {"op": "set", "field": "dc_nominal_overrides.omega", "value": 250, "unit": "rad/s"},
-           {"op": "set", "field": "omega_ref_rad_s", "value": 120, "unit": "rad/s"}]
-    s.ledger = ledger(text)
-    r = s.draft.patch(ops, s.ledger)
-    assert r["ok"], r
-    w = tools.describe_plant(s, "dc_perm_ex_v1")["warnings"]
-    assert w and "0b-D1" in w[0]["applies_to"]
-    card = card_from_tool("describe_plant", {"plant": "dc_perm_ex_v1"}, tools.describe_plant(s, "dc_perm_ex_v1"))[0]
-    assert any(ln.startswith("WARNING S-21: " + S21_MESSAGE) for ln in card["lines"])
+    with pytest.raises(Exception, match="frozen GEM-faithful"):
+        tools.describe_plant(s, "dc_pmg132_v1")
+    assert tools.describe_plant(s, "dc_pmg132_v2")["warnings"] == []
+    r = Draft().patch([{"op": "set_plant", "plant": "dc_perm_ex_v1"}], ledger("x"))
+    assert not r["ok"] and "frozen GEM-faithful" in json.dumps(r)
 
 
-# ------------------------------------------------------------------------- validate_draft and proposal
-def _pmg_draft(text, ops_extra):
+def _v2_draft(text, ops_extra):
     lg = ledger(text)
     d = Draft()
-    r = d.patch([{"op": "set_plant", "plant": "dc_pmg132_v1"}, {"op": "set_controller", "controller_type": "PI"}, *ops_extra], lg)
+    r = d.patch([{"op": "set_plant", "plant": "dc_pmg132_v2"}, {"op": "set_controller", "controller_type": "PI"}, *ops_extra], lg)
     assert r["ok"], r
     return d, lg
 
 
-def test_validate_draft_marks_the_light_load_experiments_and_does_not_block():
-    d, _ = _pmg_draft("PMG 132 con PI a 120 y 400 rad/s, 0,3 s", [{"op": "vary", "field": "omega_ref_rad_s", "values": [120, 400], "unit": "rad/s"},
-                                                               {"op": "set", "field": "duration_s", "value": 0.3, "unit": "s"}])
-    st = d.status()
-    assert st["ready"] is True  # a warning never blocks
-    assert [w["experiment"] for w in st["warnings"]] == [0] and st["warnings"][0]["message"] == S21_MESSAGE
-
-
-def test_the_configuration_proposal_card_shows_the_warning():
+def test_v2_validate_draft_and_proposals_carry_no_s21_warning():
     s = SessionState(mode="configuration")
-    s.draft, s.ledger = _pmg_draft("PMG 132 con PI a 120 rad/s, 0,3 s", [{"op": "set", "field": "omega_ref_rad_s", "value": 120, "unit": "rad/s"},
-                                                                         {"op": "set", "field": "duration_s", "value": 0.3, "unit": "s"}])
+    s.draft, s.ledger = _v2_draft("PMG 132 con PI a 120 rad/s, 0,3 s", [{"op": "set", "field": "omega_ref_rad_s", "value": 120, "unit": "rad/s"},
+                                                                       {"op": "set", "field": "duration_s", "value": 0.3, "unit": "s"}])
+    st = s.draft.status()
+    assert st["ready"] is True and st["warnings"] == []
     res = tools.propose_experiments(s)
-    assert res["warnings"][0]["experiments"] == [0]
+    assert res["warnings"] == [] and not any(ln.startswith("WARNING") for ln in card_from_tool("propose_experiments", {}, res)[0]["lines"])
+    t = SessionState(mode="objective")
+    t.ledger = ledger("sobrepaso menor a 5 %")
+    assert t.draft.patch([{"op": "set_plant", "plant": "dc_pmg132_v2"}, {"op": "set_controller", "controller_type": "PI"}], t.ledger)["ok"]
+    objective.update_objective(t, requirements=[{"metric": "overshoot_pct", "op": "<=", "value": 5, "unit": "%"}], use_defaults=True)
+    assert objective.propose_tuning(t)["warnings"] == []
+
+
+def test_the_v1_warning_card_lines_still_render():
+    """The card code that shows the warning is kept for v1 results (e.g. reproduced runs)."""
+    from driveflow.control.design_check import s21_warning
+
+    res = {"plant": "dc_pmg132_v1", "controller_type": "PI", "experiments": [{"omega_ref_rad_s": 120.0}], "warnings": [{**s21_warning("dc_pmg132_v1"), "experiments": [0]}]}
     lines = card_from_tool("propose_experiments", {}, res)[0]["lines"]
-    assert any(ln.startswith("WARNING S-21: " + S21_MESSAGE) and "experiments 0" in ln and "not blocking" in ln for ln in lines)
-
-
-def test_the_tuning_proposal_card_shows_the_warning_for_pmg132_only():
-    def proposal(plant):
-        s = SessionState(mode="objective")
-        s.ledger = ledger("sobrepaso menor a 5 %")
-        assert s.draft.patch([{"op": "set_plant", "plant": plant}, {"op": "set_controller", "controller_type": "PI"}], s.ledger)["ok"]
-        objective.update_objective(s, requirements=[{"metric": "overshoot_pct", "op": "<=", "value": 5, "unit": "%"}], use_defaults=True)
-        return objective.propose_tuning(s)
-
-    pmg = proposal("dc_pmg132_v1")
-    assert pmg["warnings"] and "no load" in pmg["warnings"][0]["experiments"]
-    assert any(ln.startswith("WARNING S-21") for ln in card_from_tool("propose_tuning", {}, pmg)[0]["lines"])
-    assert proposal("dc_perm_ex_v1")["warnings"] == []
-
-
-# ---------------------------------------------------------------------------- recorded conversation
-@pytest.mark.skipif(not CASSETTE.exists(), reason="cassette not recorded")
-def test_recorded_conversation_shows_the_warning_on_the_proposal_card():
-    from driveflow.assistant.cli import build_agent
-    from driveflow.assistant.config import load_config
-    from driveflow.assistant.draft import audit_trace
-
-    cas = json.loads(CASSETTE.read_text())
-    meta = cas["meta"]
-    a = build_agent(client=llm.ReplayClient(cas), config=load_config())  # as the CLI and the page build it
-    cards = []
-    for text in meta["user_turns"]:
-        res = a.user_turn(text)
-        cards += res.cards
-    proposal = [c for c in cards if c["title"].startswith("Proposal:")]
-    assert proposal, [c["title"] for c in cards]
-    assert any(ln.startswith("WARNING S-21: " + S21_MESSAGE) for ln in proposal[-1]["lines"])
-    assert a.state.proposal is not None and a.state.jobs == []  # proposed, not launched
-    assert audit_trace(a.trace.draft_events) == []  # no invented numbers
+    assert any(ln.startswith("WARNING S-21: " + S21_MESSAGE) and "experiments 0" in ln for ln in lines)

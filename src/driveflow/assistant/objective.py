@@ -24,7 +24,8 @@ from driveflow.assistant.core.loop import Tool, ToolFailure
 from driveflow.assistant.core.policy import SessionState
 from driveflow.assistant.tools import AI_ORIGIN, _job_entry, _schema
 
-DC_PLANTS = ("dc_perm_ex_v1", "dc_pmg132_v1")
+#: decision E3: the assistant tunes on the v2 DC plants (converter dcm_exact); v1 is not offered
+DC_PLANTS = ("dc_perm_ex_v2", "dc_pmg132_v2")
 METHODS = ("pso", "bayes", "nsga2")
 #: Tuning Studio's defaults for the DC-motor PI (viz/views/tuning_studio.py): first method of
 #: tuning_adapter.METHOD_LABELS, 48 evaluations, seed 0. The objective default is J.
@@ -53,8 +54,10 @@ def motor_block(state: SessionState) -> dict | None:
 
     d = state.draft
     block: dict = {}
-    if d.plant == "dc_pmg132_v1":
+    if d.plant == "dc_pmg132_v2":
         block = {"motor_parameter_overrides": dict(PMG132_MOTOR_PARAMETER), "dc_limit_overrides": dict(PMG132_LIMITS), "dc_nominal_overrides": dict(PMG132_NOMINAL_VALUES)}
+    if d.plant in DC_PLANTS:
+        block["dc_converter_model"] = "dcm_exact"  # E3: the tuning bench simulates the v2 converter
     for path, v in d.preset.items():
         if not v.passthrough:
             continue
@@ -186,6 +189,8 @@ def tuning_s21_warnings(state: SessionState) -> list:
     from driveflow.datagen.s21_warning import motor_reason
 
     block = motor_block(state) or {}
+    if state.draft.plant in DC_PLANTS:  # E3: v2 plants are not affected (S-21 corrected); the warning is for v1 only
+        return []
     plant = "dc_pmg132_v1" if state.draft.plant == "dc_pmg132_v1" else "dc_perm_ex_v1"
     reason = motor_reason(plant, block.get("motor_parameter_overrides"), block.get("dc_nominal_overrides"))
     if reason is None:
@@ -206,7 +211,7 @@ def run_tuning(state: SessionState) -> dict:
     block = motor_block(state)
     if block:
         params["motor"] = block
-    spec = ExperimentSpec.create("controller_tuning", plant_profile_id="native:dc_perm_ex_v1", algorithm=obj["algorithm"], seed=int(obj.get("seed", 0)),
+    spec = ExperimentSpec.create("controller_tuning", plant_profile_id=f"native:{state.draft.plant}", algorithm=obj["algorithm"], seed=int(obj.get("seed", 0)),
                                  params=params, budget={"evaluations": int(obj["evaluations"]["value"])})
     try:
         job = JobService().submit(spec)

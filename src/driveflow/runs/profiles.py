@@ -41,6 +41,17 @@ NATIVE_PROFILES = {
                      capabilities=EnvironmentCapability(can_simulate_batch=True, diagnostic_messages=(
                          "Batch simulation via datagen.runner.run_scenario.", "No Gymnasium environment (round Assistant 0b, decision D3).")),
                      status="published"),
+        # Decision E3 (2026-11-08): the v2 DC plants (discontinuous-conduction converter, S-21 corrected). Batch only.
+        PlantProfile(profile_id="native:dc_perm_ex_v2", kind="native", engine="driveflow.sim", display_name="DC motor (permanently excited), converter in discontinuous conduction",
+                     signals=("rpm", "torque_nm", "voltage_v", "current_r"),
+                     capabilities=EnvironmentCapability(can_simulate_batch=True, diagnostic_messages=(
+                         "Batch simulation via datagen.runner.run_scenario.", "No Gymnasium environment (v2 plant, decision E3).")),
+                     status="published"),
+        PlantProfile(profile_id="native:dc_pmg132_v2", kind="native", engine="driveflow.sim", display_name="DC motor (PMG 132 datasheet values), converter in discontinuous conduction",
+                     signals=("rpm", "torque_nm", "voltage_v", "current_r"),
+                     capabilities=EnvironmentCapability(can_simulate_batch=True, diagnostic_messages=(
+                         "Batch simulation via datagen.runner.run_scenario.", "No Gymnasium environment (v2 plant, decision E3).")),
+                     status="published"),
         PlantProfile(profile_id="native:vsc_dpc_v1", kind="native", engine="driveflow.sim", display_name="VSC with L-C filter",
                      signals=("vc_real", "vc_imag", "i_f_real", "i_f_imag"), capabilities=_stepping("SPADE/Vsc-v0"), status="published"),
         PlantProfile(profile_id="native:pmsm_v1", kind="native", engine="driveflow.sim", display_name="PMSM (FOC demo)",

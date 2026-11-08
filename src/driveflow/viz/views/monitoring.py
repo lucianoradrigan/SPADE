@@ -32,7 +32,9 @@ def _controls(domain: str) -> dict:
     if domain == "dc_motor":
         label = st.selectbox("Fault condition", ["healthy", "outer_race", "inner_race"], key="lm_fault_type")
         fault = None if label == "healthy" else label
-        kwargs = {"fault_type": fault, "duration_s": 0.6, "seed": 0}
+        from driveflow.viz.adapters.simulation_adapter import DC_PLANT
+
+        kwargs = {"plant_config_id": DC_PLANT, "fault_type": fault, "duration_s": 0.6, "seed": 0}
         if fault is not None:
             kwargs["electrical_severity"] = st.slider("Electrical severity (N·m)", 0.0, 20.0, 8.0, key="lm_elec_severity")
             kwargs["mechanical_severity"] = st.slider("Mechanical severity", 0.0, 0.2, 0.05, format="%.3f", key="lm_mech_severity")
@@ -128,7 +130,7 @@ def render() -> None:
                 view_model = derive_motor_view(sa if evaluated else None, domain, motor_id="dc_motor/sim", source_mode="simulated" if evaluated else "unavailable", rpm=(result or {}).get("rpm"), timestamp_utc=_ts(sa.last_report(domain)[0]) if evaluated else None, prediction=(f"{c.get('predicted')} (ball/cage: synthetic-only, uncalibrated amplitude)" if c.get("synthetic_only") else c.get("predicted")), confidence=c.get("confidence"), model_id=c.get("model_id"))
                 render_motor_status(view_model)
                 with st.expander("Motor details"):
-                    st.markdown(f"- **Asset:** simulated DcPermanentlyExcitedMotor (`dc_perm_ex_v1`)\n- **Signals behind the status:** simulation-based detector on current_r / rpm / torque_nm / acc_* (synthetic); no temperature sensor exists\n- **Status:** {view_model.status.upper()} — {view_model.status_reason}\n- **Alarms:** {', '.join(view_model.active_alerts) or 'none'}")
+                    st.markdown(f"- **Asset:** simulated DcPermanentlyExcitedMotor (`dc_perm_ex_v2`)\n- **Signals behind the status:** simulation-based detector on current_r / rpm / torque_nm / acc_* (synthetic); no temperature sensor exists\n- **Status:** {view_model.status.upper()} — {view_model.status_reason}\n- **Alarms:** {', '.join(view_model.active_alerts) or 'none'}")
             else:
                 with st.container(border=True):
                     st.html('<div class="spade-root spade-badges">' + status_badge_html(health.lower()) + "</div>")

@@ -25,10 +25,13 @@ DURATION_S = 5.0
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    parser.add_argument("--plant", choices=("dc_perm_ex_v2", "dc_perm_ex_v1"), default="dc_perm_ex_v2",
+                        help="DC plant (decision E3, 2026-11-08): dc_perm_ex_v2 = converter in discontinuous conduction (default of new datasets); "
+                             "dc_perm_ex_v1 = the frozen GEM-faithful plant, to reproduce the datasets made before 2026-11-08")
     args = parser.parse_args()
 
     scenarios = healthy_and_faulted_grid(
-        "c1_diag", fault_types=FAULT_TYPES, seeds=SEEDS, duration_s=DURATION_S, omega_ref_rad_s=150.0
+        "c1_diag", fault_types=FAULT_TYPES, seeds=SEEDS, duration_s=DURATION_S, omega_ref_rad_s=150.0, plant_config_id=args.plant
     )
     print(f"{len(scenarios)} scenarios: {len(SEEDS)} seeds x {1 + len(FAULT_TYPES)} conditions, {DURATION_S}s each")
 

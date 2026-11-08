@@ -55,7 +55,7 @@ def test_entry_is_true(key):
 
 
 @pytest.mark.parametrize("topic, expected", [("Tuning Studio", "tuning_studio"), ("tuning_studio", "tuning_studio"), ("MPC", "controller_MPC"),
-                                             ("dc_pmg132_v1", "plant_dc_pmg132_v1"), ("controller_tuning", "job_controller_tuning"), ("Model Registry", "model_registry")])
+                                             ("dc_pmg132_v2", "plant_dc_pmg132_v2"), ("controller_tuning", "job_controller_tuning"), ("Model Registry", "model_registry")])
 def test_explain_spade_finds_the_entry(topic, expected):
     r = C.explain_spade(SessionState(), topic)
     assert r["documented"] and r["entries"][0]["id"] == expected

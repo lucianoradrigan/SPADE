@@ -9,7 +9,7 @@ import textwrap
 
 from streamlit.testing.v1 import AppTest
 
-OPS = [{"op": "set_plant", "plant": "dc_perm_ex_v1"}, {"op": "set_controller", "controller_type": "PI"},
+OPS = [{"op": "set_plant", "plant": "dc_perm_ex_v2"}, {"op": "set_controller", "controller_type": "PI"},
        {"op": "set", "field": "omega_ref_rad_s", "value": 100, "unit": "rad/s"}, {"op": "set", "field": "duration_s", "value": 0.1, "unit": "s"}]
 
 
@@ -55,7 +55,7 @@ def test_complete_configuration_conversation_with_the_run_button(tmp_path):
     at.chat_input[0].set_value("Simula el motor DC de stock con PI a 100 rad/s durante 0,1 s.").run()
     assert not at.exception
     t = texts(at)
-    assert "Proposal: 1 experiment(s) on dc_perm_ex_v1 (PI)" in t and "Revisa el borrador en el panel" in t  # the draft number was not repeated
+    assert "Proposal: 1 experiment(s) on dc_perm_ex_v2 (PI)" in t and "Revisa el borrador en el panel" in t  # the draft number was not repeated
     df = at.dataframe[0].value
     assert list(df[df["Field"] == "omega_ref_rad_s"]["Origin"]) == ["USER"]
     run_btn = [b for b in at.button if b.label == "Run"][0]

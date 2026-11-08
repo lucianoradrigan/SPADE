@@ -21,8 +21,8 @@ def state_with(*texts):
 
 
 @pytest.mark.parametrize("text, plant", [
-    ("quiero simular un motor DC de imanes permanentes", "dc_perm_ex_v1"),
-    ("un PMG 132 de Perm-Motor", "dc_pmg132_v1"),
+    ("quiero simular un motor DC de imanes permanentes", "dc_perm_ex_v2"),
+    ("un PMG 132 de Perm-Motor", "dc_pmg132_v2"),
     ("a brushless servo (PMSM)", "pmsm_v1"),
     ("un inversor con filtro LC", "vsc_dpc_v1"),
     ("convertidor reductor buck de 48 a 24 V", "buck_v1"),
@@ -44,7 +44,7 @@ def test_recommend_plant_unknown_lists_the_plants():
 
 
 def test_describe_plant_is_compact_and_hides_faults():
-    r = T.describe_plant(SessionState(), "dc_perm_ex_v1")
+    r = T.describe_plant(SessionState(), "dc_perm_ex_v2")
     names = {f["name"] for f in r["fields"]}
     assert "load_torque_nm" in names and "fault_type" not in names and "scenario_id" not in names
     assert r["stock_motor"]["nominal_values"]["torque"] == 16.0 and r["stock_motor"]["design_check_PI"] in ("ok", "warning")
@@ -54,22 +54,22 @@ def test_describe_plant_is_compact_and_hides_faults():
 
 def test_suggest_value_only_from_internal_sources():
     s = state_with("motor DC")
-    s.draft.patch([{"op": "set_plant", "plant": "dc_perm_ex_v1"}], s.ledger)
+    s.draft.patch([{"op": "set_plant", "plant": "dc_perm_ex_v2"}], s.ledger)
     assert T.suggest_value(s, "omega_ref_rad_s") == {"field": "omega_ref_rad_s", "unit": "rad/s", "value": 300.0, "rule": "the motor's rated speed",
-                                                       "source": "rated omega of the dc_perm_ex_v1 stock motor (describe_plant)"}
+                                                       "source": "rated omega of the dc_perm_ex_v2 stock motor (describe_plant)"}
     assert T.suggest_value(s, "duration_s")["value"] == 1.0
     no = T.suggest_value(s, "motor_parameter_overrides.l_a")
     assert no["value"] is None and "not suggested" in no["why"]
     # Another motor without ratings: the stock rated speed does not apply, and nothing else backs a suggestion.
     s2 = state_with("motor con psi_e 1,15 V*s/rad")
-    s2.draft.patch([{"op": "set_plant", "plant": "dc_perm_ex_v1"}, {"op": "set", "field": "motor_parameter_overrides.psi_e", "value": 1.15, "unit": "V*s/rad"}], s2.ledger)
+    s2.draft.patch([{"op": "set_plant", "plant": "dc_perm_ex_v2"}, {"op": "set", "field": "motor_parameter_overrides.psi_e", "value": 1.15, "unit": "V*s/rad"}], s2.ledger)
     assert T.suggest_value(s2, "omega_ref_rad_s")["value"] == 150.0  # falls back to SPADE's default, labelled as such
     assert T.suggest_value(s2, "omega_ref_rad_s")["rule"] == "SPADE's default for this field"
 
 
 def test_suggestion_round_trip_through_the_ledger():
     s = state_with("motor DC")
-    s.draft.patch([{"op": "set_plant", "plant": "dc_perm_ex_v1"}], s.ledger)
+    s.draft.patch([{"op": "set_plant", "plant": "dc_perm_ex_v2"}], s.ledger)
     sug = T.suggest_value(s, "omega_ref_rad_s")
     s.ledger.add_tool_result("suggest_value", "c1", sug)
     r = T.update_draft(s, [{"op": "set", "field": "omega_ref_rad_s", "value": sug["value"], "unit": sug["unit"], "origin": "suggested"}])
@@ -87,7 +87,7 @@ def test_kpis_of_each_plant_from_a_real_run():
     from driveflow.datagen import Scenario, run_scenario
     from driveflow.datagen.export_parquet import records_to_dataframe
 
-    cases = [({"plant_config_id": "dc_perm_ex_v1", "omega_ref_rad_s": 100.0, "duration_s": 0.3}, "speed_step"),
+    cases = [({"plant_config_id": "dc_perm_ex_v2", "omega_ref_rad_s": 100.0, "duration_s": 0.3}, "speed_step"),
              ({"plant_config_id": "pmsm_v1", "controller_type": "FOC_MTPA", "pmsm_current_ref_a": 10.0, "duration_s": 0.05}, "i_q_step"),
              ({"plant_config_id": "buck_v1", "duration_s": 0.02}, "voltage_step"),
              ({"plant_config_id": "vsc_dpc_v1", "controller_type": "DPC", "duration_s": 0.04}, "rms_voltage_error_second_half_v")]
@@ -95,8 +95,8 @@ def test_kpis_of_each_plant_from_a_real_run():
         df = records_to_dataframe(run_scenario(Scenario("k", **cond)))
         k = T.condition_kpis(df, cond)
         assert key in k, (cond, k)
-    dc = T.condition_kpis(records_to_dataframe(run_scenario(Scenario("k", plant_config_id="dc_perm_ex_v1", omega_ref_rad_s=100.0, duration_s=0.3))),
-                          {"plant_config_id": "dc_perm_ex_v1", "omega_ref_rad_s": 100.0})
+    dc = T.condition_kpis(records_to_dataframe(run_scenario(Scenario("k", plant_config_id="dc_perm_ex_v2", omega_ref_rad_s=100.0, duration_s=0.3))),
+                          {"plant_config_id": "dc_perm_ex_v2", "omega_ref_rad_s": 100.0})
     assert abs(dc["final_speed_rad_s"] - 100.0) < 2.0 and dc["speed_step"]["finite"] is True
 
 
@@ -113,7 +113,7 @@ def test_full_conversation_configures_runs_and_summarises():
     from driveflow.jobs.worker import Worker
     from driveflow.runs.store import workspace_root
 
-    ops = [{"op": "set_plant", "plant": "dc_perm_ex_v1"}, {"op": "set_controller", "controller_type": "PI"},
+    ops = [{"op": "set_plant", "plant": "dc_perm_ex_v2"}, {"op": "set_controller", "controller_type": "PI"},
            {"op": "vary", "field": "omega_ref_rad_s", "values": [50, 100], "unit": "rad/s"}, {"op": "set", "field": "duration_s", "value": 0.3, "unit": "s"}]
     script = [reply("", call("set_mode", mode="configuration"), call("recommend_plant", description="motor DC")),
               reply("", call("update_draft", ops=ops)), reply("", call("propose_experiments")), reply("Propongo 2 experimentos de 0,3 s. ¿Lanzo?"),
@@ -134,7 +134,7 @@ def test_full_conversation_configures_runs_and_summarises():
     assert audit_trace(a.trace.draft_events) == []
     from driveflow.jobs.service import JobService
     spec = JobService().experiment(JobService().get(a.state.jobs[0]["job_id"]))
-    assert spec.params == {"origin": T.AI_ORIGIN} and spec.plant_profile_id == "native:dc_perm_ex_v1"
+    assert spec.params == {"origin": T.AI_ORIGIN} and spec.plant_profile_id == "native:dc_perm_ex_v2"
     assert [c["omega_ref_rad_s"] for c in spec.conditions] == [50.0, 100.0]
 
 

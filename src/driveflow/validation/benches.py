@@ -59,6 +59,14 @@ def build_dc_system(ode_solver=None, tau: float = TAU, motor_parameter: dict | N
     """limit_values / nominal_values (round Assistant, F0.6): the motor's limits and nominal values,
     as Scenario.dc_limit_overrides / dc_nominal_overrides; None keeps the stock motor's."""
     load = LoadTorqueStep(load_parameter={**DC_LOAD_PARAMETER, **(load_parameter or {})}, step_nm=load_step_nm, t_step_s=load_step_t_s)
+    if converter == "dcm_exact":
+        # v2 plants (decision E3): the one-quadrant converter in discontinuous conduction (sim/dc_dcm.py, variant B)
+        from driveflow.sim.dc_dcm import DcmExactDcMotorSystem
+
+        motor = (DcPermanentlyExcitedMotor(motor_parameter=motor_parameter) if limit_values is None and nominal_values is None
+                 else DcPermanentlyExcitedMotor(motor_parameter=motor_parameter, limit_values=limit_values, nominal_values=nominal_values))
+        return DcmExactDcMotorSystem(converter=ContOneQuadrantConverter(), motor=motor, load=load, supply=IdealVoltageSupply(u_nominal=supply_v),
+                                     ode_solver=EulerSolver(), tau=tau)
     conv = {"one_quadrant": ContOneQuadrantConverter, "four_quadrant": ContFourQuadrantConverter}[converter]()
     if limit_values is None and nominal_values is None:
         motor = DcPermanentlyExcitedMotor(motor_parameter=motor_parameter)
@@ -84,17 +92,19 @@ def run_dc_closed_loop(controller: str = "PI", omega_ref=150.0, duration_s: floa
                        load_step_t_s: float = np.inf, torque_ref_nm: float | None = None, seed: int = 0,
                        controller_kwargs: dict | None = None, speed_noise_std_rad_s: float = 0.0, noise_seed: int = 0,
                        design_motor_parameter: dict | None = None, supply_v: float = DC_SUPPLY_V, limit_values: dict | None = None,
-                       nominal_values: dict | None = None) -> dict:
+                       nominal_values: dict | None = None, converter: str = "one_quadrant") -> dict:
     """omega_ref: constant (rad/s) or callable t -> rad/s (reference profile).
     speed_noise_std_rad_s: white Gaussian noise (rad/s) added to the speed the CONTROLLER sees (a
     sensor); the recorded omega is the true speed. 0 (default) leaves the loop untouched.
     The controller is tuned from the DESIGN motor (design_motor_parameter; None = the stock motor)
     when `motor_parameter` differs from it -- i.e. a robustness test (the controller does not know
     the drift). supply_v / limit_values / nominal_values (round Assistant, F0.6) apply to both
-    the plant and the design plant; their defaults are the stock motor and the 65 V supply."""
-    system = build_dc_system(ode_solver, tau, motor_parameter, load_parameter, load_step_nm, load_step_t_s,
+    the plant and the design plant; their defaults are the stock motor and the 65 V supply.
+    converter (decision E3): "one_quadrant" (GEM's, default, unchanged) or "dcm_exact" (v2 plants); the
+    controller is always designed on GEM's averaged plant, which has the same parameters."""
+    system = build_dc_system(ode_solver, tau, motor_parameter, load_parameter, load_step_nm, load_step_t_s, converter=converter,
                              supply_v=supply_v, limit_values=limit_values, nominal_values=nominal_values)
-    if motor_parameter == design_motor_parameter:
+    if motor_parameter == design_motor_parameter and converter == "one_quadrant":
         design_plant = system
     else:
         design_plant = build_dc_system(None, tau, design_motor_parameter, load_parameter, supply_v=supply_v, limit_values=limit_values, nominal_values=nominal_values)

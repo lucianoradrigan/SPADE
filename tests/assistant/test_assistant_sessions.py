@@ -20,7 +20,7 @@ def reply(content="", *calls):
     return {"request": {"messages": [], "tools": [], "seed": 0}, "reply": {"message": msg}}
 
 
-OPS = [{"op": "set_plant", "plant": "dc_perm_ex_v1"}, {"op": "set_controller", "controller_type": "PI"}, {"op": "set", "field": "duration_s", "value": 0.1, "unit": "s"}]
+OPS = [{"op": "set_plant", "plant": "dc_perm_ex_v2"}, {"op": "set_controller", "controller_type": "PI"}, {"op": "set", "field": "duration_s", "value": 0.1, "unit": "s"}]
 
 
 def test_tables_exist_after_the_store_opens_an_old_database(tmp_path):
@@ -50,7 +50,7 @@ def test_session_records_messages_launch_and_close():
     [launch] = s["launches"]
     job = agent.state.jobs[0]
     assert launch["job_id"] == job["job_id"] and launch["experiment_id"] == job["experiment_id"]
-    assert launch["draft_snapshot"]["plant"] == "dc_perm_ex_v1" and launch["draft_snapshot"]["experiments"]["base"]["duration_s"]["origin"] == "user"
+    assert launch["draft_snapshot"]["plant"] == "dc_perm_ex_v2" and launch["draft_snapshot"]["experiments"]["base"]["duration_s"]["origin"] == "user"
     user_seqs = [m["seq"] for m in s["messages"] if m["role"] == "user"]
     assert launch["confirmed_by_message_seq"] == agent.state.last_user_seq and len(user_seqs) == 2
     assert s["body"]["links"][0]["job_id"] == job["job_id"] and s["body"]["tokens"] == 42
