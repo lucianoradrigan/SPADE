@@ -831,7 +831,9 @@ Found 2026-11-04 by the pre-registered evaluation of AI-N27 option 2 ([`docs/aud
   - Selected on validation by the fixed rule: V11 (alpha 0.75, noise-free stratified calibration, per-tensor weights). It was tested once on E1, a new E2a′ (seeds 70001–70045) and E3.
   - **outer_race is fixed:** 0.717 on E2a′ (promoted 0.560), 0.989 on E3. The old Keras model's variants stay at a minimum recall of 0.13–0.16 whatever the quantization.
   - **The healthy class is lost out of the grid:** normal recall on E3 0.994 → 0.687, abstention +19 points; E1 macro-F1 −1.7 points.
-  - The promoted ESP32 stays. Candidates `esp32_dscnn/2026-11-08_run01` and `run02` are kept, not promoted. Next step: part of the consolidated model round E4.
+  - **Observed trade-off:** outer_race 0.560 → 0.717 on E2a′; normal 0.994 → 0.687 on E3; abstention +19 points on E3.
+  - The promoted ESP32 stays. Candidates `esp32_dscnn/2026-11-08_run01` and `run02` are kept, not promoted.
+  - **Decision (Luciano, 2026-11-08):** no further one-off attempts. The ESP32 goes to the consolidated model round B4 (E4), with its own pre-registration. The promoted run's `audit_findings.json` (shown by Model Registry) records AI-N27 and this result.
 
 ### 13.3 AI-N29 — the promoted PC classifier is confidently wrong at 50 rad/s · **High** · Generalization regression · **Open**
 

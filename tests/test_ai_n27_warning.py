@@ -43,3 +43,14 @@ def test_model_registry_lists_it_with_the_run():
         match = [r for r in rows if Path(r["run_dir"]).resolve() == target]
         assert match, key
         assert any(f.get("id") == "AI-N27" for f in match[0]["audit_findings"]), key
+
+
+def test_promoted_esp32_records_the_failed_repair_round():
+    """AI-N28 (decision of 2026-11-08): the promoted ESP32 says it was trained on data with the artifact
+    (AI-N27) and that the pre-registered repair round did not meet its criterion."""
+    entries = yaml.safe_load(open("configs/registry.yaml"))["entries"]
+    assert entries["dc_motor/esp32/classifier"].endswith("esp32_dscnn/2026-10-18_run01")
+    f = [x for x in load_audit_findings(entries["dc_motor/esp32/classifier"]) if x.get("id") == "AI-N28"]
+    assert len(f) == 1 and f[0]["severity"] == "high"
+    s = f[0]["summary"]
+    assert "did not meet" in s and "0.560 -> 0.717" in s and "0.994 -> 0.687" in s and "+19 points" in s and "AI-N27" in s and "B4" in s

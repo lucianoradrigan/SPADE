@@ -1,39 +1,46 @@
 {
-  "findings": [
-    {
-      "id": "AI-N12-ood-ball",
-      "severity": "high",
-      "date": "2026-10-19",
-      "summary": "No class for ball or cage faults: ball-fault windows are called outer_race with mean calibrated confidence 0.99 and are never withheld by the abstention threshold; cage-fault windows are 54 % withheld, the rest called normal.",
-      "evidence": "docs/audit/ai/classifier_evaluation.md (unseen fault types), docs/AI_TECHNICAL_AUDIT.md Sec. 7.2"
-    },
-    {
-      "id": "sim-only",
-      "severity": "medium",
-      "date": "2026-10-19",
-      "summary": "Trained and evaluated on simulated data only (speed x severity x noise x plant-drift grid). Held-out simulated conditions reach 1.000 accuracy in steady state, 0.969 at 100 % noise and 0.815 in the start-up transient; no real-machine validation exists.",
-      "evidence": "docs/audit/ai/classifier_evaluation.md, docs/AI_TECHNICAL_AUDIT.md Sec. 7.1"
-    },
-    {
-      "id": "distilled-int8",
-      "severity": "medium",
-      "date": "2026-10-19",
-      "summary": "Distilled from dc_motor/pc/classifier 2026-10-18_run01 (test accuracy 0.901). INT8 TFLite on the test runs: accuracy 0.940 -> 0.942 but top-1 agreement with Keras only 0.977 (host CPU, not target hardware).",
-      "evidence": "docs/audit/tflite_parity_report.txt"
-    },
-    {
-      "id": "three-class-vs-five",
-      "severity": "high",
-      "date": "2026-10-25",
-      "summary": "Promoted with 3 classes (inner_race, normal, outer_race) while the promoted PC and RPi5 classifiers have 5. A ball or cage fault on the ESP32 is assigned to one of the 3 known classes, probably with high confidence (ball windows: outer_race at mean calibrated confidence 0.99); no OOD method catches them (AI-N13). Use the PC or RPi5 model when ball or cage faults matter.",
-      "evidence": "docs/audit/ai/classifier_evaluation.md (unseen fault types), docs/AI_TECHNICAL_AUDIT.md AI-N12/AI-N13, docs/VALIDATION_SUMMARY.md"
-    },
-    {
-      "id": "AI-N27",
-      "severity": "high",
-      "date": "2026-11-02",
-      "summary": "AI-N27 (open for this run): trained on data that contain the S-21 simulator artifact -- 450 of its 6319 training windows (7.1 %; inner_race 159, outer_race 291, normal 0) contain it (the one-quadrant converter applies the full supply on negative current and the speed rises above its reference), mostly at 80-125 rad/s and high severity. Measured effect (pre-registered, 2026-11-03): in the affected regime its decision agrees with the corrected physics on only 0.46 of the windows. Kept promoted on 2026-11-04 with this warning: the candidate retrained on the corrected (dcm x1000) data did not meet the pre-registered criterion (int8 outer_race recall collapsed; AI-N28).",
-      "evidence": "docs/AI_TECHNICAL_AUDIT.md Sec. 13.1; docs/audit/assistant/ai_n27_impact.md; docs/audit/assistant/ai_n27_regen.md"
-    }
-  ]
+ "findings": [
+  {
+   "id": "AI-N12-ood-ball",
+   "severity": "high",
+   "date": "2026-10-19",
+   "summary": "No class for ball or cage faults: ball-fault windows are called outer_race with mean calibrated confidence 0.99 and are never withheld by the abstention threshold; cage-fault windows are 54 % withheld, the rest called normal.",
+   "evidence": "docs/audit/ai/classifier_evaluation.md (unseen fault types), docs/AI_TECHNICAL_AUDIT.md Sec. 7.2"
+  },
+  {
+   "id": "sim-only",
+   "severity": "medium",
+   "date": "2026-10-19",
+   "summary": "Trained and evaluated on simulated data only (speed x severity x noise x plant-drift grid). Held-out simulated conditions reach 1.000 accuracy in steady state, 0.969 at 100 % noise and 0.815 in the start-up transient; no real-machine validation exists.",
+   "evidence": "docs/audit/ai/classifier_evaluation.md, docs/AI_TECHNICAL_AUDIT.md Sec. 7.1"
+  },
+  {
+   "id": "distilled-int8",
+   "severity": "medium",
+   "date": "2026-10-19",
+   "summary": "Distilled from dc_motor/pc/classifier 2026-10-18_run01 (test accuracy 0.901). INT8 TFLite on the test runs: accuracy 0.940 -> 0.942 but top-1 agreement with Keras only 0.977 (host CPU, not target hardware).",
+   "evidence": "docs/audit/tflite_parity_report.txt"
+  },
+  {
+   "id": "three-class-vs-five",
+   "severity": "high",
+   "date": "2026-10-25",
+   "summary": "Promoted with 3 classes (inner_race, normal, outer_race) while the promoted PC and RPi5 classifiers have 5. A ball or cage fault on the ESP32 is assigned to one of the 3 known classes, probably with high confidence (ball windows: outer_race at mean calibrated confidence 0.99); no OOD method catches them (AI-N13). Use the PC or RPi5 model when ball or cage faults matter.",
+   "evidence": "docs/audit/ai/classifier_evaluation.md (unseen fault types), docs/AI_TECHNICAL_AUDIT.md AI-N12/AI-N13, docs/VALIDATION_SUMMARY.md"
+  },
+  {
+   "id": "AI-N27",
+   "severity": "high",
+   "date": "2026-11-02",
+   "summary": "AI-N27 (open for this run): trained on data that contain the S-21 simulator artifact -- 450 of its 6319 training windows (7.1 %; inner_race 159, outer_race 291, normal 0) contain it (the one-quadrant converter applies the full supply on negative current and the speed rises above its reference), mostly at 80-125 rad/s and high severity. Measured effect (pre-registered, 2026-11-03): in the affected regime its decision agrees with the corrected physics on only 0.46 of the windows. Kept promoted on 2026-11-04 with this warning: the candidate retrained on the corrected (dcm x1000) data did not meet the pre-registered criterion (int8 outer_race recall collapsed; AI-N28).",
+   "evidence": "docs/AI_TECHNICAL_AUDIT.md Sec. 13.1; docs/audit/assistant/ai_n27_impact.md; docs/audit/assistant/ai_n27_regen.md"
+  },
+  {
+   "id": "AI-N28",
+   "severity": "high",
+   "date": "2026-11-08",
+   "summary": "AI-N28 (open): the pre-registered repair round of the ESP32 int8 classifier (2026-11-08, decision E1) did not meet its criterion, so this run stays promoted. The selected variant (alpha 0.75, noise-free stratified calibration, per-tensor int8) traded one class for another: outer_race recall 0.560 -> 0.717 on the new held-out set E2a', but normal recall 0.994 -> 0.687 on the generalization set E3 and abstention +19 points. This run is still the one trained on data with the S-21 artifact (AI-N27). No further one-off attempts: the ESP32 goes to the consolidated model round B4 with its own pre-registration.",
+   "evidence": "docs/audit/assistant/esp32_repair.md, docs/audit/assistant/esp32_repair_preregistration.md, docs/AI_TECHNICAL_AUDIT.md section 13.2"
+  }
+ ]
 }
