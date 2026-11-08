@@ -186,17 +186,20 @@ class DcmExactDcMotorSystem(DcMotorSystem):
         omega_dot0 = float(self._mech(self._t, state[:n_mech], psi * i0)[self._omega_ode_idx])
         e0, e_dot = psi * float(state[self._omega_ode_idx]), psi * omega_dot0
         t, i, charge, v_int, blocked = 0.0, i0, 0.0, 0.0, 0.0
+        conduct_next = False  # a blocked segment that ended inside the period: conduction resumes (no float re-test)
         for _ in range(self.MAX_SEGMENTS):
             if t >= tau:
                 break
             e_t = e0 + e_dot * t
-            if i <= 0.0 and u <= e_t:  # diode blocked: i = 0 until e(t) falls below u
+            if not conduct_next and i <= 0.0 and u <= e_t:  # diode blocked: i = 0 until e(t) falls below u
                 t_on = t + (e_t - u) / (-e_dot) if e_dot < 0.0 else np.inf
                 end = min(tau, t_on)
                 v_int += e_t * (end - t) + 0.5 * e_dot * (end - t) ** 2
                 blocked += end - t
                 t, i = end, 0.0
+                conduct_next = end < tau
                 continue
+            conduct_next = False
             r_len = tau - t
             s_zero = self._first_zero(r_len, i, u, e_t, e_dot)
             s = r_len if s_zero is None else s_zero

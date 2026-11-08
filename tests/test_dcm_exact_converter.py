@@ -76,3 +76,18 @@ def test_gem_and_dcm_paths_are_untouched():
 
     assert type(_plant()) is DcMotorSystem and type(_plant(dc_converter_model="gem")) is DcMotorSystem
     assert type(_plant(dc_converter_model="dcm")) is DcmDcMotorSystem
+
+
+def test_blocked_segment_ending_inside_the_period_resumes_conduction():
+    """First convergence run (2026-11-08) stopped with 'too many conduction segments': at the end of a
+    blocked segment, e(t_on) == u up to rounding re-tested as blocked again and again. The period now
+    resumes conduction after a blocked segment that ends inside it."""
+    p = _plant(dc_converter_model="dcm_exact")
+    p.reset()
+    w_idx, i_idx = p.state_names.index("omega"), p.state_names.index("i")
+    state = np.array(p._ode_solver.y, dtype=float)
+    state[w_idx] = 180.0  # e0 = 0.165 * 180 = 29.7 V
+    p._ode_solver.set_initial_value(state, p._t)
+    for duty in np.linspace(0.40, 0.48, 400):  # u sweeps through e0 while the motor decelerates
+        s = p.simulate(np.array([duty]))
+        assert s[i_idx] >= 0.0

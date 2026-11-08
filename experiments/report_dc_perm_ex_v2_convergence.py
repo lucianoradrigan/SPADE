@@ -41,7 +41,8 @@ def main(argv=None) -> None:
     ap.add_argument("--workers", type=int, default=6)
     args = ap.parse_args(argv)
     jobs = [(n, v, kw) for n in CASES for v, kw in VARIANTS.items()]
-    jobs.sort(key=lambda j: (-(j[1] == "REF"), -CASES[j[0]]["duration_s"]))  # longest first
+    # B first (seconds; an exception shows at once), then the long REF / D1000 runs, longest first
+    jobs.sort(key=lambda j: (j[1] != "B", -(j[1] == "REF"), -CASES[j[0]]["duration_s"]))
     with mp.get_context("spawn").Pool(args.workers) as pool:
         res = pool.map(_run, jobs)
     R = {(n, v): (w, i, cpu) for n, v, w, i, cpu in res}
