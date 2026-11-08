@@ -1,6 +1,6 @@
 # `dc_perm_ex_v2`, step 1 — pre-registration: convergence of the efficient discontinuous-conduction converter (variant B, variant A as fallback)
 
-**Status:** committed before any code of variant B or A exists and before any measurement of them. The criteria are not changed after results are seen (`CLAUDE.md`). Any deviation is declared in the report.
+**Status:** committed before any code of variant B or A exists and before any measurement of them. **Amended (amendment 1, 2026-11-08, decision E2, before any code): variant B uses a linear back-EMF within the period** — see `dc_perm_ex_v2_convergence_preregistration_amendment1.md`. The criteria are not changed after results are seen (`CLAUDE.md`). Any deviation is declared in the report.
 
 - **Decision:** Luciano, 2026-11-04 / 2026-11-08: `dc_perm_ex_v2` with variant B, A as fallback, the convergence pre-registration first. Proposal: `s21_dc_perm_ex_v2_proposal.md` §3.
 - Choices left to Claude Code are marked **[CC]**.
