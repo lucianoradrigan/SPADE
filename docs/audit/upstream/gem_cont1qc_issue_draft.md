@@ -1,6 +1,22 @@
-# Draft issue for upstream gym-electric-motor — NOT PUBLISHED
+# Draft issue for upstream gym-electric-motor — FINAL DRAFT, NOT PUBLISHED
 
-**Status:** draft prepared 2026-11-03 at Luciano's request. It is **not** to be published without his confirmation. The repository is `upb-lea/gym-electric-motor` on GitHub.
+**Status:**
+- **Final draft** (2026-11-08). Luciano publishes it himself; Claude Code does not post it.
+- First draft 2026-11-03. The repository is `upb-lea/gym-electric-motor` on GitHub.
+- Everything between the two horizontal rules below "Title" is the text to paste.
+
+**Duplicate check (2026-11-08, read-only, GitHub API via `gh`):**
+- **Issues, all states** (`gh search issues … --repo upb-lea/gym-electric-motor`), queries "OneQuadrant", "one quadrant", "ContOneQuadrantConverter", "negative current converter", "discontinuous conduction", "buck converter negative", "DcPermEx accelerates":
+  - only one hit: **#83** "Unexpected multiplication of input voltage" (closed 2020-09-23), about the discrete one-quadrant converter's action scaling in `DcSeriesDisc-v1`. **Not the same problem.**
+  - The full list of issues (`gh issue list --state all`), filtered by converter / current / quadrant / negative / speed / braking / duty: nothing about negative current or discontinuous conduction.
+- **Pull requests** ("quadrant", "converter current", "discontinuous"):
+  - **#138** "Four Quadrant Converters on all DC Envs" (merged 2021-06-17) changed the DC environments' default converter to four-quadrant. It does not mention the one-quadrant converter's behaviour.
+  - Consequence: the bug is reached only when a one-quadrant converter is chosen explicitly. The issue text says so.
+- **Discussions** (7, GraphQL): none related; #248 "Simulation tau size" is about the step size.
+- **Upstream head:** `master` = `b474daf9` (2025-12-19, merge for release 3.0.3), the commit the code check below was made on. There is no newer commit on master.
+- **Verdict:** no duplicate found.
+
+**Re-run of the reproduction (2026-11-08):** fresh venv with `pip install gym-electric-motor==3.0.3` (Python 3.14.4, numpy 2.5.4, scipy 1.18.1, gymnasium 1.4.0), `python gem_cont1qc_mre.py`. The output is identical to `gem_cont1qc_mre_output.txt`: min current −144.683 A, ω 150 → 181.82 rad/s.
 
 **SPADE verification.**
 - The upstream code has the same logic as SPADE's port. In the clone `../gym-electric-motor` at `v3.0.3` (= `origin/master`, `b474daf9`; see `gem_upstream_drift.md`):
@@ -17,7 +33,11 @@
 
 ContOneQuadrantConverter: negative armature current and energy injection (unloaded motor accelerates at duty 0)
 
+---
+
 ## Description
+
+Since #138 the DC environments use a four-quadrant converter by default, so this only shows up when `ContOneQuadrantConverter` is passed explicitly (as in the reproduction below).
 
 A one-quadrant (buck) converter cannot carry a negative armature current in steady operation. When the back-EMF exceeds the commanded average voltage, the current falls to zero and stays there (discontinuous conduction), and the machine coasts.
 
@@ -79,3 +99,5 @@ Model discontinuous conduction for the one-quadrant converter. When the current 
 ## Environment
 
 gym-electric-motor 3.0.3 (PyPI; same code on `master` at b474daf9), Python 3.14.4, numpy 2.5.4, scipy 1.18.1, gymnasium 1.4.0, Linux x86_64.
+
+---
