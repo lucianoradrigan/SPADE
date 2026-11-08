@@ -50,6 +50,16 @@ F1.9 (Luciano, 2026-11-04; F1.1 round 3 not met, model pinned for the internal d
 - ``final_think``: the final calls WITHOUT tools are sent with this ``think`` (False): thinking only on
   the calls that choose tools. The "brief" note (an extra model call) is removed.
 
+Demo fixes (Luciano, 2026-11-08):
+
+- before every model call the loop reads the state of the session's jobs (``job_refresher``, default
+  ``tools.refresh_jobs``), so the result tools appear only once a job is terminal (policy);
+- a result tool refused or failing because its job is still running is NOT an error for the avatar:
+  the loop emits the job's state (``running``), never ``error``;
+- ``Agent.job_updates()`` is what the interface calls after processing jobs (worker button, /worker,
+  the page's 2 s refresh): it reads the jobs, emits their events and, for a job that reached a
+  terminal state, returns a fixed assistant message (no model call) with the results card.
+
 Notes go to the model as a user-role message marked as coming from SPADE, never from the user; they
 carry no numbers and are not evidence for the draft (the ledger only records real user messages).
 """
@@ -63,7 +73,7 @@ from typing import Callable
 
 from driveflow.assistant import events as ev
 from driveflow.assistant.core.llm import LLMClient, ModelNotAvailable, RuntimeUnavailable, ToolCall
-from driveflow.assistant.core.policy import MODES, SessionState, check_call, visible_tools
+from driveflow.assistant.core.policy import MODES, RESULT_TOOL_KIND, TERMINAL_JOB_STATES, SessionState, check_call, jobs_running, visible_tools
 
 DEFAULT_TURN_LIMITS = {"max_tool_calls_per_turn": 12, "max_model_calls_per_turn": 16, "max_tokens_per_turn": 60_000}
 MAX_CONSECUTIVE_ERRORS = 3
@@ -90,6 +100,15 @@ NOTES = {
     "ask": "update_draft failed several times in this turn. Stop retrying: ask the user, in their language, for what is missing or unclear.",
 }
 EMPTY_FALLBACK = "The assistant could not produce an answer; please rephrase. / El asistente no pudo generar una respuesta; reformula el pedido."
+#: fixed assistant messages of Agent.job_updates (no numbers: the results are in the card)
+JOB_DONE = {
+    "es": {"completed": "El job {job} terminó. Los resultados (simulados) están en la tarjeta.",
+           "partially_completed": "El job {job} terminó con algunas condiciones fallidas. Los resultados (simulados) están en la tarjeta.",
+           "failed": "El job {job} falló; no hay resultados.", "cancelled": "El job {job} se canceló; no hay resultados."},
+    "en": {"completed": "Job {job} finished. The (simulated) results are in the card.",
+           "partially_completed": "Job {job} finished with some failed conditions. The (simulated) results are in the card.",
+           "failed": "Job {job} failed; there are no results.", "cancelled": "Job {job} was cancelled; there are no results."},
+}
 _SPADE_REF = re.compile(r"\b(S-\d+|AI-N\d+|AI-\d+|F\d\.\d+|FE-\d+|SPADE)\b", re.I)
 _CITED = re.compile(r"(docs/|\.md\b|\.ya?ml\b|no lo tengo documentado|not documented|fuente|source|según|according to|p[aá]gina|page)", re.I)
 STOP_MESSAGES = {
@@ -163,6 +182,8 @@ class Agent:
         # Assistant page pass configs/assistant.yaml ``guards`` (= DEFAULT_GUARDS).
         self.guards = {**GUARDS_OFF, **(guards or {})}
         self.state.objective_needs_plant = bool(self.guards["objective_needs_plant"])
+        #: reads the session's jobs from the job service; returns their transitions (tools.refresh_jobs)
+        self.job_refresher: Callable[[SessionState], list] | None = None
 
     def _emit(self, event: ev.AgentEvent) -> None:
         self.trace.agent_events.append(event.to_dict())
@@ -227,6 +248,7 @@ class Agent:
                 return self._stop(res, "max_model_calls_per_turn")
             if res.tokens >= self.limits["max_tokens_per_turn"]:
                 return self._stop(res, "max_tokens_per_turn")
+            self._refresh_jobs()
             names = visible_tools(self.state)
             schemas = [self.tools[n].schema() for n in names if n in self.tools]
             self._emit(ev.LlmCall(phase="start"))
@@ -352,8 +374,56 @@ class Agent:
         failed = isinstance(result, dict) and result.get("ok") is False
         return result, failed
 
+    # --- jobs ----------------------------------------------------------------------------------
+    def _refresh_jobs(self) -> list:
+        if not self.state.jobs:
+            return []
+        fn = self.job_refresher
+        if fn is None:
+            from driveflow.assistant.tools import refresh_jobs as fn
+        changes = fn(self.state)
+        for c in changes:
+            self._emit(ev.JobEvent(job_id=str(c["job_id"]), state=str(c["to"]), done=c.get("done"), total=c.get("total")))
+        return changes
+
+    def job_updates(self, lang: str | None = None) -> list:
+        """Interface layer: read the jobs (after the worker ran, or on the page's refresh), emit their
+        events and return one fixed message per job that reached a terminal state since the last read:
+        [{"job_id", "state", "text", "cards"}]. No model call; the numbers are only in the card, which
+        comes from the same tool the model would call (summarize_results / check_requirements). The
+        message is also appended to the conversation so the model knows the job ended."""
+        from driveflow.assistant import answer, cards
+
+        # the language of the conversation (the last message may be "/run" or the button)
+        lang = lang or answer.language(" ".join(m["content"] for m in self.messages if m["role"] == "user" and not m["content"].startswith(NOTE_PREFIX)))
+        out = []
+        for c in self._refresh_jobs():
+            if c["to"] not in TERMINAL_JOB_STATES:
+                continue
+            tool = next((t for t, k in RESULT_TOOL_KIND.items() if k == c.get("kind")), None)
+            new_cards, err = [], None
+            if c["to"] in ("completed", "partially_completed") and tool in self.tools:
+                try:
+                    result = self.tools[tool].fn(self.state, job_id=c["job_id"])
+                    new_cards = cards.card_from_tool(tool, {"job_id": c["job_id"]}, result)
+                    self.state.ledger.add_tool_result(tool, f"job_updates:{c['job_id']}", result)
+                    self._emit(ev.ResultsReady(run_id=str(result.get("run_id", ""))))
+                except ToolFailure as exc:
+                    err = str(exc)
+            text = JOB_DONE[lang][c["to"]].format(job=c["job_id"]) + (f" ({err})" if err else "")
+            self.messages.append({"role": "assistant", "content": text})
+            self.trace.add("job_update", job_id=c["job_id"], state=c["to"], text=text, cards=[x["title"] for x in new_cards])
+            out.append({"job_id": c["job_id"], "state": c["to"], "text": text, "cards": new_cards})
+        return out
+
     def _emit_outcome(self, tool: str, result: dict, failed: bool) -> None:
         """The UI-level events a tool result implies (FE-1)."""
+        if failed and (tool in RESULT_TOOL_KIND or tool == "get_job_status") and jobs_running(self.state):
+            # Demo fixes: asking for results (or the status again) while the job runs is not an error;
+            # the avatar stays "running". The model still gets the refusal as the tool's result.
+            j = next(j for j in reversed(self.state.jobs) if j.get("status") not in TERMINAL_JOB_STATES)
+            self._emit(ev.JobEvent(job_id=str(j["job_id"]), state=str(j.get("status") or "running")))
+            return
         if failed:
             msg = ""
             if isinstance(result, dict):
@@ -449,5 +519,5 @@ class Agent:
             text, removed = answer.strip_draft_numbers(raw, self.state.draft)
             if removed:
                 res.text = text or answer.SEE_PANEL[lang]
-                self.trace.add("postprocess", what="strip_draft_numbers", raw=raw, removed=removed)
+                self.trace.add("postprocess", what="strip_draft_numbers", raw=raw, removed=removed, shown=res.text)
         self._plant_cards(res)

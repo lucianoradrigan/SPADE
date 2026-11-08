@@ -81,8 +81,17 @@ def card_from_tool(name: str, arguments: dict, result: dict) -> list:
         return [{"tool": name, "title": f"Proposal: {len(result.get('experiments', []))} experiment(s) on {result.get('plant')} ({result.get('controller_type')})",
                  "source": "propose_experiments (draft)", "lines": lines}]
     if name == "propose_tuning":
-        lines = [f"{k}: {_fmt(v)}" for k, v in result.items() if k not in ("proposal", "draft_hash") and not isinstance(v, (dict, list)) or k in ("requirements", "objective", "algorithm", "evaluations")]
-        return [{"tool": name, "title": "Tuning proposal", "source": "propose_tuning (draft)", "lines": lines[:12]}]
+        # Demo fixes (2026-11-08): the requirements and their values are shown HERE, one line each,
+        # not by the model's text (answer.strip_draft_numbers removes them from it).
+        ev = result.get("evaluations")
+        ev_txt = f"{ev.get('value')} ({ev.get('origin')})" if isinstance(ev, dict) else _fmt(ev)
+        motor = result.get("base_motor")
+        lines = [f"plant: {result.get('plant')}", f"base motor: {motor if isinstance(motor, str) else 'custom (' + ', '.join(sorted(motor)) + ')'}",
+                 f"tunes: {result.get('tunes')}", f"objective: {result.get('objective')}", f"algorithm: {result.get('algorithm')}",
+                 f"evaluations: {ev_txt}", f"seed: {result.get('seed')}"]
+        lines += [f"requirement: {r.get('metric')} {r.get('op')} {r.get('value')}{' ' + r['unit'] if r.get('unit') else ''}" for r in result.get("requirements", [])]
+        lines += [f"verification: {result.get('verification')}"] if result.get("verification") else []
+        return [{"tool": name, "title": "Tuning proposal", "source": "propose_tuning (draft)", "lines": lines}]
     if name == "summarize_results":
         def flat(kpis: dict, prefix: str = "") -> list:
             out = []

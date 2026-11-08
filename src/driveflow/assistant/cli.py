@@ -82,6 +82,8 @@ def run(lines, out=print, client=None, config: dict | None = None) -> object:
 
             Worker(workspace_root()).serve(once=True, poll_s=0.05)
             out("worker: queued jobs processed")
+            for u in agent.job_updates():  # demo fixes: the assistant's message and the results card
+                out(f"assistant> {u['text']}" + (("\n" + cards.render_text(u["cards"])) if u["cards"] else ""))
             continue
         how = None
         if agent.state.proposal is not None and (text == "/run" or is_affirmative(text)):

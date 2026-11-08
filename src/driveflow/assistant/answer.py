@@ -7,6 +7,13 @@ the F1.1 round 3 found false statements in the model's own sentences).
 - Draft values: the model does not restate values or their origins; the draft panel shows them, each
   with its origin chip (``draft_panel``). ``strip_draft_numbers`` removes every sentence of the final
   text that contains a number of the draft.
+
+Demo fixes (Luciano, 2026-11-08, after the milestone demo left "Requisitos: ¿Confirmas…"): the filter
+removes WHOLE sentences and list lines and never cuts one. Sentences are split only where a new one
+starts (after . ! ? and before an upper-case letter, ¿, ¡ or a list marker; or at a line break), so
+"e.g. 5" or "aprox. 0,2" never splits; the line breaks of the kept text are kept; and a header line
+ending in ":" whose content was removed (or that has none) is removed with it. The requirements and
+their values are shown by the proposal card (cards.py), not by the model's text.
 """
 
 from __future__ import annotations
@@ -86,24 +93,92 @@ def draft_numbers(draft) -> set:
 
     for val in list(draft.preset.values()) + list(draft.base.values()) + [x for vs in draft.vary.values() for x in vs]:
         add(val.value)
-    for r in (draft.objective or {}).get("requirements", []) or []:
+    obj = draft.objective or {}
+    for r in obj.get("requirements", []) or []:
         add(r.get("value") if isinstance(r, dict) else None)
+    add((obj.get("evaluations") or {}).get("value") if isinstance(obj.get("evaluations"), dict) else obj.get("evaluations"))
     return nums
 
 
+#: where a new sentence starts: after . ! ? followed by spaces and an upper-case letter, ¿, ¡, a list
+#: marker or emphasis; or at a line break. Never inside "e.g. 5" or "aprox. 0,2 s".
+_UNIT_BREAK = re.compile(r"(?<=[.!?])[ \t]+(?=[A-ZÁÉÍÓÚÑ¿¡*_\-•])|\n+")
+_LIST_ITEM = re.compile(r"^(\s*)(?:[-*•+]|\d+[.)])\s+")
+_HEADER = re.compile(r":[\s*_]*$")
+_TABLE_ROW = re.compile(r"^\s*\|")
+_TABLE_SEP = re.compile(r"^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?\s*$")
+#: a period after these is not the end of a sentence (the unit goes on; a longer unit is never a cut)
+_ABBREV = re.compile(r"(?:\b(?:e\.g|i\.e|p\.\s?ej|ej|aprox|approx|etc|vs|cf|fig|n[oº]|núm|num|máx|max|mín|min|dr|sr|sra|ca))\.$", re.I)
+
+
+def units(text: str) -> list:
+    """The sentences and lines of ``text`` as (unit, separator that follows it); joining them gives the text back."""
+    out, pos = [], 0
+    for m in _UNIT_BREAK.finditer(text or ""):
+        if "\n" not in m.group(0) and _ABBREV.search(text[pos:m.start()]):
+            continue
+        out.append([text[pos:m.start()], m.group(0)])
+        pos = m.end()
+    out.append([(text or "")[pos:], ""])
+    return [u for u in out if u[0].strip() or u[1]]
+
+
+def _indent(unit: str) -> int | None:
+    """Indentation of a list item (None = not a list item)."""
+    m = _LIST_ITEM.match(unit)
+    return len(m.group(1).expandtabs(4)) if m else None
+
+
+def _has_content(header: str, rest: list) -> bool:
+    """Is the next kept unit after ``header`` (a line ending in ':') its content?"""
+    nxt = next((u for u, keep in rest if keep and u.strip()), None)
+    if nxt is None:
+        return False
+    hi, ni = _indent(header), _indent(nxt)
+    if hi is None and _TABLE_ROW.match(nxt):
+        return True
+    if ni is None:
+        return False
+    return hi is None or ni > hi
+
+
 def strip_draft_numbers(text: str, draft) -> tuple[str, int]:
-    """Drop the sentences that contain a number of the draft; returns (text, sentences removed)."""
+    """Drop the whole sentences / lines that contain a number of the draft, and the headers left
+    without content; returns (text, units removed). A kept unit is never shortened."""
     nums = draft_numbers(draft)
     if not nums:
         return text, 0
-    keep, removed = [], 0
-    for s in sentences(text):
-        found = {n for n in (_num(x) for x in NUMBER_RE.findall(s)) if n is not None}
-        if found & nums:
-            removed += 1
+    us = units(text)
+    keep = []
+    for u, _sep in us:
+        found = {n for n in (_num(x) for x in NUMBER_RE.findall(u)) if n is not None}
+        keep.append(not (found & nums))
+    if all(keep):
+        return text, 0
+    # a markdown table whose body rows were all removed goes whole (its header row and |---| line too)
+    i = 0
+    while i < len(us):
+        if _TABLE_ROW.match(us[i][0]):
+            j = i
+            while j < len(us) and _TABLE_ROW.match(us[j][0]):
+                j += 1
+            body = [k for k in range(i, j) if not _TABLE_SEP.match(us[k][0]) and not (k + 1 < j and _TABLE_SEP.match(us[k + 1][0]))]
+            if not any(keep[k] for k in body):
+                for k in range(i, j):
+                    keep[k] = False
+            i = j
         else:
-            keep.append(s)
-    return " ".join(keep), removed
+            i += 1
+    for i in range(len(us) - 1, -1, -1):  # backwards: a removed sub-header empties its parent too
+        u = us[i][0]
+        if keep[i] and _HEADER.search(u) and not _has_content(u, list(zip([x[0] for x in us[i + 1:]], keep[i + 1:]))):
+            keep[i] = False
+    removed = sum(1 for k, (u, _) in zip(keep, us) if not k and u.strip())
+    out = []
+    for k, (u, sep) in zip(keep, us):
+        if k and u.strip():
+            out.append(u + ("\n" if "\n" in sep else " "))
+    return "".join(out).strip(), removed
 
 
 ORIGIN_CHIP = {"user": "USER", "suggested": "SUGGESTED", "default": "DEFAULT", "derived": "DERIVED", "assumed": "ASSUMED", "datasheet": "DATASHEET"}

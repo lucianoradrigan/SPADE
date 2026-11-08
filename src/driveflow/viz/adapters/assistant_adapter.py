@@ -6,6 +6,12 @@ active at the end of the list, the highest priority wins:
 unavailable > error > confirmed > extracting > using_tool > thinking > running > awaiting_confirmation
 > results_ready > idle. The 400 ms minimum of ``thinking`` is the UI's job, not this function's.
 
+Demo fixes (Luciano, 2026-11-08): while a job runs the avatar stays ``running``, never ``error``,
+for what comes from waiting for it. The loop emits the job's state instead of an error when a job
+tool is refused or fails while the job runs; here, a turn that STOPPED (a limit, repeated refusals)
+while a job is running leaves the avatar ``running`` (the stop message is in the chat). An error of
+another tool (e.g. update_draft) still shows ``error``, with the priority above.
+
 FE-D6: only ``user_confirmed`` (the user's confirmation recorded by the interface) leads to
 ``confirmed``; ``results_ready`` never does, and it carries no approval gesture.
 """
@@ -92,7 +98,7 @@ def avatar_state(events: list) -> tuple[str, str | None, float | None]:
             # "confirmed" is a one-shot (900 ms in the UI); after the turn the job shows as running.
             active["thinking"] = active["confirmed"] = False
             tool_stack.clear()
-            if e.get("stopped") not in (None, "runtime_unavailable"):
+            if e.get("stopped") not in (None, "runtime_unavailable") and not active["running"]:
                 active["error"] = True
                 error_msg = error_msg or f"stopped: {e.get('stopped')}"
     active["using_tool"] = bool(tool_stack)

@@ -11,6 +11,11 @@ Two rules live here, both in Python and neither decided by the model:
    ``message_seq`` is the LAST user message and whose draft hash equals both the proposal's and the
    current draft's. The mark is set only by the interface layer (CLI / page) through
    ``SessionState.confirm`` -- there is no tool for it.
+
+Demo fixes (Luciano, 2026-11-08): ``summarize_results`` / ``check_requirements`` are visible only when
+a job of their kind is in a TERMINAL state (``jobs.schemas.TERMINAL``), as last read from the job
+service (``tools.refresh_jobs``, called by the loop before every model call). While a job runs the
+model sees ``get_job_status`` only, so it cannot ask for results early.
 """
 
 from __future__ import annotations
@@ -33,6 +38,10 @@ NEEDS_PLANT = ("update_objective",)
 LAUNCH_TOOLS = {"configuration": "run_experiments", "objective": "run_tuning"}
 PROPOSE_TOOLS = {"configuration": "propose_experiments", "objective": "propose_tuning"}
 NEEDS_CONFIRMATION = ("run_experiments", "run_tuning")
+#: jobs.schemas.TERMINAL as strings (kept here so the policy needs no job service)
+TERMINAL_JOB_STATES = ("completed", "partially_completed", "failed", "cancelled")
+#: result tool -> the job kind it reads
+RESULT_TOOL_KIND = {"summarize_results": "scenario_sweep", "check_requirements": "controller_tuning"}
 
 
 @dataclass
@@ -102,16 +111,24 @@ def visible_tools(state: SessionState) -> list[str]:
                 names.append(LAUNCH_TOOLS[state.mode])
     if state.jobs:
         names.append("get_job_status")
-        if state.mode == "configuration" or any(j.get("kind") == "scenario_sweep" for j in state.jobs):
-            names.append("summarize_results")
-        if any(j.get("kind") == "controller_tuning" for j in state.jobs):
-            names.append("check_requirements")
+        for tool, kind in RESULT_TOOL_KIND.items():
+            if any(j.get("kind") == kind and j.get("status") in TERMINAL_JOB_STATES for j in state.jobs):
+                names.append(tool)
     return list(dict.fromkeys(names))
+
+
+def jobs_running(state: SessionState) -> bool:
+    return any(j.get("status") not in TERMINAL_JOB_STATES for j in state.jobs)
 
 
 def check_call(state: SessionState, tool: str) -> str | None:
     """Why this tool may not run now (None = it may). Applies to every call the model makes."""
     if tool not in visible_tools(state):
+        kind = RESULT_TOOL_KIND.get(tool)
+        pending = [j for j in state.jobs if j.get("kind") == kind and j.get("status") not in TERMINAL_JOB_STATES] if kind else []
+        if pending:
+            return (f"the job {pending[-1]['job_id']} has not finished (state {pending[-1].get('status')}); its results are not available yet. "
+                    "Tell the user it is running; check get_job_status later")
         return f"tool {tool!r} is not available now (mode {state.mode}); available: {visible_tools(state)}"
     if tool in NEEDS_CONFIRMATION:
         c, p = state.confirmation, state.proposal

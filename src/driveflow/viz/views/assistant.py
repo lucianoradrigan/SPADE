@@ -7,7 +7,9 @@ Layout (ESPEC_FRONTEND, ADENDA FE-4): the avatar column, the chat column and the
   ``thinking`` is painted before the model call.
 - The answer is shown word by word and the avatar's ``beat`` advances every few words (the model's
   reply arrives whole from Ollama; the streaming is visual only).
-- Job progress refreshes in an ``st.fragment(run_every="2s")``.
+- Job progress refreshes in an ``st.fragment(run_every="2s")``. When a job changes state (the
+  worker button, or a worker elsewhere), ``Agent.job_updates`` updates the avatar and, for a job that
+  ended, adds the assistant's fixed message with the results card to the chat (demo fixes, 2026-11-08).
 - What the user reads: the assistant's sentence, the CARDS (SPADE data verbatim with its source) and
   the draft panel (each value with its origin chip).
 - The confirmation is set by THIS layer only: the Run button, or a yes typed right after a proposal.
@@ -128,11 +130,23 @@ def _turn(agent, text: str, how: str | None, avatar_slot) -> None:
     _avatar(avatar_slot)
 
 
+def _apply_job_updates(agent) -> bool:
+    """Read the jobs; add the assistant's message for every job that ended. True if anything changed
+    (the avatar or the chat must be repainted)."""
+    ss = st.session_state
+    before = len(ss.get("assistant_events", []))
+    for u in agent.job_updates():
+        ss.assistant_history.append({"role": "assistant", "text": u["text"], "cards": u["cards"]})
+    return len(ss.get("assistant_events", [])) != before
+
+
 @st.fragment(run_every="2s")
 def _jobs_panel() -> None:
     agent = st.session_state.get("assistant_agent")
     if agent is None or not agent.state.jobs:
         return
+    if _apply_job_updates(agent):
+        st.rerun()
     from driveflow.jobs.service import JobService
 
     svc = JobService()
@@ -166,6 +180,7 @@ def _draft_panel(agent) -> None:
         from driveflow.runs.store import workspace_root
 
         Worker(workspace_root()).serve(once=True, poll_s=0.05)
+        _apply_job_updates(agent)
         st.rerun()
 
 

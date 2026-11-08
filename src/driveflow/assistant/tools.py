@@ -223,6 +223,33 @@ def get_job_status(state: SessionState, job_id: str | None = None) -> dict:
     return out
 
 
+def refresh_jobs(state: SessionState) -> list:
+    """Read the state of every job of the session from the job service and store it in its entry
+    (the policy shows the result tools only for terminal jobs). Returns the transitions as
+    [{"job_id", "kind", "from", "to", "done", "total", "run_id"}]. A job the service cannot read
+    keeps its last state."""
+    if not state.jobs:
+        return []
+    from driveflow.jobs.service import JobService
+
+    svc, out = JobService(), []
+    for entry in state.jobs:
+        try:
+            job = svc.get(entry["job_id"])
+        except Exception:  # noqa: BLE001 -- a missing record must not break the turn
+            continue
+        old, new = entry.get("status"), job.state.value
+        if job.terminal and "run_id" not in entry:
+            run = svc.run_for(job)
+            if run is not None:
+                entry["run_id"] = run.run_id
+        entry["status"] = new
+        if old != new:
+            out.append({"job_id": job.job_id, "kind": entry.get("kind"), "from": old, "to": new, "done": job.progress_done, "total": job.progress_total,
+                        "run_id": entry.get("run_id")})
+    return out
+
+
 def _job_entry(state: SessionState, job_id: str | None) -> dict:
     if not state.jobs:
         raise ToolFailure("no job was launched in this session")

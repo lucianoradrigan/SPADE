@@ -133,8 +133,11 @@ def test_tools_by_state():
     s.mode = "objective"
     v = policy.visible_tools(s)
     assert "describe_tunable" in v and "update_objective" in v and "run_experiments" not in v and "propose_tuning" not in v  # no objective yet
-    s.jobs.append({"job_id": "j", "kind": "controller_tuning"})
-    assert {"get_job_status", "check_requirements"} <= set(policy.visible_tools(s))
+    s.jobs.append({"job_id": "j", "kind": "controller_tuning", "status": "running"})
+    v = policy.visible_tools(s)  # demo fixes (2026-11-08): results only for a terminal job
+    assert "get_job_status" in v and "check_requirements" not in v and "summarize_results" not in v
+    s.jobs[-1]["status"] = "completed"
+    assert {"get_job_status", "check_requirements"} <= set(policy.visible_tools(s)) and "summarize_results" not in policy.visible_tools(s)
 
 
 def _ledger(text):
