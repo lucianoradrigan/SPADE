@@ -60,6 +60,17 @@ Demo fixes (Luciano, 2026-11-08):
   the page's 2 s refresh): it reads the jobs, emits their events and, for a job that reached a
   terminal state, returns a fixed assistant message (no model call) with the results card.
 
+AI-N30 harness fixes (Luciano, 2026-11-08, item 3(b); designed by reading F1.11, declared), guard ``harness_v2``:
+
+- the card + one checked sentence answer (``spade_answer``) only in question / undetermined mode; in
+  configuration / objective mode a documentation card no longer replaces the assistant's question (F1.11 m02);
+- missing REQUIRED draft fields are asked by the interface with a question card (guardrails.missing_card);
+- the model's sentences about what SPADE can / cannot do are replaced by the tools' own words in a card,
+  and launch / running claims without a launch are removed (guardrails.py);
+- in question mode the plants the user names get their catalog card;
+- loop notes are sent with the ``system`` role, so the model does not answer them as the user's words
+  (F1.11 c06, c08, c10, m01).
+
 Notes go to the model as a user-role message marked as coming from SPADE, never from the user; they
 carry no numbers and are not evidence for the draft (the ledger only records real user messages).
 """
@@ -81,10 +92,10 @@ MAX_CONSECUTIVE_ERRORS = 3
 DEFAULT_GUARDS = {"reject_repeats": True, "per_turn_caps": {"search_docs": 2, "explain_spade": 2}, "final_answer": True,
                   "objective_needs_plant": True, "nudge_draft": True, "nudge_docs": True,
                   "cards": True, "verified_cite": True, "nodoc_rule": True, "glossary_trigger": True,
-                  "spade_answer_cards": True, "strip_draft_numbers": True, "update_draft_retries": 2, "final_think": False}
+                  "spade_answer_cards": True, "strip_draft_numbers": True, "update_draft_retries": 2, "final_think": False, "harness_v2": True}
 GUARDS_OFF = {"reject_repeats": False, "per_turn_caps": {}, "final_answer": False, "objective_needs_plant": False, "nudge_draft": False, "nudge_docs": False,
               "cards": False, "verified_cite": False, "nodoc_rule": False, "glossary_trigger": False,
-              "spade_answer_cards": False, "strip_draft_numbers": False, "update_draft_retries": None, "final_think": None}
+              "spade_answer_cards": False, "strip_draft_numbers": False, "update_draft_retries": None, "final_think": None, "harness_v2": False}
 _NODOC = re.compile(r"(no lo tengo documentado|not documented|no est[aá] documentad|sin documentaci[oó]n|no documenta)", re.I)
 NOTE_PREFIX = "[SPADE runtime note, not from the user] "
 NOTES = {
@@ -228,11 +239,13 @@ class Agent:
         return any(name in low for name in self.tools if "_" in name)
 
     def _note(self, key: str, res: TurnResult) -> None:
-        self.messages.append({"role": "user", "content": NOTE_PREFIX + NOTES[key]})
+        role = "system" if self.guards.get("harness_v2") else "user"
+        self.messages.append({"role": role, "content": NOTE_PREFIX + NOTES[key]})
         self.trace.add("note", key=key)
 
     def _run(self) -> TurnResult:
         res = TurnResult(text="")
+        self._turn_event_start = len(self.trace.events)
         errors_in_row = 0
         self._turn_calls: dict = {}
         self._turn_counts: dict = {}
@@ -512,7 +525,9 @@ class Agent:
 
         raw, lang = res.text, answer.language(user_text)
         doc_cards = [c for c in res.cards if c.get("tool") in ("search_docs", "explain_spade")]
-        if self.guards.get("spade_answer_cards") and asks_spade and doc_cards:
+        v2 = self.guards.get("harness_v2")
+        spade_mode = self.state.mode in ("question", "undetermined") if v2 else True
+        if self.guards.get("spade_answer_cards") and asks_spade and doc_cards and spade_mode:
             res.text, kept = answer.spade_answer(raw, doc_cards, lang)
             self.trace.add("postprocess", what="spade_answer", raw=raw, kept_sentence=kept)
         elif self.guards.get("strip_draft_numbers") and self.state.mode in ("configuration", "objective"):
@@ -520,4 +535,38 @@ class Agent:
             if removed:
                 res.text = text or answer.SEE_PANEL[lang]
                 self.trace.add("postprocess", what="strip_draft_numbers", raw=raw, removed=removed, shown=res.text)
+        if v2:
+            self._harness_v2(res, user_text, lang)
         self._plant_cards(res)
+
+    def _harness_v2(self, res: TurnResult, user_text: str, lang: str) -> None:
+        """AI-N30 item 3(b): guardrails.py, after the F1.9 post-processing."""
+        from driveflow.assistant import guardrails as gr
+
+        events = self.trace.events[getattr(self, "_turn_event_start", 0):]
+        tool_events = [e for e in events if e["kind"] in ("tool_result", "tool_error", "tool_refused")]
+        tool_events = [e if e["kind"] == "tool_result" else {"result": {"error": e.get("error") or e.get("reason")}} for e in tool_events]
+        if not any(e.get("what") == "spade_answer" for e in events if e["kind"] == "postprocess"):
+            before = res.text
+            res.text, new_cards, removed = gr.bound_capabilities(res.text, tool_events, lang)
+            if removed:
+                res.cards.extend(new_cards)
+                self.trace.add("postprocess", what="bound_capabilities", raw=before, removed=removed, shown=res.text)
+        launched = any(e["kind"] == "tool_result" and e["name"] in ("run_experiments", "run_tuning") and isinstance(e.get("result"), dict) and "job_id" in e["result"]
+                       for e in events)
+        before = res.text
+        res.text, removed = gr.bound_launch_claims(res.text, launched, bool(self.state.jobs), lang)
+        if removed:
+            self.trace.add("postprocess", what="bound_launch_claims", raw=before, removed=removed, shown=res.text)
+        card = gr.missing_card(self.state)
+        if card:
+            res.cards.append(card)
+            if "?" not in res.text:
+                res.text = (res.text + " " if res.text else "") + gr.ASK[lang]
+            self.trace.add("postprocess", what="missing_card", fields=card["lines"])
+        if self.state.mode == "question":
+            have = {c["title"] for c in res.cards}
+            for c in gr.plant_cards_for_question(user_text):
+                if c["title"] not in have:
+                    res.cards.append(c)
+                    have.add(c["title"])

@@ -51,6 +51,10 @@ guards:
   strip_draft_numbers: true
   update_draft_retries: 2
   final_think: false
+  # AI-N30 item 3(b) (Luciano 2026-11-08; designed by reading F1.11, declared): missing required values asked
+  # with a card, suggestions as cards, capability / launch claims bounded to the tools' words, the card answer
+  # only in question mode, notes with the system role (assistant/guardrails.py).
+  harness_v2: true
 
 # Plan §4.4. driveflow.assistant.draft.DEFAULT_LIMITS must match (tests/assistant/test_assistant_llm.py).
 limits:

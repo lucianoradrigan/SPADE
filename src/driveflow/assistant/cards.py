@@ -14,7 +14,8 @@ from __future__ import annotations
 
 import re
 
-CARD_TOOLS = ("explain_spade", "search_docs", "describe_plant", "describe_tunable", "propose_experiments", "propose_tuning", "summarize_results", "check_requirements")
+CARD_TOOLS = ("explain_spade", "search_docs", "describe_plant", "describe_tunable", "propose_experiments", "propose_tuning", "summarize_results", "check_requirements",
+              "suggest_value")
 SHOWN_NOTE = ("This result is shown to the user verbatim, as a card with its source. Do not restate or paraphrase it, "
               "do not repeat its values: add at most one sentence.")
 PLANT_SOURCE = "configs/plant_catalog.yaml (driveflow.datagen.plant_catalog)"
@@ -69,6 +70,14 @@ def card_from_tool(name: str, arguments: dict, result: dict) -> list:
         if not cards:
             cards.append({"tool": name, "title": f"No documentation found for: {result.get('query', '')}", "source": "docs/, README.md", "lines": []})
         return cards
+    if name == "suggest_value":
+        # AI-N30 3(b): a suggestion and its source are shown as a card (the model does not restate them)
+        if result.get("value") is None:
+            return [{"tool": name, "title": f"No suggestion for {result.get('field')}", "source": "suggest_value (internal sources only, P5)",
+                     "lines": [str(result.get("note") or "SPADE has no internal source for this value; it must come from you.")]}]
+        rule = result.get("rule") or result.get("formula")
+        return [{"tool": name, "title": f"Suggestion for {result.get('field')}", "source": str(result.get("source", "suggest_value")),
+                 "lines": [f"{result.get('value')}{' ' + result['unit'] if result.get('unit') else ''}" + (f" ({rule})" if rule else "")]}]
     if name == "describe_tunable":
         lines = [f"{p['name']}: range {p.get('range')}, baseline {p.get('baseline')}" for p in result.get("parameters", [])]
         lines += [f"objective {k}: {v}" for k, v in (result.get("objectives") or {}).items()]

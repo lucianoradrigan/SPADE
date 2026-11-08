@@ -9,6 +9,7 @@
 
 from __future__ import annotations
 
+import math
 import re
 import unicodedata
 from functools import lru_cache
@@ -16,6 +17,7 @@ from pathlib import Path
 
 import yaml
 
+from driveflow.assistant.glossary import ID_RE
 from driveflow.assistant.core.loop import Tool, ToolFailure
 from driveflow.assistant.core.policy import SessionState
 
@@ -95,16 +97,52 @@ def _doc_paragraphs() -> list:
     return out
 
 
-def search_docs(state: SessionState, query: str) -> dict:
-    terms = [w for w in _norm(query).split() if len(w) > 2]
+#: AI-N30 fix (2026-11-08, designed by reading the F1.11 conversations -- declared): words that do not make a
+#: query specific. Before this, any paragraph with ANY query word longer than two letters ("the", "que",
+#: "spade", "motor") was a hit, so search_docs almost never came back empty and the "not documented after two
+#: empty searches" rule could not be met (F1.11: 0 %).
+GENERIC_WORDS = frozenset("""
+the and for with what which does how why can could use used using this that these are was were has have from into about
+its their there here when where who whom whose all any some more most such not but only also than then them they you your our
+el la los las lo un una unos unas de del al que qué como cómo para por con sin sobre segun según dice dicen sirve es son esta este estos
+hay tiene tienen cual cuál cuales donde dónde cuando cuándo porque qué entre desde hasta muy mas más ser fue hace hacer puede pueden
+spade finding hallazgo option opcion opción model modelo page pagina página plant planta plants plantas controller controllers controlador
+controladores type types tipo tipos allowed compatible available disponible support supports soporta documented documentado documentation
+documentacion documentación
+""".split())
+#: share of a query's distinctive words a paragraph must contain (all of them when there are two or fewer)
+COVERAGE = 0.75
+
+
+def distinctive_terms(query: str) -> list:
+    out = []
+    for w in _norm(query).split():
+        if len(w) > 2 and w not in GENERIC_WORDS and w not in out:
+            out.append(w)
+    return out
+
+
+def _covers(text: str, terms: list) -> bool:
     if not terms:
-        raise ToolFailure("give two or more words to search for")
+        return False
+    low = _norm(text)
+    found = sum(1 for w in terms if re.search(rf"\b{re.escape(w)}\b", low))
+    need = len(terms) if len(terms) <= 2 else math.ceil(COVERAGE * len(terms))
+    return found >= need
+
+
+def search_docs(state: SessionState, query: str) -> dict:
+    terms = distinctive_terms(query)
+    ids = set(ID_RE.findall(query or ""))
+    if not terms and not ids:
+        raise ToolFailure("give two or more specific words to search for")
     scored = []
     for path, section, para in _doc_paragraphs():
+        if not _covers(para, terms):
+            continue
         low = _norm(para)
-        score = sum(low.count(w) for w in terms) + 5 * sum(1 for w in terms if re.search(rf"\b{re.escape(w)}\b", low)) * (1 if all(w in low for w in terms) else 0)
-        if score:
-            scored.append((score, path, section, para))
+        score = sum(low.count(w) for w in terms)
+        scored.append((score, path, section, para))
     scored.sort(key=lambda x: -x[0])
     hits = [{"file": p, "section": s, "snippet": para[:600]} for _sc, p, s, para in scored[:MAX_HITS]]
     # F1.1 round 3: generated glossary of aliases (glossary.py). A finding or catalog entry whose
@@ -114,11 +152,12 @@ def search_docs(state: SessionState, query: str) -> dict:
     matches = glossary.lookup(query)
     first = []
     for g in matches:
+        named = g["id"] in ids  # a finding / entry named by its ID is always returned (if it exists)
         if g["file"].startswith("docs/"):
             in_file = [(pth, sec, txt) for pth, sec, txt in _doc_paragraphs() if pth == g["file"] and re.search(rf"\b{re.escape(g['id'])}\b", txt)]
             own = rf"(^|\n)(\| |#+ (?:[\d.]+ )?){re.escape(g['id'])}\b"  # the finding's own table row or heading
             para = next((x for x in in_file if re.search(own, x[2])), in_file[0] if in_file else None)
-            if para:
+            if para and (named or _covers(para[2], terms)):
                 m = re.search(own, para[2])
                 start = m.start() + (1 if m and para[2][m.start()] == "\n" else 0) if m else 0
                 h = {"file": para[0], "section": para[1], "snippet": para[2][start:start + 600]}
@@ -127,7 +166,8 @@ def search_docs(state: SessionState, query: str) -> dict:
     hits = (first + [h for h in hits if h not in first])[:MAX_HITS]
     out = {"query": query, "hits": hits, "note": "cite file and section (a docs/ path) or the finding ID; if nothing relevant is here, run one more, different query before saying SPADE does not document it"}
     if matches:
-        out["glossary"] = matches
+        out["glossary"] = [g for g in matches if g["id"] in ids or any(h["file"] == g["file"] for h in first)]
+    out["distinctive_terms"] = terms
     return out
 
 
