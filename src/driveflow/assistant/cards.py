@@ -48,6 +48,8 @@ def card_from_tool(name: str, arguments: dict, result: dict) -> list:
         return []
     if name == "describe_plant":
         c = plant_card(str(result.get("plant") or (arguments or {}).get("plant", "")))
+        if c:
+            c["lines"] += warning_lines(result)
         return [c] if c else []
     if name == "explain_spade":
         if not result.get("documented"):
@@ -73,11 +75,13 @@ def card_from_tool(name: str, arguments: dict, result: dict) -> list:
         lines += [f"algorithms: {_fmt(result.get('algorithms', []))}"]
         return [{"tool": name, "title": f"Tunable parameters ({result.get('system', '')})", "source": "driveflow.assistant.objective.describe_tunable", "lines": lines}]
     if name == "propose_experiments":
-        lines = [", ".join(f"{k} {v}" for k, v in e.items() if k != "scenario_id") for e in result.get("experiments", [])]
+        lines = [", ".join(f"{k} {v}" for k, v in e.items() if k != "scenario_id") or "no field set: every value is the Scenario default (see the draft panel)"
+                 for e in result.get("experiments", [])]
         cost = result.get("cost") or {}
         if cost:
             lines.append(f"estimated CPU: {cost.get('est_cpu_s')} s ({cost.get('basis', '')})")
         lines += [f"assumption: {a}" for a in result.get("assumptions", [])]
+        lines += warning_lines(result)
         return [{"tool": name, "title": f"Proposal: {len(result.get('experiments', []))} experiment(s) on {result.get('plant')} ({result.get('controller_type')})",
                  "source": "propose_experiments (draft)", "lines": lines}]
     if name == "propose_tuning":
@@ -91,6 +95,7 @@ def card_from_tool(name: str, arguments: dict, result: dict) -> list:
                  f"evaluations: {ev_txt}", f"seed: {result.get('seed')}"]
         lines += [f"requirement: {r.get('metric')} {r.get('op')} {r.get('value')}{' ' + r['unit'] if r.get('unit') else ''}" for r in result.get("requirements", [])]
         lines += [f"verification: {result.get('verification')}"] if result.get("verification") else []
+        lines += warning_lines(result)
         return [{"tool": name, "title": "Tuning proposal", "source": "propose_tuning (draft)", "lines": lines}]
     if name == "summarize_results":
         def flat(kpis: dict, prefix: str = "") -> list:
@@ -109,6 +114,19 @@ def card_from_tool(name: str, arguments: dict, result: dict) -> list:
         lines = [f"{k}: {_fmt(v)}" for k, v in result.items() if k not in ("note",)]
         return [{"tool": name, "title": "Requirements check (SIMULATED)", "source": "check_requirements (run store)", "lines": lines[:12]}]
     return []
+
+
+def warning_lines(result: dict) -> list:
+    """S21-3: the proposal's non-blocking warnings, one line each, with what they apply to."""
+    out = []
+    for w in result.get("warnings") or []:
+        if not isinstance(w, dict):
+            continue
+        ex = w.get("experiments")
+        where = (f"experiments {', '.join(str(i) for i in ex)}" if isinstance(ex, list) else str(ex)) if ex is not None else ""
+        out.append(f"WARNING {w.get('id', '')}: {w.get('message', '')} - {w.get('applies_to', '')}" + (f"; {where}" if where else "")
+                   + (f" (not blocking; see {w['evidence']})" if w.get("evidence") else ""))
+    return out
 
 
 def plants_named(text: str) -> list:

@@ -174,7 +174,23 @@ def propose_tuning(state: SessionState) -> dict:
             "plant": state.draft.plant, "base_motor": motor_block(state) or "stock motor", "tunes": "speed PI: bandwidth, damping, setpoint weight (full ranges)",
             "objective": obj["objective"], "algorithm": obj["algorithm"], "evaluations": obj["evaluations"], "seed": obj.get("seed", DEFAULTS["seed"]),
             "requirements": [{k: r[k] for k in ("metric", "op", "value", "unit")} for r in obj["requirements"]],
-            "verification": "each requirement is checked on the evaluation grid (separate from the tuning grid); results are candidates", "draft_hash": p.draft_hash}
+            "verification": "each requirement is checked on the evaluation grid (separate from the tuning grid); results are candidates",
+            "warnings": tuning_s21_warnings(state), "draft_hash": p.draft_hash}
+
+
+def tuning_s21_warnings(state: SessionState) -> list:
+    """S21-3: tuning on dc_pmg132_v1 or on a changed motor with ratings (0b-D1 friction). The speed-step
+    conditions of the tuning and evaluation grids (optim.objectives.grids_for) carry no load, so they
+    are light-load decelerations (the overshoot of the step). Non-blocking."""
+    from driveflow.control.design_check import s21_warning
+    from driveflow.datagen.s21_warning import motor_reason
+
+    block = motor_block(state) or {}
+    plant = "dc_pmg132_v1" if state.draft.plant == "dc_pmg132_v1" else "dc_perm_ex_v1"
+    reason = motor_reason(plant, block.get("motor_parameter_overrides"), block.get("dc_nominal_overrides"))
+    if reason is None:
+        return []
+    return [{**s21_warning(reason), "experiments": "the speed-step conditions of the tuning and evaluation grids (no load)"}]
 
 
 def run_tuning(state: SessionState) -> dict:

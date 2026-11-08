@@ -25,6 +25,12 @@ Thresholds (declared here, not tuned on any result):
 
 from __future__ import annotations
 
+#: S-21 mitigation (decision S21-3): the fixed warning text, and the light-load level below which an
+#: experiment is flagged (datagen/s21_warning.py). Non-blocking: it never changes ``status``.
+S21_MESSAGE = "one-quadrant converter: light-load deceleration not physical (S-21)"
+S21_LIGHT_LOAD_NM = 1.0
+S21_EVIDENCE = "docs/audit/assistant/s21_one_quadrant.md"
+
 TAU_RATIO_MIN = 10.0
 BANDWIDTH_RATIO_MIN = 10.0
 EULER_TAU_A_MIN_STEPS = 2.0
@@ -36,10 +42,18 @@ def _time_constants(motor_params: dict, j_total: float) -> tuple[float, float]:
     return l_a / r_a, j_total * r_a / psi_e**2
 
 
-def controller_design_check(motor_params: dict, j_total: float, tau: float, speed_bandwidth_rad_s: float = 80.0) -> dict:
+def s21_warning(applies_to: str) -> dict:
+    """The S-21 warning (S21-3), as listed in ``warnings``: never blocking, never a status change."""
+    return {"id": "S-21", "severity": "warning", "blocking": False, "message": S21_MESSAGE, "applies_to": applies_to, "evidence": S21_EVIDENCE,
+            "not_affected_with": "dc_converter_model='dcm' (S21-2)"}
+
+
+def controller_design_check(motor_params: dict, j_total: float, tau: float, speed_bandwidth_rad_s: float = 80.0, *, s21_reason: str | None = None) -> dict:
     """The PI cascade's design assumptions for this motor. motor_params needs r_a, l_a, psi_e;
     j_total is rotor + load inertia (kg*m^2); tau the control period (s); speed_bandwidth_rad_s the
-    PI's speed-loop natural frequency (PICascadeController default 80)."""
+    PI's speed-loop natural frequency (PICascadeController default 80). ``s21_reason`` (S21-3, from
+    datagen.s21_warning.motor_reason) adds the S-21 warning to ``warnings``; ``status`` is about the
+    design assumptions only and does not change with it."""
     tau_a, tau_m = _time_constants(motor_params, j_total)
     current_bw = 1.0 / (2.0 * tau)
     reasons = []
@@ -54,6 +68,7 @@ def controller_design_check(motor_params: dict, j_total: float, tau: float, spee
         "controller": "PI", "tau_a_s": tau_a, "tau_m_s": tau_m, "tau_m_over_tau_a": tau_m / tau_a,
         "current_loop_bandwidth_rad_s": current_bw, "speed_loop_bandwidth_rad_s": float(speed_bandwidth_rad_s),
         "bandwidth_ratio": current_bw / speed_bandwidth_rad_s, "status": "warning" if reasons else "ok", "reasons": reasons,
+        "warnings": [s21_warning(s21_reason)] if s21_reason else [],
     }
 
 

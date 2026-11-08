@@ -98,7 +98,26 @@ def describe_plant(state: SessionState, plant: str) -> dict:
         sm = cat["stock_motor"]
         out["stock_motor"] = {"motor_parameter": sm["motor_parameter"], "nominal_values": sm["nominal_values"], "limits": sm["limits"], "supply_v": sm["supply_v"],
                               "load": sm["load"], "design_check_PI": sm["controller_design_check"]["PI"]["status"], "design_check_MPC": sm["controller_design_check"]["MPC"]["status"]}
+        out["warnings"] = s21_warnings(state, plant)
     return out
+
+
+def s21_warnings(state: SessionState, plant: str) -> list:
+    """S21-3: the S-21 warning of this plant's motor -- the default motor's (dc_pmg132_v1), or the draft's
+    changed motor when the draft is on this plant. Non-blocking; the proposal card shows it."""
+    from driveflow.control.design_check import s21_warning
+    from driveflow.datagen.s21_warning import motor_reason
+
+    d = state.draft
+    mpo = dno = conv = None
+    if d.plant == plant:
+        try:
+            kw = d.conditions()[0] if d.experiment_count() else {}
+        except Exception:  # noqa: BLE001 -- an incomplete draft: judge the default motor
+            kw = {}
+        mpo, dno, conv = kw.get("motor_parameter_overrides"), kw.get("dc_nominal_overrides"), kw.get("dc_converter_model")
+    reason = motor_reason(plant, mpo, dno, conv)
+    return [s21_warning(reason)] if reason else []
 
 
 # ----------------------------------------------------------------------------------- suggest_value
@@ -176,7 +195,16 @@ def propose_experiments(state: SessionState) -> dict:
     return {"proposal": "show this to the user and ask for confirmation; do not launch before their yes",
             "plant": state.draft.plant, "controller_type": state.draft.controller_type or "default", "experiments": _experiment_table(state),
             "derived": st["derived"], "assumptions": state.draft.assumptions, "defaults_used": st["defaults_used"], "important_left_at_default": st["missing_important"],
-            "cost": st["cost"], "draft_hash": p.draft_hash, "origin": "results will be SIMULATED"}
+            "cost": st["cost"], "warnings": _merge_warnings(st["warnings"]), "draft_hash": p.draft_hash, "origin": "results will be SIMULATED"}
+
+
+def _merge_warnings(per_experiment: list) -> list:
+    """One entry per warning id with the experiments it applies to (for the proposal and its card)."""
+    out: dict = {}
+    for w in per_experiment:
+        e = out.setdefault(w["id"], {k: w[k] for k in ("id", "severity", "blocking", "message", "applies_to", "evidence", "not_affected_with")} | {"experiments": []})
+        e["experiments"].append(w["experiment"])
+    return list(out.values())
 
 
 def run_experiments(state: SessionState) -> dict:

@@ -513,7 +513,7 @@ class Draft:
     def status(self, limits: dict | None = None) -> dict:
         limits = {**DEFAULT_LIMITS, **(limits or {})}
         st: dict = {"plant": self.plant, "controller_type": self.controller_type, "missing_required": [], "missing_important": [], "defaults_used": [],
-                    "invalid": [], "experiments": 0, "derived": [], "cost": None, "limits": {}, "ready": False, "draft_hash": self.hash()}
+                    "invalid": [], "warnings": [], "experiments": 0, "derived": [], "cost": None, "limits": {}, "ready": False, "draft_hash": self.hash()}
         if self.plant is None:
             st["missing_required"].append({"field": "plant", "why": "which plant to simulate", "choices": list(NATIVE_PLANTS)})
             return st
@@ -560,11 +560,17 @@ class Draft:
             except PatchError as exc:
                 st["invalid"].append({"experiment": None, "error": str(exc)})
                 conds = []
+            from driveflow.datagen.s21_warning import condition_warning
+
             for i, kw in enumerate(conds):
                 try:
                     Scenario(**kw)
                 except (TypeError, ValueError, NotImplementedError) as exc:
                     st["invalid"].append({"experiment": i, "error": str(exc)})
+                    continue
+                w = condition_warning(kw)  # S21-3: a warning, never blocking (``ready`` ignores it)
+                if w:
+                    st["warnings"].append({"experiment": i, **w})
             if conds:
                 st["cost"] = estimate_cost(self.plant, self.controller_type or kw.get("controller_type") or "PI", [c.get("duration_s", Scenario.duration_s) for c in conds])
         sim_s = st["cost"]["sim_seconds"] if st["cost"] else 0.0

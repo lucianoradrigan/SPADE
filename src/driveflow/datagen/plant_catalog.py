@@ -69,6 +69,7 @@ def _key_defaults(field_name: str, plant_config_id: str = "dc_perm_ex_v1") -> di
 def _dc_stock(plant_config_id: str = "dc_perm_ex_v1") -> dict:
     from driveflow.control.design_check import controller_design_check, mpc_design_check
     from driveflow.datagen.runner import build_plant
+    from driveflow.datagen.s21_warning import motor_reason
 
     plant = build_plant(Scenario("describe_plant", plant_config_id=plant_config_id))
     motor, load = plant.electrical_motor, plant.mechanical_load
@@ -76,7 +77,8 @@ def _dc_stock(plant_config_id: str = "dc_perm_ex_v1") -> dict:
     return {
         "motor_parameter": mp, "limits": dict(motor.limits), "nominal_values": dict(motor.nominal_values), "supply_v": float(plant.supply.u_nominal),
         "load": dict(load.base_load.load_parameter), "j_total_kg_m2": j_total, "control_period_s": float(plant.tau),
-        "controller_design_check": {"PI": controller_design_check(mp, j_total, plant.tau), "MPC": mpc_design_check(mp, j_total, plant.tau)},
+        "controller_design_check": {"PI": controller_design_check(mp, j_total, plant.tau, s21_reason=motor_reason(plant_config_id)),
+                                    "MPC": mpc_design_check(mp, j_total, plant.tau)},
     }
 
 
@@ -114,4 +116,6 @@ def describe_plant(plant_config_id: str) -> dict:
     out = {"plant_config_id": plant_config_id, **catalog["plants"][plant_config_id], "fields": fields_out, "not_applicable": not_applicable}
     if plant_config_id in Scenario.DC_PLANTS:
         out["stock_motor"] = _dc_stock(plant_config_id)  # the plant's default motor
+        # S21-3: the plant's non-blocking warnings (the default motor's), at the top for the assistant
+        out["warnings"] = list(out["stock_motor"]["controller_design_check"]["PI"]["warnings"])
     return out
