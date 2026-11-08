@@ -213,6 +213,10 @@ def _dc_system(scenario: Scenario, motor, load, supply):
     """The DC plant. dc_converter_model None or "gem": DcMotorSystem exactly as before (byte-identical).
     "dcm": the same components with the one-quadrant converter re-evaluated inside the period and
     discontinuous conduction (sim/dc_dcm.py, S-21)."""
+    if scenario.dc_converter_model == "dcm_exact":
+        from driveflow.sim.dc_dcm import DcmExactDcMotorSystem
+
+        return DcmExactDcMotorSystem(converter=ContOneQuadrantConverter(), motor=motor, load=load, supply=supply, ode_solver=EulerSolver(), tau=TAU)
     if scenario.dc_converter_model == "dcm":
         from driveflow.sim.dc_dcm import DcmDcMotorSystem
 

@@ -416,8 +416,10 @@ class Scenario:
     DC_PLANT_MAX_SUBSTEPS = 10_000
 
     #: dc_converter_model values (S-21, decision S21-2): "gem" = GEM's averaged one-quadrant converter
-    #: (the default, None); "dcm" = discontinuous conduction, re-evaluated inside the period (sim/dc_dcm.py).
-    DC_CONVERTER_MODELS = ("gem", "dcm")
+    #: (the default, None); "dcm" = discontinuous conduction, re-evaluated inside the period (sim/dc_dcm.py);
+    #: "dcm_exact" = variant B (closed-form armature current with a linear back-EMF, one evaluation per
+    #: period; dc_perm_ex_v2 step 1, under pre-registered convergence test, not a default anywhere).
+    DC_CONVERTER_MODELS = ("gem", "dcm", "dcm_exact")
 
     def _validate_dc_plant_integration(self):
         solver, n = self.dc_plant_solver, self.dc_plant_substeps
@@ -429,6 +431,8 @@ class Scenario:
                 raise ValueError(f"Scenario.dc_converter_model must be one of {self.DC_CONVERTER_MODELS}, got {model!r}")
             if model == "dcm" and solver == "rk45":
                 raise ValueError("Scenario.dc_converter_model='dcm' integrates with its own substeps (dc_plant_substeps); it does not combine with dc_plant_solver='rk45'")
+            if model == "dcm_exact" and (solver is not None or n is not None):
+                raise ValueError("Scenario.dc_converter_model='dcm_exact' integrates each period in closed form; it takes neither dc_plant_solver nor dc_plant_substeps")
         if solver is None and n is None:
             return
         if self.plant_config_id not in self.DC_PLANTS:
