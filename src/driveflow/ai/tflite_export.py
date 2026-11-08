@@ -45,7 +45,7 @@ def export_float16(model: keras.Model, out_path) -> bytes:
     return tflite_model
 
 
-def export_int8(model: keras.Model, representative_windows: np.ndarray, out_path, n_calibration_samples: int = 100) -> bytes:
+def export_int8(model: keras.Model, representative_windows: np.ndarray, out_path, n_calibration_samples: int = 100, per_channel: bool = True) -> bytes:
     """ESP32 tier (Sec. 4.1/4.2's 'TFLite Micro int8' row): full integer quantization, both
     weights and activations. representative_windows: (n, window_samples, n_channels) array of
     REAL input windows (the model's own training/evaluation data, already normalized the same way
@@ -66,6 +66,10 @@ def export_int8(model: keras.Model, representative_windows: np.ndarray, out_path
     converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
     converter.inference_input_type = tf.int8
     converter.inference_output_type = tf.int8
+    if not per_channel:
+        # AI-N28 repair round: one quantization scale per weight tensor instead of per output channel
+        # (the converter's default, kept when per_channel is True).
+        converter._experimental_disable_per_channel = True
     tflite_model = converter.convert()
     Path(out_path).write_bytes(tflite_model)
     return tflite_model

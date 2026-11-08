@@ -11,6 +11,11 @@ RNG seed 20261103; run seeds start at 60001 (the grid uses 1001-1525, the evalua
 Usage:
     python experiments/generate_ai_n27_heldout.py --grid 3class --out data/ai_n27_heldout_3class_dcm.parquet --workers 10
     python experiments/generate_ai_n27_heldout.py --grid 5class --out data/ai_n27_heldout_5class_dcm.parquet --workers 10
+
+New draws (AI-N28 repair round, E2a', esp32_repair_preregistration.md section 5.1): the same cells and
+distributions with other seeds; the defaults keep the original set reproducible:
+    python experiments/generate_ai_n27_heldout.py --grid 3class --rng-seed 20261108 --first-run-seed 70001 \
+        --set-name esp32_repair_E2a_prime --out data/esp32_repair_heldout_3class_dcm.parquet --workers 10
 """
 
 from __future__ import annotations
@@ -42,10 +47,10 @@ GRIDS = {
 }
 
 
-def build_jobs(grid: str) -> list:
+def build_jobs(grid: str, rng_seed: int = RNG_SEED, first_run_seed: int = FIRST_RUN_SEED) -> list:
     faults, n_seeds, cells = GRIDS[grid]
-    rng = np.random.default_rng(RNG_SEED)
-    jobs, run_seed = [], FIRST_RUN_SEED - 1
+    rng = np.random.default_rng(rng_seed)
+    jobs, run_seed = [], first_run_seed - 1
     for speed, sev in cells:
         for _ in range(n_seeds):
             for fault in (None, *faults):
@@ -66,14 +71,17 @@ def main(argv=None):
     ap.add_argument("--grid", choices=tuple(GRIDS), required=True)
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--workers", type=int, default=max(1, (mp.cpu_count() or 2) - 1))
+    ap.add_argument("--rng-seed", type=int, default=RNG_SEED, help="draws of noise and plant drift (default: the original E2a)")
+    ap.add_argument("--first-run-seed", type=int, default=FIRST_RUN_SEED, help="first run seed (default: the original E2a)")
+    ap.add_argument("--set-name", default="ai_n27_E2a", help="value of the heldout_set column")
     args = ap.parse_args(argv)
-    jobs = build_jobs(args.grid)
+    jobs = build_jobs(args.grid, args.rng_seed, args.first_run_seed)
     print(f"{len(jobs)} held-out runs ({args.grid}), {DURATION_S} s each, plant {PLANT}")
     t0 = time.time()
     with mp.get_context("spawn").Pool(args.workers) as pool:
         frames = pool.map(_simulate, jobs)
     df = pd.concat(frames, ignore_index=True)
-    df["heldout_set"] = "ai_n27_E2a"
+    df["heldout_set"] = args.set_name
     args.out.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(args.out)
     print(f"wrote {len(df)} rows to {args.out} in {time.time() - t0:.0f} s")
