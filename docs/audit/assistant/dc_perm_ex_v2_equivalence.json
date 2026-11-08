@@ -1,0 +1,150 @@
+{
+  "command": "python experiments/report_dc_perm_ex_v2_equivalence.py",
+  "simulated": true,
+  "preregistration": "docs/audit/assistant/dc_perm_ex_v2_convergence_preregistration.md \u00a76",
+  "runs": [
+    {
+      "source": "grid_outer_race_w80_s1.00_seed1020",
+      "fault": "outer_race",
+      "speed": 80.0,
+      "severity_scale": 1.0,
+      "nrms": {
+        "current_r": 1.1582972145468638e-05,
+        "rpm": 9.399392459070754e-07,
+        "torque_nm": 1.1919562850294757e-05
+      },
+      "pass": true
+    },
+    {
+      "source": "grid_outer_race_w80_s1.50_seed1029",
+      "fault": "outer_race",
+      "speed": 80.0,
+      "severity_scale": 1.5,
+      "nrms": {
+        "current_r": 1.3728495247561844e-05,
+        "rpm": 1.529755878546793e-06,
+        "torque_nm": 2.479444386024643e-05
+      },
+      "pass": true
+    },
+    {
+      "source": "grid_outer_race_w80_s2.00_seed1038",
+      "fault": "outer_race",
+      "speed": 80.0,
+      "severity_scale": 2.0,
+      "nrms": {
+        "current_r": 4.7045387141652816e-05,
+        "rpm": 3.446059053700008e-06,
+        "torque_nm": 4.704538714165248e-05
+      },
+      "pass": true
+    },
+    {
+      "source": "grid_outer_race_w100_s1.50_seed1074",
+      "fault": "outer_race",
+      "speed": 100.0,
+      "severity_scale": 1.5,
+      "nrms": {
+        "current_r": 1.0740693446037738e-05,
+        "rpm": 1.2508953743427956e-06,
+        "torque_nm": 1.6957264826420515e-05
+      },
+      "pass": true
+    },
+    {
+      "source": "grid_outer_race_w100_s2.00_seed1083",
+      "fault": "outer_race",
+      "speed": 100.0,
+      "severity_scale": 2.0,
+      "nrms": {
+        "current_r": 2.785092775633859e-05,
+        "rpm": 3.2779250968703577e-06,
+        "torque_nm": 6.642738697796826e-05
+      },
+      "pass": true
+    },
+    {
+      "source": "grid_normal_w80_s0.00_seed1001",
+      "fault": null,
+      "speed": 80.0,
+      "severity_scale": 0.0,
+      "nrms": {
+        "current_r": 1.6457088611266775e-07,
+        "rpm": 1.1748871294807494e-07,
+        "torque_nm": 3.3488853555658454e-07
+      },
+      "pass": true
+    },
+    {
+      "source": "grid_normal_w125_s0.00_seed1091",
+      "fault": null,
+      "speed": 125.0,
+      "severity_scale": 0.0,
+      "nrms": {
+        "current_r": 1.6197698077053605e-07,
+        "rpm": 8.47868478294373e-08,
+        "torque_nm": 3.2814667524818605e-07
+      },
+      "pass": true
+    },
+    {
+      "source": "grid_normal_w150_s0.00_seed1136",
+      "fault": null,
+      "speed": 150.0,
+      "severity_scale": 0.0,
+      "nrms": {
+        "current_r": 2.800921818614601e-07,
+        "rpm": 7.25809241309063e-08,
+        "torque_nm": 3.14030137803425e-07
+      },
+      "pass": true
+    },
+    {
+      "source": "grid_normal_w200_s0.00_seed1226",
+      "fault": null,
+      "speed": 200.0,
+      "severity_scale": 0.0,
+      "nrms": {
+        "current_r": 1.846567556275155e-07,
+        "rpm": 6.810928927344759e-08,
+        "torque_nm": 5.036097234681026e-07
+      },
+      "pass": true
+    },
+    {
+      "source": "grid_normal_w220_s0.00_seed1271",
+      "fault": null,
+      "speed": 220.0,
+      "severity_scale": 0.0,
+      "nrms": {
+        "current_r": 3.005241646709696e-07,
+        "rpm": 6.394868717046098e-08,
+        "torque_nm": 5.379941965501574e-07
+      },
+      "pass": true
+    }
+  ],
+  "agreement": {
+    "PC": {
+      "run": "configs/classifiers/pc_server_5class_w2048/2026-11-04_run01",
+      "artifact": "keras",
+      "n_windows": 120,
+      "agreement": 1.0,
+      "accuracy_stored": 0.9166666666666666,
+      "accuracy_B": 0.9166666666666666,
+      "pass": true
+    },
+    "RPi5": {
+      "run": "configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-11-04_run01",
+      "artifact": "tflite",
+      "n_windows": 120,
+      "agreement": 1.0,
+      "accuracy_stored": 0.9583333333333334,
+      "accuracy_B": 0.9583333333333334,
+      "pass": true
+    }
+  },
+  "criterion_a": true,
+  "criterion_b": true,
+  "verdict": "MET"
+}
