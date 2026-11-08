@@ -246,6 +246,7 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N27 | **High** | Training-data defect (simulator artifact S-21) | **Mitigated for PC and RPi5** (dcm-trained runs promoted 2026-11-04); **open for ESP32** (§13.1): 7.1 % (ESP32, 3 classes) and 17.8 % (PC and RPi5, 5 classes) of the promoted dc_motor classifiers' training windows contain the one-quadrant converter artifact of S-21; all of them fault classes, none healthy |
 | AI-N28 | **High** | Robustness defect (int8 quantization) | **Open** (§13.2): the ESP32 DS-CNN retrained on the corrected (dcm) grid loses outer_race in int8 (recall 0.38 / 0.05 / 0.21 on test / affected-regime held-out / generalization; Keras 0.76 / 0.31 / 0.90); the 3-class int8 path is fragile to a change of training data |
 | AI-N29 | **High** | Generalization regression (low speed) | **Open** (§13.3): the dcm-trained PC classifier promoted on 2026-11-04 is confidently wrong at 50 rad/s (below the 80–220 rad/s grid): of 54 known-class windows it abstains on 44 % and gets 2 of the 30 answered right (0.067); the previous PC on the same data answered 54 % with 1.000; the new RPi5 is not affected (1.000 on 81 % answered) |
+| AI-N30 | **High** | Assistant behaviour (local LLM) | **Open** (§13.4): the pre-registered F1.11 benchmark of the assistant (`qwen3.5:9b`) is **not met**: 5 distinct false statements about SPADE (15 turns), "not documented" 0 % (≥ 80 %), asks when a required value is missing 60 % (≥ 90 %), questions / sourced numbers 76 % (≥ 90 %), citations 83 % (≥ 90 %), p95 latency 35.8 s (≤ 30 s outside the lab). Met: 0 launches without confirmation, 0 invented numbers, 0 timeouts, correct plan 90.5 %, impossible requests 100 % |
 | AI-N19 | Medium | Evaluation limit | **Documented** (§10): simulated healthy current/rpm are constant in steady state, so the residual AUROC (1.000) and the persistence baseline are optimistic |
 | AI-N15 | Medium | Defect (estimator bias) | **Open** (§9.1): the VSC PINN estimates C systematically low, −1.3 % to −9.1 % mean error at 0–5 % noise |
 | AI-N16 | Medium | Defect (uncertainty) | **Open** (§9.2): the PINN's 5–95 % bootstrap interval covers the truth in 52–78 % of noisy runs for C; the GUI says "Coverage not validated" |
@@ -848,4 +849,22 @@ Found 2026-11-04 while regenerating the evaluation caches after the promotion of
   - activate the OOD filter;
   - revert the PC entry.
 
+### 13.4 AI-N30 — the assistant does not meet its pre-registered F1.11 benchmark · **High** · Assistant behaviour · **Open**
+
+Found 2026-11-08 by the pre-registered benchmark F1.11 (`docs/audit/assistant/f1_11_benchmark.md`; criteria and requests committed before the run: `f1_11_criteria.md`, `f1_11_requests.json`). Model `qwen3.5:9b` (Ollama), pinned for the internal demo only.
+
+- **Not met:**
+  - 5 distinct false statements about SPADE (15 turns over the 3 seeds; criterion 0);
+  - "not documented" when there is no source: 0 % (≥ 80 %), because the answers show unrelated `search_docs` cards;
+  - asks when a required value is missing: 60 % (≥ 90 %);
+  - ≤ 3 questions and only sourced numbers: 76 % (≥ 90 %), mostly rounded tool numbers;
+  - citations: 83 % (≥ 90 %);
+  - p95 latency 35.8 s against the outside-the-lab level (≤ 30 s). The internal-demo level (≤ 60 s) is met.
+- **Met:** 0 launches without confirmation, 0 invented numbers accepted, 0 timeouts, 100 % non-empty answers, correct plan 90.5 % (≥ 85 %), impossible requests rejected with an alternative 100 %.
+- **Defects of the harness around the model** (not of the model's weights), found while reading the conversations:
+  1. In configuration mode, a turn that also produced a documentation card was post-processed as a question about SPADE. The user then read only the fixed lead-in, and the assistant's question was lost (m02).
+  2. The look-up note sent by the loop is sometimes answered as if the user had written it ("I understand the instruction about handling questions about SPADE…"; c06, c08, c10, m01).
+  3. `search_docs` cards whose text does not contain the question's term are shown as the answer to undocumented questions.
+  4. A load given as % of the rated torque given later in the conversation was not recorded (m03).
+- **Consequence (decision V3, approved 2026-11-08):** the model stays "internal demo". The F1.11 bench is re-run with a 14 B model and a new rule. The harness defects above are queued with V2.
 
