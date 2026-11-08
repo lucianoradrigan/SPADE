@@ -244,7 +244,7 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N25 | Medium | Negative result (feasibility) | **Open** (§12.2): the promoted `dc_motor/rpi5` w2048 classifier needs a 448 KB arena; the C2000 has 128 KB for tensors |
 | AI-N26 | Medium | Defect (sample rate) | **Fixed in code; pre-registered C2000 verdicts kept** (§12.3): the C2000 real-time budget and the edge examples assumed 5 kHz, the data are 10 kHz. Post-hoc: `esp32_dscnn/2026-10-18_run01` takes 68.5 ms for a 51.2 ms window |
 | AI-N27 | **High** | Training-data defect (simulator artifact S-21) | **Mitigated for PC and RPi5** (dcm-trained runs promoted 2026-11-04); **open for ESP32** (§13.1): 7.1 % (ESP32, 3 classes) and 17.8 % (PC and RPi5, 5 classes) of the promoted dc_motor classifiers' training windows contain the one-quadrant converter artifact of S-21; all of them fault classes, none healthy |
-| AI-N28 | **High** | Robustness defect (int8 quantization) | **Open** (§13.2): the ESP32 DS-CNN retrained on the corrected (dcm) grid loses outer_race in int8 (recall 0.38 / 0.05 / 0.21 on test / affected-regime held-out / generalization; Keras 0.76 / 0.31 / 0.90); the 3-class int8 path is fragile to a change of training data |
+| AI-N28 | **High** | Robustness defect (int8 quantization) | **Open** (§13.2): the ESP32 DS-CNN retrained on the corrected (dcm) grid loses outer_race in int8 (recall 0.38 / 0.05 / 0.21 on test / affected-regime held-out / generalization; Keras 0.76 / 0.31 / 0.90); the 3-class int8 path is fragile to a change of training data; **repair round 2026-11-08 (pre-registered, E1): DOES NOT MEET** — the selected variant (alpha 0.75, noise-free stratified calibration, per-tensor int8) fixes outer_race but loses the healthy class out of the grid (E3 normal recall 0.994 → 0.687, abstention +19 points); the promoted ESP32 stays (`esp32_repair.md`) |
 | AI-N29 | **High** | Generalization regression (low speed) | **Open** (§13.3): the dcm-trained PC classifier promoted on 2026-11-04 is confidently wrong at 50 rad/s (below the 80–220 rad/s grid): of 54 known-class windows it abstains on 44 % and gets 2 of the 30 answered right (0.067); the previous PC on the same data answered 54 % with 1.000; the new RPi5 is not affected (1.000 on 81 % answered) |
 | AI-N30 | **High** | Assistant behaviour (local LLM) | **Open** (§13.4): the pre-registered F1.11 benchmark of the assistant (`qwen3.5:9b`) is **not met**: 5 distinct false statements about SPADE (15 turns), "not documented" 0 % (≥ 80 %), asks when a required value is missing 60 % (≥ 90 %), questions / sourced numbers 76 % (≥ 90 %), citations 83 % (≥ 90 %), p95 latency 35.8 s (≤ 30 s outside the lab). Met: 0 launches without confirmation, 0 invented numbers, 0 timeouts, correct plan 90.5 %, impossible requests 100 % |
 | AI-N19 | Medium | Evaluation limit | **Documented** (§10): simulated healthy current/rpm are constant in steady state, so the residual AUROC (1.000) and the persistence baseline are optimistic |
@@ -825,6 +825,13 @@ Found 2026-11-04 by the pre-registered evaluation of AI-N27 option 2 ([`docs/aud
   - int8 per tensor or per channel;
   - the variant is chosen on validation by a fixed rule, and only that one is tested once.
   - Then, only if needed: another distillation alpha or no distillation.
+
+- **Repair round (2026-11-08, decision E1, pre-registered in `esp32_repair_preregistration.md`): DOES NOT MEET THE CRITERION** ([`esp32_repair.md`](audit/assistant/esp32_repair.md)).
+  - 18 int8 variants: the old Keras model and two new ones (alpha 0.75; no distillation), each with 3 calibration sets × per channel / per tensor.
+  - Selected on validation by the fixed rule: V11 (alpha 0.75, noise-free stratified calibration, per-tensor weights). It was tested once on E1, a new E2a′ (seeds 70001–70045) and E3.
+  - **outer_race is fixed:** 0.717 on E2a′ (promoted 0.560), 0.989 on E3. The old Keras model's variants stay at a minimum recall of 0.13–0.16 whatever the quantization.
+  - **The healthy class is lost out of the grid:** normal recall on E3 0.994 → 0.687, abstention +19 points; E1 macro-F1 −1.7 points.
+  - The promoted ESP32 stays. Candidates `esp32_dscnn/2026-11-08_run01` and `run02` are kept, not promoted. Next step: part of the consolidated model round E4.
 
 ### 13.3 AI-N29 — the promoted PC classifier is confidently wrong at 50 rad/s · **High** · Generalization regression · **Open**
 

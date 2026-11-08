@@ -1,0 +1,1256 @@
+{
+  "command": "python experiments/report_esp32_repair.py {prepare,export,select,test} --work <scratch dir>; E2a': python experiments/generate_ai_n27_heldout.py --grid 3class --rng-seed 20261108 --first-run-seed 70001 --set-name esp32_repair_E2a_prime --out data/esp32_repair_heldout_3class_dcm.parquet --workers 10",
+  "preregistration": "docs/audit/assistant/esp32_repair_preregistration.md",
+  "host": "Linux-7.0.0-43-generic-x86_64-with-glibc2.43",
+  "python": "3.12.13",
+  "rule": {
+    "gate_min_macro_f1": 0.88,
+    "gate_min_recall": 0.7,
+    "min_delta_macro_f1_points": -1.0,
+    "min_delta_recall_points": -5.0,
+    "max_abs_delta_abstention_points": 5.0
+  },
+  "R1": {
+    "identical_outputs": true,
+    "max_abs_diff": 0.0,
+    "sha256_committed": "2932b1702d9f939f59071555df6b2fe653f1ad876bae727e314f6ca1e133857b",
+    "sha256_reexport": "2932b1702d9f939f59071555df6b2fe653f1ad876bae727e314f6ca1e133857b",
+    "pass": true
+  },
+  "R2": {
+    "tensorflow": "2.21.0",
+    "scales_per_channel_export": 12,
+    "scales_per_tensor_export": 1,
+    "pass": true
+  },
+  "R3": {
+    "n_val_windows": 1811,
+    "expected": 1811,
+    "groups_match": true,
+    "pass": true
+  },
+  "keras": {
+    "K0": "configs/classifiers/esp32_dscnn/2026-11-04_run01",
+    "K1": "configs/classifiers/esp32_dscnn/2026-11-08_run01",
+    "K2": "configs/classifiers/esp32_dscnn/2026-11-08_run02"
+  },
+  "ranking": [
+    "V11",
+    "V10",
+    "V12",
+    "V16",
+    "V13",
+    "V17",
+    "V14",
+    "V15",
+    "V7",
+    "V6",
+    "V8",
+    "V9",
+    "V4",
+    "V0",
+    "V1",
+    "V5",
+    "V3",
+    "V2"
+  ],
+  "selected": "V11",
+  "selected_at": "2026-11-08T17:37:34Z",
+  "tested_at": "2026-11-08T17:38:04Z",
+  "validation": {
+    "V0": {
+      "keras": "K0",
+      "calibration": "C0",
+      "quant": "Qc",
+      "dir": "/tmp/claude-1000/-home-seven-post-doc-plataform-proposed/44c6a5bb-a64f-55bd-ad9a-8d91aa968a0c/scratchpad/esp32_work/variants/V0",
+      "validation": {
+        "n_windows": 1811,
+        "accuracy": 0.6686913307564881,
+        "macro_f1": 0.602404899819059,
+        "recall": {
+          "inner_race": 0.8617200674536256,
+          "normal": 0.9950738916256158,
+          "outer_race": 0.15435139573070608
+        },
+        "n_per_class": {
+          "inner_race": 593,
+          "normal": 609,
+          "outer_race": 609
+        },
+        "abstention": 0.12258420762009939,
+        "confusion": [
+          [
+            511,
+            82,
+            0
+          ],
+          [
+            3,
+            606,
+            0
+          ],
+          [
+            419,
+            96,
+            94
+          ]
+        ],
+        "min_recall": 0.15435139573070608
+      }
+    },
+    "V1": {
+      "keras": "K0",
+      "calibration": "C0",
+      "quant": "Qt",
+      "dir": "/tmp/claude-1000/-home-seven-post-doc-plataform-proposed/44c6a5bb-a64f-55bd-ad9a-8d91aa968a0c/scratchpad/esp32_work/variants/V1",
+      "validation": {
+        "n_windows": 1811,
+        "accuracy": 0.6686913307564881,
+        "macro_f1": 0.6024684291130024,
+        "recall": {
+          "inner_race": 0.8836424957841484,
+          "normal": 0.9786535303776683,
+          "outer_race": 0.14942528735632185
+        },
+        "n_per_class": {
+          "inner_race": 593,
+          "normal": 609,
+          "outer_race": 609
+        },
+        "abstention": 0.11430149088901159,
+        "confusion": [
+          [
+            524,
+            69,
+            0
+          ],
+          [
+            13,
+            596,
+            0
+          ],
+          [
+            432,
+            86,
+            91
+          ]
+        ],
+        "min_recall": 0.14942528735632185
+      }
+    },
+    "V2": {
+      "keras": "K0",
+      "calibration": "C1",
+      "quant": "Qc",
+      "dir": "/tmp/claude-1000/-home-seven-post-doc-plataform-proposed/44c6a5bb-a64f-55bd-ad9a-8d91aa968a0c/scratchpad/esp32_work/variants/V2",
+      "calibration_counts": {
+        "inner_race": 334,
+        "normal": 333,
+        "outer_race": 333
+      },
+      "validation": {
+        "n_windows": 1811,
+        "accuracy": 0.6626173384870238,
+        "macro_f1": 0.5884498114863755,
+        "recall": {
+          "inner_race": 0.8752107925801011,
+          "normal": 0.9917898193760263,
+          "outer_race": 0.12643678160919541
+        },
+        "n_per_class": {
+          "inner_race": 593,
+          "normal": 609,
+          "outer_race": 609
+        },
+        "abstention": 0.11982330204307012,
+        "confusion": [
+          [
+            519,
+            74,
+            0
+          ],
+          [
+            5,
+            604,
+            0
+          ],
+          [
+            431,
+            101,
+            77
+          ]
+        ],
+        "min_recall": 0.12643678160919541
+      }
+    },
+    "V3": {
+      "keras": "K0",
+      "calibration": "C1",
+      "quant": "Qt",
+      "dir": "/tmp/claude-1000/-home-seven-post-doc-plataform-proposed/44c6a5bb-a64f-55bd-ad9a-8d91aa968a0c/scratchpad/esp32_work/variants/V3",
+      "calibration_counts": {
+        "inner_race": 334,
+        "normal": 333,
+        "outer_race": 333
+      },
+      "validation": {
+        "n_windows": 1811,
+        "accuracy": 0.6626173384870238,
+        "macro_f1": 0.5913050044274247,
+        "recall": {
+          "inner_race": 0.8887015177065767,
+          "normal": 0.9753694581280788,
+          "outer_race": 0.1297208538587849
+        },
+        "n_per_class": {
+          "inner_race": 593,
+          "normal": 609,
+          "outer_race": 609
+        },
+        "abstention": 0.10822749861954721,
+        "confusion": [
+          [
+            527,
+            66,
+            0
+          ],
+          [
+            15,
+            594,
+            0
+          ],
+          [
+            444,
+            86,
+            79
+          ]
+        ],
+        "min_recall": 0.1297208538587849
+      }
+    },
+    "V4": {
+      "keras": "K0",
+      "calibration": "C2",
+      "quant": "Qc",
+      "dir": "/tmp/claude-1000/-home-seven-post-doc-plataform-proposed/44c6a5bb-a64f-55bd-ad9a-8d91aa968a0c/scratchpad/esp32_work/variants/V4",
+      "calibration_counts": {
+        "inner_race": 334,
+        "normal": 333,
+        "outer_race": 333
+      },
+      "validation": {
+        "n_windows": 1811,
+        "accuracy": 0.6725565985643291,
+        "macro_f1": 0.607548857856053,
+        "recall": {
+          "inner_race": 0.863406408094435,
+          "normal": 0.9967159277504105,
+          "outer_race": 0.1625615763546798
+        },
+        "n_per_class": {
+          "inner_race": 593,
+          "normal": 609,
+          "outer_race": 609
+        },
+        "abstention": 0.1319712865819989,
+        "confusion": [
+          [
+            512,
+            81,
+            0
+          ],
+          [
+            2,
+            607,
+            0
+          ],
+          [
+            404,
+            106,
+            99
+          ]
+        ],
+        "min_recall": 0.1625615763546798
+      }
+    },
+    "V5": {
+      "keras": "K0",
+      "calibration": "C2",
+      "quant": "Qt",
+      "dir": "/tmp/claude-1000/-home-seven-post-doc-plataform-proposed/44c6a5bb-a64f-55bd-ad9a-8d91aa968a0c/scratchpad/esp32_work/variants/V5",
+      "calibration_counts": {
+        "inner_race": 334,
+        "normal": 333,
+        "outer_race": 333
+      },
+      "validation": {
+        "n_windows": 1811,
+        "accuracy": 0.6670347874102706,
+        "macro_f1": 0.5981318575447578,
+        "recall": {
+          "inner_race": 0.8836424957841484,
+          "normal": 0.9819376026272578,
+          "outer_race": 0.1412151067323481
+        },
+        "n_per_class": {
+          "inner_race": 593,
+          "normal": 609,
+          "outer_race": 609
+        },
+        "abstention": 0.12810601877415792,
+        "confusion": [
+          [
+            524,
+            69,
+            0
+          ],
+          [
+            11,
+            598,
+            0
+          ],
+          [
+            433,
+            90,
+            86
+          ]
+        ],
+        "min_recall": 0.1412151067323481
+      }
+    },
+    "V6": {
+      "keras": "K1",
+      "calibration": "C0",
+      "quant": "Qc",
+      "dir": "/tmp/claude-1000/-home-seven-post-doc-plataform-proposed/44c6a5bb-a64f-55bd-ad9a-8d91aa968a0c/scratchpad/esp32_work/variants/V6",
+      "calibration_counts": null,
+      "validation": {
+        "n_windows": 1811,
+        "accuracy": 0.7272225289895086,
+        "macro_f1": 0.7033746863283304,
+        "recall": {
+          "inner_race": 0.8853288364249579,
+          "normal": 0.3448275862068966,
+          "outer_race": 0.9556650246305419
+        },
+        "n_per_class": {
+          "inner_race": 593,
+          "normal": 609,
+          "outer_race": 609
+        },
+        "abstention": 0.25731639977912757,
+        "confusion": [
+          [
+            525,
+            3,
+            65
+          ],
+          [
+            68,
+            210,
+            331
+          ],
+          [
+            26,
+            1,
+            582
+          ]
+        ],
+        "min_recall": 0.3448275862068966
+      }
+    },
+    "V7": {
+      "keras": "K1",
+      "calibration": "C0",
+      "quant": "Qt",
+      "dir": "/tmp/claude-1000/-home-seven-post-doc-plataform-proposed/44c6a5bb-a64f-55bd-ad9a-8d91aa968a0c/scratchpad/esp32_work/variants/V7",
+      "calibration_counts": null,
+      "validation": {
+        "n_windows": 1811,
+        "accuracy": 0.7388183324130315,
+        "macro_f1": 0.7191470539907127,
+        "recall": {
+          "inner_race": 0.8768971332209107,
+          "normal": 0.3793103448275862,
+          "outer_race": 0.9638752052545156
+        },
+        "n_per_class": {
+          "inner_race": 593,
+          "normal": 609,
+          "outer_race": 609
+        },
+        "abstention": 0.26836002208724463,
+        "confusion": [
+          [
+            520,
+            4,
+            69
+          ],
+          [
+            68,
+            231,
+            310
+          ],
+          [
+            20,
+            2,
+            587
+          ]
+        ],
+        "min_recall": 0.3793103448275862
+      }
+    },
+    "V8": {
+      "keras": "K1",
+      "calibration": "C1",
+      "quant": "Qc",
+      "dir": "/tmp/claude-1000/-home-seven-post-doc-plataform-proposed/44c6a5bb-a64f-55bd-ad9a-8d91aa968a0c/scratchpad/esp32_work/variants/V8",
+      "calibration_counts": {
+        "inner_race": 334,
+        "normal": 333,
+        "outer_race": 333
+      },
+      "validation": {
+        "n_windows": 1811,
+        "accuracy": 0.7101049144119271,
+        "macro_f1": 0.6691832997466417,
+        "recall": {
+          "inner_race": 0.8853288364249579,
+          "normal": 0.986863711001642,
+          "outer_race": 0.2627257799671593
+        },
+        "n_per_class": {
+          "inner_race": 593,
+          "normal": 609,
+          "outer_race": 609
+        },
+        "abstention": 0.05245720596355605,
+        "confusion": [
+          [
+            525,
+            68,
+            0
+          ],
+          [
+            8,
+            601,
+            0
+          ],
+          [
+            389,
+            60,
+            160
+          ]
+        ],
+        "min_recall": 0.2627257799671593
+      }
+    },
+    "V9": {
+      "keras": "K1",
+      "calibration": "C1",
+      "quant": "Qt",
+      "dir": "/tmp/claude-1000/-home-seven-post-doc-plataform-proposed/44c6a5bb-a64f-55bd-ad9a-8d91aa968a0c/scratchpad/esp32_work/variants/V9",
+      "calibration_counts": {
+        "inner_race": 334,
+        "normal": 333,
+        "outer_race": 333
+      },
+      "validation": {
+        "n_windows": 1811,
+        "accuracy": 0.7073440088348979,
+        "macro_f1": 0.6649681302819576,
+        "recall": {
+          "inner_race": 0.8853288364249579,
+          "normal": 0.986863711001642,
+          "outer_race": 0.2545155993431856
+        },
+        "n_per_class": {
+          "inner_race": 593,
+          "normal": 609,
+          "outer_race": 609
+        },
+        "abstention": 0.05245720596355605,
+        "confusion": [
+          [
+            525,
+            68,
+            0
+          ],
+          [
+            8,
+            601,
+            0
+          ],
+          [
+            394,
+            60,
+            155
+          ]
+        ],
+        "min_recall": 0.2545155993431856
+      }
+    },
+    "V10": {
+      "keras": "K1",
+      "calibration": "C2",
+      "quant": "Qc",
+      "dir": "/tmp/claude-1000/-home-seven-post-doc-plataform-proposed/44c6a5bb-a64f-55bd-ad9a-8d91aa968a0c/scratchpad/esp32_work/variants/V10",
+      "calibration_counts": {
+        "inner_race": 334,
+        "normal": 333,
+        "outer_race": 333
+      },
+      "validation": {
+        "n_windows": 1811,
+        "accuracy": 0.8575372722252899,
+        "macro_f1": 0.857411323297378,
+        "recall": {
+          "inner_race": 0.8903878583473862,
+          "normal": 0.7832512315270936,
+          "outer_race": 0.8998357963875205
+        },
+        "n_per_class": {
+          "inner_race": 593,
+          "normal": 609,
+          "outer_race": 609
+        },
+        "abstention": 0.22308117062396465,
+        "confusion": [
+          [
+            528,
+            27,
+            38
+          ],
+          [
+            40,
+            477,
+            92
+          ],
+          [
+            46,
+            15,
+            548
+          ]
+        ],
+        "min_recall": 0.7832512315270936
+      }
+    },
+    "V11": {
+      "keras": "K1",
+      "calibration": "C2",
+      "quant": "Qt",
+      "dir": "/tmp/claude-1000/-home-seven-post-doc-plataform-proposed/44c6a5bb-a64f-55bd-ad9a-8d91aa968a0c/scratchpad/esp32_work/variants/V11",
+      "calibration_counts": {
+        "inner_race": 334,
+        "normal": 333,
+        "outer_race": 333
+      },
+      "validation": {
+        "n_windows": 1811,
+        "accuracy": 0.8669243511871894,
+        "macro_f1": 0.8670056900170536,
+        "recall": {
+          "inner_race": 0.8920741989881956,
+          "normal": 0.819376026272578,
+          "outer_race": 0.8899835796387521
+        },
+        "n_per_class": {
+          "inner_race": 593,
+          "normal": 609,
+          "outer_race": 609
+        },
+        "abstention": 0.21038100496963003,
+        "confusion": [
+          [
+            529,
+            26,
+            38
+          ],
+          [
+            39,
+            499,
+            71
+          ],
+          [
+            49,
+            18,
+            542
+          ]
+        ],
+        "min_recall": 0.819376026272578
+      }
+    },
+    "V12": {
+      "keras": "K2",
+      "calibration": "C0",
+      "quant": "Qc",
+      "dir": "/tmp/claude-1000/-home-seven-post-doc-plataform-proposed/44c6a5bb-a64f-55bd-ad9a-8d91aa968a0c/scratchpad/esp32_work/variants/V12",
+      "calibration_counts": null,
+      "validation": {
+        "n_windows": 1811,
+        "accuracy": 0.8669243511871894,
+        "macro_f1": 0.865565429360413,
+        "recall": {
+          "inner_race": 0.8499156829679595,
+          "normal": 0.993431855500821,
+          "outer_race": 0.7569786535303776
+        },
+        "n_per_class": {
+          "inner_race": 593,
+          "normal": 609,
+          "outer_race": 609
+        },
+        "abstention": 0.11374930977360574,
+        "confusion": [
+          [
+            504,
+            82,
+            7
+          ],
+          [
+            3,
+            605,
+            1
+          ],
+          [
+            79,
+            69,
+            461
+          ]
+        ],
+        "min_recall": 0.7569786535303776
+      }
+    },
+    "V13": {
+      "keras": "K2",
+      "calibration": "C0",
+      "quant": "Qt",
+      "dir": "/tmp/claude-1000/-home-seven-post-doc-plataform-proposed/44c6a5bb-a64f-55bd-ad9a-8d91aa968a0c/scratchpad/esp32_work/variants/V13",
+      "calibration_counts": null,
+      "validation": {
+        "n_windows": 1811,
+        "accuracy": 0.8614025400331309,
+        "macro_f1": 0.8595792276119224,
+        "recall": {
+          "inner_race": 0.851602023608769,
+          "normal": 0.993431855500821,
+          "outer_race": 0.7389162561576355
+        },
+        "n_per_class": {
+          "inner_race": 593,
+          "normal": 609,
+          "outer_race": 609
+        },
+        "abstention": 0.11595803423522916,
+        "confusion": [
+          [
+            505,
+            81,
+            7
+          ],
+          [
+            3,
+            605,
+            1
+          ],
+          [
+            88,
+            71,
+            450
+          ]
+        ],
+        "min_recall": 0.7389162561576355
+      }
+    },
+    "V14": {
+      "keras": "K2",
+      "calibration": "C1",
+      "quant": "Qc",
+      "dir": "/tmp/claude-1000/-home-seven-post-doc-plataform-proposed/44c6a5bb-a64f-55bd-ad9a-8d91aa968a0c/scratchpad/esp32_work/variants/V14",
+      "calibration_counts": {
+        "inner_race": 334,
+        "normal": 333,
+        "outer_race": 333
+      },
+      "validation": {
+        "n_windows": 1811,
+        "accuracy": 0.8393152954168968,
+        "macro_f1": 0.8354614638061534,
+        "recall": {
+          "inner_race": 0.8887015177065767,
+          "normal": 0.9720853858784894,
+          "outer_race": 0.6584564860426929
+        },
+        "n_per_class": {
+          "inner_race": 593,
+          "normal": 609,
+          "outer_race": 609
+        },
+        "abstention": 0.20762009939260076,
+        "confusion": [
+          [
+            527,
+            65,
+            1
+          ],
+          [
+            17,
+            592,
+            0
+          ],
+          [
+            147,
+            61,
+            401
+          ]
+        ],
+        "min_recall": 0.6584564860426929
+      }
+    },
+    "V15": {
+      "keras": "K2",
+      "calibration": "C1",
+      "quant": "Qt",
+      "dir": "/tmp/claude-1000/-home-seven-post-doc-plataform-proposed/44c6a5bb-a64f-55bd-ad9a-8d91aa968a0c/scratchpad/esp32_work/variants/V15",
+      "calibration_counts": {
+        "inner_race": 334,
+        "normal": 333,
+        "outer_race": 333
+      },
+      "validation": {
+        "n_windows": 1811,
+        "accuracy": 0.8365543898398675,
+        "macro_f1": 0.832388529458337,
+        "recall": {
+          "inner_race": 0.8887015177065767,
+          "normal": 0.9720853858784894,
+          "outer_race": 0.6502463054187192
+        },
+        "n_per_class": {
+          "inner_race": 593,
+          "normal": 609,
+          "outer_race": 609
+        },
+        "abstention": 0.2087244616234125,
+        "confusion": [
+          [
+            527,
+            65,
+            1
+          ],
+          [
+            17,
+            592,
+            0
+          ],
+          [
+            151,
+            62,
+            396
+          ]
+        ],
+        "min_recall": 0.6502463054187192
+      }
+    },
+    "V16": {
+      "keras": "K2",
+      "calibration": "C2",
+      "quant": "Qc",
+      "dir": "/tmp/claude-1000/-home-seven-post-doc-plataform-proposed/44c6a5bb-a64f-55bd-ad9a-8d91aa968a0c/scratchpad/esp32_work/variants/V16",
+      "calibration_counts": {
+        "inner_race": 334,
+        "normal": 333,
+        "outer_race": 333
+      },
+      "validation": {
+        "n_windows": 1811,
+        "accuracy": 0.8641634456101601,
+        "macro_f1": 0.8626981961229762,
+        "recall": {
+          "inner_race": 0.8532883642495784,
+          "normal": 0.9950738916256158,
+          "outer_race": 0.7438423645320197
+        },
+        "n_per_class": {
+          "inner_race": 593,
+          "normal": 609,
+          "outer_race": 609
+        },
+        "abstention": 0.11927112092766427,
+        "confusion": [
+          [
+            506,
+            84,
+            3
+          ],
+          [
+            3,
+            606,
+            0
+          ],
+          [
+            83,
+            73,
+            453
+          ]
+        ],
+        "min_recall": 0.7438423645320197
+      }
+    },
+    "V17": {
+      "keras": "K2",
+      "calibration": "C2",
+      "quant": "Qt",
+      "dir": "/tmp/claude-1000/-home-seven-post-doc-plataform-proposed/44c6a5bb-a64f-55bd-ad9a-8d91aa968a0c/scratchpad/esp32_work/variants/V17",
+      "calibration_counts": {
+        "inner_race": 334,
+        "normal": 333,
+        "outer_race": 333
+      },
+      "validation": {
+        "n_windows": 1811,
+        "accuracy": 0.8586416344561016,
+        "macro_f1": 0.8565773938545349,
+        "recall": {
+          "inner_race": 0.8549747048903878,
+          "normal": 0.9950738916256158,
+          "outer_race": 0.7257799671592775
+        },
+        "n_per_class": {
+          "inner_race": 593,
+          "normal": 609,
+          "outer_race": 609
+        },
+        "abstention": 0.12534511319712865,
+        "confusion": [
+          [
+            507,
+            83,
+            3
+          ],
+          [
+            3,
+            606,
+            0
+          ],
+          [
+            96,
+            71,
+            442
+          ]
+        ],
+        "min_recall": 0.7257799671592775
+      }
+    }
+  },
+  "test": {
+    "promoted": "configs/classifiers/esp32_dscnn/2026-10-18_run01",
+    "selected": "V11",
+    "variant": {
+      "keras": "K1",
+      "calibration": "C2",
+      "quant": "Qt",
+      "dir": "/tmp/claude-1000/-home-seven-post-doc-plataform-proposed/44c6a5bb-a64f-55bd-ad9a-8d91aa968a0c/scratchpad/esp32_work/variants/V11",
+      "calibration_counts": {
+        "inner_race": 334,
+        "normal": 333,
+        "outer_race": 333
+      }
+    },
+    "sets": {
+      "E1": {
+        "n_acquisitions": 30,
+        "promoted": {
+          "n_windows": 870,
+          "accuracy": 0.8988505747126436,
+          "macro_f1": 0.8990066415902556,
+          "recall": {
+            "inner_race": 0.8793103448275862,
+            "normal": 0.9241379310344827,
+            "outer_race": 0.8931034482758621
+          },
+          "n_per_class": {
+            "inner_race": 290,
+            "normal": 290,
+            "outer_race": 290
+          },
+          "abstention": 0.16551724137931034,
+          "confusion": [
+            [
+              255,
+              21,
+              14
+            ],
+            [
+              13,
+              268,
+              9
+            ],
+            [
+              8,
+              23,
+              259
+            ]
+          ]
+        },
+        "candidate": {
+          "n_windows": 870,
+          "accuracy": 0.8816091954022989,
+          "macro_f1": 0.8815461757666073,
+          "recall": {
+            "inner_race": 0.896551724137931,
+            "normal": 0.8310344827586207,
+            "outer_race": 0.9172413793103448
+          },
+          "n_per_class": {
+            "inner_race": 290,
+            "normal": 290,
+            "outer_race": 290
+          },
+          "abstention": 0.2482758620689655,
+          "confusion": [
+            [
+              260,
+              10,
+              20
+            ],
+            [
+              18,
+              241,
+              31
+            ],
+            [
+              13,
+              11,
+              266
+            ]
+          ]
+        },
+        "delta_points": {
+          "macro_f1": -1.7460465823648241,
+          "accuracy": -1.724137931034475,
+          "abstention": 8.275862068965518,
+          "recall": {
+            "inner_race": 1.7241379310344862,
+            "normal": -9.310344827586203,
+            "outer_race": 2.4137931034482696
+          }
+        },
+        "delta_macro_f1_ci95_points": [
+          -4.454195728606769,
+          0.9930668900579709
+        ]
+      },
+      "E2a": {
+        "n_acquisitions": 45,
+        "promoted": {
+          "n_windows": 2160,
+          "accuracy": 0.8203703703703704,
+          "macro_f1": 0.8149475636293825,
+          "recall": {
+            "inner_race": 0.9527777777777777,
+            "normal": 0.9486111111111111,
+            "outer_race": 0.5597222222222222
+          },
+          "n_per_class": {
+            "inner_race": 720,
+            "normal": 720,
+            "outer_race": 720
+          },
+          "abstention": 0.23194444444444445,
+          "confusion": [
+            [
+              686,
+              4,
+              30
+            ],
+            [
+              15,
+              683,
+              22
+            ],
+            [
+              311,
+              6,
+              403
+            ]
+          ]
+        },
+        "candidate": {
+          "n_windows": 2160,
+          "accuracy": 0.8560185185185185,
+          "macro_f1": 0.8558238572151682,
+          "recall": {
+            "inner_race": 0.9722222222222222,
+            "normal": 0.8791666666666667,
+            "outer_race": 0.7166666666666667
+          },
+          "n_per_class": {
+            "inner_race": 720,
+            "normal": 720,
+            "outer_race": 720
+          },
+          "abstention": 0.2708333333333333,
+          "confusion": [
+            [
+              700,
+              0,
+              20
+            ],
+            [
+              22,
+              633,
+              65
+            ],
+            [
+              204,
+              0,
+              516
+            ]
+          ]
+        },
+        "delta_points": {
+          "macro_f1": 4.087629358578571,
+          "accuracy": 3.5648148148148096,
+          "abstention": 3.888888888888886,
+          "recall": {
+            "inner_race": 1.9444444444444486,
+            "normal": -6.944444444444442,
+            "outer_race": 15.694444444444445
+          }
+        },
+        "delta_macro_f1_ci95_points": [
+          -2.9563134913430753,
+          11.161254585144018
+        ]
+      },
+      "E2a_old_descriptive": {
+        "n_acquisitions": 45,
+        "promoted": {
+          "n_windows": 2160,
+          "accuracy": 0.8430555555555556,
+          "macro_f1": 0.842782955097063,
+          "recall": {
+            "inner_race": 0.8791666666666667,
+            "normal": 0.9513888888888888,
+            "outer_race": 0.6986111111111111
+          },
+          "n_per_class": {
+            "inner_race": 720,
+            "normal": 720,
+            "outer_race": 720
+          },
+          "abstention": 0.23981481481481481,
+          "confusion": [
+            [
+              633,
+              9,
+              78
+            ],
+            [
+              16,
+              685,
+              19
+            ],
+            [
+              212,
+              5,
+              503
+            ]
+          ]
+        },
+        "candidate": {
+          "n_windows": 2160,
+          "accuracy": 0.8865740740740741,
+          "macro_f1": 0.8869521415979028,
+          "recall": {
+            "inner_race": 0.9694444444444444,
+            "normal": 0.8986111111111111,
+            "outer_race": 0.7916666666666666
+          },
+          "n_per_class": {
+            "inner_race": 720,
+            "normal": 720,
+            "outer_race": 720
+          },
+          "abstention": 0.24444444444444444,
+          "confusion": [
+            [
+              698,
+              0,
+              22
+            ],
+            [
+              20,
+              647,
+              53
+            ],
+            [
+              150,
+              0,
+              570
+            ]
+          ]
+        },
+        "delta_points": {
+          "macro_f1": 4.4169186500839785,
+          "accuracy": 4.351851851851851,
+          "abstention": 0.46296296296296224,
+          "recall": {
+            "inner_race": 9.027777777777779,
+            "normal": -5.27777777777777,
+            "outer_race": 9.305555555555555
+          }
+        },
+        "delta_macro_f1_ci95_points": [
+          -5.4706503186222015,
+          14.025794792965549
+        ]
+      },
+      "E3": {
+        "n_acquisitions": 156,
+        "promoted": {
+          "n_windows": 2844,
+          "accuracy": 0.989803094233474,
+          "macro_f1": 0.9898077547537651,
+          "recall": {
+            "inner_race": 0.9873417721518988,
+            "normal": 0.9936708860759493,
+            "outer_race": 0.9883966244725738
+          },
+          "n_per_class": {
+            "inner_race": 948,
+            "normal": 948,
+            "outer_race": 948
+          },
+          "abstention": 0.039029535864978905,
+          "confusion": [
+            [
+              936,
+              8,
+              4
+            ],
+            [
+              1,
+              942,
+              5
+            ],
+            [
+              3,
+              8,
+              937
+            ]
+          ]
+        },
+        "candidate": {
+          "n_windows": 2844,
+          "accuracy": 0.8878340365682138,
+          "macro_f1": 0.8823529993714702,
+          "recall": {
+            "inner_race": 0.9873417721518988,
+            "normal": 0.6867088607594937,
+            "outer_race": 0.989451476793249
+          },
+          "n_per_class": {
+            "inner_race": 948,
+            "normal": 948,
+            "outer_race": 948
+          },
+          "abstention": 0.22855133614627285,
+          "confusion": [
+            [
+              936,
+              4,
+              8
+            ],
+            [
+              160,
+              651,
+              137
+            ],
+            [
+              6,
+              4,
+              938
+            ]
+          ]
+        },
+        "delta_points": {
+          "macro_f1": -10.745475538229499,
+          "accuracy": -10.19690576652602,
+          "abstention": 18.952180028129394,
+          "recall": {
+            "inner_race": 0.0,
+            "normal": -30.696202531645568,
+            "outer_race": 0.10548523206751481
+          }
+        },
+        "delta_macro_f1_ci95_points": [
+          -15.3260697754642,
+          -6.988756928268449
+        ]
+      }
+    },
+    "checks": {
+      "gate_D1_macro_f1": {
+        "value": 0.8815461757666073,
+        "pass": true
+      },
+      "gate_D1_min_recall": {
+        "value": 0.8310344827586207,
+        "pass": true
+      },
+      "E1_delta_macro_f1": {
+        "value": -1.7460465823648241,
+        "pass": false
+      },
+      "E1_worst_delta_recall": {
+        "class": "normal",
+        "value": -9.310344827586203,
+        "pass": false
+      },
+      "E1_delta_abstention": {
+        "value": 8.275862068965518,
+        "pass": false
+      },
+      "E2a_delta_macro_f1": {
+        "value": 4.087629358578571,
+        "pass": true
+      },
+      "E2a_worst_delta_recall": {
+        "class": "normal",
+        "value": -6.944444444444442,
+        "pass": false
+      },
+      "E2a_delta_abstention": {
+        "value": 3.888888888888886,
+        "pass": true
+      },
+      "E3_delta_macro_f1": {
+        "value": -10.745475538229499,
+        "pass": false
+      },
+      "E3_worst_delta_recall": {
+        "class": "normal",
+        "value": -30.696202531645568,
+        "pass": false
+      },
+      "E3_delta_abstention": {
+        "value": 18.952180028129394,
+        "pass": false
+      }
+    },
+    "verdict": "DOES NOT MEET THE CRITERION"
+  },
+  "R4": {
+    "new_seeds": [
+      70001,
+      70045
+    ],
+    "overlap_with_old_E2a": 0,
+    "in_grid_range_1001_1525": 0,
+    "in_eval_200_203": 0,
+    "bit_identical_plant_acquisitions": 0,
+    "pass": true
+  }
+}

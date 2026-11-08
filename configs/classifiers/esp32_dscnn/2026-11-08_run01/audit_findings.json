@@ -1,0 +1,25 @@
+{
+ "findings": [
+  {
+   "id": "candidate-esp32-repair",
+   "severity": "medium",
+   "date": "2026-11-08",
+   "summary": "AI-N28 repair round, stage 2: ESP32 3-class retrained on the dcm x1000 grid with distillation alpha 0.75 (same recipe, teacher and split as 2026-11-04_run01). Candidate only; not promoted; the registry is unchanged. Its int8 variant V11 (calibration C2, per-tensor weights) was SELECTED on validation and tested once: DOES NOT MEET the criterion (E3 normal recall 0.994 -> 0.687, abstention +19 points; E1 macro-F1 -1.7).",
+   "evidence": "docs/audit/assistant/esp32_repair.md, docs/audit/assistant/esp32_repair_preregistration.md"
+  },
+  {
+   "id": "sim-only",
+   "severity": "medium",
+   "date": "2026-11-08",
+   "summary": "Trained and evaluated on simulated data only (dcm x1000 grid); no real-machine validation exists.",
+   "evidence": "docs/audit/assistant/esp32_repair.md"
+  },
+  {
+   "id": "three-class-vs-five",
+   "severity": "high",
+   "date": "2026-11-08",
+   "summary": "3 classes (inner_race, normal, outer_race): a ball or cage fault is assigned to one of the 3 known classes; no OOD method catches it (AI-N13).",
+   "evidence": "docs/AI_TECHNICAL_AUDIT.md AI-N12/AI-N13"
+  }
+ ]
+}
