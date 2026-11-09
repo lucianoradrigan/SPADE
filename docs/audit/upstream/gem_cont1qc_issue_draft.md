@@ -1,6 +1,7 @@
-# Draft issue for upstream gym-electric-motor — FINAL DRAFT, NOT PUBLISHED
+# Issue for upstream gym-electric-motor — PUBLISHED as #292 (2026-11-09)
 
 **Status:**
+- **PUBLISHED on 2026-11-09 as https://github.com/upb-lea/gym-electric-motor/issues/292** (see `gem_cont1qc_issue_published.md`).
 - **Final draft** (2026-11-08; "Possible fix" rewritten in three levels on 2026-11-09, T7, with the local fork's results). Luciano publishes it himself; Claude Code does not post it.
 - Companion PR draft (local only): [`gem_cont1qc_pr_draft.md`](gem_cont1qc_pr_draft.md).
 - First draft 2026-11-03. The repository is `upb-lea/gym-electric-motor` on GitHub.
