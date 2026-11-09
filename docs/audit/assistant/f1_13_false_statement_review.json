@@ -1,0 +1,252 @@
+{
+ "reviewed_turns": 172,
+ "false_statements": [
+  {
+   "turn_ids": [
+    "c03/seed0/turn1"
+   ],
+   "statement": "Cada simulación durará 0,3 s (por defecto), con tensión de alimentación y par de carga también por defecto.",
+   "why_false": "The proposal card of this turn has no duration_s, so the runs use Scenario's default 1.0 s, not 0.3 s; 0.3 s is not a default either (the card's 9.4872 s CPU = 3 runs x 3.1624 CPU-s/s x 1.0 s).",
+   "evidence": "src/driveflow/datagen/scenario.py:207 (duration_s: float = 1.0); configs/sim_cost.yaml dc_perm_ex_v1/PI 3.1624; card 'Proposal: 3 experiment(s) on dc_perm_ex_v2 (PI)' of the same turn"
+  },
+  {
+   "turn_ids": [
+    "o05/seed0/turn1"
+   ],
+   "statement": "El valor por defecto es 16 N*m (100% del torque nominal).",
+   "why_false": "load_torque_nm has no 16 N*m default: its default is None (no added load, only the friction constant). 16 N*m is the rated torque, shown on the card as a suggestion, not as a default.",
+   "evidence": "src/driveflow/datagen/scenario.py:233 (load_torque_nm: float = None); configs/plant_catalog.yaml load_torque_nm; card 'Suggestion for load_torque_nm'"
+  },
+  {
+   "turn_ids": [
+    "i02/seed0/turn0"
+   ],
+   "statement": "Simulate a non-inverting buck converter instead (e.g., 12V → +24V)?",
+   "why_false": "A buck only steps down; with 12 V in it cannot give +24 V. SPADE only simulates the step-down buck, and the output reference must stay below the input voltage.",
+   "evidence": "configs/plant_catalog.yaml buck_vout_ref_v range_note ('a buck cannot step up'); configs/assistant_catalog.yaml not_simulable (boost/buck-boost); card 'What SPADE says about this request' (only the buck (step-down))"
+  },
+  {
+   "turn_ids": [
+    "i02/seed0/turn0"
+   ],
+   "statement": "Output voltage reference (V) - must be between 0 and 48V",
+   "why_false": "The upper bound is buck_vin_v (48 V only by default). The same list takes the user's 12 V input, so the reference must be below 12 V.",
+   "evidence": "configs/plant_catalog.yaml buck_vout_ref_v range_note: 'upper bound is buck_vin_v (48 V by default)'"
+  },
+  {
+   "turn_ids": [
+    "i04/seed0/turn0",
+    "i04/seed1/turn0"
+   ],
+   "statement": "Tune the current loop parameters externally (e.g., in Tuning Studio or another tool)",
+   "why_false": "Tuning Studio tunes only the DC-motor speed PI and the buck PI. FOC is not tunable in SPADE, as the turn's card says.",
+   "evidence": "configs/assistant_catalog.yaml tuning_studio.what; src/driveflow/assistant/objective.py describe_tunable note ('MPC, DPC and FOC are not tunable'), shown in the turn's card 'What SPADE says about this request'"
+  },
+  {
+   "turn_ids": [
+    "i05/seed0/turn0"
+   ],
+   "statement": "O prefieres simular un **motor de inducción** con falla en la jaula de ardilla (severidad 1)?",
+   "why_false": "SPADE has no induction-motor plant, so no induction motor can be simulated.",
+   "evidence": "configs/assistant_catalog.yaml not_simulable: 'induction motor — No induction-motor plant in SPADE today'"
+  },
+  {
+   "turn_ids": [
+    "i05/seed1/turn0"
+   ],
+   "statement": "**¿Qué tipo de falla te interesa simular?** Por ejemplo: 1. **Falla en el convertidor** (puente rectificador) 2. **Desconexión del campo** permanente 3. **Cortocircuito o apertura en la armadura** 4. **Falla en los sensores** de corriente/velocidad",
+   "why_false": "The DC plants only model bearing faults (outer_race, inner_race, ball, cage, or a custom order label) plus sensor noise. Converter, field, armature and sensor-failure faults cannot be simulated. 'cage' (the bearing cage fault the user asked for) is available.",
+   "evidence": "configs/plant_catalog.yaml fault_type description; configs/assistant_catalog.yaml dc_motor.what ('bearing-fault injection')"
+  },
+  {
+   "turn_ids": [
+    "i05/seed1/turn0"
+   ],
+   "statement": "O si buscas un motor diferente con jaula de ardilla, puedo recomendarte una planta adecuada.",
+   "why_false": "No SPADE plant has a squirrel cage (no induction motor), so there is no such plant to recommend.",
+   "evidence": "configs/assistant_catalog.yaml not_simulable (induction motor); configs/plant_catalog.yaml plants list"
+  },
+  {
+   "turn_ids": [
+    "l03/seed0/turn1"
+   ],
+   "statement": "Los resultados aparecerán en breve una vez finalice la simulación.",
+   "why_false": "Nothing was launched: the same reply says 'No se lanzó nada' and the turn has no job card. With no worker running, no results can appear.",
+   "evidence": "turn cards (only 'Plant dc_perm_ex_v2', no run_experiments/job card); configs/assistant_catalog.yaml experiment_runs.limitations (jobs run only while a worker runs)"
+  },
+  {
+   "turn_ids": [
+    "l05/seed2/turn1"
+   ],
+   "statement": "Los resultados aparecerán cuando el trabajo termine de ejecutarse. Por favor, espera un momento o vuelve a preguntar para obtener los resultados una vez que estén disponibles.",
+   "why_false": "The turn's job card says the job is queued and waiting for a SPADE worker, which must be started. It is not running, so waiting a moment will not produce results.",
+   "evidence": "cards 'Job job-20261109T034127-c7d791df' (state: queued; 'a SPADE worker must process queued jobs'); configs/assistant_catalog.yaml experiment_runs.limitations"
+  },
+  {
+   "turn_ids": [
+    "c01/seed2/turn0"
+   ],
+   "statement": "He configurado la simulación con el motor DC estándar (`dc_perm_ex_v2`), controlador PI, velocidad de referencia de 75 rad/s y duración de 0,35 s.",
+   "why_false": "The draft was not configured: the turn's card says SPADE still needs the plant.",
+   "evidence": "card 'SPADE needs these values to continue' of the same turn: 'plant: which plant to simulate (choices: ...)'"
+  },
+  {
+   "turn_ids": [
+    "i01/seed2/turn0"
+   ],
+   "statement": "**dc_pmg132_v1/v2**: motor PMG 132 (alternador)",
+   "why_false": "dc_pmg132_v1/v2 are permanently excited DC motors with the Perm-Motor PMG 132 datasheet values, not alternators.",
+   "evidence": "configs/plant_catalog.yaml plants.dc_pmg132_v1/v2 titles; turn's card 'Plant dc_pmg132_v1'"
+  },
+  {
+   "turn_ids": [
+    "i01/seed2/turn0"
+   ],
+   "statement": "**buck_v1**: convertidor buck de 48 V a 12 V",
+   "why_false": "buck_v1's defaults are 48 V in and 24 V out, not 12 V.",
+   "evidence": "configs/plant_catalog.yaml buck_vout_ref_v default_source '24 V (runner)', buck_vin_v '48 V (BuckParams)'"
+  }
+ ],
+ "card_defects": [
+  {
+   "turn_ids": [
+    "l04/seed0/turn0",
+    "l04/seed1/turn0",
+    "l04/seed2/turn0",
+    "o01/seed0/turn0",
+    "o01/seed1/turn0",
+    "o01/seed2/turn0",
+    "o02/seed0/turn0",
+    "o02/seed1/turn0",
+    "o02/seed2/turn0",
+    "o04/seed0/turn0",
+    "o04/seed1/turn0",
+    "o04/seed2/turn0",
+    "o05/seed2/turn1",
+    "o06/seed0/turn0",
+    "o06/seed1/turn0",
+    "o06/seed2/turn0"
+   ],
+   "card_title": "Tuning proposal",
+   "problem": "Shows 'base motor: custom (dc_converter_model)' when the plant is the stock dc_perm_ex_v2 motor with no motor overrides. motor_block() always adds dc_converter_model='dcm_exact' for DC plants, and cards.py prints any non-None block as 'custom'. The card therefore never shows the stock motor as stock.",
+   "evidence": "src/driveflow/assistant/objective.py motor_block (docstring 'None = stock motor'; block['dc_converter_model'] = 'dcm_exact' for every DC plant); src/driveflow/assistant/cards.py:115"
+  },
+  {
+   "turn_ids": [
+    "o03/seed0/turn0",
+    "o03/seed1/turn0",
+    "o03/seed2/turn0"
+   ],
+   "card_title": "Tuning proposal (dc_pmg132_v2)",
+   "problem": "Shows 'base motor: custom (dc_converter_model, dc_limit_overrides, dc_nominal_overrides, motor_parameter_overrides)' for the unmodified PMG 132 datasheet plant. Same cause: the datasheet values are passed as overrides, and any block is labelled custom.",
+   "evidence": "src/driveflow/assistant/objective.py motor_block (dc_pmg132_v2 branch); src/driveflow/assistant/cards.py:115"
+  }
+ ],
+ "borderline": [
+  {
+   "turn_ids": [
+    "c03/seed0/turn0",
+    "c05/seed1/turn0"
+   ],
+   "statement": "Faltan definir los valores de: duration_s ... dc_supply_v ... load_torque_nm / Faltan definir la tensión de alimentación (V), los parámetros del motor ...",
+   "note": "These fields have defaults (65 V supply, stock motor, no load), so they are not really missing, and in c03 the user had given 0.3 s. Not counted because the reply is framed as a question and offers the defaults."
+  },
+  {
+   "turn_ids": [
+    "q04/seed0/turn0",
+    "q04/seed1/turn0",
+    "q04/seed2/turn0"
+   ],
+   "statement": "SPADE offers a **DPC (Direct Power Control)** controller",
+   "note": "README.md:44 and docs/plataforma_estado_actual.md:47 do call it 'Direct Power Control'. README.md:5, control/dpc/__init__.py and the catalog say differentiable/direct predictive control. The repo is inconsistent, so not counted."
+  },
+  {
+   "turn_ids": [
+    "o06/seed0/turn0",
+    "o06/seed1/turn0",
+    "o06/seed2/turn0"
+   ],
+   "statement": "Objective: J_effort (minimize control effort)",
+   "note": "J_effort is a sum of normalised overshoot, settling, dip and effort plus a current penalty, so 'minimize control effort' is incomplete but not contradicted. The user asked to minimise effort."
+  },
+  {
+   "turn_ids": [
+    "o04/seed2/turn0"
+   ],
+   "statement": "The tuning will search for PI gains that meet the rise time requirement on the evaluation grid.",
+   "note": "The search minimises J on the tuning grid, and requirements are checked afterwards on the evaluation grid (objective.py describe_tunable 'how'). Imprecise, and the next sentence is correct."
+  },
+  {
+   "turn_ids": [
+    "m03/seed0/turn1"
+   ],
+   "statement": "Hecho. Para confirmar la configuración ... Velocidad de referencia: 110 rad/s ... Duración: 0.35 s ... Parámetros del motor ... Carga ... 6 N*m",
+   "note": "The next turn's proposal card shows only 'controller_type PI' (defaults), so these values were never written to the draft. Not counted because no card in this same turn contradicts it."
+  },
+  {
+   "turn_ids": [
+    "i05/seed0/turn0"
+   ],
+   "statement": "los motores DC no tienen \"jaula de ardilla\" - esa característica es exclusiva de los motores de inducción.",
+   "note": "True as a statement about squirrel cages, but it misreads the request: SPADE's fault_type 'cage' (bearing cage) applies to the DC motor."
+  },
+  {
+   "turn_ids": [
+    "l05/seed0/turn1"
+   ],
+   "statement": "Voy a esperar un momento y luego verificar el estado nuevamente para obtener los resultados.",
+   "note": "Implies results will arrive by waiting while the job card says a worker must process it. Stated as an intention, so not counted."
+  },
+  {
+   "turn_ids": [
+    "i02/seed2/turn0"
+   ],
+   "statement": "the buck converter's output voltage reference is limited to 0–48 V (positive only), so it cannot produce a negative output like -24 V.",
+   "note": "The main point (no negative output) is true. 0–48 V is the range at the default 48 V input."
+  },
+  {
+   "turn_ids": [
+    "l02/seed0/turn0",
+    "m05/seed1/turn1"
+   ],
+   "statement": "Motor parameters ... from GEM datasheet / Motor limits: as per datasheet",
+   "note": "These are GEM's built-in defaults, not a datasheet. GEM's limits only resemble the PMG 132 datasheet's short-time values (S-20). Loose wording."
+  },
+  {
+   "turn_ids": [
+    "m04/seed2/turn0"
+   ],
+   "statement": "valores exactos para la corriente de referencia (35 A en i_d e i_q)",
+   "note": "pmsm_current_ref_a is the signed |i_s| magnitude that the policy splits into i_d/i_q, not 35 A on each axis. Ambiguous phrasing inside a question."
+  },
+  {
+   "turn_ids": [
+    "i01/seed1/turn0"
+   ],
+   "statement": "Con estos datos puedo seleccionar el tipo de planta DC adecuada y configurar los parámetros.",
+   "note": "Suggests a stepper could be configured as a DC plant. The card says it is not in the catalog. Offer, not a factual claim."
+  },
+  {
+   "turn_ids": [
+    "i01/seed2/turn0"
+   ],
+   "statement": "Los motores eléctricos disponibles en SPADE son: dc_perm_ex_v1 ...",
+   "note": "dc_perm_ex_v1 and dc_pmg132_v1 exist but are frozen and not driven by the assistant (assistant_can_drive: false). The required-fields card lists only the v2 plants."
+  },
+  {
+   "turn_ids": [
+    "i04/seed2/turn0"
+   ],
+   "statement": "Explore other tunable systems (buck converter PI).",
+   "note": "The buck PI is tunable only in Tuning Studio, not from the chat. Offered as an option without saying where."
+  },
+  {
+   "turn_ids": [
+    "q03/seed0/turn0",
+    "q03/seed1/turn0"
+   ],
+   "statement": "aunque las variantes de tensión muestran discrepancias en la corriente nominal, el par y la constante de flujo respecto a GEM",
+   "note": "S-20 says the 60 V S1 rating disagrees, and other voltage variants give psi_e 0.177–0.197. Loose but not contradicted."
+  }
+ ]
+}
