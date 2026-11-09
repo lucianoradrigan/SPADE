@@ -1,0 +1,36 @@
+load pids 541818 541819 541820 541821 541822 541823 541824 541825 541826 541827
+=== run 1 2026-11-09T10:23:11-03:00 loadavg 4.56 3.13 2.41
+>       assert rep["status"] == "passed", [c for c in rep["checks"] if c["status"] != "pass"]
+E       AssertionError: [{'id': 12, 'name': 'Performance benchmark', 'status': 'fail', 'detail': 'wall time per step p50 0.554 ms, p99 0.732 ms over 200 steps, ModelExchange (B3 criterion 6: p50 ≤ 0.5 ms for an averaged model)'}]
+E       assert 'failed' == 'passed'
+E         - passed
+E         + failed
+FAILED tests/fmu/test_fmu_me_fmi3.py::test_a_plecs_labelled_model_exchange_fmu_goes_from_upload_to_publication
+1 failed, 36 passed, 2 xfailed in 30.36s
+=== run 2 2026-11-09T10:23:43-03:00 loadavg 8.89 4.38 2.86
+>       assert rep["status"] == "passed", [c for c in rep["checks"] if c["status"] != "pass"]
+E       AssertionError: [{'id': 12, 'name': 'Performance benchmark', 'status': 'fail', 'detail': 'wall time per step p50 0.550 ms, p99 0.848 ms over 200 steps, ModelExchange (B3 criterion 6: p50 ≤ 0.5 ms for an averaged model)'}]
+E       assert 'failed' == 'passed'
+E         - passed
+E         + failed
+FAILED tests/fmu/test_fmu_me_fmi3.py::test_a_plecs_labelled_model_exchange_fmu_goes_from_upload_to_publication
+1 failed, 36 passed, 2 xfailed in 28.79s
+=== run 3 2026-11-09T10:24:14-03:00 loadavg 10.82 5.27 3.21
+>       assert rep["status"] == "passed", [c for c in rep["checks"] if c["status"] != "pass"]
+E       AssertionError: [{'id': 12, 'name': 'Performance benchmark', 'status': 'fail', 'detail': 'wall time per step p50 0.550 ms, p99 0.720 ms over 200 steps, ModelExchange (B3 criterion 6: p50 ≤ 0.5 ms for an averaged model)'}]
+E       assert 'failed' == 'passed'
+E         - passed
+E         + failed
+FAILED tests/fmu/test_fmu_me_fmi3.py::test_a_plecs_labelled_model_exchange_fmu_goes_from_upload_to_publication
+1 failed, 36 passed, 2 xfailed in 28.82s
+=== run 4 2026-11-09T10:24:44-03:00 loadavg 11.11 5.88 3.48
+37 passed, 2 xfailed in 29.77s
+=== run 5 2026-11-09T10:25:15-03:00 loadavg 11.91 6.57 3.78
+>       assert rep["status"] == "passed", [c for c in rep["checks"] if c["status"] != "pass"]
+E       AssertionError: [{'id': 12, 'name': 'Performance benchmark', 'status': 'fail', 'detail': 'wall time per step p50 0.560 ms, p99 0.740 ms over 200 steps, ModelExchange (B3 criterion 6: p50 ≤ 0.5 ms for an averaged model)'}]
+E       assert 'failed' == 'passed'
+E         - passed
+E         + failed
+FAILED tests/fmu/test_fmu_me_fmi3.py::test_a_plecs_labelled_model_exchange_fmu_goes_from_upload_to_publication
+1 failed, 36 passed, 2 xfailed in 28.24s
+DONE 2026-11-09T10:25:45-03:00
