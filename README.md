@@ -39,7 +39,7 @@ Three physically distinct systems, unified under one interface:
 
 | System | Plant | Controller | Fault/robustness angle |
 |---|---|---|---|
-| **1. DC motor** | Permanently-excited DC motor (same physics/parameters as [gym-electric-motor](https://github.com/upb-lea/gym-electric-motor)) | Native cascaded PI or linear MPC (speed or torque, `controller_type="PI"`/`"MPC"` -- genuinely interchangeable, same plant) | Bearing-fault injection on two independent paths: torque ripple (electrical/MCSA) and synthetic 3-axis vibration |
+| **1. DC motor** | Permanently-excited DC motor (same physics/parameters as [gym-electric-motor](https://github.com/upb-lea/gym-electric-motor)). **Default: the v2 plants** (`dc_perm_ex_v2`, `dc_pmg132_v2`) with a discontinuous-conduction converter that corrects GEM's one-quadrant braking artifact (S-21); the v1 plants (`dc_perm_ex_v1`, `dc_pmg132_v1`) are kept bit for bit as the **GEM-faithful mode** | Native cascaded PI or linear MPC (speed or torque, `controller_type="PI"`/`"MPC"` -- genuinely interchangeable, same plant) | Bearing-fault injection on two independent paths: torque ripple (electrical/MCSA) and synthetic 3-axis vibration |
 | **2. PMSM FOC/MTPA** | Salient permanent-magnet synchronous motor | Native dq-frame field-oriented current control, MTPA vs. naive policy | Control-law comparison against the analytic MTPA locus and current-limit circle |
 | **3. DPC / Voltage Source Converter** | VSC + L-C filter, identified 2-state model (power electronics, no rotating machinery) | Trained Direct Power Control (DPC) neural network, ported from [DPC4PowerElectronics](https://github.com/aipoweraau/DPC4PowerElectronics) | Off-distribution robustness probes (load resistance, reference magnitude/frequency) + a dataset-upload evaluator for your own data |
 
@@ -61,7 +61,6 @@ with native navigation; the five original macro-phases map onto its sections:
 |---|---|---|
 | Workspace · **Overview** | landing | Real workspace checks, engineering workflow, this session's runs, motor status (UNKNOWN until monitored), clickable system diagram |
 | Workspace · **Experiment Runs** | -- | Durable job queue and run history. Long jobs (sweeps, tuning, RL, classifier training) run in a separate worker process; every run keeps its configuration hash, seed, versions, logs and a reproducible command |
-| Workspace · **Environments** | -- | Gymnasium environments over SPADE's plants (`SPADE/DcMotor-v0`, `SPADE/Vsc-v0`, `SPADE/Buck-v0`, `SPADE/BuckSurrogate-v0`, `SPADE/Pmsm-v0`, and `SPADE/OmBuck-v0` on the OpenModelica FMU of the averaged buck when the FMU is built): observation, action, reward, limits. An FMU environment that cannot run here is listed as not available, with the reason |
 | Simulation · **DC Motor** | A | PI or MPC, bearing-fault injection (MCSA + synthetic vibration), KPIs, time signals, spectrum (FFT) with simulator-computed BPFO/BPFI markers, AI suggestion, operating envelope, provenance + export; Advanced Flow mode |
 | Simulation · **PMSM / FOC** | A | FOC/MTPA control-law demo -- explicitly *no diagnosis* |
 | Simulation · **VSC / DPC** | B | Trained DPC network tracking, complex plane, dataset-upload evaluator |
@@ -71,15 +70,16 @@ with native navigation; the five original macro-phases map onto its sections:
 | Design & Control · **RL Lab** | -- | DQN / DDPG on SPADE's environments (listed by capability, including `SPADE/OmBuck-v0`), benchmarked against the classical controllers on the same grid. Policies are candidates |
 | Intelligence · **AI Diagnostics** | IA | **Evaluate a model**: the promoted classifier, or any other classifier on this machine, on a sample run (same options as the simulation pages) or an uploaded file. **Train a model**: a classifier over several fault classes and a custom simulated grid -- see below |
 | Intelligence · **Transfer Learning** | TL | 4-step gated wizard (Data → Setup → Validate → Promote) starting from the promoted model, any other model on this machine or an imported Keras model; full or feature transfer -- see below |
-| Intelligence · **Edge Deployment** | IA | One tab per board (ESP32, Raspberry Pi 5, TI C2000): scope and limits, model download, C2000 export, inference code generated from the run, and a tutorial |
+| Intelligence · **Edge Deployment** | IA | One tab per board (ESP32, Raspberry Pi 5, TI C2000): scope and limits, model download, C2000 export (float32 C kits, measured on a LAUNCHXL-F28379D replaying simulated windows from flash), inference code generated from the run at the run's own sample rate, and a tutorial |
 | Intelligence · **Model Registry** | IA | Every run on disk: status from evidence, lineage, gate, artifacts with SHA-256, edge-export lifecycle, rollback |
+| Intelligence · **Assistant** | -- | **Experimental / internal demo.** A chat assistant ("PhD. Radrigan") on a local LLM (Ollama, `qwen3.5:9b`; no data leaves the machine) that drafts simulation and tuning runs from a description. Every number enters through a tool with its origin, SPADE facts are shown as cards from the catalog, and only the user confirms a launch; its runs are labelled `SIMULATED · AI-PLANNED`. Its pre-registered benchmarks (F1.11–F1.13) were not met (AI-N30), so it is not for laboratory use |
 | Operations · **Monitoring** | LM | SIMULATED monitoring: agent consensus, status from *all* active alerts, motor status, acknowledge |
 | Operations · **Alert History** | LM | Filterable, exportable alert log |
 | Help · **Documentation** | -- | Status semantics, data formats, known limitations |
 | Help · **Algorithm Guide** | -- | Three questions → an algorithm family, its assumptions and limits, and the SPADE page that implements it |
 
-A full, phase-by-phase snapshot of what the platform does today is kept in
-[`docs/plataforma_estado_actual.md`](docs/plataforma_estado_actual.md).
+The current status of the platform (what works, what is simulated, what is open) is kept in
+[`docs/PLATFORM_STATUS.md`](docs/PLATFORM_STATUS.md).
 
 ## AI layer
 
@@ -544,10 +544,13 @@ here) · [simulation stability](docs/SIMULATION_STABILITY_REPORT.md) ·
 [AI technical audit](docs/AI_TECHNICAL_AUDIT.md) ·
 [demo validation scenarios](docs/DEMO_VALIDATION_SCENARIOS.md).
 
-**Assistant (planning only).** A conversational assistant that would configure simulations from a
-description or a motor datasheet is being planned in [`docs/assistant/`](docs/assistant/) (in
-Spanish). **It does not exist yet:** SPADE has no assistant and uses no language model. Phase 0
-only adds optional simulator fields that it will need.
+**Assistant (experimental / internal demo).** The **Assistant** page drafts simulations and tuning
+runs from a description, on a local LLM served by [Ollama](https://ollama.com) (`qwen3.5:9b`,
+pinned by tag and digest in `configs/assistant.yaml`); nothing is sent off the machine. Its phase 1
+closed on 2026-11-09 without meeting its pre-registered benchmarks (F1.11–F1.13, finding AI-N30), so
+it stays an internal demo. The plans are in [`docs/assistant/`](docs/assistant/) (in Spanish); how to
+run its benchmarks by hand is in [`docs/assistant/BENCHMARKS.md`](docs/assistant/BENCHMARKS.md). The
+normal test suite replays recorded model answers and needs no GPU or network.
 
 `dev` (`pytest`) and `viz` (`streamlit`, `plotly`) are both needed to run the full test suite --
 some tests drive the dashboard itself via `streamlit.testing.v1.AppTest`, so `viz` isn't only a
@@ -703,4 +706,4 @@ This project consolidates and ports code from two MIT-licensed upstream projects
 
 MIT -- see [LICENSE](LICENSE).
 
-The avatar of the planned assistant (`src/driveflow/viz/assets/assistant/`, "PhD. Radrigan") is **not** covered by the MIT license: see [`licenses/avatar/`](licenses/avatar/) (all rights reserved; replaceable through `persona.avatar_dir` in `configs/assistant.yaml`).
+The avatar of the assistant (`src/driveflow/viz/assets/assistant/`, "PhD. Radrigan") is **not** covered by the MIT license: see [`licenses/avatar/`](licenses/avatar/) (all rights reserved; replaceable through `persona.avatar_dir` in `configs/assistant.yaml`).

@@ -913,4 +913,5 @@ Found 2026-11-09 by the separate false-statement reviewer of F1.13 (`docs/audit/
 - 11 of 13 criteria met (F1.12: 9, F1.11: 7). The correct-plan row is 88.9 % after a declared scorer fix (the v2 plants were missing from the default-controller list; 84.1 % first scored).
 - Fails false statements (13 distinct in 11 turns, separate reviewer) and outside-lab latency p95 32.1 s.
 - By the closing rule, phase 1 closes with the assistant **"experimental / demo interna"**; no F1.14.
+- **Next action when the assistant work resumes (R2, recorded 2026-11-09, not implemented):** most F1.13 false statements are alternatives the model invents for impossible requests (induction motor, other faults, Tuning Studio for FOC, a buck that boosts). The alternatives should come from a catalog table (request → what SPADE offers instead, with its source) and be shown in a card, so that the model's free text no longer states them.
 

@@ -557,3 +557,78 @@ Training windows with the artifact in the runs promoted when AI-N27 was found (P
 
 - **Shown in Model Registry:** each of the three runs carries AI-N27 in its `audit_findings.json`, listed as an audit finding next to the run (no test pins a hash of that file; checked 2026-11-02).
 - **Finding:** AI-N27, `docs/AI_TECHNICAL_AUDIT.md` §13.1.
+
+## 14. Rounds 2026-10-22 → 2026-11-09: portability, C2000, edge, v2 plants, assistant (E8, 2026-11-09)
+
+This section catches up on work that was recorded only in its own evidence files. Each row cites the file and the command behind its numbers. **Everything is simulated**; the only board measurements are on the C2000, replaying simulated windows from flash.
+
+### 14.1 Portability and platform (X1–X4, W1)
+
+| Task | Result | Evidence |
+|---|---|---|
+| X1 (2026-10-26/27). OpenModelica Model Exchange FMUs on Windows, macOS and Linux | Compiled from source on each OS in CI. NRMS v_out / i_L = 3.2e-11 / 5.6e-11 on all three, the same as the Linux Docker build. Functional criteria 1–4 and 7 pass everywhere. Criterion 6 (p50 ≤ 0.5 ms per step) depends on the CPU: GO on macOS (0.381 ms) and the local Ryzen (0.388 ms), NO-GO on the shared Linux (0.840 ms) and Windows (0.719 ms) runners. Declared deviation: the CI exit uses criteria 1–4 and 7 | [`audit/plecs_om/x1_fmu_portability.md`](audit/plecs_om/x1_fmu_portability.md) (CI run 40442231526; `experiments/report_x1_fmu_portability.py`) |
+| X1 (AI, 2026-10-25). Independent samples behind the 1.000 figures of the promoted 5-class classifier | The scenario seed changes vibration and sensor noise, not current, rpm or torque; some conditions have one distinct trajectory per class. A caveat sits next to every 1.000 figure | [`audit/ai/x1_eval_independence.md`](audit/ai/x1_eval_independence.md) (`experiments/report_x1_eval_independence.py`) |
+| X2. WCAG 2.1 AA contrast, both themes | Every provenance label and text token meets 4.5:1 (essential UI 3:1); components take the active theme's tones; no colour changed. Two Plotly decorations still use dark tones | [`audit/expansion/x2_contrast.md`](audit/expansion/x2_contrast.md) (`pytest tests/test_contrast.py`, 20 tests) |
+| X3. Worker life cycle on every OS | `pid_alive` on Windows through `ctypes`; `python -m driveflow.jobs.worker stop` stops every worker cleanly | [`audit/expansion/x3_worker_windows.md`](audit/expansion/x3_worker_windows.md) |
+| X4. ESP32 3-class coverage | The promoted ESP32 classifier has 3 classes while PC and RPi5 have 5; a ball or cage fault goes to a known class (ball → outer_race, mean calibrated confidence 0.99) and no OOD method catches it (AI-N13). Shown in the Model Registry and recorded in its `audit_findings.json`. int8 calibration is labelled as simulated data | `tests/test_x4_esp32_class_coverage.py`, §7.1 |
+| W1. Windows installer | Double-click installer (embedded Python, dependencies, SPADE, win64 FMUs). Built, installed silently and smoke-tested on a GitHub Windows runner; release `app-v4`. **Not tried on a real PC** | `.github/workflows/windows-installer.yml`, `packaging/windows/RELEASE_NOTES.md`, `tests/test_w1_windows_installer.py` |
+
+### 14.2 C2000 export and Edge Deployment
+
+- **C2000 export (2026-10-30).** `experiments/export_c2000.py` turns a run into float32 C with its window normalization (the C28x cannot run TFLite Micro). Measured on a LAUNCHXL-F28379D (CPU1, 200 MHz) against the pre-registered C1–C5 ([`audit/c2000/criteria.md`](audit/c2000/criteria.md), [`audit/c2000/report.md`](audit/c2000/report.md)):
+
+  | Run | Worst latency | Max error vs. Keras | Pre-registered C5 (5 kHz window) | C5 at 10 kHz (**post hoc**) |
+  |---|---|---|---|---|
+  | `esp32_dscnn/2026-10-18_run01` | 68.5 ms | 1.2e-7 | pass (102.4 ms) | FAIL (51.2 ms, 1.34×) |
+  | `esp32_tiny/2026-10-19_run01` | 19.7 ms | 4.8e-7 | pass (51.2 ms) | pass (25.6 ms, 0.77×) |
+  | `rpi5_tcn/2026-10-20_run01` | 520.1 ms | 1.2e-6 | FAIL (51.2 ms) | FAIL (25.6 ms, 20.32×) |
+
+  The pre-registered verdicts stand. The post-hoc column is [`audit/c2000/c5_post_hoc_10khz.md`](audit/c2000/c5_post_hoc_10khz.md) (`python experiments/report_c5_post_hoc_10khz.py`). The promoted `dc_motor/rpi5` classifier needs a 448 KB arena against 128 KB, so it gets no kit (AI-N25).
+- **Edge Deployment page.** One tab per board with scope and limits, model download, C2000 export and inference code generated from the run (`ai/edge_examples.py`). What each example is checked for (`tests/test_edge_examples.py`): C2000 compiles and links against a real kit when TI's compiler is installed; RPi Python equals Keras on a PC; RPi C++ and ESP32 only parse and reproduce the training normalization. The sample period comes from the run's `fs_hz` (`tests/test_ai_n26_sample_rate.py`).
+
+### 14.3 Simulator findings S-21 to S-23 and decision E3
+
+| ID | Status | Evidence |
+|---|---|---|
+| S-21 (Major) | **Corrected in the v2 plants · open in the frozen v1 plants.** GEM's one-quadrant converter applies the full supply for a whole period when the current is negative; the speed rises instead of coasting. v1 shows a non-blocking warning (S21-3) | `SIMULATION_STABILITY_REPORT.md`; [`audit/assistant/s21_3_warning.md`](audit/assistant/s21_3_warning.md) |
+| S-22 (Low) | Documented: an FMU stage-6 timing check (p50 ≤ 0.5 ms) failed twice with the machine loaded (p50 0.566 ms) and passes alone. Re-checked in E9 | `SIMULATION_STABILITY_REPORT.md` |
+| S-23 (Medium) | **Corrected (2026-11-08).** The catalog gave GEM's stock-motor defaults for `dc_pmg132_v2`; a test now checks catalog = runner for every plant | `tests/test_plant_catalog_defaults_match_runner.py` |
+
+- **Variant B (`dcm_exact`).** Closed-form converter in discontinuous conduction. Converges: worst case 3.0e-5 against ×10000 substeps, 28× cheaper than ×1000 ([`audit/assistant/dc_perm_ex_v2_convergence.md`](audit/assistant/dc_perm_ex_v2_convergence.md), `python experiments/report_dc_perm_ex_v2_convergence.py`). Data equivalence: classifier agreement 1.000 ([`dc_perm_ex_v2_equivalence.md`](audit/assistant/dc_perm_ex_v2_equivalence.md), `python experiments/report_dc_perm_ex_v2_equivalence.py`).
+- **E3 (Luciano, 2026-11-08).** `dc_perm_ex_v2` and `dc_pmg132_v2` are the plants of the GUI, the assistant and the DC dataset scripts. The `Scenario` default stays `dc_perm_ex_v1`, and the v1 plants stay bit for bit as the GEM-faithful mode. DC Motor page wall time v2/v1 = 1.02–1.03. Changed (non-byte) tests are declared ([`audit/assistant/e3_v2_plants.md`](audit/assistant/e3_v2_plants.md)).
+
+### 14.4 AI findings AI-N26 to AI-N31
+
+| ID | Status | Evidence |
+|---|---|---|
+| AI-N26 (Medium) | **Mitigated (software) · board re-measurement pending in B4.** Data at 10 kHz, C2000 budget and examples assumed 5 kHz. Every run records `fs_hz` (2026-11-09) | [`audit/c2000/ai_n26_sample_rate.md`](audit/c2000/ai_n26_sample_rate.md), [`c5_post_hoc_10khz.md`](audit/c2000/c5_post_hoc_10khz.md); `AI_TECHNICAL_AUDIT.md` §12.3 |
+| AI-N27 (High) | **Mitigated for PC and RPi5** (corrected-data runs promoted 2026-11-04) · **open for ESP32** | §13; [`audit/assistant/ai_n27_regen.md`](audit/assistant/ai_n27_regen.md) |
+| AI-N28 (High) | **Open.** ESP32 int8 fragility. The pre-registered repair did not pass: outer_race 0.560 → 0.717, but normal 0.994 → 0.687 and abstention +19 points. The promoted ESP32 stays; to B4 | [`audit/assistant/esp32_repair.md`](audit/assistant/esp32_repair.md) (`python experiments/report_esp32_repair.py`) |
+| AI-N29 (High) | **Open.** The PC classifier promoted on 2026-11-04 is confidently wrong at 50 rad/s, below its grid; to B4 | `AI_TECHNICAL_AUDIT.md` §13.3 |
+| AI-N30 (High) | **Open.** The assistant does not meet its benchmarks (§14.5) | `AI_TECHNICAL_AUDIT.md` §13.4 |
+| AI-N31 (Low) | **Fixed (2026-11-09).** The tuning card said "custom" for an unmodified motor (introduced by E3) | `tests/assistant/test_assistant_ai_n31.py`; `AI_TECHNICAL_AUDIT.md` §13.5 |
+
+### 14.5 Assistant, phase 1: closed as experimental / internal demo
+
+Local LLM `qwen3.5:9b` through Ollama. Each benchmark had its thresholds committed before its requests were written, with new requests each time (`python experiments/report_f1_11_benchmark.py --bench <f1_11|f1_12|f1_13>`):
+
+| Criterion | Threshold | F1.11 | F1.12 | F1.13 |
+|---|---|---|---|---|
+| Launches without confirmation | 0 | 0 | 0 | 0 |
+| Invented numbers | 0 | 0 | 0 | 0 |
+| False statements | 0 | 5 | 4 | 13 (separate reviewer) ✗ |
+| Correct plan | ≥ 85 % | 90.5 % | 93.7 % | 88.9 % |
+| Asks when a required value is missing | ≥ 90 % | 60 % | 80 % | 93.3 % |
+| ≤ 3 questions, numbers with a source | ≥ 90 % | 76 % | 75 % | 93.0 % |
+| Citations | ≥ 90 % | 83 % | 100 % | 100 % |
+| "Not documented" | ≥ 80 % | 0 % | 75 % | 100 % |
+| Impossible requests with an alternative | ≥ 85 % | 100 % | 100 % | 100 % |
+| p95 demo / off-lab | 60 / 30 s | 35.8 s | 34.4 s | 32.1 s (✓ / ✗) |
+
+- F1.11 met 7 of 13 criteria, F1.12 met 9 of 13 and F1.13 met 11 of 13 ([`f1_11_benchmark.md`](audit/assistant/f1_11_benchmark.md), [`f1_12_benchmark.md`](audit/assistant/f1_12_benchmark.md), [`f1_13_benchmark.md`](audit/assistant/f1_13_benchmark.md)).
+- The harness fixes between benches were designed while looking at the previous bench, and this is declared ([`ai_n30_harness_fixes.md`](audit/assistant/ai_n30_harness_fixes.md), [`ai_n30_f1_12_fixes.md`](audit/assistant/ai_n30_f1_12_fixes.md)).
+- In F1.13, the scorer's default-PI list was missing the v2 plants. Fixing it moved the correct plan from 84.1 % to 88.9 %; the overall verdict did not change.
+- F1.13's false-statement review was done by a separate agent and was stricter than the earlier ones, so its count is not directly comparable with F1.11 and F1.12.
+- A descriptive 14B run on F1.11 did worse (plan 44 %, asks-if-missing 20 %, p95 134 s; [`f1_11_qwen3_14b.md`](audit/assistant/f1_11_qwen3_14b.md)).
+- **Pre-committed closing rule applied:** phase 1 is closed, and the assistant stays "experimental / internal demo". There is no F1.14.
+- **Next action recorded for AI-N30** (R2, not implemented): the alternatives offered for impossible requests should come from a catalog table and be shown in a card, since most F1.13 false statements are invented alternatives.

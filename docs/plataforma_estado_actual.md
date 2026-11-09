@@ -1,3 +1,5 @@
+> **Superseded (2026-11-09).** This snapshot dates from 2026-09-15 and is kept for history only. The current status is [`PLATFORM_STATUS.md`](PLATFORM_STATUS.md).
+
 # SPADE / driveflow — Qué hace la plataforma hoy
 
 Snapshot funcional completo, actualizado el 2026-09-15 tras completar las 6 fases del Transfer
