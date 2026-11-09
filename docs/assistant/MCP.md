@@ -58,10 +58,58 @@ Every MCP client has its own configuration file. The usual form is:
 
 `SPADE_WORKSPACE` selects the workspace (default: the repository's).
 
-> **Data leave the machine if the client's model is remote.** The server is local, but an MCP client
-> sends the tool results (plant descriptions, drafts, KPIs) to the model it uses. SPADE's rule that no
-> data leave the machine holds only with a client whose model runs locally. Choosing a cloud client is a
-> decision for the person running it.
+## What leaves the machine with a cloud client (decision C7, 2026-11-09)
+
+Cloud MCP clients are allowed. The server itself stays local: stdio, no socket, no LLM. A cloud client
+sends to its model provider what the tools return, and only that:
+
+| Leaves the machine | Comes from |
+|---|---|
+| **Configurations:** plant descriptions (fields, units, ranges, defaults, the stock motor), the draft and its status, cost estimates, the proposal table | `describe_plant`, `update_draft`, `validate_draft`, `estimate_cost`, `propose_experiments` |
+| **Simulated results:** job state and KPIs of finished SPADE jobs, all labelled SIMULATED | `get_job_status`, `summarize_results` |
+| **SPADE's documentation:** catalog entries and snippets of `docs/` and the README, with file and section | `explain_spade`, `search_docs` |
+| What the client itself sends: the user's messages (`user_message`) and the tool arguments | the client |
+
+- **No tool reads the user's files.** No tool takes a file name, path or URL. The tools read only SPADE's own code, configuration and documentation, the SPADE workspace (job results) and Python's libraries.
+- **This is checked by `tests/assistant/test_mcp_egress.py`.** It calls every exposed tool, also with path-like arguments such as `/etc/passwd`, `../../.ssh/id_rsa` and a temporary "user" file, under a Python audit hook that records every file opened.
+  - It fails if any file outside SPADE, its workspace and Python is opened.
+  - It fails if a tool argument names a file or a path.
+  - It fails if a file's content comes back.
+- **With a local client,** whose model runs on this machine, nothing leaves it.
+
+## Try it in Claude Desktop
+
+Claude Desktop starts the server itself over stdio, so it must run on the machine where SPADE is installed. Add this to `claude_desktop_config.json`:
+- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+- **In the app:** Settings → Developer → Edit Config.
+
+The paths below are those of the reference machine: change them to your checkout.
+
+```json
+{
+  "mcpServers": {
+    "spade": {
+      "command": "/home/seven/post_doc/plataform_proposed/SPADE-dev/.venv/bin/python",
+      "args": ["-m", "driveflow.assistant.mcp_server"],
+      "env": {
+        "PYTHONPATH": "/home/seven/post_doc/plataform_proposed/SPADE-dev/src",
+        "TF_CPP_MIN_LOG_LEVEL": "3"
+      }
+    }
+  }
+}
+```
+
+Restart Claude Desktop. The tools icon should list **spade** with 10 tools.
+
+**Three 5-minute checks**
+
+| # | Ask Claude | What should happen |
+|---|---|---|
+| 1 | "With the spade tools, describe the plant dc_perm_ex_v2 and explain what S-21 is." | It calls `describe_plant` and `explain_spade` or `search_docs`. The answer quotes the stock motor (r_a 0.016 Ω, l_a 19 µH, ψ_e 0.165 V·s/rad, 65 V supply) and the S-21 entry, with the file it came from |
+| 2 | "Set up a simulation of the stock DC motor with PI at 100 rad/s and tell me the cost; do not launch it." | `update_draft` passes your sentence as `user_message`, then come `validate_draft` and `estimate_cost`: 1 experiment, about 3 CPU s. If it tries a number you did not write, `update_draft` refuses it ("the user did not write this quantity") |
+| 3 | "Propose it and launch it." | `propose_experiments`, then `run_experiments`. **Claude Desktop must ask *you***, in a dialog with the plant, the number of experiments and the draft hash. **Decline:** the result says nothing was launched. **Accept:** a job is queued; start a worker (`python -m driveflow.jobs.worker serve`) or open Experiment Runs to run it. If no dialog appears and the result says the client "cannot ask its user for confirmation", this Claude Desktop version has no elicitation, and nothing was launched |
 
 ## Tests
 
@@ -74,9 +122,14 @@ Every MCP client has its own configuration file. The usual form is:
 - local only;
 - a stdio round trip.
 
+`tests/assistant/test_mcp_egress.py` covers what may leave the machine (see above). The real-client
+test with Claude Code is in [`docs/audit/b3/v4_mcp_client_test.md`](../audit/b3/v4_mcp_client_test.md).
+
 The tests use no network and no LLM.
 
 ## Not executed
 
-A session with a real MCP client (no client is installed here). The protocol was checked against the
-2025-06-18 message shapes by the tests only.
+- A launch accepted through an interactive client.
+- Claude Desktop.
+
+The non-interactive session with Claude Code is documented in `docs/audit/b3/v4_mcp_client_test.md`.
