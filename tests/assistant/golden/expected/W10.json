@@ -1,0 +1,115 @@
+{
+  "id": "W10",
+  "written_by": "Claude Code, by looking at the image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "data/upstream/assistant_golden/photos/Typenschild-Doppelt_gespeiste_Asynchronmaschine_Apel.jpg",
+  "machine_type": "six-phase motor with excitation (synchronous by its 'Erregung' line); the file title says doubly fed asynchronous",
+  "simulable_today": false,
+  "image_quality": "frontal, sharp (black and white)",
+  "fields": [
+    {
+      "label_printed": "AEG",
+      "value_printed": "AEG",
+      "unit_printed": null,
+      "note": "manufacturer"
+    },
+    {
+      "label_printed": "AEG KANIS",
+      "value_printed": "AEG KANIS",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "Typ",
+      "value_printed": "S 6472/2F",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "6 ~ Mot",
+      "value_printed": "6 ~ Mot",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "Nr.",
+      "value_printed": "788/002",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "Y >",
+      "value_printed": "2x1100",
+      "unit_printed": "V"
+    },
+    {
+      "label_printed": "A",
+      "value_printed": "2x1417",
+      "unit_printed": "A"
+    },
+    {
+      "label_printed": "kW",
+      "value_printed": "4700",
+      "unit_printed": "kW"
+    },
+    {
+      "label_printed": "cos",
+      "value_printed": "0,92",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "NUR UVW",
+      "value_printed": "UVW (rotation direction arrow)",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "/min",
+      "value_printed": "6000",
+      "unit_printed": "/min"
+    },
+    {
+      "label_printed": "Hz",
+      "value_printed": "100",
+      "unit_printed": "Hz"
+    },
+    {
+      "label_printed": "Erregung",
+      "value_printed": "43",
+      "unit_printed": "V"
+    },
+    {
+      "label_printed": "Erregung",
+      "value_printed": "425",
+      "unit_printed": "A"
+    },
+    {
+      "label_printed": "Iso.-Kl.",
+      "value_printed": "F",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "IP",
+      "value_printed": "44",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "t",
+      "value_printed": "20,1",
+      "unit_printed": "t"
+    },
+    {
+      "label_printed": "VDE 0530",
+      "value_printed": "VDE 0530 / 12.84",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "Kühlwassermenge",
+      "value_printed": "52,2",
+      "unit_printed": "m³/h"
+    }
+  ],
+  "must_ask": [
+    "the machine type: the plate shows an excitation (Erregung 43 V / 425 A) but no 'synchronous' or 'asynchronous'"
+  ],
+  "must_warn": [
+    "do not take the machine type from the file name",
+    "six-phase (6 ~), two winding systems (2x1100 V, 2x1417 A): not simulable"
+  ],
+  "missing_for_simulation": []
+}

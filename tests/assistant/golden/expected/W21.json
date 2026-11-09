@@ -1,0 +1,67 @@
+{
+  "id": "W21",
+  "written_by": "Claude Code, by looking at the image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "data/upstream/assistant_golden/photos/Dampfm-Rhomberg-Leistungsschild-Erregermaschine-0.JPG",
+  "machine_type": "machine type not printed (file title: exciter)",
+  "simulable_today": false,
+  "image_quality": "dark, plate small in the frame",
+  "fields": [
+    {
+      "label_printed": "A-E-G-U",
+      "value_printed": "AEG-U",
+      "unit_printed": null,
+      "note": "manufacturer (AEG-Union)"
+    },
+    {
+      "label_printed": "Nº",
+      "value_printed": "W32880",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "Type",
+      "value_printed": "MPM 400",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "Volt",
+      "value_printed": "150",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "Ampère",
+      "value_printed": "93'5",
+      "unit_printed": null,
+      "note": "apostrophe as decimal mark: 93.5 A"
+    },
+    {
+      "label_printed": "Umdr.p.M.",
+      "value_printed": "125",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "dauernd KW",
+      "value_printed": "14",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "für ... Std.",
+      "value_printed": null,
+      "unit_printed": null
+    },
+    {
+      "label_printed": "Jnv.Nr.",
+      "value_printed": "240",
+      "unit_printed": null,
+      "note": "a separate inventory plate"
+    }
+  ],
+  "must_ask": [
+    "the machine type and excitation (not printed)"
+  ],
+  "must_warn": [
+    "'93'5' uses an apostrophe as the decimal mark",
+    "150 V x 93.5 A = 14.0 kW: consistent with 'dauernd KW 14'"
+  ],
+  "missing_for_simulation": []
+}

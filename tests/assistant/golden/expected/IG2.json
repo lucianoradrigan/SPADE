@@ -1,0 +1,30 @@
+{
+  "id": "IG2",
+  "written_by": "Claude Code, by looking at the public record image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "data/upstream/assistant_golden/ingenium/1992.2292.001/image_0.jpeg",
+  "artifact": "1992.2292.001",
+  "machine_type": "DC bipolar motor, 7.5 HP, Crocker-Wheeler, 1891",
+  "simulable_today": false,
+  "image_quality": "museum record photo of the whole machine, 750 px wide; the plate is a few dozen pixels",
+  "fields": [
+    {
+      "label_printed": "plate on top of the motor",
+      "value_printed": "illegible",
+      "unit_printed": null,
+      "note": "seen edge-on in the public image"
+    }
+  ],
+  "official_transcription": "CROCKER-WHEELER/ ELECTRIC CO./ AMPERE, N.J., U.S.A./ 7.5 H.P. TYPE 7 1/2 C./ NO. 260 SPEED 850/ VOLTS220 AMP. 28.5",
+  "differences_with_official": [
+    "'plate on top of the motor': mine 'illegible'"
+  ],
+  "must_ask": [],
+  "must_warn": [
+    "not simulable in SPADE today",
+    "the plate is not legible at this resolution: the agent must not invent the values the record's text gives"
+  ],
+  "missing_for_simulation": [
+    "everything"
+  ]
+}

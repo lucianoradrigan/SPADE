@@ -1,0 +1,86 @@
+{
+  "id": "W19",
+  "written_by": "Claude Code, by looking at the image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "data/upstream/assistant_golden/photos/Mot._alter_async-3_ARCE+Marelli_(51).jpg",
+  "machine_type": "three-phase asynchronous motor (Moteur asynchrone triphasé)",
+  "simulable_today": false,
+  "image_quality": "outdoor, rusted, leaves, small plate",
+  "fields": [
+    {
+      "label_printed": "Marelli",
+      "value_printed": "Marelli (licence); A.R.C.E. Usines de Witry-les-Reims, Marne",
+      "unit_printed": null,
+      "note": "manufacturer"
+    },
+    {
+      "label_printed": "MOTEUR ASYNCHRONE TRIPHASÉ",
+      "value_printed": "Moteur asynchrone triphasé",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "type",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "Nº",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "ch",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "kW",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "tr/mn",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "~",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "V (Δ)",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "A (Δ)",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "V (Y)",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "A (Y)",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "SERV",
+      "value_printed": "illegible",
+      "unit_printed": null
+    }
+  ],
+  "must_ask": [],
+  "must_warn": [
+    "every rating is faded",
+    "French labels",
+    "induction motor: not simulable"
+  ],
+  "missing_for_simulation": [
+    "every rating (illegible)"
+  ]
+}

@@ -1,0 +1,51 @@
+# Conversions between datasheet conventions of PM servo / BLDC motor constants (round C, T8.5, decision C10).
+# External, citable source (P5 of phase 1): Kollmorgen, "Servo Motor Parameters and their Proper Conversions for Servo
+# Drive Utilization and Comparison", white paper RevD (2024), by Hurley Gill.
+#   URL: https://kollmorgen.com/sites/default/files/2024-11/Kollmorgen_Servo%20Motor%20Parameters%20and%20their%20Proper%20Conversions%20WP_RevD_en.pdf
+#   SHA-256 of the file read on 2026-11-09: 36450d564a31d3908246d080ee77fbeef0181a21c971621f09a2724dc98b2190
+# Pages are the PDF's page numbers. All rules assume a 3-phase wye (Y) wound armature unless the rule says delta.
+# Not used by any code path yet (phase 2 has not started); tests/assistant/golden/conventions.py applies the ratio checks.
+source:
+  title: "Servo Motor Parameters and their Proper Conversions for Servo Drive Utilization and Comparison (WP RevD)"
+  publisher: Kollmorgen
+  url: "https://kollmorgen.com/sites/default/files/2024-11/Kollmorgen_Servo%20Motor%20Parameters%20and%20their%20Proper%20Conversions%20WP_RevD_en.pdf"
+  sha256: 36450d564a31d3908246d080ee77fbeef0181a21c971621f09a2724dc98b2190
+rules:
+  - id: ke_peak_to_kb_rms
+    statement: "Kb (Vrms/kRPM, line-to-line RMS) = Ke (V/kRPM, line-to-line peak) / sqrt(2)"
+    factor: 0.7071067811865476
+    page: 4
+    quote: "Kb(Vrms/kRPM) = Ke(V/kRPM)/√2"
+  - id: phase_to_line_voltage_constant
+    statement: "a voltage constant given per phase (line-to-neutral) is multiplied by sqrt(3) to obtain the line-to-line constant (wye)"
+    factor: 1.7320508075688772
+    page: 4
+    quote: "it must be multiplied by √3 to achieve the line-to-line Ke units"
+  - id: kt_peak_to_kt_rms
+    statement: "Kt (T/A-rms, sine-wave commutation) = Kt (T/A, 6-step / crest) x sqrt(1.5)"
+    factor: 1.224744871391589
+    page: 5
+    quote: "Kt(T/A-rms) = Kt(T/A)x√1.5"
+  - id: line_to_line_r_l_to_phase
+    statement: "R and L given line-to-line (two phases in series) are halved for the per-phase (line-to-neutral) value (wye)"
+    factor: 0.5
+    page: 5
+    quote: "Rm_Ø = Rm (L-L)/2 ... L_Ø = Lm(L-L)/2"
+  - id: delta_phase_to_wye_equivalent
+    statement: "R or L given per phase of a delta winding: equivalent wye line-to-neutral value = delta phase value / 3"
+    factor: 0.3333333333333333
+    page: 7
+    quote: "equivalent RØ (line-to-neutral, wye-wound)=(Rm/Ø_delta-wound/3)"
+checks:
+  - id: kb_over_kt_sine_rms
+    statement: "Kb (Vrms/kRPM) / Kt (Nm/A-rms) between 60 and 65 (ideal 60.46): both constants in RMS units, sinusoidal commutation"
+    low: 60.0
+    high: 65.0
+    ideal: 60.46
+    page: 8
+  - id: ke_over_kt_six_step
+    statement: "Ke (V/kRPM) / Kt (Nm/A) between ~103 and 113 (ideal 104.72): both constants in 6-step / block (peak) units"
+    low: 103.0
+    high: 113.0
+    ideal: 104.72
+    page: 8

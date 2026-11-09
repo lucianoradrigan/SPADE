@@ -1,0 +1,349 @@
+{
+  "id": "D1",
+  "written_by": "Claude Code, by hand from the downloaded document (round C, T8.3, 2026-11-09)",
+  "schema": "golden-expected/1",
+  "document": "PMG 132 permanent magnet DC disc motor, 24-72 V",
+  "manufacturer_printed": "perm-motor (www.perm-motor.de, Breisach); the name Heinzmann is not printed",
+  "motor_type": "permanent magnet DC (disc)",
+  "simulable_today": true,
+  "variants": [
+    "24 V",
+    "36 V",
+    "48 V",
+    "60 V",
+    "72 V"
+  ],
+  "variant_policy": "all five columns written (one motor, five supply voltages)",
+  "fields": [
+    {
+      "field": "voltage",
+      "value_printed": "24",
+      "unit_printed": "V",
+      "label_printed": "Voltage",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "24 V"
+    },
+    {
+      "field": "current",
+      "value_printed": "110",
+      "unit_printed": "A",
+      "label_printed": "Current",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": "S1 (Operation mode S1)",
+      "variant": "24 V"
+    },
+    {
+      "field": "power",
+      "value_printed": "2,20",
+      "unit_printed": "kW",
+      "label_printed": "Power",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "S1",
+      "variant": "24 V"
+    },
+    {
+      "field": "speed",
+      "value_printed": "1080",
+      "unit_printed": "min-1",
+      "label_printed": "Speed",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "S1",
+      "variant": "24 V"
+    },
+    {
+      "field": "voltage",
+      "value_printed": "36",
+      "unit_printed": "V",
+      "label_printed": "Voltage",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "36 V"
+    },
+    {
+      "field": "current",
+      "value_printed": "110",
+      "unit_printed": "A",
+      "label_printed": "Current",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": "S1 (Operation mode S1)",
+      "variant": "36 V"
+    },
+    {
+      "field": "power",
+      "value_printed": "3,50",
+      "unit_printed": "kW",
+      "label_printed": "Power",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "S1",
+      "variant": "36 V"
+    },
+    {
+      "field": "speed",
+      "value_printed": "1700",
+      "unit_printed": "min-1",
+      "label_printed": "Speed",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "S1",
+      "variant": "36 V"
+    },
+    {
+      "field": "voltage",
+      "value_printed": "48",
+      "unit_printed": "V",
+      "label_printed": "Voltage",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "48 V"
+    },
+    {
+      "field": "current",
+      "value_printed": "110",
+      "unit_printed": "A",
+      "label_printed": "Current",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": "S1 (Operation mode S1)",
+      "variant": "48 V"
+    },
+    {
+      "field": "power",
+      "value_printed": "4,74",
+      "unit_printed": "kW",
+      "label_printed": "Power",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "S1",
+      "variant": "48 V"
+    },
+    {
+      "field": "speed",
+      "value_printed": "2300",
+      "unit_printed": "min-1",
+      "label_printed": "Speed",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "S1",
+      "variant": "48 V"
+    },
+    {
+      "field": "voltage",
+      "value_printed": "60",
+      "unit_printed": "V",
+      "label_printed": "Voltage",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "60 V"
+    },
+    {
+      "field": "current",
+      "value_printed": "110",
+      "unit_printed": "A",
+      "label_printed": "Current",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": "S1 (Operation mode S1)",
+      "variant": "60 V"
+    },
+    {
+      "field": "power",
+      "value_printed": "5,97",
+      "unit_printed": "kW",
+      "label_printed": "Power",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "S1",
+      "variant": "60 V"
+    },
+    {
+      "field": "speed",
+      "value_printed": "2870",
+      "unit_printed": "min-1",
+      "label_printed": "Speed",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "S1",
+      "variant": "60 V"
+    },
+    {
+      "field": "voltage",
+      "value_printed": "72",
+      "unit_printed": "V",
+      "label_printed": "Voltage",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "72 V"
+    },
+    {
+      "field": "current",
+      "value_printed": "110",
+      "unit_printed": "A",
+      "label_printed": "Current",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": "S1 (Operation mode S1)",
+      "variant": "72 V"
+    },
+    {
+      "field": "power",
+      "value_printed": "7,22",
+      "unit_printed": "kW",
+      "label_printed": "Power",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "S1",
+      "variant": "72 V"
+    },
+    {
+      "field": "speed",
+      "value_printed": "3480",
+      "unit_printed": "min-1",
+      "label_printed": "Speed",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "S1",
+      "variant": "72 V"
+    },
+    {
+      "field": "current_short_time",
+      "value_printed": "200",
+      "unit_printed": "A",
+      "label_printed": "Short time operation",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": "S2 - 10 min",
+      "variant": "all"
+    },
+    {
+      "field": "torque_short_time",
+      "value_printed": "38",
+      "unit_printed": "Nm",
+      "label_printed": "Torque",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "printed under 'Short time operation 200 A S2 - 10 min'",
+      "variant": "all"
+    },
+    {
+      "field": "torque",
+      "value_printed": "20",
+      "unit_printed": "Nm",
+      "label_printed": "torque",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "side column, no operating mode printed (S1 rated torque by its position)",
+      "variant": "all"
+    },
+    {
+      "field": "inertia",
+      "value_printed": "0,025",
+      "unit_printed": "kgm2",
+      "label_printed": "inertia",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "all"
+    },
+    {
+      "field": "inductance",
+      "value_printed": "0,019",
+      "unit_printed": "mH",
+      "label_printed": "inductance",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "all"
+    },
+    {
+      "field": "resistance",
+      "value_printed": "16",
+      "unit_printed": "mOhm",
+      "label_printed": "resistance",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "all"
+    },
+    {
+      "field": "protection",
+      "value_printed": "IP 20",
+      "unit_printed": null,
+      "label_printed": "system of protection",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "all"
+    },
+    {
+      "field": "weight",
+      "value_printed": "11",
+      "unit_printed": "kg",
+      "label_printed": "weight",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "all"
+    },
+    {
+      "field": "efficiency",
+      "value_printed": "only_in_curve",
+      "unit_printed": "%",
+      "label_printed": "efficiency [ % ]",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "curves only (24, 36, 48, 72 V)",
+      "variant": null
+    }
+  ],
+  "must_ask": [
+    "which supply voltage / column (24, 36, 48, 60 or 72 V)",
+    "the load (not in the document)"
+  ],
+  "must_warn": [
+    "Kt and Ke are not printed (derivable only from U/n at the rated point, approximately)",
+    "decimal commas (2,20 kW; 0,025 kgm2)",
+    "efficiency only in curves: not a parameter",
+    "38 Nm is the short-time (S2 10 min) torque, not continuous"
+  ],
+  "notes": "Known truth: SPADE's dc_pmg132_v1/v2 use R = 16 mOhm, L = 0.019 mH, J = 0.025 kg m2 and the 60 V column."
+}

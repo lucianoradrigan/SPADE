@@ -1,0 +1,34 @@
+{
+  "id": "W12",
+  "written_by": "Claude Code, by looking at the image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "data/upstream/assistant_golden/photos/Defense_Plant_Corporation_motor_nameplate.jpg",
+  "machine_type": "not stated",
+  "simulable_today": false,
+  "image_quality": "frontal, dim, yellow label with handwriting",
+  "fields": [
+    {
+      "label_printed": "PROPERTY OF DEFENSE PLANT CORPORATION",
+      "value_printed": "Property of Defense Plant Corporation, an instrumentality of the United States Government",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "DPC-",
+      "value_printed": "2606-A",
+      "unit_printed": null,
+      "note": "handwritten on the yellow label"
+    },
+    {
+      "label_printed": "(stamped)",
+      "value_printed": "CC 792",
+      "unit_printed": null
+    }
+  ],
+  "must_ask": [],
+  "must_warn": [
+    "an ownership/property tag, not a rating plate: no motor data"
+  ],
+  "missing_for_simulation": [
+    "everything needed (no ratings)"
+  ]
+}

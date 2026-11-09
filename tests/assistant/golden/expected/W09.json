@@ -1,0 +1,123 @@
+{
+  "id": "W09",
+  "written_by": "Claude Code, by looking at the image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "data/upstream/assistant_golden/photos/Typenschild-Drehstrom-Asynchronmaschine_apel.jpg",
+  "machine_type": "asynchronous (induction) machine",
+  "simulable_today": false,
+  "image_quality": "frontal, sharp",
+  "fields": [
+    {
+      "label_printed": "ABB ASEA BROWN BOVERI",
+      "value_printed": "ABB Asea Brown Boveri",
+      "unit_printed": null,
+      "note": "manufacturer"
+    },
+    {
+      "label_printed": "ASYNCHRONMASCHINE",
+      "value_printed": "Asynchronmaschine / Machine asynchrone / Asynchronous machine",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "No.",
+      "value_printed": "AW 818 174",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "year",
+      "value_printed": "1988",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "Typ",
+      "value_printed": "QWGy 800 xa 4",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "P",
+      "value_printed": "5000",
+      "unit_printed": "kW"
+    },
+    {
+      "label_printed": "Duty",
+      "value_printed": "S1",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "cos φ",
+      "value_printed": "0,89",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "m",
+      "value_printed": "15 800",
+      "unit_printed": "kg"
+    },
+    {
+      "label_printed": "n",
+      "value_printed": "1480",
+      "unit_printed": "1/min"
+    },
+    {
+      "label_printed": "f",
+      "value_printed": "50",
+      "unit_printed": "Hz"
+    },
+    {
+      "label_printed": "IC",
+      "value_printed": "W 37 A 81",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "U1",
+      "value_printed": "10000",
+      "unit_printed": "V"
+    },
+    {
+      "label_printed": "I1",
+      "value_printed": "335",
+      "unit_printed": "A"
+    },
+    {
+      "label_printed": "3~",
+      "value_printed": "Y",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "U2",
+      "value_printed": null,
+      "unit_printed": "V"
+    },
+    {
+      "label_printed": "I2",
+      "value_printed": null,
+      "unit_printed": "A"
+    },
+    {
+      "label_printed": "IM",
+      "value_printed": "B3",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "IP",
+      "value_printed": "54",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "El.",
+      "value_printed": "VDE-0530",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "Cl.",
+      "value_printed": "F",
+      "unit_printed": null
+    }
+  ],
+  "must_ask": [],
+  "must_warn": [
+    "induction machine: not simulable",
+    "decimal comma (0,89); space as thousands separator (15 800 kg)"
+  ],
+  "missing_for_simulation": []
+}

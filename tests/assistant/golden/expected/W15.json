@@ -1,0 +1,64 @@
+{
+  "id": "W15",
+  "written_by": "Claude Code, by looking at the image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "data/upstream/assistant_golden/photos/AEG_Motor_Typenschild_Nummer_2660874_in_der_Leinenfabrik_Steinhude.jpg",
+  "machine_type": "three-phase motor (D Mot)",
+  "simulable_today": false,
+  "image_quality": "frontal, dirty, worn",
+  "fields": [
+    {
+      "label_printed": "AEG",
+      "value_printed": "AEG",
+      "unit_printed": null,
+      "note": "manufacturer"
+    },
+    {
+      "label_printed": "D Mot Nr.",
+      "value_printed": "2660874",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "Type",
+      "value_printed": "VDNW 22/6",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "Y/Δ",
+      "value_printed": "220/380",
+      "unit_printed": "V"
+    },
+    {
+      "label_printed": "A",
+      "value_printed": "4,5 2,58",
+      "unit_printed": "A"
+    },
+    {
+      "label_printed": "KW",
+      "value_printed": "1,1",
+      "unit_printed": "KW"
+    },
+    {
+      "label_printed": "cos φ",
+      "value_printed": "0,78",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "U p.min.",
+      "value_printed": "950",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "Hz",
+      "value_printed": "50",
+      "unit_printed": null,
+      "note": "the Hz label is not visible"
+    }
+  ],
+  "must_ask": [],
+  "must_warn": [
+    "printed 'Y/Δ 220/380': with 220/380 V the usual pairing is Δ 220 V / Y 380 V; the order on the plate is reversed",
+    "induction motor: not simulable"
+  ],
+  "missing_for_simulation": []
+}

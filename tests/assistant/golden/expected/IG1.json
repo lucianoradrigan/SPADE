@@ -1,0 +1,68 @@
+{
+  "id": "IG1",
+  "written_by": "Claude Code, by looking at the public record image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "data/upstream/assistant_golden/ingenium/1992.2220.001/image_0.jpeg",
+  "artifact": "1992.2220.001",
+  "machine_type": "AC induction motor, 10 HP, General Electric Co., 1901",
+  "simulable_today": false,
+  "image_quality": "museum record photo of the whole machine, 750 px wide; the plate is a few dozen pixels",
+  "fields": [
+    {
+      "label_printed": "INDUCTION MOTOR",
+      "value_printed": "INDUCTION MOTOR",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "NO.",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "TYPE / CLASS",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "FORM / CYCLES",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "VOLTS / AMP.",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "PATENTED ...",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "GENERAL ELECTRIC CO.",
+      "value_printed": "GENERAL ELECTRIC CO.",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "SCHENECTADY, N.Y. U.S.A.",
+      "value_printed": "SCHENECTADY, N.Y. U.S.A.",
+      "unit_printed": null
+    }
+  ],
+  "official_transcription": "INDUCTION MOTOR/ NO. 94239/ TYPE 1 CLASS 6-10-1200/ FORM L CYCLES 60 H.P. 10/ VOLTS 110 AMP. 53/ PATENTED MAY 17 '87 FEB. 14 '88/ SEPT. 18 '88 APR. 9 '89 APR. 23 '89/ JULY 30 '89 SEP. 12 '93 NOV. 14 '93 AUG. 13 '95/ MAY 5 '96 MAY 12 '96 AUG. 11 '96 JUN. 25 1901/ GENERAL ELECTRIC CO./ SCHENECTADY, N.Y. U.S.A.",
+  "differences_with_official": [
+    "'NO.': mine 'illegible'",
+    "'TYPE / CLASS': mine 'illegible'",
+    "'FORM / CYCLES': mine 'illegible'",
+    "'VOLTS / AMP.': mine 'illegible'",
+    "'PATENTED ...': mine 'illegible'"
+  ],
+  "must_ask": [],
+  "must_warn": [
+    "not simulable in SPADE today",
+    "the plate is not legible at this resolution: the agent must not invent the values the record's text gives"
+  ],
+  "missing_for_simulation": [
+    "everything"
+  ]
+}

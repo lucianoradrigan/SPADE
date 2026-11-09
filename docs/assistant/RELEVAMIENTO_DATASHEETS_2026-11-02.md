@@ -224,3 +224,31 @@ ke = 89 / (1000 * rpm); math.sqrt(3) * ke, 29e-3 / 5.15     # 1FK7: 1.472 Nm/A, 
 | 0 | `describe_plant()` declara, para cada campo, su unidad SI **y** su convención (p. ej. `r_s`: fase, Ω, 20 °C). El extractor convierte hacia eso |
 | 1 | La matriz de §4 se convierte en `configs/assistant_requirements.yaml` (columna × campo → R / I / ·); `draft.status()` la usa para saber qué preguntar según el objetivo |
 | 2 | Esquema con convenciones y variantes (§5), lectura doble del PDF, `consistency.py`, generador sintético, conjunto dorado de §7, tabla de geometrías de rodamientos (con fuente) |
+
+## 10. Conversiones con fuente externa citable (agregado 2026-11-09, ronda C, T8.5)
+
+La fuente es el white paper de Kollmorgen *Servo Motor Parameters and their Proper Conversions for Servo Drive Utilization and Comparison* (RevD, 2024), R1 del anexo A. El archivo se leyó el 2026-11-09; su SHA-256 está en `configs/assistant_conversions.yaml`. Todas las reglas suponen un bobinado en estrella (Y), salvo la de triángulo. Las páginas son las del PDF.
+
+| Regla | Factor | Página |
+|---|---|---|
+| Ke pico línea-línea (V/kRPM) → Kb RMS línea-línea (Vrms/kRPM) | ÷ √2 | 4 |
+| Constante de tensión por fase (línea-neutro) → línea-línea | × √3 | 4 |
+| Kt de 6 pasos / cresta (T/A) → Kt senoidal (T/A-rms) | × √1,5 | 5 |
+| R y L línea-línea → por fase | ÷ 2 | 5 |
+| R o L por fase de un triángulo → equivalente línea-neutro en estrella | ÷ 3 | 7 |
+
+**Chequeos de razón** (p. 8). Indican qué convención usa el documento:
+- **Kb (Vrms/kRPM) / Kt (Nm/A-rms) entre 60 y 65** (ideal 60,46): las dos constantes están en RMS, con conmutación senoidal.
+- **Ke (V/kRPM) / Kt (Nm/A) entre ~103 y 113** (ideal 104,72): las dos están en unidades de 6 pasos, pico.
+
+**Aplicados a los valores esperados escritos a mano** (`tests/assistant/golden/conventions.py`, `docs/audit/assistant/golden_set.md`):
+
+| Documento | Razón | Cuadra con | Lectura |
+|---|---|---|---|
+| P1 Siemens 1FK7042 | 89,0 / 1,40 = 63,6 | RMS senoidal | El kE impreso ya es **línea-línea RMS**. Corrige la lectura de §3, que lo trató como de fase y lo multiplicó por √3 (1,47 frente a 1,40) |
+| P2 Kollmorgen AKM62H y AKM65P | 64,5 y 61,9 | RMS senoidal | Coincide con la nota "All data referenced to sinusoidal commutation" |
+| P3 IDC B23 | 45,5 / 0,41 = 111,0 | 6 pasos / pico | Coincide con "Kt, Phase to Phase Peak" y con "Vp-p" |
+| P5 Nanotec DB59C024035-B3 | 3,7 / 0,044 = 84,1 | ninguna | Hay que preguntar qué constante es correcta |
+| P4 Delta ECM-B3 | — | no ejecutado | El documento no se pudo descargar |
+
+Estas reglas son la fuente externa que pedía P5 de la Fase 1. Ningún código las usa todavía: la Fase 2 no empezó.

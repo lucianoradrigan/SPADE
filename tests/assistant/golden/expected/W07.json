@@ -1,0 +1,53 @@
+{
+  "id": "W07",
+  "written_by": "Claude Code, by looking at the image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "tests/assistant/golden/photos/Specification_Plate_-_Greenwood_&_Batley_DC_Generator_-_Birla_Industrial_&_Technological_Museum_-_Kolkata_2014-01-23_7089.JPG",
+  "machine_type": "machine type not printed (museum label: DC generator)",
+  "simulable_today": false,
+  "image_quality": "inclined, strong reflections",
+  "fields": [
+    {
+      "label_printed": "GREENWOOD & BATLEY LTD LEEDS",
+      "value_printed": "Greenwood & Batley Ltd, Leeds",
+      "unit_printed": null,
+      "note": "manufacturer"
+    },
+    {
+      "label_printed": "Nº",
+      "value_printed": "10141",
+      "unit_printed": null,
+      "note": "partly in a reflection"
+    },
+    {
+      "label_printed": "K.W.",
+      "value_printed": "ambiguous: must ask",
+      "unit_printed": "K.W.",
+      "note": "13.2 or 15.2"
+    },
+    {
+      "label_printed": "REVS",
+      "value_printed": "3000",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "AMPS",
+      "value_printed": "120",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "VOLTS",
+      "value_printed": "110",
+      "unit_printed": null,
+      "note": "faint"
+    }
+  ],
+  "must_ask": [
+    "the kW value (13.2 or 15.2); 110 V x 120 A = 13.2 kW suggests 13.2",
+    "whether it is a DC machine and how it is excited (not on the plate)"
+  ],
+  "must_warn": [
+    "machine type not printed"
+  ],
+  "missing_for_simulation": []
+}

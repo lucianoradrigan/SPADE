@@ -1,0 +1,35 @@
+{
+  "id": "W11",
+  "written_by": "Claude Code, by looking at the image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "data/upstream/assistant_golden/photos/Zellweger_Typenschild_Nema.jpg",
+  "machine_type": "not stated",
+  "simulable_today": false,
+  "image_quality": "low resolution (419x185), sharp",
+  "fields": [
+    {
+      "label_printed": "Zellweger A.-G.",
+      "value_printed": "Zellweger A.-G., Apparate- u. Maschinenfabriken, Uster",
+      "unit_printed": null,
+      "note": "manufacturer"
+    },
+    {
+      "label_printed": "Type",
+      "value_printed": "T-D",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "№",
+      "value_printed": "473",
+      "unit_printed": null
+    }
+  ],
+  "must_ask": [],
+  "must_warn": [
+    "a maker's plate with type and number only: no electrical data",
+    "the file title mentions NEMA; the plate does not"
+  ],
+  "missing_for_simulation": [
+    "everything needed (the plate has no ratings)"
+  ]
+}

@@ -1,0 +1,168 @@
+{
+  "id": "D3",
+  "written_by": "Claude Code, by hand from the downloaded document (round C, T8.3, 2026-11-09)",
+  "schema": "golden-expected/1",
+  "document": "Motenergy ME1513 PMDC Motor (file name me1514-data-sheet)",
+  "manufacturer_printed": "Motenergy",
+  "motor_type": "permanent magnet DC, brushed",
+  "simulable_today": true,
+  "variants": [
+    "ME1513"
+  ],
+  "variant_policy": "single article; the title says ME1513 although the file is named me1514",
+  "fields": [
+    {
+      "field": "voltage_range",
+      "value_printed": "12-72",
+      "unit_printed": "VDC",
+      "label_printed": "Voltage (VDC)",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "efficiency",
+      "value_printed": "90",
+      "unit_printed": "%",
+      "label_printed": "Efficiency",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "speed_loaded",
+      "value_printed": "3200",
+      "unit_printed": "RPM",
+      "label_printed": "Loaded Speed (RPM)",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "no voltage stated",
+      "variant": null
+    },
+    {
+      "field": "power_continuous",
+      "value_printed": "8.4",
+      "unit_printed": "kW",
+      "label_printed": "Power (kW Continuous at 72V)",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "continuous, 72 V",
+      "variant": null
+    },
+    {
+      "field": "current_continuous",
+      "value_printed": "130",
+      "unit_printed": "A",
+      "label_printed": "Current (A Continuous)",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": "continuous",
+      "variant": null
+    },
+    {
+      "field": "current_peak",
+      "value_printed": "400",
+      "unit_printed": "A",
+      "label_printed": "Current (A Peak 30 sec.)",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": "peak 30 s",
+      "variant": null
+    },
+    {
+      "field": "voltage_constant",
+      "value_printed": "0.0225",
+      "unit_printed": "V/rpm",
+      "label_printed": "Voltage Constant (V/rpm)",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "torque_constant",
+      "value_printed": "0.192",
+      "unit_printed": "Nm/A",
+      "label_printed": "Torque Constant (Nm/A)",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "weight",
+      "value_printed": "23.63",
+      "unit_printed": "kg",
+      "label_printed": "Weight (kg)",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "protection",
+      "value_printed": "IP65",
+      "unit_printed": null,
+      "label_printed": "Ingress Protection",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "resistance",
+      "value_printed": null,
+      "unit_printed": null,
+      "label_printed": null,
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "inductance",
+      "value_printed": null,
+      "unit_printed": null,
+      "label_printed": null,
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "inertia",
+      "value_printed": null,
+      "unit_printed": null,
+      "label_printed": null,
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    }
+  ],
+  "must_ask": [
+    "which of Ke and Kt to use: Ke 0.0225 V/rpm = 0.215 V s/rad but Kt = 0.192 N m/A (+12 %); never average them",
+    "armature resistance, inductance and inertia (not printed)",
+    "the operating voltage within 12-72 V"
+  ],
+  "must_warn": [
+    "internal inconsistency between Ke and Kt (12 %)",
+    "title ME1513 vs file name me1514"
+  ],
+  "notes": ""
+}

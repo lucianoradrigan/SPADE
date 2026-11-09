@@ -1,0 +1,244 @@
+{
+  "id": "P1",
+  "written_by": "Claude Code, by hand from the downloaded document (round C, T8.3, 2026-11-09)",
+  "schema": "golden-expected/1",
+  "document": "Siemens SIMOTICS S-1FK7 data sheet, 1FK7042-5AF71-1UA5",
+  "manufacturer_printed": "Siemens (SIMOTICS)",
+  "motor_type": "permanent-magnet synchronous servo, compact",
+  "simulable_today": true,
+  "variants": [
+    "1FK7042-5AF71-1UA5"
+  ],
+  "variant_policy": "single article",
+  "fields": [
+    {
+      "field": "speed_rated",
+      "value_printed": "3,000",
+      "unit_printed": "rpm",
+      "label_printed": "Rated speed (100 K)",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "100 K winding temperature rise",
+      "variant": null
+    },
+    {
+      "field": "poles",
+      "value_printed": "8",
+      "unit_printed": null,
+      "label_printed": "Number of poles",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "torque_rated",
+      "value_printed": "2.6",
+      "unit_printed": "Nm",
+      "label_printed": "Rated torque (100 K)",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "100 K",
+      "variant": null
+    },
+    {
+      "field": "current_rated",
+      "value_printed": "1.9",
+      "unit_printed": "A",
+      "label_printed": "Rated current",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "torque_static_60K",
+      "value_printed": "2.50",
+      "unit_printed": "Nm",
+      "label_printed": "Static torque (60 K)",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "60 K",
+      "variant": null
+    },
+    {
+      "field": "torque_static_100K",
+      "value_printed": "3.00",
+      "unit_printed": "Nm",
+      "label_printed": "Static torque (100 K)",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "100 K",
+      "variant": null
+    },
+    {
+      "field": "current_stall_60K",
+      "value_printed": "1.80",
+      "unit_printed": "A",
+      "label_printed": "Stall current (60 K)",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": "60 K",
+      "variant": null
+    },
+    {
+      "field": "current_stall_100K",
+      "value_printed": "2.20",
+      "unit_printed": "A",
+      "label_printed": "Stall current (100 K)",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": "100 K",
+      "variant": null
+    },
+    {
+      "field": "inertia",
+      "value_printed": "3.010",
+      "unit_printed": "kgcm²",
+      "label_printed": "Moment of inertia",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "torque_constant",
+      "value_printed": "1.40",
+      "unit_printed": "Nm/A",
+      "label_printed": "Torque constant",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "voltage_constant",
+      "value_printed": "89.0",
+      "unit_printed": "V/1000*min¯¹",
+      "label_printed": "Voltage constant at 20º C",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": 20,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "resistance",
+      "value_printed": "5.15",
+      "unit_printed": "Ω",
+      "label_printed": "Winding resistance at 20º C",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": 20,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "inductance",
+      "value_printed": "29.0",
+      "unit_printed": "mH",
+      "label_printed": "Rotating field inductance",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "electrical_time_constant",
+      "value_printed": "5.60",
+      "unit_printed": "ms",
+      "label_printed": "Electrical time constant",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "mechanical_time_constant",
+      "value_printed": "2.37",
+      "unit_printed": "ms",
+      "label_printed": "Mechanical time constant",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "torque_max",
+      "value_printed": "10.5",
+      "unit_printed": "Nm",
+      "label_printed": "Maximum torque",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "current_max",
+      "value_printed": "7.4",
+      "unit_printed": "A",
+      "label_printed": "Maximum current",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "speed_max_inverter",
+      "value_printed": "6,500",
+      "unit_printed": "rpm",
+      "label_printed": "Max. permissible speed (inverter)",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "speed_max_mech",
+      "value_printed": "9,000",
+      "unit_printed": "rpm",
+      "label_printed": "Max. permissible speed (mech.)",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "efficiency",
+      "value_printed": "89.0",
+      "unit_printed": "%",
+      "label_printed": "Efficiency",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    }
+  ],
+  "must_ask": [
+    "the basis and waveform of the voltage constant and of the rated current (not printed); resolve with the consistency check before asking"
+  ],
+  "must_warn": [
+    "values at different temperatures: kE and R at 20 °C, rated and static data at 60 K / 100 K rise; Kt has no temperature",
+    "'Number of poles 8' = 4 pole pairs",
+    "the 'Maximum torque' appears twice (10.5 Nm limiting data, 8.40 Nm with the recommended Motor Module)"
+  ],
+  "notes": "Checks: L/R = 29.0/5.15 = 5.63 ms vs printed 5.60 ms (same basis for R and L). sqrt(3)*kE/1000*60/(2 pi) = 1.47 vs Kt 1.40 N m/A."
+}

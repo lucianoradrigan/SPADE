@@ -1,0 +1,280 @@
+{
+  "id": "P2",
+  "written_by": "Claude Code, by hand from the downloaded document (round C, T8.3, 2026-11-09)",
+  "schema": "golden-expected/1",
+  "document": "Kollmorgen AKM6x series data sheet (outline, dimension and performance data up to 640 Vdc; catalog pages 44-47)",
+  "manufacturer_printed": "Kollmorgen",
+  "motor_type": "PMSM servo (AKM)",
+  "simulable_today": true,
+  "variants": [
+    "AKM62H",
+    "AKM62L",
+    "AKM62M",
+    "AKM62Q",
+    "AKM63H",
+    "AKM63L",
+    "AKM63M",
+    "AKM63Q",
+    "AKM64K",
+    "AKM64L",
+    "AKM64Q",
+    "AKM65L",
+    "AKM65M",
+    "AKM65P"
+  ],
+  "variant_policy": "chosen before reading the values: the first (AKM62H) and the last (AKM65P) columns; bus-voltage rows (75/160/320/560/640 Vdc) not written",
+  "fields": [
+    {
+      "field": "torque_constant",
+      "value_printed": "2.2",
+      "unit_printed": "Nm/Arms",
+      "label_printed": "Torque Constant",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "AKM62H"
+    },
+    {
+      "field": "back_emf_constant",
+      "value_printed": "142",
+      "unit_printed": "V/krpm",
+      "label_printed": "Back EMF Constant",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "AKM62H"
+    },
+    {
+      "field": "resistance",
+      "value_printed": "3.3",
+      "unit_printed": "ohm",
+      "label_printed": "Resistance (line-line)",
+      "basis": "line-line",
+      "waveform": "not_applicable",
+      "temperature_c": "ambiguous: must ask",
+      "condition": null,
+      "variant": "AKM62H"
+    },
+    {
+      "field": "inductance",
+      "value_printed": "25.4",
+      "unit_printed": "mH",
+      "label_printed": "Inductance (line-line)",
+      "basis": "line-line",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "AKM62H"
+    },
+    {
+      "field": "inertia",
+      "value_printed": "17",
+      "unit_printed": "kg-cm2",
+      "label_printed": "Inertia (includes Resolver feedback)",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "AKM62H"
+    },
+    {
+      "field": "torque_continuous_stall_100K",
+      "value_printed": "11.9",
+      "unit_printed": "Nm",
+      "label_printed": "Continuous Torque (Stall) for ΔT winding = 100°C",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "ΔT = 100 °C at 40 °C ambient",
+      "variant": "AKM62H"
+    },
+    {
+      "field": "current_continuous_stall_100K",
+      "value_printed": "5.4",
+      "unit_printed": "Arms",
+      "label_printed": "Continuous Current (Stall) for ΔT winding = 100°C",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": "ΔT = 100 °C",
+      "variant": "AKM62H"
+    },
+    {
+      "field": "torque_peak",
+      "value_printed": "29.6",
+      "unit_printed": "Nm",
+      "label_printed": "Peak Torque",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "AKM62H"
+    },
+    {
+      "field": "current_peak",
+      "value_printed": "16.2",
+      "unit_printed": "Arms",
+      "label_printed": "Peak Current",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "AKM62H"
+    },
+    {
+      "field": "pole_pairs",
+      "value_printed": "5",
+      "unit_printed": null,
+      "label_printed": "Pole Pairs",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "AKM62H"
+    },
+    {
+      "field": "vbus_max",
+      "value_printed": "640",
+      "unit_printed": "Vdc",
+      "label_printed": "Max Rated DC Bus Voltage",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "AKM62H"
+    },
+    {
+      "field": "torque_constant",
+      "value_printed": "1.3",
+      "unit_printed": "Nm/Arms",
+      "label_printed": "Torque Constant",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "AKM65P"
+    },
+    {
+      "field": "back_emf_constant",
+      "value_printed": "80.5",
+      "unit_printed": "V/krpm",
+      "label_printed": "Back EMF Constant",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "AKM65P"
+    },
+    {
+      "field": "resistance",
+      "value_printed": "0.37",
+      "unit_printed": "ohm",
+      "label_printed": "Resistance (line-line)",
+      "basis": "line-line",
+      "waveform": "not_applicable",
+      "temperature_c": "ambiguous: must ask",
+      "condition": null,
+      "variant": "AKM65P"
+    },
+    {
+      "field": "inductance",
+      "value_printed": "2.8",
+      "unit_printed": "mH",
+      "label_printed": "Inductance (line-line)",
+      "basis": "line-line",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "AKM65P"
+    },
+    {
+      "field": "inertia",
+      "value_printed": "40",
+      "unit_printed": "kg-cm2",
+      "label_printed": "Inertia (includes Resolver feedback)",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "AKM65P"
+    },
+    {
+      "field": "torque_continuous_stall_100K",
+      "value_printed": "24.5",
+      "unit_printed": "Nm",
+      "label_printed": "Continuous Torque (Stall) for ΔT winding = 100°C",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "ΔT = 100 °C at 40 °C ambient",
+      "variant": "AKM65P"
+    },
+    {
+      "field": "current_continuous_stall_100K",
+      "value_printed": "19.8",
+      "unit_printed": "Arms",
+      "label_printed": "Continuous Current (Stall) for ΔT winding = 100°C",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": "ΔT = 100 °C",
+      "variant": "AKM65P"
+    },
+    {
+      "field": "torque_peak",
+      "value_printed": "65.2",
+      "unit_printed": "Nm",
+      "label_printed": "Peak Torque",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "AKM65P"
+    },
+    {
+      "field": "current_peak",
+      "value_printed": "59.4",
+      "unit_printed": "Arms",
+      "label_printed": "Peak Current",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "AKM65P"
+    },
+    {
+      "field": "pole_pairs",
+      "value_printed": "5",
+      "unit_printed": null,
+      "label_printed": "Pole Pairs",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "AKM65P"
+    },
+    {
+      "field": "vbus_max",
+      "value_printed": "640",
+      "unit_printed": "Vdc",
+      "label_printed": "Max Rated DC Bus Voltage",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "AKM65P"
+    }
+  ],
+  "must_ask": [
+    "which of the 14 windings and which bus voltage (75, 160, 320, 560, 640 Vdc)",
+    "what 'Measured at 25°C' (a note whose marker is lost in the table) refers to: resistance? constants?"
+  ],
+  "must_warn": [
+    "'All data referenced to sinusoidal commutation'",
+    "75 and 160 Vdc rows are empty for these windings",
+    "torque derating notes for brake, non-resolver feedback and shaft seal"
+  ],
+  "notes": "Ke/Kt: 142/2.2 = 64.5 (AKM62H), 80.5/1.3 = 61.9 (AKM65P): inside the Kollmorgen Kb/Kt band 60-65, i.e. Ke = line-line rms per krpm. Not written as expected basis because the document does not print it."
+}

@@ -1,0 +1,113 @@
+{
+  "id": "W18",
+  "written_by": "Claude Code, by looking at the image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "data/upstream/assistant_golden/photos/ZXAM2502A-4_traction_motor_nameplate_on_19_0077_(20210721133155).jpg",
+  "machine_type": "traction three-phase asynchronous (induction) motor",
+  "simulable_today": false,
+  "image_quality": "slight angle, glare on the plate",
+  "fields": [
+    {
+      "label_printed": "牵引三相异步电动机",
+      "value_printed": "traction three-phase asynchronous motor",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "型号",
+      "value_printed": "ZXAM2502A-4",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "出厂编号",
+      "value_printed": "ZX100016-10429",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "额定功率",
+      "value_printed": "250",
+      "unit_printed": "kW"
+    },
+    {
+      "label_printed": "极数",
+      "value_printed": "4",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "物料号",
+      "value_printed": "F0140D03",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "额定电压",
+      "value_printed": "1146",
+      "unit_printed": "V"
+    },
+    {
+      "label_printed": "额定电流",
+      "value_printed": "144",
+      "unit_printed": "A"
+    },
+    {
+      "label_printed": "额定频率",
+      "value_printed": "74.3",
+      "unit_printed": "Hz"
+    },
+    {
+      "label_printed": "绝缘等级",
+      "value_printed": "220",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "防护等级",
+      "value_printed": "IP23",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "额定转速",
+      "value_printed": "2200",
+      "unit_printed": "r/min"
+    },
+    {
+      "label_printed": "最高转速",
+      "value_printed": "4150",
+      "unit_printed": "r/min"
+    },
+    {
+      "label_printed": "接法",
+      "value_printed": "Y",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "工作制",
+      "value_printed": "S1",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "重量",
+      "value_printed": "640±2%",
+      "unit_printed": "kg"
+    },
+    {
+      "label_printed": "标准编号",
+      "value_printed": "IEC60349-2",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "出厂日期",
+      "value_printed": "2020年6月",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "maker",
+      "value_printed": "天津纵西牵引电机有限公司 (ZXTM)",
+      "unit_printed": null
+    }
+  ],
+  "must_ask": [],
+  "must_warn": [
+    "Chinese labels",
+    "induction (traction) motor: not simulable",
+    "4 poles at 74.3 Hz: synchronous 2229 r/min, rated 2200 (1.3 % slip): consistent"
+  ],
+  "missing_for_simulation": []
+}

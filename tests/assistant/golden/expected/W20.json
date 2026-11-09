@@ -1,0 +1,100 @@
+{
+  "id": "W20",
+  "written_by": "Claude Code, by looking at the image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "data/upstream/assistant_golden/photos/Typenschild_Generator_(1976).jpg",
+  "machine_type": "three-phase generator (3 ~ GEN.)",
+  "simulable_today": false,
+  "image_quality": "frontal, scratched, slightly blurred",
+  "fields": [
+    {
+      "label_printed": "ANTON PILLER KG",
+      "value_printed": "Anton Piller KG, Osterode/Harz, West-Germany",
+      "unit_printed": null,
+      "note": "manufacturer"
+    },
+    {
+      "label_printed": "Typ",
+      "value_printed": "NKT 115-4",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "Nr.",
+      "value_printed": "1104 802",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "3 ~",
+      "value_printed": "GEN.",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "U/min",
+      "value_printed": "1500",
+      "unit_printed": "U/min"
+    },
+    {
+      "label_printed": "V",
+      "value_printed": "400/231",
+      "unit_printed": "V"
+    },
+    {
+      "label_printed": "A",
+      "value_printed": "166",
+      "unit_printed": "A"
+    },
+    {
+      "label_printed": "Hz",
+      "value_printed": "50",
+      "unit_printed": "Hz"
+    },
+    {
+      "label_printed": "kW",
+      "value_printed": "115",
+      "unit_printed": "kW"
+    },
+    {
+      "label_printed": "KVA",
+      "value_printed": null,
+      "unit_printed": null
+    },
+    {
+      "label_printed": "Isol.-Kl.",
+      "value_printed": "F",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "IP",
+      "value_printed": "23 S",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "cos φ",
+      "value_printed": "0,8",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "VDE",
+      "value_printed": "0530",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "NUR U V W →",
+      "value_printed": "U V W (rotation)",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "Nach ... Std",
+      "value_printed": "7200",
+      "unit_printed": "Std",
+      "note": "regrease with 34,5 cm³ lithium soap grease every 7200 h"
+    }
+  ],
+  "must_ask": [
+    "whether 115 is kW or kVA: 166 A at 400 V is sqrt(3) x 400 x 166 = 115 kVA, so 115 kW at cos φ 0,8 would need 207 A"
+  ],
+  "must_warn": [
+    "generator: not simulable"
+  ],
+  "missing_for_simulation": []
+}

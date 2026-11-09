@@ -1,0 +1,66 @@
+{
+  "id": "W17",
+  "written_by": "Claude Code, by looking at the image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "data/upstream/assistant_golden/photos/Nameplate_for_one_of_Fireboat_Firefighter_'s_600V_DC_Marine_Motors.jpg",
+  "machine_type": "DC motor (Marine D.C. Motor)",
+  "simulable_today": false,
+  "image_quality": "frontal, slight perspective, dark",
+  "fields": [
+    {
+      "label_printed": "Westinghouse",
+      "value_printed": "Westinghouse Electric & Manufacturing Company, East Pittsburgh Works, East Pittsburgh, PA, U.S.A.",
+      "unit_printed": null,
+      "note": "manufacturer"
+    },
+    {
+      "label_printed": "MARINE D.C. MOTOR",
+      "value_printed": "Marine D.C. Motor",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "H.P.",
+      "value_printed": "1000",
+      "unit_printed": "H.P."
+    },
+    {
+      "label_printed": "VOLTS",
+      "value_printed": "600",
+      "unit_printed": "VOLTS"
+    },
+    {
+      "label_printed": "AMPS.",
+      "value_printed": "1320",
+      "unit_printed": "AMPS."
+    },
+    {
+      "label_printed": "R.P.M.",
+      "value_printed": "425",
+      "unit_printed": "R.P.M."
+    },
+    {
+      "label_printed": "SERIAL",
+      "value_printed": "1S7P205",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "REFER TO INSTRUCTION BOOK",
+      "value_printed": "5107",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "(top left)",
+      "value_printed": "illegible",
+      "unit_printed": null
+    }
+  ],
+  "must_ask": [
+    "the field excitation (series, shunt, separately excited or permanent magnet: not printed)",
+    "armature resistance, inductance and inertia"
+  ],
+  "must_warn": [
+    "SPADE's DC plants are permanent-magnet and small; a 1000 hp wound-field motor is outside the simulated range",
+    "600 V x 1320 A = 792 kW in, 1000 hp = 746 kW out (94 %)"
+  ],
+  "missing_for_simulation": []
+}

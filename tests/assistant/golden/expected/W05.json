@@ -1,0 +1,85 @@
+{
+  "id": "W05",
+  "written_by": "Claude Code, by looking at the image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "tests/assistant/golden/photos/Wasserkraftwerk_Tarandt_Typenschild_Generator_254175.jpg",
+  "machine_type": "generator (hydro power station)",
+  "simulable_today": false,
+  "image_quality": "slightly inclined, legible",
+  "fields": [
+    {
+      "label_printed": "GENERATOR",
+      "value_printed": "GENERATOR",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "NR",
+      "value_printed": "254175",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "TYPE",
+      "value_printed": "DG 182/8",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "FREQ.",
+      "value_printed": "50",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "AMP.",
+      "value_printed": "147 (208M)",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "VOLT",
+      "value_printed": "2 × 3400",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "ERREG.VOLT",
+      "value_printed": "120",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "DREHZ.",
+      "value_printed": "750",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "MIN. KVA",
+      "value_printed": null,
+      "unit_printed": null
+    },
+    {
+      "label_printed": "ROTOR AMP.",
+      "value_printed": null,
+      "unit_printed": null
+    },
+    {
+      "label_printed": "COS φ",
+      "value_printed": null,
+      "unit_printed": null
+    },
+    {
+      "label_printed": "DAUERND KVA",
+      "value_printed": "1000",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "bottom line",
+      "value_printed": "800 KW cos φ 0,8",
+      "unit_printed": null
+    }
+  ],
+  "must_ask": [
+    "what '2 × 3400' V means (two windings? two connections?)",
+    "what '(208M)' after 147 A means"
+  ],
+  "must_warn": [
+    "147 A at 1000 kVA fits about 3.9 kV line-line, not 3400 V: inconsistent unless the voltage is read differently",
+    "wound-field generator: not simulable"
+  ],
+  "missing_for_simulation": []
+}

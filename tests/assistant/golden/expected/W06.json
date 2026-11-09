@@ -1,0 +1,83 @@
+{
+  "id": "W06",
+  "written_by": "Claude Code, by looking at the image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "tests/assistant/golden/photos/Specification_Plate_-_GE_Electric_Generator_-_Birla_Industrial_&_Technological_Museum_-_Kolkata_2014-01-23_7098.JPG",
+  "machine_type": "machine type not printed (museum label: generator)",
+  "simulable_today": false,
+  "image_quality": "out of focus, cast plate",
+  "fields": [
+    {
+      "label_printed": "THE GENERAL ELECTRIC Cº (INDIA) LTD",
+      "value_printed": "The General Electric Co (India) Ltd, Calcutta, Madras & Bombay / The General Electric Co Ltd, Birmingham, England",
+      "unit_printed": null,
+      "note": "manufacturer (GEC, UK; not the US General Electric)"
+    },
+    {
+      "label_printed": "MACHINE Nº",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "CYCLES",
+      "value_printed": null,
+      "unit_printed": null
+    },
+    {
+      "label_printed": "PHASE",
+      "value_printed": null,
+      "unit_printed": null
+    },
+    {
+      "label_printed": "VOLTS",
+      "value_printed": "illegible",
+      "unit_printed": null,
+      "note": "two numbers separated by '/', possibly 230/242"
+    },
+    {
+      "label_printed": "OUTPUT",
+      "value_printed": null,
+      "unit_printed": null
+    },
+    {
+      "label_printed": "H.P.",
+      "value_printed": "illegible",
+      "unit_printed": null,
+      "note": "possibly 12"
+    },
+    {
+      "label_printed": "K.W.",
+      "value_printed": null,
+      "unit_printed": null
+    },
+    {
+      "label_printed": "AMPS",
+      "value_printed": null,
+      "unit_printed": null
+    },
+    {
+      "label_printed": "R.P.M.",
+      "value_printed": "illegible",
+      "unit_printed": null,
+      "note": "three digits ending in 25"
+    },
+    {
+      "label_printed": "ROTOR AMPS",
+      "value_printed": null,
+      "unit_printed": null
+    },
+    {
+      "label_printed": "VOLTS (rotor)",
+      "value_printed": null,
+      "unit_printed": null
+    }
+  ],
+  "must_ask": [],
+  "must_warn": [
+    "most fields are blank or out of focus",
+    "'General Electric Co' here is the British GEC, not the US company"
+  ],
+  "missing_for_simulation": [
+    "everything needed to simulate"
+  ]
+}

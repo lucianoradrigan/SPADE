@@ -1,0 +1,284 @@
+{
+  "id": "P7",
+  "written_by": "Claude Code, by hand from the downloaded document (round C, T8.3, 2026-11-09)",
+  "schema": "golden-expected/1",
+  "document": "EMRAX 228 datasheet v1.7",
+  "manufacturer_printed": "EMRAX",
+  "motor_type": "axial-flux PMSM",
+  "simulable_today": true,
+  "variants": [
+    "HV",
+    "MV",
+    "LV",
+    "LV+43%",
+    "LV+100%",
+    "HV+42%"
+  ],
+  "variant_policy": "chosen before reading the values: the first (HV) and the last (HV+42%) winding columns; each column has air 20 °C and AC+LC cooling sub-columns",
+  "fields": [
+    {
+      "field": "kv_constant",
+      "value_printed": "5,65",
+      "unit_printed": "RPM/VDC",
+      "label_printed": "KV constant at peak load",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": "at peak load",
+      "variant": "HV"
+    },
+    {
+      "field": "torque_constant",
+      "value_printed": "0,98",
+      "unit_printed": "Nm/ARMS",
+      "label_printed": "KT constant",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": "ambiguous: must ask",
+      "variant": "HV"
+    },
+    {
+      "field": "current_peak",
+      "value_printed": "235",
+      "unit_printed": "ARMS",
+      "label_printed": "Peak motor current",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "HV"
+    },
+    {
+      "field": "current_continuous_LC",
+      "value_printed": "120",
+      "unit_printed": "ARMS",
+      "label_printed": "Continuous motor current (LC)",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": "liquid cooled",
+      "variant": "HV"
+    },
+    {
+      "field": "resistance_phase",
+      "value_printed": "16,09",
+      "unit_printed": "mΩ",
+      "label_printed": "Internal phase resistance at 25 °C",
+      "basis": "phase",
+      "waveform": "not_applicable",
+      "temperature_c": 25,
+      "condition": "footnote 5: phase-to-phase resistance measured at 25 °C and divided by 2",
+      "variant": "HV"
+    },
+    {
+      "field": "inductance_ld_lq",
+      "value_printed": "175/180",
+      "unit_printed": "µH",
+      "label_printed": "LD/LQ inductance of 1 phase",
+      "basis": "phase",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "HV"
+    },
+    {
+      "field": "ke_constant",
+      "value_printed": "0,06881",
+      "unit_printed": "VRMS/RPM",
+      "label_printed": "Ke constant",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": "ambiguous: must ask",
+      "variant": "HV"
+    },
+    {
+      "field": "pm_flux_linkage",
+      "value_printed": "0,06411",
+      "unit_printed": "Vs",
+      "label_printed": "PM Flux Linkage",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "HV"
+    },
+    {
+      "field": "voltage_for_peak_power",
+      "value_printed": "830",
+      "unit_printed": "VDC",
+      "label_printed": "Voltage required for peak power",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "HV"
+    },
+    {
+      "field": "kv_constant",
+      "value_printed": "3,96",
+      "unit_printed": "RPM/VDC",
+      "label_printed": "KV constant at peak load",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": "at peak load",
+      "variant": "HV+42%"
+    },
+    {
+      "field": "torque_constant",
+      "value_printed": "1,33",
+      "unit_printed": "Nm/ARMS",
+      "label_printed": "KT constant",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": "ambiguous: must ask",
+      "variant": "HV+42%"
+    },
+    {
+      "field": "current_peak",
+      "value_printed": "165",
+      "unit_printed": "ARMS",
+      "label_printed": "Peak motor current",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "HV+42%"
+    },
+    {
+      "field": "current_continuous_LC",
+      "value_printed": "85",
+      "unit_printed": "ARMS",
+      "label_printed": "Continuous motor current (LC)",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": "liquid cooled",
+      "variant": "HV+42%"
+    },
+    {
+      "field": "resistance_phase",
+      "value_printed": "33,17",
+      "unit_printed": "mΩ",
+      "label_printed": "Internal phase resistance at 25 °C",
+      "basis": "phase",
+      "waveform": "not_applicable",
+      "temperature_c": 25,
+      "condition": "footnote 5: phase-to-phase resistance measured at 25 °C and divided by 2",
+      "variant": "HV+42%"
+    },
+    {
+      "field": "inductance_ld_lq",
+      "value_printed": "350/360",
+      "unit_printed": "µH",
+      "label_printed": "LD/LQ inductance of 1 phase",
+      "basis": "phase",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "HV+42%"
+    },
+    {
+      "field": "ke_constant",
+      "value_printed": "0,09850",
+      "unit_printed": "VRMS/RPM",
+      "label_printed": "Ke constant",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": "ambiguous: must ask",
+      "variant": "HV+42%"
+    },
+    {
+      "field": "pm_flux_linkage",
+      "value_printed": "0,08933",
+      "unit_printed": "Vs",
+      "label_printed": "PM Flux Linkage",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "HV+42%"
+    },
+    {
+      "field": "voltage_for_peak_power",
+      "value_printed": "830",
+      "unit_printed": "VDC",
+      "label_printed": "Voltage required for peak power",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "HV+42%"
+    },
+    {
+      "field": "pole_pairs",
+      "value_printed": "10",
+      "unit_printed": null,
+      "label_printed": "Number of pole pairs",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "winding",
+      "value_printed": "star",
+      "unit_printed": null,
+      "label_printed": "Winding configuration",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "inertia",
+      "value_printed": "0,0398/0,0393",
+      "unit_printed": "kg*m²",
+      "label_printed": "Rotor Inertia LC/AC and CC",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "torque_peak",
+      "value_printed": "220",
+      "unit_printed": "Nm",
+      "label_printed": "Peak torque",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "speed_limit",
+      "value_printed": "6500",
+      "unit_printed": "RPM",
+      "label_printed": "Limiting speed",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    }
+  ],
+  "must_ask": [
+    "which winding (6 windings x cooling)",
+    "the convention of Kt and Ke: Kt matches 1.5 p psi without sqrt(2) (peak current) although it says Arms; Ke does not match psi as line-line rms"
+  ],
+  "must_warn": [
+    "resistance is per phase = line-line / 2 (footnote)",
+    "decimal commas",
+    "KV is 'at peak load', not no-load",
+    "the 'Cooling specifications' header splits each winding into two cooling columns"
+  ],
+  "notes": "Relevamiento §3 checks (HV): Kt 0.98 vs 1.5*10*0.06411 = 0.962 (no sqrt 2) or 1.36 (with sqrt 2)."
+}

@@ -1,0 +1,170 @@
+{
+  "id": "P10",
+  "written_by": "Claude Code, by hand from the downloaded document (round C, T8.3, 2026-11-09)",
+  "schema": "golden-expected/1",
+  "document": "Technical Data Sheet Bosch Rexroth MSK061C (reseller IBA-Retzer GbR)",
+  "manufacturer_printed": "Bosch Rexroth (sheet by the reseller IBA-Retzer GbR)",
+  "motor_type": "PMSM servo (MSK)",
+  "simulable_today": true,
+  "variants": [
+    "MSK061C-0600-NN-M1-UG1-NNNN (R911315844)"
+  ],
+  "variant_policy": "single article",
+  "fields": [
+    {
+      "field": "model",
+      "value_printed": "MSK061C‑0600‑NN‑M1‑UG1‑NNNN",
+      "unit_printed": null,
+      "label_printed": "Motor Typ",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "frame_size",
+      "value_printed": "MSK050 (kompakte Mittelklasse)",
+      "unit_printed": null,
+      "label_printed": "Baugröße",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "speed_rated",
+      "value_printed": "7.500",
+      "unit_printed": "1/min",
+      "label_printed": "Nenndrehzahl",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "the dot is a thousands separator: 7500 rpm",
+      "variant": null
+    },
+    {
+      "field": "current_rated",
+      "value_printed": "9.8",
+      "unit_printed": "A",
+      "label_printed": "Nennstrom",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "voltage_rated",
+      "value_printed": "AC 600",
+      "unit_printed": "V",
+      "label_printed": "Nennspannung",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "brake",
+      "value_printed": "10 Nm Haltebremse",
+      "unit_printed": null,
+      "label_printed": "Bremse",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "protection",
+      "value_printed": "IP65",
+      "unit_printed": null,
+      "label_printed": "Schutzart",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "torque_constant",
+      "value_printed": null,
+      "unit_printed": null,
+      "label_printed": null,
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "voltage_constant",
+      "value_printed": null,
+      "unit_printed": null,
+      "label_printed": null,
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "resistance",
+      "value_printed": null,
+      "unit_printed": null,
+      "label_printed": null,
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "inductance",
+      "value_printed": null,
+      "unit_printed": null,
+      "label_printed": null,
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "inertia",
+      "value_printed": null,
+      "unit_printed": null,
+      "label_printed": null,
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "poles",
+      "value_printed": null,
+      "unit_printed": null,
+      "label_printed": null,
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    }
+  ],
+  "must_ask": [
+    "the electrical constants, resistance, inductance, inertia and poles: not in this sheet; ask for the manufacturer's data sheet"
+  ],
+  "must_warn": [
+    "not enough to simulate: only current, voltage and speed",
+    "'7.500 1/min' uses a dot as thousands separator",
+    "the frame size 'MSK050' contradicts the model 'MSK061C'",
+    "German labels",
+    "a reseller sheet, not the manufacturer's",
+    "the annex calls it MSK061C; the sheet's model is the -0600 winding"
+  ],
+  "notes": ""
+}

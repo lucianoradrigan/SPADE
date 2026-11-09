@@ -1,0 +1,302 @@
+{
+  "id": "I1",
+  "written_by": "Claude Code, by hand from the downloaded document (round C, T8.3, 2026-11-09)",
+  "schema": "golden-expected/1",
+  "document": "WEG W22 NEMA Premium Efficiency three-phase induction motor data sheet, product code 16616834 (22 pages)",
+  "manufacturer_printed": "WEG",
+  "motor_type": "three-phase induction, squirrel cage",
+  "simulable_today": false,
+  "variants": [
+    "60 Hz 230/460 V",
+    "50 Hz 380 V",
+    "50 Hz 400 V",
+    "50 Hz 415 V"
+  ],
+  "variant_policy": "all four ratings written (key fields)",
+  "fields": [
+    {
+      "field": "voltage",
+      "value_printed": "230/460",
+      "unit_printed": "V",
+      "label_printed": "Rated voltage [V]",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "60 Hz"
+    },
+    {
+      "field": "current",
+      "value_printed": "8.83/4.41",
+      "unit_printed": "A",
+      "label_printed": "Rated current [A]",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "60 Hz"
+    },
+    {
+      "field": "speed",
+      "value_printed": "1175",
+      "unit_printed": "RPM",
+      "label_printed": "Rated speed [RPM]",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "60 Hz"
+    },
+    {
+      "field": "torque",
+      "value_printed": "13.4",
+      "unit_printed": "ft.lb",
+      "label_printed": "Rated torque [ft.lb]",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "60 Hz"
+    },
+    {
+      "field": "voltage",
+      "value_printed": "380",
+      "unit_printed": "V",
+      "label_printed": "Rated voltage [V]",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "50 Hz 380 V"
+    },
+    {
+      "field": "current",
+      "value_printed": "5.09",
+      "unit_printed": "A",
+      "label_printed": "Rated current [A]",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "50 Hz 380 V"
+    },
+    {
+      "field": "speed",
+      "value_printed": "965",
+      "unit_printed": "RPM",
+      "label_printed": "Rated speed [RPM]",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "50 Hz 380 V"
+    },
+    {
+      "field": "torque",
+      "value_printed": "16.3",
+      "unit_printed": "ft.lb",
+      "label_printed": "Rated torque [ft.lb]",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "50 Hz 380 V"
+    },
+    {
+      "field": "voltage",
+      "value_printed": "400",
+      "unit_printed": "V",
+      "label_printed": "Rated voltage [V]",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "50 Hz 400 V"
+    },
+    {
+      "field": "current",
+      "value_printed": "4.92",
+      "unit_printed": "A",
+      "label_printed": "Rated current [A]",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "50 Hz 400 V"
+    },
+    {
+      "field": "speed",
+      "value_printed": "970",
+      "unit_printed": "RPM",
+      "label_printed": "Rated speed [RPM]",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "50 Hz 400 V"
+    },
+    {
+      "field": "torque",
+      "value_printed": "16.2",
+      "unit_printed": "ft.lb",
+      "label_printed": "Rated torque [ft.lb]",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "50 Hz 400 V"
+    },
+    {
+      "field": "voltage",
+      "value_printed": "415",
+      "unit_printed": "V",
+      "label_printed": "Rated voltage [V]",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "50 Hz 415 V"
+    },
+    {
+      "field": "current",
+      "value_printed": "4.87",
+      "unit_printed": "A",
+      "label_printed": "Rated current [A]",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "50 Hz 415 V"
+    },
+    {
+      "field": "speed",
+      "value_printed": "970",
+      "unit_printed": "RPM",
+      "label_printed": "Rated speed [RPM]",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "50 Hz 415 V"
+    },
+    {
+      "field": "torque",
+      "value_printed": "16.2",
+      "unit_printed": "ft.lb",
+      "label_printed": "Rated torque [ft.lb]",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "50 Hz 415 V"
+    },
+    {
+      "field": "output",
+      "value_printed": "3",
+      "unit_printed": "HP",
+      "label_printed": "Output [HP]",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "poles",
+      "value_printed": "6",
+      "unit_printed": null,
+      "label_printed": "Poles",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "inertia",
+      "value_printed": "1.20",
+      "unit_printed": "sq.ft.lb",
+      "label_printed": "Moment of inertia (J)",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "bearing_de",
+      "value_printed": "6308 ZZ",
+      "unit_printed": null,
+      "label_printed": "Bearing type (Drive end)",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "bearing_nde",
+      "value_printed": "6207 ZZ",
+      "unit_printed": null,
+      "label_printed": "Bearing type (Non drive end)",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "service_factor_60Hz",
+      "value_printed": "1.25",
+      "unit_printed": null,
+      "label_printed": "Service factor",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "60 Hz"
+    },
+    {
+      "field": "efficiency_100_60Hz",
+      "value_printed": "89.5",
+      "unit_printed": "%",
+      "label_printed": "Efficiency (%) 100%",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "60 Hz"
+    },
+    {
+      "field": "resistance",
+      "value_printed": null,
+      "unit_printed": null,
+      "label_printed": null,
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "inductance",
+      "value_printed": null,
+      "unit_printed": null,
+      "label_printed": null,
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    }
+  ],
+  "must_ask": [],
+  "must_warn": [
+    "SPADE does not simulate induction motors today: say so and offer the closest alternative",
+    "four ratings: the user must pick one",
+    "NEMA units (ft.lb, sq.ft.lb = WK2)",
+    "no equivalent circuit (R1, X1, R2, X2, Xm)",
+    "dual voltage 230/460 in one cell; note 'USABLE @208V 9.76A SF 1.15'"
+  ],
+  "notes": "Bearings 6308 ZZ / 6207 ZZ are relevant to SPADE's bearing-fault model if induction motors are added later."
+}

@@ -1,0 +1,202 @@
+{
+  "id": "P3",
+  "written_by": "Claude Code, by hand from the downloaded document (round C, T8.3, 2026-11-09)",
+  "schema": "golden-expected/1",
+  "document": "B23 Brushless Servo Motor Specifications (Industrial Devices Corporation, Mar-97, PCW-4682; hosted by Kollmorgen)",
+  "manufacturer_printed": "Industrial Devices Corporation (IDC)",
+  "motor_type": "brushless servo (PMSM)",
+  "simulable_today": true,
+  "variants": [
+    "B23"
+  ],
+  "variant_policy": "single motor; system data for 110 VAC and 220 VAC drives",
+  "fields": [
+    {
+      "field": "torque_continuous_stall",
+      "value_printed": "161 [1.14]",
+      "unit_printed": "oz-in [N-m]",
+      "label_printed": "Continuous Stall Torque",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "torque_rated_speed",
+      "value_printed": "144 [1.02]",
+      "unit_printed": "oz-in [N-m]",
+      "label_printed": "Cont. Torque at Rated Speed",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "resistance_ambient",
+      "value_printed": "10.6",
+      "unit_printed": "ohms",
+      "label_printed": "Winding Resistance @ Ambient",
+      "basis": "unknown",
+      "waveform": "not_applicable",
+      "temperature_c": "ambiguous: must ask",
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "resistance_tmax",
+      "value_printed": "15.2",
+      "unit_printed": "ohms",
+      "label_printed": "Winding Resistance @ Tmax",
+      "basis": "unknown",
+      "waveform": "not_applicable",
+      "temperature_c": "ambiguous: must ask",
+      "condition": "Tmax: the sheet prints Max. Winding Temperature 118 [155] °F [°C], which disagree",
+      "variant": null
+    },
+    {
+      "field": "inductance",
+      "value_printed": "16.1",
+      "unit_printed": "mH",
+      "label_printed": "Inductance",
+      "basis": "unknown",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "torque_constant",
+      "value_printed": "57.6 [0.41]",
+      "unit_printed": "oz-in/A [N-m/A]",
+      "label_printed": "Kt, Phase to Phase Peak",
+      "basis": "line-line",
+      "waveform": "peak",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "voltage_constant",
+      "value_printed": "45.5",
+      "unit_printed": "Vp-p/kRPM",
+      "label_printed": "Kv",
+      "basis": "line-line",
+      "waveform": "peak",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "poles",
+      "value_printed": "4",
+      "unit_printed": null,
+      "label_printed": "Number of Poles",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "electrical_time_constant",
+      "value_printed": "1.769",
+      "unit_printed": "ms",
+      "label_printed": "Electrical Time Constant",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "inertia",
+      "value_printed": "0.0019 [1.34 × 10-5]",
+      "unit_printed": "oz-in-s2 [kg-m2]",
+      "label_printed": "Rotor Inertia",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "friction_static",
+      "value_printed": "12.8 [0.09]",
+      "unit_printed": "oz-in [N-m]",
+      "label_printed": "Static Friction",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "friction_dynamic",
+      "value_printed": "2.0 [0.01]",
+      "unit_printed": "oz-in/kRPM [N-m/kRPM]",
+      "label_printed": "Dynamic Friction",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "mechanical_time_constant",
+      "value_printed": "0.684",
+      "unit_printed": "ms",
+      "label_printed": "Mechanical Time Constant",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "winding_temp_max",
+      "value_printed": "118 [155]",
+      "unit_printed": "°F [°C]",
+      "label_printed": "Max. Winding Temperature",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "torque_peak_stall",
+      "value_printed": "478 [3.38]",
+      "unit_printed": "oz-in [N-m]",
+      "label_printed": "Nominal Peak Stall Torque",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "system data with B8000 drive",
+      "variant": null
+    },
+    {
+      "field": "current_peak_drive",
+      "value_printed": "8.3",
+      "unit_printed": "A",
+      "label_printed": "Drive Peak Current",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": "system data with B8000 drive",
+      "variant": null
+    }
+  ],
+  "must_ask": [
+    "the basis of R and L (not printed; with tau_el they do not agree, see warn)",
+    "the ambient temperature of 'Winding Resistance @ Ambient'"
+  ],
+  "must_warn": [
+    "tau_el printed 1.769 ms vs L/R = 16.1/10.6 = 1.52 ms (16 % apart): R or L on another basis or temperature",
+    "Kt is 'phase to phase peak' and Kv is 'Vp-p/kRPM'",
+    "'Max. Winding Temperature 118 [155] °F [°C]': 118 °F is not 155 °C (155 °C = 311 °F)",
+    "US units first, SI in brackets"
+  ],
+  "notes": "The annex calls it Kollmorgen B23; the sheet prints Industrial Devices Corporation."
+}

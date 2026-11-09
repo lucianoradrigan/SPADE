@@ -1,0 +1,293 @@
+{
+  "id": "P9",
+  "written_by": "Claude Code, by hand from the downloaded document (round C, T8.3, 2026-11-09)",
+  "schema": "golden-expected/1",
+  "document": "BLDC17F Series Brushless DC Motor (IMTT; hosted on TI E2E)",
+  "manufacturer_printed": "Innovative Materials Testing Technologies, Inc. (IMTT)",
+  "motor_type": "BLDC (NEMA 17)",
+  "simulable_today": true,
+  "variants": [
+    "BLDC17F-19",
+    "BLDC17F-25",
+    "BLDC17F-31"
+  ],
+  "variant_policy": "variants in rows; first (-19) and last (-31) written",
+  "fields": [
+    {
+      "field": "voltage",
+      "value_printed": "24",
+      "unit_printed": "VDC",
+      "label_printed": "Rated Valtage",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-19"
+    },
+    {
+      "field": "speed_rated",
+      "value_printed": "4000",
+      "unit_printed": "RPM",
+      "label_printed": "Rated speed",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-19"
+    },
+    {
+      "field": "power",
+      "value_printed": "26",
+      "unit_printed": "Watts",
+      "label_printed": "Output Power",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-19"
+    },
+    {
+      "field": "torque_continuous",
+      "value_printed": "9",
+      "unit_printed": "oz-in",
+      "label_printed": "Continuous Torque",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-19"
+    },
+    {
+      "field": "torque_peak",
+      "value_printed": "25",
+      "unit_printed": "oz-in",
+      "label_printed": "Peak Torque",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-19"
+    },
+    {
+      "field": "current_peak",
+      "value_printed": "4.6",
+      "unit_printed": "Amps",
+      "label_printed": "Peak Current",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-19"
+    },
+    {
+      "field": "resistance",
+      "value_printed": "1.8",
+      "unit_printed": "Ohms",
+      "label_printed": "Line to Line Resistance",
+      "basis": "line-line",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-19"
+    },
+    {
+      "field": "inductance",
+      "value_printed": "0.54",
+      "unit_printed": "mH",
+      "label_printed": "Line to Line Inductance",
+      "basis": "line-line",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-19"
+    },
+    {
+      "field": "torque_constant",
+      "value_printed": "5.9",
+      "unit_printed": "oz-in/A",
+      "label_printed": "Torque constant",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-19"
+    },
+    {
+      "field": "back_emf",
+      "value_printed": "4.4",
+      "unit_printed": "V/kRPM",
+      "label_printed": "Back EMF",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-19"
+    },
+    {
+      "field": "inertia",
+      "value_printed": "0.00034",
+      "unit_printed": "oz-in-sec^2",
+      "label_printed": "Rotor inertia",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-19"
+    },
+    {
+      "field": "voltage",
+      "value_printed": "24",
+      "unit_printed": "VDC",
+      "label_printed": "Rated Valtage",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-31"
+    },
+    {
+      "field": "speed_rated",
+      "value_printed": "4000",
+      "unit_printed": "RPM",
+      "label_printed": "Rated speed",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-31"
+    },
+    {
+      "field": "power",
+      "value_printed": "78",
+      "unit_printed": "Watts",
+      "label_printed": "Output Power",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-31"
+    },
+    {
+      "field": "torque_continuous",
+      "value_printed": "27",
+      "unit_printed": "oz-in",
+      "label_printed": "Continuous Torque",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-31"
+    },
+    {
+      "field": "torque_peak",
+      "value_printed": "85",
+      "unit_printed": "oz-in",
+      "label_printed": "Peak Torque",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-31"
+    },
+    {
+      "field": "current_peak",
+      "value_printed": "14.1",
+      "unit_printed": "Amps",
+      "label_printed": "Peak Current",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-31"
+    },
+    {
+      "field": "resistance",
+      "value_printed": "0.6",
+      "unit_printed": "Ohms",
+      "label_printed": "Line to Line Resistance",
+      "basis": "line-line",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-31"
+    },
+    {
+      "field": "inductance",
+      "value_printed": "0.18",
+      "unit_printed": "mH",
+      "label_printed": "Line to Line Inductance",
+      "basis": "line-line",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-31"
+    },
+    {
+      "field": "torque_constant",
+      "value_printed": "6.2",
+      "unit_printed": "oz-in/A",
+      "label_printed": "Torque constant",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-31"
+    },
+    {
+      "field": "back_emf",
+      "value_printed": "4.65",
+      "unit_printed": "V/kRPM",
+      "label_printed": "Back EMF",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-31"
+    },
+    {
+      "field": "inertia",
+      "value_printed": "0.00102",
+      "unit_printed": "oz-in-sec^2",
+      "label_printed": "Rotor inertia",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "BLDC17F-31"
+    },
+    {
+      "field": "poles",
+      "value_printed": "8",
+      "unit_printed": null,
+      "label_printed": "Number of Poles",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "winding",
+      "value_printed": "Star",
+      "unit_printed": null,
+      "label_printed": "Winding Type",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    }
+  ],
+  "must_ask": [
+    "which model (rows)",
+    "the continuous current (not printed)",
+    "the basis and waveform of Kt and back EMF (not printed)"
+  ],
+  "must_warn": [
+    "typo in the header: 'Valtage'",
+    "US units (oz-in, oz-in-sec^2)",
+    "'Number of Poles 8' = 4 pole pairs",
+    "the annex calls it 'TI BLDC17F'; the sheet prints IMTT"
+  ],
+  "notes": "Relevamiento §3: Kt 0.0417 vs Ke 0.0420 N m/A in SI for -19 (consistent as DC-equivalent)."
+}

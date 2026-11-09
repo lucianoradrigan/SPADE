@@ -1,0 +1,242 @@
+{
+  "id": "D2",
+  "written_by": "Claude Code, by hand from the downloaded document (round C, T8.3, 2026-11-09)",
+  "schema": "golden-expected/1",
+  "document": "Parvalux PM11 110V 3000 RPM, 44 mm stack (part 775332)",
+  "manufacturer_printed": "Parvalux (www.parvalux.com)",
+  "motor_type": "permanent magnet DC (PMDC)",
+  "simulable_today": true,
+  "variants": [
+    "775332"
+  ],
+  "variant_policy": "single article",
+  "fields": [
+    {
+      "field": "voltage",
+      "value_printed": "110",
+      "unit_printed": "V",
+      "label_printed": "Nominal voltage",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "power",
+      "value_printed": "101",
+      "unit_printed": "W",
+      "label_printed": "Nominal power",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "speed_no_load",
+      "value_printed": "3627",
+      "unit_printed": "rpm",
+      "label_printed": "No load speed",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "current_no_load",
+      "value_printed": "0.12",
+      "unit_printed": "A",
+      "label_printed": "No load current",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "speed",
+      "value_printed": "3000",
+      "unit_printed": "rpm",
+      "label_printed": "Nominal speed",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "current",
+      "value_printed": "1.2",
+      "unit_printed": "A",
+      "label_printed": "Nominal continuous current",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": "continuous",
+      "variant": null
+    },
+    {
+      "field": "torque",
+      "value_printed": "0.32",
+      "unit_printed": "Nm",
+      "label_printed": "Nominal continuous torque",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "continuous",
+      "variant": null
+    },
+    {
+      "field": "torque_peak",
+      "value_printed": "0.53",
+      "unit_printed": "Nm",
+      "label_printed": "Max intermittent torque",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "intermittent",
+      "variant": null
+    },
+    {
+      "field": "current_stall",
+      "value_printed": "6.4",
+      "unit_printed": "A",
+      "label_printed": "Stall current",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "torque_stall",
+      "value_printed": "1.90",
+      "unit_printed": "Nm",
+      "label_printed": "Stall torque",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "efficiency_max",
+      "value_printed": "80",
+      "unit_printed": "%",
+      "label_printed": "Maximum efficiency",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "resistance",
+      "value_printed": "17.2",
+      "unit_printed": "Ohms",
+      "label_printed": "Thermal resistance (Ra)",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "label says thermal resistance; unit and U/I_stall (110/6.4 = 17.19 Ohm) say armature resistance",
+      "variant": null
+    },
+    {
+      "field": "speed_constant",
+      "value_printed": "33",
+      "unit_printed": "rpm/V",
+      "label_printed": "Speed constant",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "torque_constant",
+      "value_printed": "0.30",
+      "unit_printed": "Nm/A",
+      "label_printed": "Torque constant",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "speed_torque_gradient",
+      "value_printed": "1914",
+      "unit_printed": "rpm/Nm",
+      "label_printed": "Speed torque gradient",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "inertia",
+      "value_printed": "1260",
+      "unit_printed": "gcm²",
+      "label_printed": "Rotor inertia",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "poles",
+      "value_printed": "2",
+      "unit_printed": null,
+      "label_printed": "Motor poles",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "ambient_max",
+      "value_printed": "40",
+      "unit_printed": "°C",
+      "label_printed": "Max ambient temperature",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "weight",
+      "value_printed": "1.60",
+      "unit_printed": "Kg",
+      "label_printed": "Weight",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "inductance",
+      "value_printed": null,
+      "unit_printed": null,
+      "label_printed": null,
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    }
+  ],
+  "must_ask": [
+    "the armature inductance (not printed)"
+  ],
+  "must_warn": [
+    "mislabelled field: 'Thermal resistance (Ra) 17.2 Ohms' is the armature resistance (unit Ohm; 110 V / 6.4 A = 17.19 Ohm); transcribe the label as printed and flag it"
+  ],
+  "notes": "Kt 0.30 vs 60/(2 pi 33) = 0.289 N m/A: consistent (DC-equivalent)."
+}

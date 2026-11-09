@@ -1,0 +1,116 @@
+{
+  "id": "W13",
+  "written_by": "Claude Code, by looking at the image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "data/upstream/assistant_golden/photos/Wuxi_TECO_Electric_&_Machinery_3-phase_induction_motor_plate_20160319.jpg",
+  "machine_type": "three-phase induction motor",
+  "simulable_today": false,
+  "image_quality": "frontal, heavy rust and corrosion",
+  "fields": [
+    {
+      "label_printed": "TECO 3-PHASE INDUCTION MOTOR",
+      "value_printed": "TECO 3-phase induction motor; Wuxi TECO Elec. & Mach. Co., Ltd.",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "TYPE",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "FRAME",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "IP",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "POLES",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "S.F",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "RATING",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "OUTPUT hp / kW",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "Hz",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "VOLTS Δ / Y",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "AMP'S",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "r/min",
+      "value_printed": "illegible",
+      "unit_printed": null,
+      "note": "four digits, possibly 1745"
+    },
+    {
+      "label_printed": "EFF %",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "COS φ",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "WEIGHT kg",
+      "value_printed": "illegible",
+      "unit_printed": null,
+      "note": "a separate printed '20' follows; its meaning is unclear"
+    },
+    {
+      "label_printed": "DESIGN",
+      "value_printed": "Q/320217ACV05",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "BEARINGS",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "SER.NO.",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "(side)",
+      "value_printed": "32045R098M6E6",
+      "unit_printed": null
+    }
+  ],
+  "must_ask": [],
+  "must_warn": [
+    "almost every rating is corroded away",
+    "induction motor: not simulable"
+  ],
+  "missing_for_simulation": [
+    "every rating (illegible)"
+  ]
+}

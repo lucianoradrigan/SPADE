@@ -1,0 +1,753 @@
+about: 'Golden set of phase 2 (decision C10, round C, 2026-11-09). Third-party files live in data/upstream/assistant_golden/ and are never committed (committed: false),
+  except photos under CC0 / CC BY in tests/assistant/golden/photos/. No model has been run on them.'
+documents:
+- id: D1
+  star: true
+  status: downloaded
+  url: https://www.thierry-lequeu.fr/data/karting/PMG-132-e.pdf
+  final_url: https://www.thierry-lequeu.fr/data/karting/PMG-132-e.pdf
+  consulted_utc: '2026-11-09T18:45:28+00:00'
+  sha256: 4e3647904079a6e474eec571fbaa37901b1b3aae7459f3e1121aaaad51d423ed
+  content_type: application/pdf
+  bytes: 254258
+  manufacturer: perm-motor (Heinzmann PMG 132 in annex A; 'Heinzmann' not printed)
+  motor_type: PM DC
+  style: A
+  traps:
+  - multiple ratings (5 voltage columns)
+  - continuous vs short time (S1 / S2 10 min)
+  - data only in curves
+  - decimal comma
+  licence: public document; copyright of its manufacturer or publisher; downloaded for internal evaluation only, not redistributed
+  simulable_today: true
+  committed: false
+  expected: true
+  local_path: data/upstream/assistant_golden/D1/
+- id: D2
+  star: true
+  status: downloaded
+  url: https://www.parvalux.com/product/pm11-110v-3000-rpm-2/datasheet.pdf
+  final_url: https://www.parvalux.com/product/pm11-110v-3000-rpm-2/datasheet.pdf
+  consulted_utc: '2026-11-09T18:45:31+00:00'
+  sha256: 3e8d3042902c9eaad780b3db06772e2458f5042e63e05fe742e2450c069d8a7e
+  content_type: application/pdf
+  bytes: 73201
+  manufacturer: Parvalux
+  motor_type: PM DC
+  style: C
+  traps:
+  - mislabelled field ('Thermal resistance (Ra)')
+  licence: public document; copyright of its manufacturer or publisher; downloaded for internal evaluation only, not redistributed
+  simulable_today: true
+  committed: false
+  expected: true
+  local_path: data/upstream/assistant_golden/D2/
+- id: D3
+  star: true
+  status: downloaded
+  url: https://electricmotorsport.com/wp/wp-content/uploads/2026/06/me1514-data-sheet-motenergy.pdf
+  final_url: https://electricmotorsport.com/wp/wp-content/uploads/2026/06/me1514-data-sheet-motenergy.pdf
+  consulted_utc: '2026-11-09T18:45:32+00:00'
+  sha256: 840132a906b7b0d55090c06fe42bb4e95a15c1019222a07770e05d6f35c435b1
+  content_type: application/pdf
+  bytes: 1508805
+  manufacturer: Motenergy
+  motor_type: PM DC
+  style: D
+  traps:
+  - internal inconsistency (Kt vs Ke, 12 %)
+  - missing R, L, J
+  licence: public document; copyright of its manufacturer or publisher; downloaded for internal evaluation only, not redistributed
+  simulable_today: true
+  committed: false
+  expected: true
+  local_path: data/upstream/assistant_golden/D3/
+  note: the title reads ME1513
+- id: D4
+  star: false
+  status: downloaded
+  url: https://bodine-electric.com/products/dc-motors/33a-series-permanent-magnet-dc-motor/6435
+  final_url: https://bodine-electric.com/products/dc-motors/33a-series-permanent-magnet-dc-motor/6435/
+  consulted_utc: '2026-11-09T18:45:34+00:00'
+  sha256: b76b80a133a21f5ad683691e05eba38315484ce71d3fc5c150822c0a25202bee
+  content_type: text/html; charset=UTF-8
+  bytes: 97200
+  manufacturer: Bodine Electric
+  motor_type: PM DC
+  style: D
+  traps:
+  - inertia without unit
+  - paired values '90/130' (multiple ratings)
+  - US units
+  licence: public document; copyright of its manufacturer or publisher; downloaded for internal evaluation only, not redistributed
+  simulable_today: true
+  committed: false
+  expected: false
+  local_path: data/upstream/assistant_golden/D4/
+  printed_pdf_sha256: 837077fd0a1653a79206bd2231552b06da5de12726053131403d16593b475557
+  note: web page, printed to PDF
+- id: D5
+  star: true
+  status: downloaded
+  url: https://cdn.zener.ru/media24/PDF/825046.pdf
+  final_url: https://cdn.zener.ru/media24/PDF/825046.pdf
+  consulted_utc: '2026-11-09T18:45:41+00:00'
+  sha256: b63ab51288f0e4ff6d4aed7037a924db372a7dd0fcdfb6fd6a61998163b585c1
+  content_type: application/pdf
+  bytes: 375746
+  manufacturer: Portescap
+  motor_type: PM DC (coreless)
+  style: A
+  traps:
+  - many windings in columns
+  - Ke unit (mV/rpm)
+  - inertia unit (g-cm2)
+  - two units in one cell
+  licence: public document; copyright of its manufacturer or publisher; downloaded for internal evaluation only, not redistributed
+  simulable_today: true
+  committed: false
+  expected: true
+  local_path: data/upstream/assistant_golden/D5/
+  note: 'DEVIATION: one catalog page (16N78, 6 windings) instead of the ~120-variant catalog of annex A'
+- id: D6
+  star: true
+  status: unavailable
+  url: null
+  final_url: null
+  consulted_utc: '2026-11-09T18:45:41+00:00'
+  sha256: null
+  content_type: null
+  bytes: null
+  manufacturer: 'not named in the document (annex A: do not invent it)'
+  motor_type: PM DC
+  style: C
+  traps:
+  - manufacturer not named
+  - Ncm/A and g.cm2
+  - two voltages (12 V, 24 V)
+  licence: public document; copyright of its manufacturer or publisher; downloaded for internal evaluation only, not redistributed
+  simulable_today: true
+  committed: false
+  expected: false
+  local_path: data/upstream/assistant_golden/D6/
+  unavailable_reason: 'HTTPError: HTTP Error 403: Forbidden'
+- id: D7
+  star: false
+  status: unavailable
+  url: null
+  final_url: null
+  consulted_utc: '2026-11-09T18:45:45+00:00'
+  sha256: null
+  content_type: null
+  bytes: null
+  manufacturer: Portescap
+  motor_type: PM DC (coreless)
+  style: A
+  traps:
+  - to verify when downloaded
+  licence: public document; copyright of its manufacturer or publisher; downloaded for internal evaluation only, not redistributed
+  simulable_today: true
+  committed: false
+  expected: false
+  local_path: data/upstream/assistant_golden/D7/
+  unavailable_reason: not a PDF (Content-Type 'text/html; charset=UTF-8', starts b'<!DOCTYPE html>\r\n<html lang="en">\r\n<head'); not a PDF (Content-Type 'text/html;
+    charset=UTF-8', starts b'<!DOCTYPE html>\r\n<html lang="en">\r\n<head')
+  note: only third-party viewer pages found, no PDF
+- id: P1
+  star: true
+  status: downloaded
+  url: https://my.goagilix.com/assets/73/c4/73c408ce-327f-4137-967c-3dad152a8a6a/Siemens_1FK70425AF711UA5_Specification_Sheet.pdf
+  final_url: https://my.goagilix.com/assets/73/c4/73c408ce-327f-4137-967c-3dad152a8a6a/Siemens_1FK70425AF711UA5_Specification_Sheet.pdf
+  consulted_utc: '2026-11-09T18:45:47+00:00'
+  sha256: e5c987ae52a560291736388aa698382f89d0fb929375b1c4cebc97eeceebf82a
+  content_type: application/pdf
+  bytes: 94683
+  manufacturer: Siemens
+  motor_type: PMSM servo
+  style: C
+  traps:
+  - temperature of R and Ke (20 °C) vs ratings at 60 K / 100 K
+  - phase or line-line (not printed)
+  - poles vs pole pairs
+  licence: public document; copyright of its manufacturer or publisher; downloaded for internal evaluation only, not redistributed
+  simulable_today: true
+  committed: false
+  expected: true
+  local_path: data/upstream/assistant_golden/P1/
+- id: P2
+  star: true
+  status: downloaded
+  url: https://hallaweb.jlab.org/tech/Detectors/public_html/manuals/data_sheets-manuals/J-L/K/kollmorgen/AKM6%20Series%20Data%20Sheet.pdf
+  final_url: https://hallaweb.jlab.org/tech/Detectors/public_html/manuals/data_sheets-manuals/J-L/K/kollmorgen/AKM6%20Series%20Data%20Sheet.pdf
+  consulted_utc: '2026-11-09T18:45:47+00:00'
+  sha256: f590392d6ff9c1637b8a44b16b66bc23f6aff71920ff539a3b78edc68ba1d148
+  content_type: application/pdf
+  bytes: 95800
+  manufacturer: Kollmorgen
+  motor_type: PMSM servo
+  style: A
+  traps:
+  - 14 windings and 5 bus voltages
+  - rms units
+  - a note '25 °C' with no clear parameter
+  licence: public document; copyright of its manufacturer or publisher; downloaded for internal evaluation only, not redistributed
+  simulable_today: true
+  committed: false
+  expected: true
+  local_path: data/upstream/assistant_golden/P2/
+- id: P3
+  star: true
+  status: downloaded
+  url: https://www.kollmorgen.com/sites/default/files/public_downloads/B23-Motor_Data-Sheet_en-US_Rev1.pdf
+  final_url: https://www.kollmorgen.com/sites/default/files/public_downloads/B23-Motor_Data-Sheet_en-US_Rev1.pdf
+  consulted_utc: '2026-11-09T18:45:47+00:00'
+  sha256: d35edab710421d5cd58ec27d63da6829fded96e4d41448f99d796a3c73fa7560
+  content_type: application/pdf
+  bytes: 190484
+  manufacturer: 'Industrial Devices Corporation (annex A: Kollmorgen B23)'
+  motor_type: PMSM servo
+  style: C
+  traps:
+  - peak, line-to-line (Kt, Kv)
+  - internal inconsistency (tau_el vs L/R, 16 %)
+  - US units
+  - temperature 118 [155] °F [°C]
+  licence: public document; copyright of its manufacturer or publisher; downloaded for internal evaluation only, not redistributed
+  simulable_today: true
+  committed: false
+  expected: true
+  local_path: data/upstream/assistant_golden/P3/
+- id: P4
+  star: true
+  status: unavailable
+  url: null
+  final_url: null
+  consulted_utc: '2026-11-09T19:06:44+00:00'
+  sha256: null
+  content_type: null
+  bytes: null
+  manufacturer: Delta Electronics
+  motor_type: PMSM servo (ECM-B3)
+  style: A
+  traps:
+  - Ke in mV/rpm
+  - number of poles missing
+  licence: public document; copyright of its manufacturer or publisher; downloaded for internal evaluation only, not redistributed
+  simulable_today: true
+  committed: false
+  expected: false
+  local_path: data/upstream/assistant_golden/P4/
+  unavailable_reason: 'TimeoutError: The read operation timed out; HTTPError: HTTP Error 403: Forbidden; URLError: <urlopen error [Errno 110] Connection timed out>;
+    URLError: <urlopen error [Errno 110] Connection timed out>'
+- id: P5
+  star: true
+  status: downloaded
+  url: https://www.nanotec.com/fileadmin/files/Datenblaetter/BLDC/DB59/DB59C/DB59C024035-B3.pdf
+  final_url: https://www.nanotec.com/fileadmin/files/Datenblaetter/BLDC/DB59/DB59C/DB59C024035-B3.pdf
+  consulted_utc: '2026-11-09T18:47:21+00:00'
+  sha256: 02534c2179066ed4cf63a7b8b140d7d4fbeed3c433b5b4d642a147dba2358088
+  content_type: application/pdf
+  bytes: 220073
+  manufacturer: Nanotec
+  motor_type: BLDC
+  style: C
+  traps:
+  - line-to-line R and L
+  - L at 1 kHz
+  - Vrms/krpm
+  - poles, not pairs
+  licence: public document; copyright of its manufacturer or publisher; downloaded for internal evaluation only, not redistributed
+  simulable_today: true
+  committed: false
+  expected: true
+  local_path: data/upstream/assistant_golden/P5/
+- id: P6
+  star: false
+  status: downloaded
+  url: https://www.nanotec.com/fileadmin/files/Datenblaetter/BLDC/DB59/DB59C/DB59C048035-A.pdf
+  final_url: https://www.nanotec.com/fileadmin/files/Datenblaetter/BLDC/DB59/DB59C/DB59C048035-A.pdf
+  consulted_utc: '2026-11-09T18:47:22+00:00'
+  sha256: d59faf03c271fa0d5ba0ecdc577eab9ab040a808be24a61cf99c25b3af1f64ed
+  content_type: application/pdf
+  bytes: 216672
+  manufacturer: Nanotec
+  motor_type: BLDC
+  style: C
+  traps:
+  - 'same family at 48 V: consistency between variants'
+  - Ke missing
+  licence: public document; copyright of its manufacturer or publisher; downloaded for internal evaluation only, not redistributed
+  simulable_today: true
+  committed: false
+  expected: true
+  local_path: data/upstream/assistant_golden/P6/
+  note: expected values written although not starred (to reach >= 12)
+- id: P7
+  star: true
+  status: downloaded
+  url: https://emrax.com/wp-content/uploads/2025/03/EMRAX-228_datasheet_v1.7.pdf
+  final_url: https://emrax.com/wp-content/uploads/2025/03/EMRAX-228_datasheet_v1.7.pdf
+  consulted_utc: '2026-11-09T18:47:25+00:00'
+  sha256: 32bb74d1a946dfd299e25aff99074e5685c1c55b1f9e091e2499985d4fa18849
+  content_type: application/pdf
+  bytes: 650760
+  manufacturer: EMRAX
+  motor_type: axial-flux PMSM
+  style: A
+  traps:
+  - Ld/Lq
+  - 6 windings x cooling columns
+  - Kt/Ke convention ambiguous
+  - phase R = line-line / 2
+  - decimal comma
+  licence: public document; copyright of its manufacturer or publisher; downloaded for internal evaluation only, not redistributed
+  simulable_today: true
+  committed: false
+  expected: true
+  local_path: data/upstream/assistant_golden/P7/
+- id: P8
+  star: false
+  status: downloaded
+  url: https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/171/EC-flat-60-bldc-datasheet.pdf
+  final_url: https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/171/EC-flat-60-bldc-datasheet.pdf
+  consulted_utc: '2026-11-09T18:47:26+00:00'
+  sha256: 92f7da7e311b0178ccf2b078a7413f3a5fba97b46c11daa75fdceec2ee30a659
+  content_type: application/pdf
+  bytes: 617964
+  manufacturer: maxon
+  motor_type: BLDC
+  style: A
+  traps:
+  - 6 variants
+  - R and L phase-to-phase
+  - g.cm2
+  licence: public document; copyright of its manufacturer or publisher; downloaded for internal evaluation only, not redistributed
+  simulable_today: true
+  committed: false
+  expected: false
+  local_path: data/upstream/assistant_golden/P8/
+- id: P9
+  star: false
+  status: downloaded
+  url: https://e2e.ti.com/cfs-file/__key/telligent-evolution-components-attachments/00-171-00-00-00-34-62-40/BLDC17FDatasheetR.pdf
+  final_url: https://e2e.ti.com/cfs-file/__key/telligent-evolution-components-attachments/00-171-00-00-00-34-62-40/BLDC17FDatasheetR.pdf
+  consulted_utc: '2026-11-09T18:47:26+00:00'
+  sha256: c85da9439f0c002a1a878f06a40eb98e140c48966948fd099340b397ff28031f
+  content_type: application/pdf
+  bytes: 144811
+  manufacturer: 'IMTT (annex A: TI BLDC17F; hosted on TI E2E)'
+  motor_type: BLDC
+  style: B
+  traps:
+  - variants in rows
+  - oz-in/A, oz-in-s2
+  - poles vs pairs
+  licence: public document; copyright of its manufacturer or publisher; downloaded for internal evaluation only, not redistributed
+  simulable_today: true
+  committed: false
+  expected: true
+  local_path: data/upstream/assistant_golden/P9/
+  note: expected values written although not starred (to reach >= 12)
+- id: P10
+  star: true
+  status: downloaded
+  url: https://www.resale.de/images/168677061_b_iba-1024-bosch_rexroth_motor_msk061c_datasheet.pdf
+  final_url: https://www.resale.de/images/168677061_b_iba-1024-bosch_rexroth_motor_msk061c_datasheet.pdf
+  consulted_utc: '2026-11-09T18:47:28+00:00'
+  sha256: 9c2f831fe0e75785110b113a63793ecb4ef2b2982cdabe51bacdc255ae279a06
+  content_type: application/pdf
+  bytes: 143066
+  manufacturer: Bosch Rexroth (reseller sheet, IBA-Retzer GbR)
+  motor_type: PMSM servo
+  style: D
+  traps:
+  - not enough to simulate
+  - thousands separator '7.500'
+  - frame contradicts model
+  - German labels
+  licence: public document; copyright of its manufacturer or publisher; downloaded for internal evaluation only, not redistributed
+  simulable_today: true
+  committed: false
+  expected: true
+  local_path: data/upstream/assistant_golden/P10/
+- id: P11
+  star: false
+  status: downloaded
+  url: https://www.yaskawa.eu.com/products/motion-control/productdetail/product/sgm7j-02d7f61_6840.php
+  final_url: https://www.yaskawa.eu.com/products/motion-control/productdetail/product/sgm7j-02d7f61_6840.php
+  consulted_utc: '2026-11-09T18:47:31+00:00'
+  sha256: 7314e7d2d85487844e5e26eefbe0ca552179ba47d06f4feb3c49f204bcb771ba
+  content_type: text/html; charset=UTF-8
+  bytes: 1523302
+  manufacturer: Yaskawa
+  motor_type: PMSM servo
+  style: D
+  traps:
+  - no electrical constants
+  - decimal comma
+  licence: public document; copyright of its manufacturer or publisher; downloaded for internal evaluation only, not redistributed
+  simulable_today: true
+  committed: false
+  expected: false
+  local_path: data/upstream/assistant_golden/P11/
+  printed_pdf_sha256: f1bd0e94113793dc42f1c92cd14bd981e4e0f4f5619841aa6b4aec0364a0ee28
+  note: web page, printed to PDF
+- id: I1
+  star: true
+  status: downloaded
+  url: https://www.wolfautomation.com/content/weg-16616834-three-phase-motor-datasheet.pdf
+  final_url: https://www.wolfautomation.com/content/weg-16616834-three-phase-motor-datasheet.pdf
+  consulted_utc: '2026-11-09T18:47:38+00:00'
+  sha256: 5294c54345ca1830003921c9138d8b89c81933b6105971cda13ee918a4e618f7
+  content_type: application/pdf
+  bytes: 1662251
+  manufacturer: WEG
+  motor_type: induction (squirrel cage)
+  style: E
+  traps:
+  - 4 ratings
+  - NEMA units
+  - bearings
+  - not simulable
+  licence: public document; copyright of its manufacturer or publisher; downloaded for internal evaluation only, not redistributed
+  simulable_today: false
+  committed: false
+  expected: true
+  local_path: data/upstream/assistant_golden/I1/
+  note: 'WEG: reprinting not allowed without authorisation'
+- id: I2
+  star: false
+  status: unavailable
+  url: null
+  final_url: null
+  consulted_utc: '2026-11-09T19:10:45+00:00'
+  sha256: null
+  content_type: null
+  bytes: null
+  manufacturer: Baldor (ABB)
+  motor_type: induction (inverter duty)
+  style: E
+  traps:
+  - R line-to-line at 25 °C
+  - '''//'' for 50 and 60 Hz'
+  licence: public document; copyright of its manufacturer or publisher; downloaded for internal evaluation only, not redistributed
+  simulable_today: false
+  committed: false
+  expected: false
+  local_path: data/upstream/assistant_golden/I2/
+  unavailable_reason: 'TimeoutError: The read operation timed out'
+- id: R1
+  star: false
+  status: downloaded
+  url: https://kollmorgen.com/sites/default/files/2024-11/Kollmorgen_Servo%20Motor%20Parameters%20and%20their%20Proper%20Conversions%20WP_RevD_en.pdf
+  final_url: https://www.kollmorgen.com/sites/default/files/2024-11/Kollmorgen_Servo%20Motor%20Parameters%20and%20their%20Proper%20Conversions%20WP_RevD_en.pdf
+  consulted_utc: '2026-11-09T18:49:09+00:00'
+  sha256: 36450d564a31d3908246d080ee77fbeef0181a21c971621f09a2724dc98b2190
+  content_type: application/pdf
+  bytes: 1261093
+  manufacturer: Kollmorgen
+  motor_type: reference (not extracted)
+  style: '-'
+  traps: []
+  licence: public document; copyright of its manufacturer or publisher; downloaded for internal evaluation only, not redistributed
+  simulable_today: null
+  committed: false
+  expected: false
+  local_path: data/upstream/assistant_golden/R1/
+  note: source of configs/assistant_conversions.yaml
+photos:
+- id: W01
+  kind: photo
+  source: Wikimedia Commons
+  title: File:Motor nameplate Malmbergs.jpg
+  page: https://commons.wikimedia.org/wiki/File:Motor_nameplate_Malmbergs.jpg
+  author: Olgailga2
+  licence: CC0
+  licence_class: cc0
+  committed: true
+  path: tests/assistant/golden/photos/Motor_nameplate_Malmbergs.jpg
+  machine_type: three-phase induction motor
+  simulable_today: false
+  image_quality: sharp, frontal
+- id: W02
+  kind: photo
+  source: Wikimedia Commons
+  title: File:Motor Nameplate.jpg
+  page: https://commons.wikimedia.org/wiki/File:Motor_Nameplate.jpg
+  author: tony_duell
+  licence: CC BY 2.0
+  licence_class: cc_by
+  committed: true
+  path: tests/assistant/golden/photos/Motor_Nameplate.jpg
+  machine_type: AC/universal brushed motor (Electrolux, brushes visible); type not printed
+  simulable_today: false
+  image_quality: inclined, partly covered, stamped digits
+- id: W03
+  kind: photo
+  source: Wikimedia Commons
+  title: File:Darunta Generator Data Plate -2 Turbine.JPG
+  page: https://commons.wikimedia.org/wiki/File:Darunta_Generator_Data_Plate_-2_Turbine.JPG
+  author: Ericwmoore2000
+  licence: CC0
+  licence_class: cc0
+  committed: true
+  path: tests/assistant/golden/photos/Darunta_Generator_Data_Plate_-2_Turbine.JPG
+  machine_type: three-phase synchronous hydro-generator
+  simulable_today: false
+  image_quality: frontal, worn, Cyrillic, some fields painted over
+- id: W04
+  kind: photo
+  source: Wikimedia Commons
+  title: File:Wasserkraftwerk Tarandt Typenschild Generator 254174.jpg
+  page: https://commons.wikimedia.org/wiki/File:Wasserkraftwerk_Tarandt_Typenschild_Generator_254174.jpg
+  author: SLUB Dresden / Carsten Pietzsch
+  licence: CC0
+  licence_class: cc0
+  committed: true
+  path: tests/assistant/golden/photos/Wasserkraftwerk_Tarandt_Typenschild_Generator_254174.jpg
+  machine_type: generator (hydro power station)
+  simulable_today: false
+  image_quality: strongly inclined, low contrast, glare
+- id: W05
+  kind: photo
+  source: Wikimedia Commons
+  title: File:Wasserkraftwerk Tarandt Typenschild Generator 254175.jpg
+  page: https://commons.wikimedia.org/wiki/File:Wasserkraftwerk_Tarandt_Typenschild_Generator_254175.jpg
+  author: SLUB Dresden / Carsten Pietzsch
+  licence: CC0
+  licence_class: cc0
+  committed: true
+  path: tests/assistant/golden/photos/Wasserkraftwerk_Tarandt_Typenschild_Generator_254175.jpg
+  machine_type: generator (hydro power station)
+  simulable_today: false
+  image_quality: slightly inclined, legible
+- id: W06
+  kind: photo
+  source: Wikimedia Commons
+  title: File:Specification Plate - GE Electric Generator - Birla Industrial & Technological Museum - Kolkata 2014-01-23 7098.JPG
+  page: https://commons.wikimedia.org/wiki/File:Specification_Plate_-_GE_Electric_Generator_-_Birla_Industrial_%26_Technological_Museum_-_Kolkata_2014-01-23_7098.JPG
+  author: Biswarup Ganguly
+  licence: CC BY 3.0
+  licence_class: cc_by
+  committed: true
+  path: tests/assistant/golden/photos/Specification_Plate_-_GE_Electric_Generator_-_Birla_Industrial_&_Technological_Museum_-_Kolkata_2014-01-23_7098.JPG
+  machine_type: 'machine type not printed (museum label: generator)'
+  simulable_today: false
+  image_quality: out of focus, cast plate
+- id: W07
+  kind: photo
+  source: Wikimedia Commons
+  title: File:Specification Plate - Greenwood & Batley DC Generator - Birla Industrial & Technological Museum - Kolkata 2014-01-23 7089.JPG
+  page: https://commons.wikimedia.org/wiki/File:Specification_Plate_-_Greenwood_%26_Batley_DC_Generator_-_Birla_Industrial_%26_Technological_Museum_-_Kolkata_2014-01-23_7089.JPG
+  author: Biswarup Ganguly
+  licence: CC BY 3.0
+  licence_class: cc_by
+  committed: true
+  path: tests/assistant/golden/photos/Specification_Plate_-_Greenwood_&_Batley_DC_Generator_-_Birla_Industrial_&_Technological_Museum_-_Kolkata_2014-01-23_7089.JPG
+  machine_type: 'machine type not printed (museum label: DC generator)'
+  simulable_today: false
+  image_quality: inclined, strong reflections
+- id: W08
+  kind: photo
+  source: Wikimedia Commons
+  title: File:Specification Plate - Lancashire - 15kW DC Generator - Birla Industrial & Technological Museum - Kolkata 2014-01-23 7077.JPG
+  page: https://commons.wikimedia.org/wiki/File:Specification_Plate_-_Lancashire_-_15kW_DC_Generator_-_Birla_Industrial_%26_Technological_Museum_-_Kolkata_2014-01-23_7077.JPG
+  author: Biswarup Ganguly
+  licence: CC BY 3.0
+  licence_class: cc_by
+  committed: true
+  path: tests/assistant/golden/photos/Specification_Plate_-_Lancashire_-_15kW_DC_Generator_-_Birla_Industrial_&_Technological_Museum_-_Kolkata_2014-01-23_7077.JPG
+  machine_type: shunt-wound machine (DC by its winding type)
+  simulable_today: false
+  image_quality: slight angle, reflections on the right
+- id: W09
+  kind: photo
+  source: Wikimedia Commons
+  title: File:Typenschild-Drehstrom-Asynchronmaschine apel.jpg
+  page: https://commons.wikimedia.org/wiki/File:Typenschild-Drehstrom-Asynchronmaschine_apel.jpg
+  author: Denis Apel
+  licence: CC BY-SA 2.0 de
+  licence_class: cc_by_sa
+  committed: false
+  path: data/upstream/assistant_golden/photos/Typenschild-Drehstrom-Asynchronmaschine_apel.jpg
+  machine_type: asynchronous (induction) machine
+  simulable_today: false
+  image_quality: frontal, sharp
+- id: W10
+  kind: photo
+  source: Wikimedia Commons
+  title: File:Typenschild-Doppelt gespeiste Asynchronmaschine Apel.jpg
+  page: https://commons.wikimedia.org/wiki/File:Typenschild-Doppelt_gespeiste_Asynchronmaschine_Apel.jpg
+  author: Denis Apel
+  licence: CC BY-SA 2.0 de
+  licence_class: cc_by_sa
+  committed: false
+  path: data/upstream/assistant_golden/photos/Typenschild-Doppelt_gespeiste_Asynchronmaschine_Apel.jpg
+  machine_type: six-phase motor with excitation (synchronous by its 'Erregung' line); the file title says doubly fed asynchronous
+  simulable_today: false
+  image_quality: frontal, sharp (black and white)
+- id: W11
+  kind: photo
+  source: Wikimedia Commons
+  title: File:Zellweger Typenschild Nema.jpg
+  page: https://commons.wikimedia.org/wiki/File:Zellweger_Typenschild_Nema.jpg
+  author: Rama
+  licence: CC BY-SA 2.0 fr
+  licence_class: cc_by_sa
+  committed: false
+  path: data/upstream/assistant_golden/photos/Zellweger_Typenschild_Nema.jpg
+  machine_type: not stated
+  simulable_today: false
+  image_quality: low resolution (419x185), sharp
+- id: W12
+  kind: photo
+  source: Wikimedia Commons
+  title: File:Defense Plant Corporation motor nameplate.jpg
+  page: https://commons.wikimedia.org/wiki/File:Defense_Plant_Corporation_motor_nameplate.jpg
+  author: John Larson
+  licence: CC BY-SA 3.0
+  licence_class: cc_by_sa
+  committed: false
+  path: data/upstream/assistant_golden/photos/Defense_Plant_Corporation_motor_nameplate.jpg
+  machine_type: not stated
+  simulable_today: false
+  image_quality: frontal, dim, yellow label with handwriting
+- id: W13
+  kind: photo
+  source: Wikimedia Commons
+  title: File:Wuxi TECO Electric & Machinery 3-phase induction motor plate 20160319.jpg
+  page: https://commons.wikimedia.org/wiki/File:Wuxi_TECO_Electric_%26_Machinery_3-phase_induction_motor_plate_20160319.jpg
+  author: Solomon203
+  licence: CC BY-SA 4.0
+  licence_class: cc_by_sa
+  committed: false
+  path: data/upstream/assistant_golden/photos/Wuxi_TECO_Electric_&_Machinery_3-phase_induction_motor_plate_20160319.jpg
+  machine_type: three-phase induction motor
+  simulable_today: false
+  image_quality: frontal, heavy rust and corrosion
+- id: W14
+  kind: photo
+  source: Wikimedia Commons
+  title: File:VEM motor Zwickau.png
+  page: https://commons.wikimedia.org/wiki/File:VEM_motor_Zwickau.png
+  author: VEM motors GmbH
+  licence: CC BY-SA 4.0
+  licence_class: cc_by_sa
+  committed: false
+  path: data/upstream/assistant_golden/photos/VEM_motor_Zwickau.png
+  machine_type: three-phase motor (3 ~Mot; IE3)
+  simulable_today: false
+  image_quality: product photo, plate small and in perspective
+- id: W15
+  kind: photo
+  source: Wikimedia Commons
+  title: File:AEG Motor Typenschild Nummer 2660874 in der Leinenfabrik Steinhude.jpg
+  page: https://commons.wikimedia.org/wiki/File:AEG_Motor_Typenschild_Nummer_2660874_in_der_Leinenfabrik_Steinhude.jpg
+  author: Bernd Schwabe in Hannover
+  licence: CC BY-SA 4.0
+  licence_class: cc_by_sa
+  committed: false
+  path: data/upstream/assistant_golden/photos/AEG_Motor_Typenschild_Nummer_2660874_in_der_Leinenfabrik_Steinhude.jpg
+  machine_type: three-phase motor (D Mot)
+  simulable_today: false
+  image_quality: frontal, dirty, worn
+- id: W16
+  kind: photo
+  source: Wikimedia Commons
+  title: File:Campener Leuchtturm Motortypenschild.jpg
+  page: https://commons.wikimedia.org/wiki/File:Campener_Leuchtturm_Motortypenschild.jpg
+  author: Folkertherlyn
+  licence: CC BY-SA 4.0
+  licence_class: cc_by_sa
+  committed: false
+  path: data/upstream/assistant_golden/photos/Campener_Leuchtturm_Motortypenschild.jpg
+  machine_type: 'NOT an electric machine: a 1906 Diesel engine (''Wärme-Motor Patent Diesel'')'
+  simulable_today: false
+  image_quality: frontal, sharp
+- id: W17
+  kind: photo
+  source: Wikimedia Commons
+  title: File:Nameplate for one of Fireboat Firefighter 's 600V DC Marine Motors.jpg
+  page: https://commons.wikimedia.org/wiki/File:Nameplate_for_one_of_Fireboat_Firefighter_%27s_600V_DC_Marine_Motors.jpg
+  author: Kaylee La Spisa
+  licence: CC BY-SA 4.0
+  licence_class: cc_by_sa
+  committed: false
+  path: data/upstream/assistant_golden/photos/Nameplate_for_one_of_Fireboat_Firefighter_'s_600V_DC_Marine_Motors.jpg
+  machine_type: DC motor (Marine D.C. Motor)
+  simulable_today: false
+  image_quality: frontal, slight perspective, dark
+- id: W18
+  kind: photo
+  source: Wikimedia Commons
+  title: File:ZXAM2502A-4 traction motor nameplate on 19 0077 (20210721133155).jpg
+  page: https://commons.wikimedia.org/wiki/File:ZXAM2502A-4_traction_motor_nameplate_on_19_0077_(20210721133155).jpg
+  author: N509FZ
+  licence: CC BY-SA 4.0
+  licence_class: cc_by_sa
+  committed: false
+  path: data/upstream/assistant_golden/photos/ZXAM2502A-4_traction_motor_nameplate_on_19_0077_(20210721133155).jpg
+  machine_type: traction three-phase asynchronous (induction) motor
+  simulable_today: false
+  image_quality: slight angle, glare on the plate
+- id: W19
+  kind: photo
+  source: Wikimedia Commons
+  title: File:Mot. alter async-3 ARCE+Marelli (51).jpg
+  page: https://commons.wikimedia.org/wiki/File:Mot._alter_async-3_ARCE%2BMarelli_(51).jpg
+  author: Nanzig
+  licence: CC BY-SA 4.0
+  licence_class: cc_by_sa
+  committed: false
+  path: data/upstream/assistant_golden/photos/Mot._alter_async-3_ARCE+Marelli_(51).jpg
+  machine_type: three-phase asynchronous motor (Moteur asynchrone triphasé)
+  simulable_today: false
+  image_quality: outdoor, rusted, leaves, small plate
+- id: W20
+  kind: photo
+  source: Wikimedia Commons
+  title: File:Typenschild Generator (1976).jpg
+  page: https://commons.wikimedia.org/wiki/File:Typenschild_Generator_(1976).jpg
+  author: Rotkaeppchen68
+  licence: CC BY-SA 4.0
+  licence_class: cc_by_sa
+  committed: false
+  path: data/upstream/assistant_golden/photos/Typenschild_Generator_(1976).jpg
+  machine_type: three-phase generator (3 ~ GEN.)
+  simulable_today: false
+  image_quality: frontal, scratched, slightly blurred
+- id: W21
+  kind: photo
+  source: Wikimedia Commons
+  title: File:Dampfm-Rhomberg-Leistungsschild-Erregermaschine-0.JPG
+  page: https://commons.wikimedia.org/wiki/File:Dampfm-Rhomberg-Leistungsschild-Erregermaschine-0.JPG
+  author: Asurnipal
+  licence: CC BY-SA 4.0
+  licence_class: cc_by_sa
+  committed: false
+  path: data/upstream/assistant_golden/photos/Dampfm-Rhomberg-Leistungsschild-Erregermaschine-0.JPG
+  machine_type: 'machine type not printed (file title: exciter)'
+  simulable_today: false
+  image_quality: dark, plate small in the frame
+- id: IG1
+  kind: photo
+  source: Ingenium – Canada's Museums of Science and Innovation
+  artifact: 1992.2220.001
+  page: https://collection.ingenium.ca/en/id/1992.2220.001
+  licence: CC BY-NC 4.0 (non-commercial, per the record page)
+  licence_class: other_noncommercial
+  committed: false
+  path: data/upstream/assistant_golden/ingenium/1992.2220.001/
+  machine_type: AC induction motor, 10 HP, General Electric Co., 1901
+  simulable_today: false
+- id: IG2
+  kind: photo
+  source: Ingenium – Canada's Museums of Science and Innovation
+  artifact: 1992.2292.001
+  page: https://collection.ingenium.ca/en/id/1992.2292.001
+  licence: CC BY-NC 4.0 (non-commercial, per the record page)
+  licence_class: other_noncommercial
+  committed: false
+  path: data/upstream/assistant_golden/ingenium/1992.2292.001/
+  machine_type: DC bipolar motor, 7.5 HP, Crocker-Wheeler, 1891
+  simulable_today: false

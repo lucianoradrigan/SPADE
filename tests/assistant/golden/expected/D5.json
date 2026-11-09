@@ -1,0 +1,270 @@
+{
+  "id": "D5",
+  "written_by": "Claude Code, by hand from the downloaded document (round C, T8.3, 2026-11-09)",
+  "schema": "golden-expected/1",
+  "document": "Portescap Brush DC Motors, 16N78 Athlonix page of the 2024 catalog (V012024, page 99)",
+  "manufacturer_printed": "Portescap",
+  "motor_type": "permanent magnet DC, coreless, precious metal commutation",
+  "simulable_today": true,
+  "variants": [
+    "135",
+    "212P",
+    "214E",
+    "212E",
+    "210E",
+    "208E"
+  ],
+  "variant_policy": "chosen before reading the values: the first (135, 1.5 V) and the last (208E, 24 V) columns",
+  "fields": [
+    {
+      "field": "voltage",
+      "value_printed": "1.5",
+      "unit_printed": "Volt",
+      "label_printed": "Nominal Voltage",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "135"
+    },
+    {
+      "field": "speed_no_load",
+      "value_printed": "7,894",
+      "unit_printed": "rpm",
+      "label_printed": "No-Load Speed",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "135"
+    },
+    {
+      "field": "current_no_load",
+      "value_printed": "90.0",
+      "unit_printed": "mA",
+      "label_printed": "No-Load Current",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "135"
+    },
+    {
+      "field": "resistance",
+      "value_printed": "0.2",
+      "unit_printed": "Ω",
+      "label_printed": "Terminal Resistance",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "135"
+    },
+    {
+      "field": "torque_continuous_max",
+      "value_printed": "6 (0.98)",
+      "unit_printed": "mNm (oz-in)",
+      "label_printed": "Max Continuous Torque",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "135"
+    },
+    {
+      "field": "current_continuous_max",
+      "value_printed": "3.41",
+      "unit_printed": "A",
+      "label_printed": "Max Continuous Current",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "135"
+    },
+    {
+      "field": "back_emf_constant",
+      "value_printed": "0.19",
+      "unit_printed": "mV/rpm",
+      "label_printed": "Back-EMF Constant",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "135"
+    },
+    {
+      "field": "torque_constant",
+      "value_printed": "1.80",
+      "unit_printed": "mNm/A",
+      "label_printed": "Torque Constant",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "135"
+    },
+    {
+      "field": "inductance",
+      "value_printed": "0.01",
+      "unit_printed": "mH",
+      "label_printed": "Rotor Inductance",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "135"
+    },
+    {
+      "field": "inertia",
+      "value_printed": "1.10",
+      "unit_printed": "g-cm2",
+      "label_printed": "Rotor Inertia",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "135"
+    },
+    {
+      "field": "torque_stall",
+      "value_printed": "13.5 (1.91)",
+      "unit_printed": "mNm (oz-in)",
+      "label_printed": "Stall Torque",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "135"
+    },
+    {
+      "field": "voltage",
+      "value_printed": "24",
+      "unit_printed": "Volt",
+      "label_printed": "Nominal Voltage",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "208E"
+    },
+    {
+      "field": "speed_no_load",
+      "value_printed": "8,200",
+      "unit_printed": "rpm",
+      "label_printed": "No-Load Speed",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "208E"
+    },
+    {
+      "field": "current_no_load",
+      "value_printed": "4.0",
+      "unit_printed": "mA",
+      "label_printed": "No-Load Current",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "208E"
+    },
+    {
+      "field": "resistance",
+      "value_printed": "60.5",
+      "unit_printed": "Ω",
+      "label_printed": "Terminal Resistance",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "208E"
+    },
+    {
+      "field": "torque_continuous_max",
+      "value_printed": "6.3 (0.9)",
+      "unit_printed": "mNm (oz-in)",
+      "label_printed": "Max Continuous Torque",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "208E"
+    },
+    {
+      "field": "current_continuous_max",
+      "value_printed": "0.23",
+      "unit_printed": "A",
+      "label_printed": "Max Continuous Current",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "208E"
+    },
+    {
+      "field": "back_emf_constant",
+      "value_printed": "2.90",
+      "unit_printed": "mV/rpm",
+      "label_printed": "Back-EMF Constant",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "208E"
+    },
+    {
+      "field": "torque_constant",
+      "value_printed": "27.70",
+      "unit_printed": "mNm/A",
+      "label_printed": "Torque Constant",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "208E"
+    },
+    {
+      "field": "inductance",
+      "value_printed": "2.40",
+      "unit_printed": "mH",
+      "label_printed": "Rotor Inductance",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "208E"
+    },
+    {
+      "field": "inertia",
+      "value_printed": "1.18",
+      "unit_printed": "g-cm2",
+      "label_printed": "Rotor Inertia",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "208E"
+    },
+    {
+      "field": "torque_stall",
+      "value_printed": "11 (1.56)",
+      "unit_printed": "mNm (oz-in)",
+      "label_printed": "Stall Torque",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": "208E"
+    }
+  ],
+  "must_ask": [
+    "which winding (6 columns, 1.5 to 24 V)"
+  ],
+  "must_warn": [
+    "values in two units in one cell: 'mNm (oz-in)'",
+    "thousands separator comma in speeds (7,894 rpm)"
+  ],
+  "notes": "DEVIATION from annex A: the annex describes a ~120-variant coreless catalog with Kt in mNm/A, Ke in V/1000 rpm and J in 1e-7 kg m2. No direct PDF of that catalog was found (only DirectIndustry viewers); this single catalog page (6 windings; mV/rpm; g-cm2) was used instead."
+}

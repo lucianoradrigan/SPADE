@@ -1,0 +1,71 @@
+{
+  "id": "W04",
+  "written_by": "Claude Code, by looking at the image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "tests/assistant/golden/photos/Wasserkraftwerk_Tarandt_Typenschild_Generator_254174.jpg",
+  "machine_type": "generator (hydro power station)",
+  "simulable_today": false,
+  "image_quality": "strongly inclined, low contrast, glare",
+  "fields": [
+    {
+      "label_printed": "GENERATOR",
+      "value_printed": "GENERATOR",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "NR",
+      "value_printed": "254174",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "TYPE",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "FREQ.",
+      "value_printed": "50",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "AMP.",
+      "value_printed": "147 (*208)",
+      "unit_printed": null,
+      "note": "the bracket is partly illegible"
+    },
+    {
+      "label_printed": "VOLT",
+      "value_printed": "illegible",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "ERREG.VOLT",
+      "value_printed": "120",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "DREHZ.",
+      "value_printed": "illegible",
+      "unit_printed": null,
+      "note": "three digits, probably 750"
+    },
+    {
+      "label_printed": "DAUERND KVA",
+      "value_printed": "1000",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "bottom line",
+      "value_printed": "illegible",
+      "unit_printed": null,
+      "note": "?00 KW cos φ 0,?"
+    }
+  ],
+  "must_ask": [],
+  "must_warn": [
+    "the same plate type as W05 (sister unit); here many fields cannot be read"
+  ],
+  "missing_for_simulation": [
+    "voltage and type (illegible)"
+  ]
+}

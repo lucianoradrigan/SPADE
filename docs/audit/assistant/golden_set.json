@@ -1,0 +1,202 @@
+{
+  "task": "T8, round C (decision C10)",
+  "commands": [
+    "python experiments/fetch_golden_datasheets.py",
+    "python experiments/fetch_golden_photos.py search|download ...",
+    "python experiments/fetch_golden_ingenium.py 1992.2220.001 1992.2292.001",
+    "python experiments/report_golden_set.py"
+  ],
+  "stats": {
+    "documents": 21,
+    "downloaded": 17,
+    "unavailable": {
+      "D6": "HTTPError: HTTP Error 403: Forbidden",
+      "D7": "not a PDF (Content-Type 'text/html; charset=UTF-8', starts b'<!DOCTYPE html>\\r\\n<html lang=\"en\">\\r\\n<head'); not a PDF (Content-Type 'text/html; charset=UTF-8', starts b'<!DOCTYPE html>\\r\\n<html lang=\"en\">\\r\\n<head')",
+      "P4": "TimeoutError: The read operation timed out; HTTPError: HTTP Error 403: Forbidden; URLError: <urlopen error [Errno 110] Connection timed out>; URLError: <urlopen error [Errno 110] Connection timed out>",
+      "I2": "TimeoutError: The read operation timed out"
+    },
+    "with_expected": [
+      "D1",
+      "D2",
+      "D3",
+      "D5",
+      "P1",
+      "P2",
+      "P3",
+      "P5",
+      "P6",
+      "P7",
+      "P9",
+      "P10",
+      "I1"
+    ],
+    "by_type": {
+      "PM DC": 5,
+      "PM DC (coreless)": 2,
+      "PMSM servo": 5,
+      "PMSM servo (ECM-B3)": 1,
+      "BLDC": 4,
+      "axial-flux PMSM": 1,
+      "induction (squirrel cage)": 1,
+      "induction (inverter duty)": 1,
+      "reference (not extracted)": 1
+    },
+    "by_style": {
+      "A": 7,
+      "C": 6,
+      "D": 4,
+      "B": 1,
+      "E": 2,
+      "-": 1
+    },
+    "by_trap": {
+      "multiple ratings (5 voltage columns)": 1,
+      "continuous vs short time (S1 / S2 10 min)": 1,
+      "data only in curves": 1,
+      "decimal comma": 3,
+      "mislabelled field ('Thermal resistance (Ra)')": 1,
+      "internal inconsistency (Kt vs Ke, 12 %)": 1,
+      "missing R, L, J": 1,
+      "inertia without unit": 1,
+      "paired values '90/130' (multiple ratings)": 1,
+      "US units": 2,
+      "many windings in columns": 1,
+      "Ke unit (mV/rpm)": 1,
+      "inertia unit (g-cm2)": 1,
+      "two units in one cell": 1,
+      "manufacturer not named": 1,
+      "Ncm/A and g.cm2": 1,
+      "two voltages (12 V, 24 V)": 1,
+      "to verify when downloaded": 1,
+      "temperature of R and Ke (20 °C) vs ratings at 60 K / 100 K": 1,
+      "phase or line-line (not printed)": 1,
+      "poles vs pole pairs": 1,
+      "14 windings and 5 bus voltages": 1,
+      "rms units": 1,
+      "a note '25 °C' with no clear parameter": 1,
+      "peak, line-to-line (Kt, Kv)": 1,
+      "internal inconsistency (tau_el vs L/R, 16 %)": 1,
+      "temperature 118 [155] °F [°C]": 1,
+      "Ke in mV/rpm": 1,
+      "number of poles missing": 1,
+      "line-to-line R and L": 1,
+      "L at 1 kHz": 1,
+      "Vrms/krpm": 1,
+      "poles, not pairs": 1,
+      "same family at 48 V: consistency between variants": 1,
+      "Ke missing": 1,
+      "Ld/Lq": 1,
+      "6 windings x cooling columns": 1,
+      "Kt/Ke convention ambiguous": 1,
+      "phase R = line-line / 2": 1,
+      "6 variants": 1,
+      "R and L phase-to-phase": 1,
+      "g.cm2": 1,
+      "variants in rows": 1,
+      "oz-in/A, oz-in-s2": 1,
+      "poles vs pairs": 1,
+      "not enough to simulate": 1,
+      "thousands separator '7.500'": 1,
+      "frame contradicts model": 1,
+      "German labels": 1,
+      "no electrical constants": 1,
+      "4 ratings": 1,
+      "NEMA units": 1,
+      "bearings": 1,
+      "not simulable": 1,
+      "R line-to-line at 25 °C": 1,
+      "'//' for 50 and 60 Hz": 1
+    },
+    "photos": 23,
+    "photos_by_licence": {
+      "cc0": 4,
+      "cc_by": 4,
+      "cc_by_sa": 13,
+      "other_noncommercial": 2
+    },
+    "photos_committed": 8,
+    "photos_by_type": {
+      "three-phase induction motor": 2,
+      "AC/universal brushed motor (Electrolux, brushes visible); type not printed": 1,
+      "three-phase synchronous hydro-generator": 1,
+      "generator (hydro power station)": 2,
+      "machine type not printed (museum label: generator)": 1,
+      "machine type not printed (museum label: DC generator)": 1,
+      "shunt-wound machine (DC by its winding type)": 1,
+      "asynchronous (induction) machine": 1,
+      "six-phase motor with excitation (synchronous by its 'Erregung' line); the file title says doubly fed asynchronous": 1,
+      "not stated": 2,
+      "three-phase motor (3 ~Mot; IE3)": 1,
+      "three-phase motor (D Mot)": 1,
+      "NOT an electric machine: a 1906 Diesel engine ('Wärme-Motor Patent Diesel')": 1,
+      "DC motor (Marine D.C. Motor)": 1,
+      "traction three-phase asynchronous (induction) motor": 1,
+      "three-phase asynchronous motor (Moteur asynchrone triphasé)": 1,
+      "three-phase generator (3 ~ GEN.)": 1,
+      "machine type not printed (file title: exciter)": 1,
+      "AC induction motor, 10 HP, General Electric Co., 1901": 1,
+      "DC bipolar motor, 7.5 HP, Crocker-Wheeler, 1891": 1
+    }
+  },
+  "ratio_checks": [
+    {
+      "doc": "P1",
+      "variant": null,
+      "ke_printed": "89.0 V/1000*min¯¹",
+      "kt_printed": "1.40 Nm/A",
+      "ratio": 63.57,
+      "fits": [
+        "kb_over_kt_sine_rms"
+      ],
+      "reading": "both RMS (sinusoidal commutation)"
+    },
+    {
+      "doc": "P2",
+      "variant": "AKM62H",
+      "ke_printed": "142 V/krpm",
+      "kt_printed": "2.2 Nm/Arms",
+      "ratio": 64.55,
+      "fits": [
+        "kb_over_kt_sine_rms"
+      ],
+      "reading": "both RMS (sinusoidal commutation)"
+    },
+    {
+      "doc": "P2",
+      "variant": "AKM65P",
+      "ke_printed": "80.5 V/krpm",
+      "kt_printed": "1.3 Nm/Arms",
+      "ratio": 61.92,
+      "fits": [
+        "kb_over_kt_sine_rms"
+      ],
+      "reading": "both RMS (sinusoidal commutation)"
+    },
+    {
+      "doc": "P3",
+      "variant": null,
+      "ke_printed": "45.5 Vp-p/kRPM",
+      "kt_printed": "57.6 [0.41] oz-in/A [N-m/A]",
+      "ratio": 110.98,
+      "fits": [
+        "ke_over_kt_six_step"
+      ],
+      "reading": "both 6-step / peak"
+    },
+    {
+      "doc": "P4",
+      "status": "not executed: document unavailable (no expected values)"
+    },
+    {
+      "doc": "P5",
+      "variant": null,
+      "ke_printed": "3.7 Vrms/krpm",
+      "kt_printed": "0.044 Nm/A",
+      "ratio": 84.09,
+      "fits": [
+        "none"
+      ],
+      "reading": "no convention of the white paper fits: ask the user which constant to trust"
+    }
+  ]
+}

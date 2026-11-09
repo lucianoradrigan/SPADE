@@ -1,0 +1,38 @@
+{
+  "id": "W16",
+  "written_by": "Claude Code, by looking at the image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "data/upstream/assistant_golden/photos/Campener_Leuchtturm_Motortypenschild.jpg",
+  "machine_type": "NOT an electric machine: a 1906 Diesel engine ('Wärme-Motor Patent Diesel')",
+  "simulable_today": false,
+  "image_quality": "frontal, sharp",
+  "fields": [
+    {
+      "label_printed": "Vereinigte Maschinenfabrik Augsburg und Maschinenbaugesellschaft Nürnberg A.G.",
+      "value_printed": "Vereinigte Maschinenfabrik Augsburg und Maschinenbaugesellschaft Nürnberg A.G., Werk Augsburg",
+      "unit_printed": null,
+      "note": "manufacturer (M.A.N.)"
+    },
+    {
+      "label_printed": "Nº",
+      "value_printed": "1237",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "Wärme-Motor",
+      "value_printed": "Wärme-Motor \"Patent Diesel\"",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "Jahr",
+      "value_printed": "1906",
+      "unit_printed": null
+    }
+  ],
+  "must_ask": [],
+  "must_warn": [
+    "'Motor' here is a heat engine (Diesel), not an electric motor: SPADE cannot simulate it and the agent must not treat it as one",
+    "no electrical data"
+  ],
+  "missing_for_simulation": []
+}

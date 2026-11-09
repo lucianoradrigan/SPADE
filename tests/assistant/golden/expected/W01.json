@@ -1,0 +1,84 @@
+{
+  "id": "W01",
+  "written_by": "Claude Code, by looking at the image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "tests/assistant/golden/photos/Motor_nameplate_Malmbergs.jpg",
+  "machine_type": "three-phase induction motor",
+  "simulable_today": false,
+  "image_quality": "sharp, frontal",
+  "fields": [
+    {
+      "label_printed": "MALMBERGS",
+      "value_printed": "MALMBERGS",
+      "unit_printed": null,
+      "note": "manufacturer"
+    },
+    {
+      "label_printed": "THREE - PHASE INDUCTION MOTOR",
+      "value_printed": "THREE - PHASE INDUCTION MOTOR",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "FRAME",
+      "value_printed": "MS 711-2",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "INS.CL",
+      "value_printed": "F",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "kW",
+      "value_printed": "0.37",
+      "unit_printed": "kW"
+    },
+    {
+      "label_printed": "HP",
+      "value_printed": "0.5",
+      "unit_printed": "HP"
+    },
+    {
+      "label_printed": "IP",
+      "value_printed": "55",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "RPM",
+      "value_printed": "2730",
+      "unit_printed": "RPM"
+    },
+    {
+      "label_printed": "Hz",
+      "value_printed": "50",
+      "unit_printed": "Hz"
+    },
+    {
+      "label_printed": "CONN.",
+      "value_printed": "Δ/Y",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "V",
+      "value_printed": "230/400",
+      "unit_printed": "V"
+    },
+    {
+      "label_printed": "A",
+      "value_printed": "1.67/0.97",
+      "unit_printed": "A"
+    },
+    {
+      "label_printed": "NO.",
+      "value_printed": "1212073091",
+      "unit_printed": null
+    }
+  ],
+  "must_ask": [
+    "the voltage and current pairs go with the connection Δ/Y: 230 V Δ / 1.67 A and 400 V Y / 0.97 A"
+  ],
+  "must_warn": [
+    "induction motor: not simulable in SPADE today"
+  ],
+  "missing_for_simulation": []
+}

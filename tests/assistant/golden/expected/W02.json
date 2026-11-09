@@ -1,0 +1,47 @@
+{
+  "id": "W02",
+  "written_by": "Claude Code, by looking at the image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "tests/assistant/golden/photos/Motor_Nameplate.jpg",
+  "machine_type": "AC/universal brushed motor (Electrolux, brushes visible); type not printed",
+  "simulable_today": false,
+  "image_quality": "inclined, partly covered, stamped digits",
+  "fields": [
+    {
+      "label_printed": "ELECTROLUX",
+      "value_printed": "ELECTROLUX",
+      "unit_printed": null,
+      "note": "manufacturer"
+    },
+    {
+      "label_printed": "TYP",
+      "value_printed": "KER 4",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "V",
+      "value_printed": "110",
+      "unit_printed": "V"
+    },
+    {
+      "label_printed": "№",
+      "value_printed": "2501202",
+      "unit_printed": null,
+      "note": "last digit stamped smaller"
+    },
+    {
+      "label_printed": "~",
+      "value_printed": "~",
+      "unit_printed": null,
+      "note": "AC symbol"
+    }
+  ],
+  "must_ask": [],
+  "must_warn": [
+    "only type, voltage, serial and the AC sign: not enough to simulate",
+    "machine type not printed (the brushes suggest a universal motor)"
+  ],
+  "missing_for_simulation": [
+    "power, current, speed (not on the plate)"
+  ]
+}

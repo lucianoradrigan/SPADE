@@ -1,0 +1,109 @@
+{
+  "id": "W14",
+  "written_by": "Claude Code, by looking at the image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "data/upstream/assistant_golden/photos/VEM_motor_Zwickau.png",
+  "machine_type": "three-phase motor (3 ~Mot; IE3)",
+  "simulable_today": false,
+  "image_quality": "product photo, plate small and in perspective",
+  "fields": [
+    {
+      "label_printed": "VEM motors Thurm GmbH",
+      "value_printed": "VEM motors Thurm GmbH, Made in Germany",
+      "unit_printed": null,
+      "note": "manufacturer"
+    },
+    {
+      "label_printed": "IE3",
+      "value_printed": "IE3",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "efficiency",
+      "value_printed": "60,8",
+      "unit_printed": "%"
+    },
+    {
+      "label_printed": "type",
+      "value_printed": "W41R 56 G 2",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "Hz",
+      "value_printed": "50",
+      "unit_printed": "Hz"
+    },
+    {
+      "label_printed": "Th.Cl.",
+      "value_printed": "155",
+      "unit_printed": null,
+      "note": "small"
+    },
+    {
+      "label_printed": "3 ~Mot",
+      "value_printed": "3 ~Mot",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "serial",
+      "value_printed": "1096925001302H",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "IM",
+      "value_printed": "B3",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "cos φ",
+      "value_printed": "0,77",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "kg",
+      "value_printed": "4,5",
+      "unit_printed": "kg"
+    },
+    {
+      "label_printed": "V Δ/Y",
+      "value_printed": "230/400",
+      "unit_printed": "V"
+    },
+    {
+      "label_printed": "A",
+      "value_printed": "0,57 / 0,32",
+      "unit_printed": "A"
+    },
+    {
+      "label_printed": "S1",
+      "value_printed": "S1",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "kW",
+      "value_printed": "0,12",
+      "unit_printed": "kW"
+    },
+    {
+      "label_printed": "min-1",
+      "value_printed": "2830",
+      "unit_printed": "min-1"
+    },
+    {
+      "label_printed": "IP",
+      "value_printed": "55",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "standard",
+      "value_printed": "DIN EN 60034-1",
+      "unit_printed": null
+    }
+  ],
+  "must_ask": [],
+  "must_warn": [
+    "induction motor: not simulable",
+    "decimal commas"
+  ],
+  "missing_for_simulation": []
+}

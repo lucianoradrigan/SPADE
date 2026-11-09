@@ -1,0 +1,190 @@
+{
+  "id": "P5",
+  "written_by": "Claude Code, by hand from the downloaded document (round C, T8.3, 2026-11-09)",
+  "schema": "golden-expected/1",
+  "document": "Nanotec DB59C024035-B3 drawing and motor specification (Rev 02)",
+  "manufacturer_printed": "Nanotec",
+  "motor_type": "brushless DC (BLDC, Hall sensors)",
+  "simulable_today": true,
+  "variants": [
+    "DB59C024035-B3"
+  ],
+  "variant_policy": "single article",
+  "fields": [
+    {
+      "field": "poles",
+      "value_printed": "6",
+      "unit_printed": null,
+      "label_printed": "No. of Poles",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "voltage",
+      "value_printed": "24",
+      "unit_printed": "V DC",
+      "label_printed": "Rated Voltage",
+      "basis": "not_applicable",
+      "waveform": "dc_equivalent",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "current_rated",
+      "value_printed": "13.6",
+      "unit_printed": "A",
+      "label_printed": "Current - Rated / Peak",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": "rated",
+      "variant": null
+    },
+    {
+      "field": "current_peak",
+      "value_printed": "40",
+      "unit_printed": "A",
+      "label_printed": "Current - Rated / Peak",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": "peak",
+      "variant": null
+    },
+    {
+      "field": "resistance",
+      "value_printed": "0.135",
+      "unit_printed": "Ω",
+      "label_printed": "Resistance Line to Line",
+      "basis": "line-line",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "±10%",
+      "variant": null
+    },
+    {
+      "field": "inductance",
+      "value_printed": "0.2",
+      "unit_printed": "mH",
+      "label_printed": "Inductance Line to Line (1kHz)",
+      "basis": "line-line",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "measured at 1 kHz, ±20%",
+      "variant": null
+    },
+    {
+      "field": "torque_rated",
+      "value_printed": "0.6",
+      "unit_printed": "Nm",
+      "label_printed": "Torque - Rated / Peak",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "rated",
+      "variant": null
+    },
+    {
+      "field": "torque_peak",
+      "value_printed": "1.8",
+      "unit_printed": "Nm",
+      "label_printed": "Torque - Rated / Peak",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "peak",
+      "variant": null
+    },
+    {
+      "field": "torque_constant",
+      "value_printed": "0.044",
+      "unit_printed": "Nm/A",
+      "label_printed": "Torque Constant",
+      "basis": "unknown",
+      "waveform": "unknown",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "back_emf_constant",
+      "value_printed": "3.7",
+      "unit_printed": "Vrms/krpm",
+      "label_printed": "Back-EMF Constant",
+      "basis": "unknown",
+      "waveform": "rms",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "power_rated",
+      "value_printed": "220",
+      "unit_printed": "W",
+      "label_printed": "Rated Power",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "speed_no_load",
+      "value_printed": "4500",
+      "unit_printed": "rpm",
+      "label_printed": "Speed - No Load / Rated",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "no load, ±10%",
+      "variant": null
+    },
+    {
+      "field": "speed_rated",
+      "value_printed": "3500",
+      "unit_printed": "rpm",
+      "label_printed": "Speed - No Load / Rated",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": "rated, ±10%",
+      "variant": null
+    },
+    {
+      "field": "inertia",
+      "value_printed": "17.3",
+      "unit_printed": "kg m² x10-6",
+      "label_printed": "Rotor Inertia",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    },
+    {
+      "field": "weight",
+      "value_printed": "0.95",
+      "unit_printed": "kg",
+      "label_printed": "Weight",
+      "basis": "not_applicable",
+      "waveform": "not_applicable",
+      "temperature_c": null,
+      "condition": null,
+      "variant": null
+    }
+  ],
+  "must_ask": [
+    "the basis of the back-EMF constant (Vrms/krpm, phase or line-line not printed)"
+  ],
+  "must_warn": [
+    "'No. of Poles 6' are poles: 3 pole pairs",
+    "R and L are line-to-line: phase values are half in star",
+    "L measured at 1 kHz (small-signal)",
+    "inertia multiplier x10^-6 printed apart from the number"
+  ],
+  "notes": "Rated: 0.044 N m/A x 13.6 A = 0.598 N m (= 0.6 printed); 0.6 N m x 3500 rpm = 220 W."
+}

@@ -1,0 +1,65 @@
+{
+  "id": "W08",
+  "written_by": "Claude Code, by looking at the image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "tests/assistant/golden/photos/Specification_Plate_-_Lancashire_-_15kW_DC_Generator_-_Birla_Industrial_&_Technological_Museum_-_Kolkata_2014-01-23_7077.JPG",
+  "machine_type": "shunt-wound machine (DC by its winding type)",
+  "simulable_today": false,
+  "image_quality": "slight angle, reflections on the right",
+  "fields": [
+    {
+      "label_printed": "LANCASHIRE DYNAMO & MOTOR Cº LTD",
+      "value_printed": "Lancashire Dynamo & Motor Co Ltd, Trafford Park, Manchester",
+      "unit_printed": null,
+      "note": "manufacturer"
+    },
+    {
+      "label_printed": "SIZE",
+      "value_printed": "ambiguous: must ask",
+      "unit_printed": null,
+      "note": "9/4 or 9¼"
+    },
+    {
+      "label_printed": "Nº",
+      "value_printed": "48354",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "KW",
+      "value_printed": "15",
+      "unit_printed": "KW"
+    },
+    {
+      "label_printed": "VOLTS",
+      "value_printed": "220/230",
+      "unit_printed": null,
+      "note": "faint"
+    },
+    {
+      "label_printed": "REVS",
+      "value_printed": "600",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "AMPS",
+      "value_printed": "68/65",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "DATE",
+      "value_printed": "1921",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "WOUND",
+      "value_printed": "SHUNT",
+      "unit_printed": null
+    }
+  ],
+  "must_ask": [],
+  "must_warn": [
+    "shunt-wound (wound field): SPADE's DC plants are permanent-magnet; not simulable as is",
+    "two voltages with two currents: 15 kW / 220 V = 68 A and 15 kW / 230 V = 65 A"
+  ],
+  "missing_for_simulation": []
+}

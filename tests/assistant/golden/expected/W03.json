@@ -1,0 +1,114 @@
+{
+  "id": "W03",
+  "written_by": "Claude Code, by looking at the image (round C, T8.4, 2026-11-09)",
+  "schema": "golden-photo-expected/1",
+  "image": "tests/assistant/golden/photos/Darunta_Generator_Data_Plate_-2_Turbine.JPG",
+  "machine_type": "three-phase synchronous hydro-generator",
+  "simulable_today": false,
+  "image_quality": "frontal, worn, Cyrillic, some fields painted over",
+  "fields": [
+    {
+      "label_printed": "УРАЛЭЛЕКТРОАППАРАТ",
+      "value_printed": "УРАЛЭЛЕКТРОАППАРАТ",
+      "unit_printed": null,
+      "note": "manufacturer (Uralelektroapparat)"
+    },
+    {
+      "label_printed": "ГИДРОГЕНЕРАТОР синхронный 3 ф. ТОКА",
+      "value_printed": "hydro-generator, synchronous, 3-phase",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "тип",
+      "value_printed": "ВГС-375/49-28",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "зав. №",
+      "value_printed": "illegible",
+      "unit_printed": null,
+      "note": "painted over; possibly 8534"
+    },
+    {
+      "label_printed": "номинальные данные",
+      "value_printed": "4800",
+      "unit_printed": "ква"
+    },
+    {
+      "label_printed": "номинальные данные",
+      "value_printed": "6300",
+      "unit_printed": "в"
+    },
+    {
+      "label_printed": "номинальные данные",
+      "value_printed": "440",
+      "unit_printed": "а"
+    },
+    {
+      "label_printed": "cos φ",
+      "value_printed": "0,8",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "гц",
+      "value_printed": "50",
+      "unit_printed": "гц"
+    },
+    {
+      "label_printed": "соединение фаз",
+      "value_printed": "Y (star symbol)",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "об/мин",
+      "value_printed": "214",
+      "unit_printed": "об/мин"
+    },
+    {
+      "label_printed": "угон",
+      "value_printed": "375",
+      "unit_printed": "об/мин",
+      "note": "runaway speed"
+    },
+    {
+      "label_printed": "ток ротора",
+      "value_printed": "430",
+      "unit_printed": "а"
+    },
+    {
+      "label_printed": "при t +25 °C",
+      "value_printed": "5050",
+      "unit_printed": "ква",
+      "note": "with cos φ 0,76"
+    },
+    {
+      "label_printed": "при t 15 °C",
+      "value_printed": "5300",
+      "unit_printed": "ква",
+      "note": "with cos φ 0,78"
+    },
+    {
+      "label_printed": "вес",
+      "value_printed": "75",
+      "unit_printed": "т"
+    },
+    {
+      "label_printed": "ГОСТ",
+      "value_printed": "5616-50",
+      "unit_printed": null
+    },
+    {
+      "label_printed": "year",
+      "value_printed": "illegible",
+      "unit_printed": null,
+      "note": "196? (last digit painted over)"
+    }
+  ],
+  "must_ask": [],
+  "must_warn": [
+    "wound-field synchronous generator: not simulable in SPADE today",
+    "Cyrillic labels and units (ква, в, а, гц, об/мин)",
+    "ratings at two cooling temperatures"
+  ],
+  "missing_for_simulation": []
+}
