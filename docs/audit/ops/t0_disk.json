@@ -1,0 +1,66 @@
+{
+ "date": "2026-11-09",
+ "disk_before": {
+  "/": "8.6 GB free of 468 GB",
+  "/mnt/datos": "568 GB free of 916 GB"
+ },
+ "disk_after": {
+  "/": "41 GB free of 468 GB",
+  "/mnt/datos": "544 GB free of 916 GB"
+ },
+ "moved": [
+  {
+   "from": "SPADE/data (main worktree; SPADE-dev/data links to it)",
+   "to": "/mnt/datos/spade/data",
+   "files": 4737,
+   "bytes": 6895866272,
+   "verified": "same file count and bytes after the move; symlink left at SPADE/data"
+  },
+  {
+   "from": "plataform_proposed/data/BearingDataCenter (KAt/Paderborn raw data, outside the repos)",
+   "to": "/mnt/datos/spade/upstream/BearingDataCenter",
+   "files": 2656,
+   "bytes": 27725501987,
+   "verified": "same file count and bytes; symlink left at the old path"
+  }
+ ],
+ "deleted": [
+  {
+   "what": "qwen3:14b (9.3 GB, /mnt/datos/ollama/models)",
+   "how": "ollama rm through the user-level server, then the server (pid 503168) stopped; it was never configured as a service"
+  }
+ ],
+ "not_done_needs_sudo": "moving the system Ollama service's model store (11 GB in /usr/share/ollama/.ollama/models) to /mnt/datos/ollama/models: the session has no sudo",
+ "digest_check": true,
+ "smoke": {
+  "configured": {
+   "tag": "qwen3.5:9b",
+   "digest": "56671c2ab9385f9cfcb404638e32cd62d88e3501d44822208363c010179a3c90",
+   "status": "internal-demo; F1.1 round-3 rule not met"
+  },
+  "installed_digest": [
+   "56671c2ab9385f9cfcb404638e32cd62d88e3501d44822208363c010179a3c90"
+  ],
+  "runtime": "0.40.13",
+  "warnings": [],
+  "first_call_think_default": {
+   "reply": "",
+   "latency_s": 32.8
+  },
+  "second_call_think_false": {
+   "reply": "SPADE is a scalable algorithm for mining frequent itemsets in large datasets.",
+   "latency_s": 0.4
+  },
+  "assistant_smoke": {
+   "question": "What is the dc_perm_ex_v2 plant?",
+   "visible_text": "The **dc_perm_ex_v2** plant is a DC motor system (GEM's PMG 132 port) with a one-quadrant converter operating in discontinuous conduction mode. It includes the dc_perm_ex_v1 motor, load, supply, controllers, and fault/vibration models. This is the default DC plant for new simulations as of decision E3 (2026-11-08).\n**Key limitations:**\n- One-quadrant converter only (cannot brake below free-wheeling deceleration)\nWould you like to configure a simulation with this plant, or do you have another question?",
+   "cards": [
+    "DC motor (GEM's PMG 132 port), converter in discontinuous conduction",
+    "Plant dc_perm_ex_v1",
+    "Plant dc_perm_ex_v2"
+   ],
+   "latency_s": 6.8,
+   "stopped": null
+  }
+ }
+}

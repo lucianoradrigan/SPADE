@@ -72,6 +72,29 @@ def motor_block(state: SessionState) -> dict | None:
     return block or None
 
 
+def default_motor_block(plant: str) -> dict | None:
+    """The params.motor block of a plant's UNMODIFIED motor (what motor_block gives without user overrides):
+    the v2 converter on the v2 plants, plus the PMG 132 datasheet values on the PMG plants; None for
+    dc_perm_ex_v1's stock motor. AI-N31 (2026-11-09): the card names the plant for this block."""
+    from driveflow.datagen.runner import PMG132_LIMITS, PMG132_MOTOR_PARAMETER, PMG132_NOMINAL_VALUES
+
+    block: dict = {}
+    if plant in ("dc_pmg132_v1", "dc_pmg132_v2"):
+        block = {"motor_parameter_overrides": dict(PMG132_MOTOR_PARAMETER), "dc_limit_overrides": dict(PMG132_LIMITS), "dc_nominal_overrides": dict(PMG132_NOMINAL_VALUES)}
+    if plant in DC_PLANTS:
+        block["dc_converter_model"] = "dcm_exact"
+    return block or None
+
+
+def base_motor_label(plant: str, block: dict | None) -> str:
+    """'<plant> (unmodified motor)' when the block is the plant's own default, else 'custom (<changed keys>)'."""
+    default = default_motor_block(plant)
+    if (block or None) == default:
+        return f"{plant} (unmodified motor)"
+    changed = sorted(k for k in (block or {}) if (default or {}).get(k) != block[k])
+    return "custom (" + ", ".join(changed) + ")"
+
+
 def _check_tunable(state: SessionState) -> None:
     d = state.draft
     if d.plant not in DC_PLANTS:
@@ -174,7 +197,7 @@ def propose_tuning(state: SessionState) -> dict:
         raise ToolFailure("the objective specification is not complete; see update_objective")
     p = state.propose("objective")
     return {"proposal": "show this to the user and ask for confirmation; do not launch before their yes",
-            "plant": state.draft.plant, "base_motor": motor_block(state) or "stock motor", "tunes": "speed PI: bandwidth, damping, setpoint weight (full ranges)",
+            "plant": state.draft.plant, "base_motor": motor_block(state) or "stock motor", "base_motor_label": base_motor_label(state.draft.plant, motor_block(state)), "tunes": "speed PI: bandwidth, damping, setpoint weight (full ranges)",
             "objective": obj["objective"], "algorithm": obj["algorithm"], "evaluations": obj["evaluations"], "seed": obj.get("seed", DEFAULTS["seed"]),
             "requirements": [{k: r[k] for k in ("metric", "op", "value", "unit")} for r in obj["requirements"]],
             "verification": "each requirement is checked on the evaluation grid (separate from the tuning grid); results are candidates",

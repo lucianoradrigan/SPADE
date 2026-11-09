@@ -112,7 +112,9 @@ def card_from_tool(name: str, arguments: dict, result: dict) -> list:
         ev = result.get("evaluations")
         ev_txt = f"{ev.get('value')} ({ev.get('origin')})" if isinstance(ev, dict) else _fmt(ev)
         motor = result.get("base_motor")
-        lines = [f"plant: {result.get('plant')}", f"base motor: {motor if isinstance(motor, str) else 'custom (' + ', '.join(sorted(motor)) + ')'}",
+        # AI-N31 fix (2026-11-09): an unmodified motor is named by its plant, not "custom"
+        label = result.get("base_motor_label") or (motor if isinstance(motor, str) else "custom (" + ", ".join(sorted(motor)) + ")")
+        lines = [f"plant: {result.get('plant')}", f"base motor: {label}",
                  f"tunes: {result.get('tunes')}", f"objective: {result.get('objective')}", f"algorithm: {result.get('algorithm')}",
                  f"evaluations: {ev_txt}", f"seed: {result.get('seed')}"]
         lines += [f"requirement: {r.get('metric')} {r.get('op')} {r.get('value')}{' ' + r['unit'] if r.get('unit') else ''}" for r in result.get("requirements", [])]
