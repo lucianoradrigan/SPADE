@@ -676,7 +676,7 @@ SPADE was created by the authors below. **If you use SPADE in your work, please 
 | **Hugues Renaudineau, PhD** | Energy Transition Center, Faculty of Engineering, Universidad San Sebastian, Valdivia, Chile | <hugues.renaudineau@uss.cl> |
 
 ```text
-L. Radrigan, A. S. Morales, F. Ruiz, J. Rodriguez, and H. Renaudineau, "SPADE: Simulation Platform for Analysis, Diagnosis & Electric drives," version 0.1.0, 2026. [Online]. Available: https://github.com/lucianoradrigan/SPADE
+L. Radrigan, A. S. Morales, F. Ruiz, J. Rodriguez, and H. Renaudineau, "SPADE: Simulation Platform for Analysis, Diagnosis & Electric drives," version 0.2.0, 2026. [Online]. Available: https://github.com/lucianoradrigan/SPADE
 ```
 
 ```bibtex
@@ -684,7 +684,7 @@ L. Radrigan, A. S. Morales, F. Ruiz, J. Rodriguez, and H. Renaudineau, "SPADE: S
   author = {Radrigan, Luciano and Morales, Anibal S. and Ruiz, Felipe and Rodriguez, Jose and Renaudineau, Hugues},
   title  = {{SPADE}: Simulation Platform for Analysis, Diagnosis \& Electric drives},
   year   = {2026},
-  note   = {Version 0.1.0},
+  note   = {Version 0.2.0},
   url    = {https://github.com/lucianoradrigan/SPADE}
 }
 ```

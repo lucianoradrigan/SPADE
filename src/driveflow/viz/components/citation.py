@@ -20,13 +20,13 @@ PROFILES = {
 }
 
 CITATION_TEXT = ('L. Radrigan, A. S. Morales, F. Ruiz, J. Rodriguez, and H. Renaudineau, "SPADE: Simulation Platform for Analysis, Diagnosis & Electric drives," '
-                 "version 0.1.0, 2026. [Online]. Available: https://github.com/lucianoradrigan/SPADE")
+                 "version 0.2.0, 2026. [Online]. Available: https://github.com/lucianoradrigan/SPADE")
 
 CITATION_BIBTEX = """@misc{spade2026,
   author = {Radrigan, Luciano and Morales, Anibal S. and Ruiz, Felipe and Rodriguez, Jose and Renaudineau, Hugues},
   title  = {{SPADE}: Simulation Platform for Analysis, Diagnosis \\& Electric drives},
   year   = {2026},
-  note   = {Version 0.1.0},
+  note   = {Version 0.2.0},
   url    = {https://github.com/lucianoradrigan/SPADE}
 }"""
 

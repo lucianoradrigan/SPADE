@@ -9,7 +9,7 @@
   #error STAGE (the staged folder with python\ and SPADE\) must be defined
 #endif
 #ifndef APPVERSION
-  #define APPVERSION "0.1.0"
+  #define APPVERSION "0.2.0"
 #endif
 #ifndef COMMIT
   #define COMMIT "unknown"
