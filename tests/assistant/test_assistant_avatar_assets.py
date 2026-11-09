@@ -32,5 +32,9 @@ def test_avatar_license_is_separate_and_mit_untouched():
 def test_no_original_caricature_in_the_repository():
     import subprocess
 
-    tracked = subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True, text=True).stdout.split()
-    assert not [f for f in tracked if f.lower().endswith((".jpg", ".jpeg")) and "assistant" in f.lower()]
+    tracked = subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True, text=True).stdout.splitlines()
+    # Golden-set photos of motor rating plates (round C, T8): CC0 / CC BY Wikimedia files, each listed with its author and
+    # licence in tests/assistant/golden/photos/ATTRIBUTION.md. They are excluded by name only; any other JPG fails.
+    golden = Path("tests/assistant/golden/photos")
+    attributed = {f"{golden}/{line.split('`')[1]}" for line in (ROOT / golden / "ATTRIBUTION.md").read_text().splitlines() if line.startswith("| W") and "`" in line}
+    assert not [f for f in tracked if f.lower().endswith((".jpg", ".jpeg")) and "assistant" in f.lower() and f not in attributed]
