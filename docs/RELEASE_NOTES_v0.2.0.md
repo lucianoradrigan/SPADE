@@ -81,4 +81,8 @@ Full lists: `docs/SIMULATION_STABILITY_REPORT.md` and `docs/AI_TECHNICAL_AUDIT.m
 
 ## Verification of this release
 
-<!-- filled in on the release branch -->
+Run on `release/v0.2.0` at `721da2f` (2026-11-09, Linux, Python 3.12, Ryzen 5 5600X, machine free):
+
+- **Full suite** (`PYTHONPATH=src python -m pytest -q`): **1906 passed, 1 skipped, 9 xfailed, 0 failed** (20 min 6 s). Every xfail is strict and cites an open finding.
+- **Smoke test** (`python scripts/smoke_test.py --launch`): **7/7 PASS**. It checks the app, the Assistant page with the local model runtime down, the Streamlit health endpoint, short DC/PMSM/VSC simulations and inference with a registered model.
+- **CI on GitHub:** not run for this branch (it is not pushed). The last CI run on `dev` was on 2026-10-26.
