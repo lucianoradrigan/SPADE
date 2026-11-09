@@ -57,30 +57,41 @@ import gym_electric_motor as gem
 from gym_electric_motor.physical_systems.mechanical_loads import PolynomialStaticLoad
 from gym_electric_motor.physical_systems.converters import ContOneQuadrantConverter
 
+OMEGA0 = 150.0  # rad/s, initial speed
+DUTY = 0.0      # transistor always off: the motor can only coast (no load, no friction)
+
 load = PolynomialStaticLoad(load_parameter=dict(a=0.0, b=0.0, c=0.0, j_load=1e-3),
-                            load_initializer={"states": {"omega": 150.0}})
-env = gem.make("Cont-SC-PermExDc-v0", converter=ContOneQuadrantConverter(), load=load,
-               visualization=(), constraints=())
+                            load_initializer={"states": {"omega": OMEGA0}})
+env = gem.make("Cont-SC-PermExDc-v0", converter=ContOneQuadrantConverter(), load=load, visualization=(), constraints=())
 (state, ref), _ = env.reset(seed=0)
-ps = env.unwrapped.physical_system
-w, i = ps.state_names.index("omega"), ps.state_names.index("i")
+names = env.unwrapped.physical_system.state_names
+lim = env.unwrapped.physical_system.limits
+i_w, i_i, i_u = names.index("omega"), names.index("i"), names.index("u")
+print(f"tau = {env.unwrapped.physical_system.tau} s, u_sup = {lim[names.index('u_sup')]:.1f} V, start omega = {state[i_w] * lim[i_w]:.2f} rad/s")
 min_i = 0.0
-for k in range(1, 5001):                     # 0.5 s at tau = 1e-4 s
-    (state, ref), *_ = env.step(np.array([0.0]))   # transistor always off
-    min_i = min(min_i, state[i] * ps.limits[i])
-print(state[w] * ps.limits[w], min_i)
+for k in range(1, 5001):
+    (state, ref), *_ = env.step(np.array([DUTY]))
+    min_i = min(min_i, state[i_i] * lim[i_i])
+    if k in (1, 10, 100, 1000, 5000):
+        print(f"t = {k * 1e-4:6.4f} s  omega = {state[i_w] * lim[i_w]:8.2f} rad/s  i = {state[i_i] * lim[i_i]:8.3f} A  u = {state[i_u] * lim[i_u]:7.2f} V")
+print(f"min armature current seen: {min_i:.3f} A")
+print("Expected (one-quadrant converter, duty 0, no load): i >= 0 always, u = 0 or back-EMF, omega stays ~150 rad/s.")
 ```
 
 Output (default PermExDc parameters: r_a = 0.016 Ω, l_a = 19 µH, psi_e = 0.165 Wb, u_sup = 60 V):
 
 ```
-t = 0.0001 s  omega =   149.96 rad/s  i = -124.918 A
-t = 0.0010 s  omega =   150.07 rad/s  i =  -48.804 A
-t = 0.0100 s  omega =   151.94 rad/s  i =  -95.326 A
-t = 0.1000 s  omega =   164.18 rad/s  i =  -67.950 A
-t = 0.5000 s  omega =   181.82 rad/s  i =  -78.904 A
+tau = 0.0001 s, u_sup = 60.0 V, start omega = 150.00 rad/s
+t = 0.0001 s  omega =   149.96 rad/s  i = -124.918 A  u =    0.00 V
+t = 0.0010 s  omega =   150.07 rad/s  i =  -48.804 A  u =    0.00 V
+t = 0.0100 s  omega =   151.94 rad/s  i =  -95.326 A  u =    0.00 V
+t = 0.1000 s  omega =   164.18 rad/s  i =  -67.950 A  u =    0.00 V
+t = 0.5000 s  omega =   181.82 rad/s  i =  -78.904 A  u =    0.00 V
 min armature current seen: -144.683 A
+Expected (one-quadrant converter, duty 0, no load): i >= 0 always, u = 0 or back-EMF, omega stays ~150 rad/s.
 ```
+
+The current changes sign from one step to the next (−124.9 A, +63.2 A, −66.8 A, +116.5 A, … in the first steps). When a step starts with a negative current, `convert` returns 1, and the full 60 V is applied for that step. When it starts with a positive current, the duty (0) is applied. The printed steps happen to be of the second kind, hence `u = 0.00 V` in those lines.
 
 **Expected:** i ≥ 0 at all times; with duty 0, no load and no friction, ω stays at 150 rad/s.
 **Observed:** i reaches −145 A, and ω rises from 150 to 182 rad/s in 0.5 s.
@@ -99,10 +110,10 @@ min armature current seen: -144.683 A
    - For motors with two currents (shunt, externally excited) the clamp is not applied; the prototype only warns there.
    - We can open it as a PR after this issue, if you want it.
 3. **Optional: a new converter that models discontinuous conduction within the period.** It would solve the conduction interval of each period in closed form. We could contribute ours, since SPADE and GEM are both MIT-licensed.
-   - **Our implementation in SPADE:** a substepped version with linear localization of the zero crossing converges (NRMS < 1e-4 at 1000 substeps per `tau` against 10000). A closed-form per-period version (linear back-EMF, Heun mechanics) reaches 3.0e-5 against 10000 substeps and is 28× cheaper than 1000 substeps.
+   - **Our implementation in [SPADE](https://github.com/lucianoradrigan/SPADE):** a substepped version with linear localization of the zero crossing converges (NRMS < 1e-4 at 1000 substeps per `tau` against 10000). A closed-form per-period version (linear back-EMF, Heun mechanics) reaches 3.0e-5 against 10000 substeps and is 28× cheaper than 1000 substeps.
    - This is the most accurate option, and the largest change. As a separate class, it leaves `Cont1QC` as it is for existing users.
 
-The discrete `FiniteOneQuadrantConverter` has the same `i < 0 → 1` logic and might deserve the same treatment.
+The discrete `FiniteOneQuadrantConverter` has the same logic (`convert` returns `[1]` when `i_out[0] < 0`, `converters.py` at b474daf9) and might deserve the same treatment; we have not run it.
 
 ## Environment
 
