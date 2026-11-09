@@ -246,7 +246,7 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N27 | **High** | Training-data defect (simulator artifact S-21) | **Mitigated for PC and RPi5** (dcm-trained runs promoted 2026-11-04); **open for ESP32** (§13.1): 7.1 % (ESP32, 3 classes) and 17.8 % (PC and RPi5, 5 classes) of the promoted dc_motor classifiers' training windows contain the one-quadrant converter artifact of S-21; all of them fault classes, none healthy |
 | AI-N28 | **High** | Robustness defect (int8 quantization) | **Open** (§13.2): the ESP32 DS-CNN retrained on the corrected (dcm) grid loses outer_race in int8 (recall 0.38 / 0.05 / 0.21 on test / affected-regime held-out / generalization; Keras 0.76 / 0.31 / 0.90); the 3-class int8 path is fragile to a change of training data; **repair round 2026-11-08 (pre-registered, E1): DOES NOT MEET** — the selected variant (alpha 0.75, noise-free stratified calibration, per-tensor int8) fixes outer_race but loses the healthy class out of the grid (E3 normal recall 0.994 → 0.687, abstention +19 points); the promoted ESP32 stays (`esp32_repair.md`) |
 | AI-N29 | **High** | Generalization regression (low speed) | **Open** (§13.3): the dcm-trained PC classifier promoted on 2026-11-04 is confidently wrong at 50 rad/s (below the 80–220 rad/s grid): of 54 known-class windows it abstains on 44 % and gets 2 of the 30 answered right (0.067); the previous PC on the same data answered 54 % with 1.000; the new RPi5 is not affected (1.000 on 81 % answered) |
-| AI-N30 | **High** | Assistant behaviour (local LLM) | **Open** (§13.4): the pre-registered F1.11 benchmark of the assistant (`qwen3.5:9b`) is **not met**: 5 distinct false statements about SPADE (15 turns), "not documented" 0 % (≥ 80 %), asks when a required value is missing 60 % (≥ 90 %), questions / sourced numbers 76 % (≥ 90 %), citations 83 % (≥ 90 %), p95 latency 35.8 s (≤ 30 s outside the lab). Met: 0 launches without confirmation, 0 invented numbers, 0 timeouts, correct plan 90.5 %, impossible requests 100 % |
+| AI-N30 | **High** | Assistant behaviour (local LLM) | **Open** (§13.4): the pre-registered F1.11 benchmark of the assistant (`qwen3.5:9b`) is **not met**: 5 distinct false statements about SPADE (15 turns), "not documented" 0 % (≥ 80 %), asks when a required value is missing 60 % (≥ 90 %), questions / sourced numbers 76 % (≥ 90 %), citations 83 % (≥ 90 %), p95 latency 35.8 s (≤ 30 s outside the lab). Met: 0 launches without confirmation, 0 invented numbers, 0 timeouts, correct plan 90.5 %, impossible requests 100 %; **F1.12 (independent, after the harness fixes, 2026-11-08): NOT MET** — 9 of 13 criteria met (F1.11: 7); fails false statements (4 distinct, one from catalog defect S-23), asks-when-missing 80 %, sourced numbers 74.6 %, not-documented 75 %, outside-lab p95 34.4 s; `qwen3:14b` on F1.11 (descriptive) was worse (plan 44 %, p95 134 s) |
 | AI-N19 | Medium | Evaluation limit | **Documented** (§10): simulated healthy current/rpm are constant in steady state, so the residual AUROC (1.000) and the persistence baseline are optimistic |
 | AI-N15 | Medium | Defect (estimator bias) | **Open** (§9.1): the VSC PINN estimates C systematically low, −1.3 % to −9.1 % mean error at 0–5 % noise |
 | AI-N16 | Medium | Defect (uncertainty) | **Open** (§9.2): the PINN's 5–95 % bootstrap interval covers the truth in 52–78 % of noisy runs for C; the GUI says "Coverage not validated" |
@@ -876,4 +876,20 @@ Found 2026-11-08 by the pre-registered benchmark F1.11 (`docs/audit/assistant/f1
   3. `search_docs` cards whose text does not contain the question's term are shown as the answer to undocumented questions.
   4. A load given as % of the rated torque given later in the conversation was not recorded (m03).
 - **Consequence (decision V3, approved 2026-11-08):** the model stays "internal demo". The F1.11 bench is re-run with a 14 B model and a new rule. The harness defects above are queued with V2.
+
+**AI-N30 follow-up (2026-11-08):**
+- **3(a), `qwen3:14b` on F1.11** (descriptive, same harness; `f1_11_qwen3_14b.md`):
+  - correct plan 44.4 %, asks-when-missing 20 %, sourced numbers 90.8 %;
+  - p95 134 s, median 49 s;
+  - the model's size is not the lever.
+- **3(b), harness fixes:** `ai_n30_harness_fixes.md`, designed by reading F1.11 (declared).
+- **3(c), F1.12** (`f1_12_benchmark.md`; thresholds identical to F1.11, committed before the requests): **NOT MET**.
+  - **Met:** 0 launches without confirmation, 0 invented numbers, 0 timeouts, non-empty 100 %, correct plan 93.7 %, citations 100 %, impossible 100 %, p95 34.4 s for the internal demo.
+  - **Not met:**
+    - false statements: 4 distinct, 6 turns, one caused by the catalog defect S-23;
+    - asks when missing 80 % (m04: the model fills the VSC's only controller itself);
+    - sourced numbers 74.6 % (rounded proposal costs);
+    - not documented 75 % (an earlier broad search card shown next to the "No documentation found" card);
+    - outside-the-lab latency (> 30 s).
+  - The model stays "internal demo". Proposals in the report, each for Luciano's decision.
 
