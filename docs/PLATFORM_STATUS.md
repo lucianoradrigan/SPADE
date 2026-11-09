@@ -28,6 +28,8 @@ Sources: `docs/audit/assistant/e3_v2_plants.md`, `dc_perm_ex_v2_convergence.md`,
 
 - **Workspace:** Overview, Experiment Runs.
 - **Simulation:** DC Motor, PMSM / FOC, VSC / DPC, DC-DC Converters, PLECS Plant Studio.
+  The DC Motor page's advanced options choose the plant mode (v2 default, v1 GEM-faithful), load torque,
+  supply, limits and nominal values.
 - **Design & Control:** Tuning Studio, RL Lab.
 - **Intelligence:** AI Diagnostics, Edge Deployment, Transfer Learning, Model Registry, Assistant.
 - **Operations:** Monitoring, Alert History.
@@ -80,12 +82,17 @@ benchmark, F1.13, met 11 of 13 criteria (false statements and the off-lab p95 fa
 [`f1_13_benchmark.md`](audit/assistant/f1_13_benchmark.md)), so by the pre-committed closing rule it
 is not for laboratory use (AI-N30).
 
+The same tools are also available to a local MCP client (`python -m driveflow.assistant.mcp_server`,
+[`assistant/MCP.md`](assistant/MCP.md)), with the same policies; a launch needs the user's
+confirmation through MCP elicitation.
+
 ## 7. Open findings
 
 | ID | Status | What |
 |---|---|---|
 | S-21 | Corrected in v2 · open in v1 | GEM's one-quadrant converter artifact |
 | S-22 | Documented · test stabilized | An FMU timing check fails with the machine loaded; its test has a declared tolerance |
+| S-24 | Open | `Scenario` compares the voltage limit with the supply only when both are given |
 | AI-N24 | Open | `rpi5_tcn` too slow on the C2000 |
 | AI-N25 | Open | Promoted RPi5 classifier does not fit the C2000 |
 | AI-N26 | Mitigated (software) · board re-measurement pending in B4 | 10 kHz data, 5 kHz budget |

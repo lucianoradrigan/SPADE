@@ -632,3 +632,20 @@ Local LLM `qwen3.5:9b` through Ollama. Each benchmark had its thresholds committ
 - A descriptive 14B run on F1.11 did worse (plan 44 %, asks-if-missing 20 %, p95 134 s; [`f1_11_qwen3_14b.md`](audit/assistant/f1_11_qwen3_14b.md)).
 - **Pre-committed closing rule applied:** phase 1 is closed, and the assistant stays "experimental / internal demo". There is no F1.14.
 - **Next action recorded for AI-N30** (R2, not implemented): the alternatives offered for impossible requests should come from a catalog table and be shown in a card, since most F1.13 false statements are invented alternatives.
+
+### 14.6 Round B (2026-11-09): B1 closed, v0.2.0 prepared, B3 started
+
+| Task | Result | Evidence |
+|---|---|---|
+| T0, disk and Ollama | Datasets moved to `/mnt/datos/spade/` with symlinks, nothing deleted; `/` from 8.6 to 41 GB free; `qwen3:14b` deleted; the pinned model's digest verified. The Ollama service store move needs sudo and is left as commands | [`audit/ops/t0_disk.md`](audit/ops/t0_disk.md) |
+| T1, AI-N31 | Fixed (§14.4) | `tests/assistant/test_assistant_ai_n31.py` |
+| T2, AI-N26 | Mitigated (software), §14.4 | [`audit/c2000/c5_post_hoc_10khz.md`](audit/c2000/c5_post_hoc_10khz.md) |
+| T3, E8 | README, `PLATFORM_STATUS.md`, this §14, `CLAUDE.md` | `tests/test_readme_pages.py` |
+| T4, E9 | S-22 stabilized with a declared test tolerance (§14.3). Benchmarks documented. CI of `dev` last ran on 2026-10-26 | [`audit/ci/e9_ci.md`](audit/ci/e9_ci.md) |
+| T5, v0.2.0 | Branch `release/v0.2.0`, release notes, review of the public GitHub. **Not pushed; waits for Luciano's OK** | `docs/RELEASE_NOTES_v0.2.0.md` and `docs/audit/release/` on that branch |
+| T6, V1 | The DC Motor page offers the plant mode (v2 default, v1 GEM-faithful with the S-21 warning), load torque, supply, limits and nominal values; the PMSM page offers the supply. Everything is validated by `Scenario`, no default changed, and the stock run is identical frame for frame | [`audit/b3/v1_gui_phase0.md`](audit/b3/v1_gui_phase0.md), `tests/test_v1_gui_phase0.py` (9) |
+| T6, V4 | Local MCP server of the assistant tools: stdio, standard library only, no new dependency. Same policies; a launch requires the user's confirmation through MCP elicitation, tied to the proposal hash. **Not tried with a real client** | [`assistant/MCP.md`](assistant/MCP.md), `tests/assistant/test_mcp_server.py` (14) |
+| T7, GEM | PR prepared in a local fork, not published: GEM suite 1231 passed. The issue draft offers three levels | `docs/audit/upstream/gem_cont1qc_pr_draft.md` (local branch `feat/T7-gem-cont1qc-pr`) |
+
+- **New finding S-24** (Low, open): `Scenario` compares the voltage limit with the supply only when both are given explicitly (`SIMULATION_STABILITY_REPORT.md`).
+- **Not changed:** any default, the v1 plants, the byte-for-byte tests, `main`.
