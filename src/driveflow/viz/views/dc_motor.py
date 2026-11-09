@@ -116,7 +116,7 @@ def _advanced_options(defaults: dict) -> dict:
         out["load_torque_nm"] = c1.number_input("Extra load torque (N·m)", min_value=0.0, value=0.0, step=0.5, key="dc_load_torque_nm",
                                                 help="Constant passive load added to the stock friction (Scenario.load_torque_nm). 0 = the stock load.")
         out["dc_supply_v"] = c2.number_input("Supply voltage (V)", min_value=1.0, value=sim.DC_SUPPLY_V, step=1.0, key="dc_supply_v",
-                                             help="DC-link voltage of the converter (Scenario.dc_supply_v). Stock: 65 V. When it is changed, a voltage limit above it is rejected.")
+                                             help="DC-link voltage of the converter (Scenario.dc_supply_v). Stock: 65 V. A voltage limit above the supply (this value, or 65 V) is rejected.")
         for name, title, stock in (("dc_limit_overrides", "Limits", defaults["limits"]), ("dc_nominal_overrides", "Nominal values", defaults["nominal"])):
             st.markdown(f"**{title}**")
             cols = st.columns(len(_LIMIT_FIELDS))

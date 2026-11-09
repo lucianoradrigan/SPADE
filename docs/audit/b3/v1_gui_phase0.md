@@ -34,7 +34,7 @@
 
 - **What:** `Scenario` compares the voltage limit with the supply only when both are given explicitly, so `dc_limit_overrides={'u': 100}` is accepted with the stock 65 V supply.
 - **Not changed here:** it would change what `Scenario` accepts, which is Luciano's decision.
-- **Help text:** the page's text says the check applies when the supply is changed.
+- **Help text:** the page's text says the check applies when the supply is changed. **Update (round C, 2026-11-09):** S-24 is corrected on `dev` (decision C6), and the help text now says a limit above the supply (the given one, or 65 V) is rejected.
 
 ## Not covered
 

@@ -647,5 +647,5 @@ Local LLM `qwen3.5:9b` through Ollama. Each benchmark had its thresholds committ
 | T6, V4 | Local MCP server of the assistant tools: stdio, standard library only, no new dependency. Same policies; a launch requires the user's confirmation through MCP elicitation, tied to the proposal hash. **Not tried with a real client** | [`assistant/MCP.md`](assistant/MCP.md), `tests/assistant/test_mcp_server.py` (14) |
 | T7, GEM | PR prepared in a local fork, not published: GEM suite 1231 passed. The issue draft offers three levels | `docs/audit/upstream/gem_cont1qc_pr_draft.md` (local branch `feat/T7-gem-cont1qc-pr`) |
 
-- **New finding S-24** (Low, open): `Scenario` compares the voltage limit with the supply only when both are given explicitly (`SIMULATION_STABILITY_REPORT.md`).
+- **New finding S-24** (Low): `Scenario` compared the voltage limit with the supply only when both were given explicitly. **Corrected on `dev` for v0.2.1** (round C, decision C6): the limit is checked against the effective supply, the given one or the stock 65 V (`tests/test_s24_voltage_limit.py`).
 - **Not changed:** any default, the v1 plants, the byte-for-byte tests, `main`.

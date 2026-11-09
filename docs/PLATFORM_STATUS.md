@@ -92,7 +92,7 @@ confirmation through MCP elicitation.
 |---|---|---|
 | S-21 | Corrected in v2 · open in v1 | GEM's one-quadrant converter artifact |
 | S-22 | Documented · test stabilized | An FMU timing check fails with the machine loaded; its test has a declared tolerance |
-| S-24 | Open | `Scenario` compares the voltage limit with the supply only when both are given |
+| S-24 | Corrected on `dev` (v0.2.1) | The voltage limit is checked against the effective supply (given, or the stock 65 V) |
 | AI-N24 | Open | `rpi5_tcn` too slow on the C2000 |
 | AI-N25 | Open | Promoted RPi5 classifier does not fit the C2000 |
 | AI-N26 | Mitigated (software) · board re-measurement pending in B4 | 10 kHz data, 5 kHz budget |

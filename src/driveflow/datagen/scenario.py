@@ -177,7 +177,8 @@ class Scenario:
             states with them. GEM keeps an explicit i limit as given (it derives u/r_a only for a
             missing or zero i), and it does NOT derive i from changed motor parameters: with
             motor_parameter_overrides alone the current limit stays at the stock 210 A. A u limit
-            above dc_supply_v is rejected. None (default) for all three keeps the stock motor and
+            above the effective supply -- dc_supply_v, or the stock 65 V when it is not given
+            (S-24, decision C6) -- is rejected. None (default) for all three keeps the stock motor and
             the 65 V supply, bit for bit.
         plant_config_id="dc_pmg132_v1" (round Assistant 0b, D3, user decision 2026-11-02): the same
             DC-motor plant, controllers (PI, MPC), fault and vibration paths as dc_perm_ex_v1, with the
@@ -386,6 +387,8 @@ class Scenario:
     _DC_MOTOR_ONLY_FIELDS = ("load_torque_nm", "dc_supply_v", "dc_limit_overrides", "dc_nominal_overrides")
     #: Keys of dc_limit_overrides / dc_nominal_overrides (DcPermanentlyExcitedMotor limits).
     DC_LIMIT_KEYS = ("omega", "torque", "i", "u")
+    #: The DC-link voltage of every DC plant when dc_supply_v is not given (datagen/runner.py, IdealVoltageSupply(65.0)).
+    DC_STOCK_SUPPLY_V = 65.0
 
     def _validate_dc_motor_fields(self):
         """Round Assistant, phase 0: optional DC-motor fields. Each must be finite and in range,
@@ -418,6 +421,9 @@ class Scenario:
         u_limit = (self.dc_limit_overrides or {}).get("u")
         if u_limit is not None and self.dc_supply_v is not None and u_limit > self.dc_supply_v:
             raise ValueError(f"Scenario.dc_limit_overrides['u'] ({u_limit!r} V) must not exceed dc_supply_v ({self.dc_supply_v!r} V)")
+        if u_limit is not None and self.dc_supply_v is None and u_limit > self.DC_STOCK_SUPPLY_V:  # S-24 (decision C6)
+            raise ValueError(f"Scenario.dc_limit_overrides['u'] ({u_limit!r} V) must not exceed the supply: dc_supply_v is not given, "
+                             f"so it is the stock {self.DC_STOCK_SUPPLY_V:g} V; give dc_supply_v to use a higher voltage")
 
     #: dc_plant_solver values (see the class docstring); DC_PLANT_MAX_SUBSTEPS bounds the cost.
     DC_PLANT_SOLVERS = ("euler", "rk45")
