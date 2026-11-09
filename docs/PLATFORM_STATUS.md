@@ -85,7 +85,7 @@ is not for laboratory use (AI-N30).
 | ID | Status | What |
 |---|---|---|
 | S-21 | Corrected in v2 · open in v1 | GEM's one-quadrant converter artifact |
-| S-22 | Documented | An FMU timing check fails with the machine loaded |
+| S-22 | Documented · test stabilized | An FMU timing check fails with the machine loaded; its test has a declared tolerance |
 | AI-N24 | Open | `rpi5_tcn` too slow on the C2000 |
 | AI-N25 | Open | Promoted RPi5 classifier does not fit the C2000 |
 | AI-N26 | Mitigated (software) · board re-measurement pending in B4 | 10 kHz data, 5 kHz budget |

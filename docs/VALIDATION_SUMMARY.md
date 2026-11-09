@@ -591,7 +591,7 @@ This section catches up on work that was recorded only in its own evidence files
 | ID | Status | Evidence |
 |---|---|---|
 | S-21 (Major) | **Corrected in the v2 plants · open in the frozen v1 plants.** GEM's one-quadrant converter applies the full supply for a whole period when the current is negative; the speed rises instead of coasting. v1 shows a non-blocking warning (S21-3) | `SIMULATION_STABILITY_REPORT.md`; [`audit/assistant/s21_3_warning.md`](audit/assistant/s21_3_warning.md) |
-| S-22 (Low) | Documented: an FMU stage-6 timing check (p50 ≤ 0.5 ms) failed twice with the machine loaded (p50 0.566 ms) and passes alone. Re-checked in E9 | `SIMULATION_STABILITY_REPORT.md` |
+| S-22 (Low) | Documented · test stabilized (E9, 2026-11-09): an FMU stage-6 timing check (p50 ≤ 0.5 ms) fails with the machine loaded (4 of 5 FMU-suite runs, p50 0.550–0.560 ms; free 0.237 ms). Declared tolerance in that test only (1.5 × the limit): 5 of 5 under the same load; the product's limit is unchanged | [`audit/ci/e9_ci.md`](audit/ci/e9_ci.md) |
 | S-23 (Medium) | **Corrected (2026-11-08).** The catalog gave GEM's stock-motor defaults for `dc_pmg132_v2`; a test now checks catalog = runner for every plant | `tests/test_plant_catalog_defaults_match_runner.py` |
 
 - **Variant B (`dcm_exact`).** Closed-form converter in discontinuous conduction. Converges: worst case 3.0e-5 against ×10000 substeps, 28× cheaper than ×1000 ([`audit/assistant/dc_perm_ex_v2_convergence.md`](audit/assistant/dc_perm_ex_v2_convergence.md), `python experiments/report_dc_perm_ex_v2_convergence.py`). Data equivalence: classifier agreement 1.000 ([`dc_perm_ex_v2_equivalence.md`](audit/assistant/dc_perm_ex_v2_equivalence.md), `python experiments/report_dc_perm_ex_v2_equivalence.py`).
