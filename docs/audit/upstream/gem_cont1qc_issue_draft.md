@@ -1,7 +1,8 @@
 # Draft issue for upstream gym-electric-motor — FINAL DRAFT, NOT PUBLISHED
 
 **Status:**
-- **Final draft** (2026-11-08). Luciano publishes it himself; Claude Code does not post it.
+- **Final draft** (2026-11-08; "Possible fix" rewritten in three levels on 2026-11-09, T7, with the local fork's results). Luciano publishes it himself; Claude Code does not post it.
+- Companion PR draft (local only): [`gem_cont1qc_pr_draft.md`](gem_cont1qc_pr_draft.md).
 - First draft 2026-11-03. The repository is `upb-lea/gym-electric-motor` on GitHub.
 - Everything between the two horizontal rules below "Title" is the text to paste.
 
@@ -89,12 +90,18 @@ min armature current seen: -144.683 A
 - **Closed-loop speed control:** in braking at light load the controller commands a low duty, the current turns negative, and the converter applies full voltage. The speed then rises above the reference instead of falling.
 - **Our measurement:** in a dataset of simulated speed-controlled runs (80–220 rad/s), the affected runs ended a median +35 % (up to +76 %) above the reference.
 
-## Possible fix
+## Possible fix (three levels)
 
-Model discontinuous conduction for the one-quadrant converter. When the current reaches zero and the commanded voltage does not exceed the back-EMF (u ≤ e), keep i = 0 and advance only the mechanics. This needs re-evaluating the converter inside the step, or locating the zero crossing within it, instead of holding the start-of-step decision for the whole `tau`.
+1. **Document and warn.** State in the `ContOneQuadrantConverter` docstring and docs that the model allows a negative current and applies the full supply voltage when it is negative. Warn when the converter is built. This changes no result.
+2. **Clamp the current at zero.** `_convert` returns the duty cycle for every sign, and the physical system keeps the armature current at zero once it reaches zero while the commanded voltage does not exceed the back-EMF. This is done in the ODE right-hand side, so the default adaptive solver stops at the zero crossing inside the step, and again after the step for fixed-step solvers. It is a small change.
+   - **Our local prototype** (a fork of `b474daf9`, not submitted): the suite passes (1230 tests: the 1226 existing ones plus 4 new). With the reproduction above, i ≥ 0 and ω stays at 150.00 rad/s.
+   - For motors with two currents (shunt, externally excited) the clamp is not applied; the prototype only warns there.
+   - We can open it as a PR after this issue, if you want it.
+3. **Model discontinuous conduction within the period.** Re-evaluate the converter inside the step, or solve the conduction interval in closed form.
+   - **Our implementation in SPADE:** a substepped version with linear localization of the zero crossing converges (NRMS < 1e-4 at 1000 substeps per `tau` against 10000). A closed-form per-period version (linear back-EMF, Heun mechanics) reaches 3.0e-5 against 10000 substeps and is 28× cheaper than 1000 substeps.
+   - This is the most accurate option, and the largest change.
 
-- **Our implementation:** a substepped version with linear localization of the zero crossing. It converges: NRMS < 1e-4 at 1000 substeps per `tau` against 10000.
-- We can share details if useful.
+The discrete `FiniteOneQuadrantConverter` has the same `i < 0 → 1` logic and might deserve the same treatment.
 
 ## Environment
 
