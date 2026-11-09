@@ -203,6 +203,14 @@ def test_a_plecs_labelled_model_exchange_fmu_goes_from_upload_to_publication(tmp
     from driveflow.integrations.fmu import gym_profile as gp
 
     monkeypatch.setenv("SPADE_FMU_DIR", str(tmp_path / "empty"))
+    # S-22 (stabilized 2026-11-09, E9; declared tolerance). Check 12 is a timing benchmark of this host
+    # (B3 criterion 6: p50 <= 0.5 ms per step). With the machine free the step takes p50 0.237 ms; with 10
+    # simulation processes running it took 0.550-0.562 ms in 8 of 10 runs, and the test failed although the
+    # upload-to-publication flow it checks was fine. In this test only, the limit is 1.5 x 0.5 ms = 0.75 ms:
+    # it still fails if the step costs about 3 x what it costs on a free machine. The product's limit is
+    # unchanged (asserted here), and so is every other check.
+    assert gp.LATENCY_P50_LIMIT_MS == 0.5
+    monkeypatch.setattr(gp, "LATENCY_P50_LIMIT_MS", 1.5 * gp.LATENCY_P50_LIMIT_MS)
     src = _relabel_as_plecs(_need("BuckAveraged_fmi2_me"), tmp_path / "PlecsBuck.fmu")
     gp.save_upload(src.read_bytes(), "PlecsBuck.fmu")
     cand = next(c for c in gp.candidates() if c["name"] == "PlecsBuck")
