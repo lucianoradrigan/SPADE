@@ -548,7 +548,7 @@ here) · [simulation stability](docs/SIMULATION_STABILITY_REPORT.md) ·
 runs from a description, on a local LLM served by [Ollama](https://ollama.com) (`qwen3.5:9b`,
 pinned by tag and digest in `configs/assistant.yaml`); nothing is sent off the machine. Its phase 1
 closed on 2026-11-09 without meeting its pre-registered benchmarks (F1.11–F1.13, finding AI-N30), so
-it stays an internal demo. The plans are in [`docs/assistant/`](docs/assistant/) (in Spanish); how to
+it stays an internal demo. Its planning documents are in [`docs/planning/`](docs/planning/) (in Spanish); how to
 run its benchmarks by hand is in [`docs/assistant/BENCHMARKS.md`](docs/assistant/BENCHMARKS.md). The
 normal test suite replays recorded model answers and needs no GPU or network.
 
@@ -706,4 +706,4 @@ This project consolidates and ports code from two MIT-licensed upstream projects
 
 MIT -- see [LICENSE](LICENSE).
 
-The avatar of the assistant (`src/driveflow/viz/assets/assistant/`, "PhD. Radrigan") is **not** covered by the MIT license: see [`licenses/avatar/`](licenses/avatar/) (all rights reserved; replaceable through `persona.avatar_dir` in `configs/assistant.yaml`).
+The avatar of the assistant ("PhD. Radrigan": the images in `src/driveflow/viz/assets/assistant/` and every other image in the repository that shows it, including the screenshots `docs/screenshots/assistant/avatar_*.png`) is **not** covered by the MIT license: see [`licenses/avatar/`](licenses/avatar/) (all rights reserved; replaceable through `persona.avatar_dir` in `configs/assistant.yaml`).

@@ -2,6 +2,8 @@ PhD. Radrigan avatar © Luciano Radrigan. All rights reserved.
 
 Not covered by the MIT license of SPADE. Redistribution only unmodified and as part of SPADE.
 
-Files covered (and any later replacement of them in the same directory):
+Files covered: every image in this repository that shows the avatar, including any later
+replacement of them in the same directories. On 2026-11-09 these are:
   src/driveflow/viz/assets/assistant/base.webp
   src/driveflow/viz/assets/assistant/hand.webp
+  docs/screenshots/assistant/avatar_*.png (13 screenshots of the assistant's avatar states)

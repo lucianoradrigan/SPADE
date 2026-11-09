@@ -1,0 +1,1 @@
+Superseded documents, kept for history (decision C4, 2026-11-09); the current rules are in `CLAUDE.md` and the current status in `docs/PLATFORM_STATUS.md`. They are excluded from the assistant's `search_docs`.

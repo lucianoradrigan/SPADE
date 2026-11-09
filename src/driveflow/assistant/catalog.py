@@ -29,7 +29,8 @@ MAX_HITS = 5
 #: The assistant's own benchmark reports quote the model's wrong answers verbatim; searching them would
 #: feed those errors back (F1.1 round 3).
 #: AI-N30 (2026-11-08): the harness-fix evidence quotes F1.11's requests too.
-EXCLUDED_DOCS = re.compile(r"docs/audit/assistant/(f1_1|ai_n30_)")
+#: docs/archive/: superseded documents (decision C4, 2026-11-09) must not be cited as SPADE's current state.
+EXCLUDED_DOCS = re.compile(r"docs/audit/assistant/(f1_1|ai_n30_)|docs/archive/")
 
 
 @lru_cache(maxsize=1)

@@ -1,3 +1,5 @@
+> **Superseded — kept for history; see CLAUDE.md.** (moved to docs/archive/ on 2026-11-09, decision C4)
+
 # SPADE: pendientes de la expansión E0–E14 y contexto para Claude Code
 
 Generado el 2026-10-21 al cerrar la sesión que hizo E0, E1, E6, E10a, E10b, E12 y E2.

@@ -8,7 +8,7 @@ The **second pass** (2026-10-19) fixed the findings the first pass had left open
 - installation guides for [Ubuntu](INSTALL_UBUNTU.md), [Windows](INSTALL_WINDOWS.md) and [macOS](INSTALL_MACOS.md);
 - [demo scenarios](DEMO_VALIDATION_SCENARIOS.md).
 
-The **third pass** (2026-10-20) ran the task list in [`TODO_CLAUDE_CODE.md`](../TODO_CLAUDE_CODE.md). It covered:
+The **third pass** (2026-10-20) ran the task list in [`TODO_CLAUDE_CODE.md`](archive/TODO_CLAUDE_CODE.md). It covered:
 - **Cross-validation against the reference implementations (§6):** DPC4PowerElectronics and gym-electric-motor 3.0.3. These comparisons are against implementations, not measured data.
 - **Control work:** C1–C3.
 - **AI work:** A1, A3, A4.
@@ -120,7 +120,7 @@ New evidence scripts:
 
 ## 6. Third pass: cross-checks and TODO tasks (2026-10-20, TODO_CLAUDE_CODE.md)
 
-One row per task of [`TODO_CLAUDE_CODE.md`](../TODO_CLAUDE_CODE.md).
+One row per task of [`TODO_CLAUDE_CODE.md`](archive/TODO_CLAUDE_CODE.md).
 
 **The V rows.** They compare SPADE with the implementations it was ported from: DPC4PowerElectronics (MATLAB/Simulink) and gym-electric-motor. They are not checks against measured data. They show whether the port is faithful, not that the models represent a real machine.
 

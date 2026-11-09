@@ -1,6 +1,7 @@
 # Avatar of the SPADE assistant ("PhD. Radrigan")
 
-The images in `src/driveflow/viz/assets/assistant/` are the likeness of Luciano Radrigan. They are
+The images in `src/driveflow/viz/assets/assistant/` are the likeness of Luciano Radrigan. They, and every other image in the repository that shows the avatar (for example the screenshots
+`docs/screenshots/assistant/avatar_*.png`), are
 **not** covered by SPADE's MIT license (`LICENSE`); their terms are in [`LICENSE`](LICENSE) here:
 all rights reserved, redistribution only unmodified and as part of SPADE.
 

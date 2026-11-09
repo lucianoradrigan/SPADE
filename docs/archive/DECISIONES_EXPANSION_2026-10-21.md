@@ -1,3 +1,5 @@
+> **Superseded — kept for history; see CLAUDE.md.** (moved to docs/archive/ on 2026-11-09, decision C4)
+
 SPADE: instrucciones para Claude Code, ronda del 2026-10-21
 
 Este documento es autocontenido: no necesitas otros documentos de planificación para ejecutarlo. Las decisiones que contiene las tomé yo, Luciano Radrigan, el 2026-10-21. No me las vuelvas a preguntar. Todo lo que no esté decidido aquí sigue requiriendo mi confirmación (§8).

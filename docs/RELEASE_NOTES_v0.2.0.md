@@ -52,6 +52,11 @@ Changes since `main` at `df1950f` (2026-11-02). The evidence for each item is in
   - the README page table, checked against the app's pages by a test.
 - **Tests:** the last full suite passed with 0 failures. It uses recorded model answers, so it needs no GPU or network. Counts are given below.
 
+### Repository housekeeping
+- **Avatar license:** it now covers every image that shows the avatar, including the screenshots in `docs/screenshots/assistant/`.
+- **Superseded documents:** moved to `docs/archive/`.
+- **Internal planning documents (in Spanish):** moved to `docs/planning/`.
+
 ## Open findings (read before using the results)
 
 | ID | Severity | Status | What it means for you |

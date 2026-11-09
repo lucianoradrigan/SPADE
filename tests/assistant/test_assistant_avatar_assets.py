@@ -34,3 +34,15 @@ def test_no_original_caricature_in_the_repository():
 
     tracked = subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True, text=True).stdout.split()
     assert not [f for f in tracked if f.lower().endswith((".jpg", ".jpeg")) and "assistant" in f.lower()]
+
+
+def test_the_avatar_license_covers_every_image_that_shows_it():
+    """Decision C3 (2026-11-09): the screenshots of the avatar are under its license too."""
+    import fnmatch
+
+    lic = (ROOT / "licenses" / "avatar" / "LICENSE").read_text()
+    covered = [line.strip().split(" ")[0] for line in lic.splitlines() if line.startswith("  ")]
+    shots = sorted(str(p.relative_to(ROOT)) for p in (ROOT / "docs" / "screenshots" / "assistant").glob("avatar_*.png"))
+    assert shots, "no avatar screenshots found"
+    for path in shots + ["src/driveflow/viz/assets/assistant/base.webp", "src/driveflow/viz/assets/assistant/hand.webp"]:
+        assert any(fnmatch.fnmatch(path, pattern) for pattern in covered), path

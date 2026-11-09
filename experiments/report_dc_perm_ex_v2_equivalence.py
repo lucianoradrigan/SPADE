@@ -26,7 +26,7 @@ import numpy as np
 import pandas as pd
 
 REPO = Path(__file__).resolve().parents[1]
-DATA = REPO / "data" if (REPO / "data" / "diagnosis_grid_dataset_dcm.parquet").exists() else Path("/home/seven/post_doc/plataform_proposed/SPADE-dev/data")
+DATA = REPO / "data"  # data/ (a symlink to /mnt/datos/spade/data on the reference machine)
 sys.path.insert(0, str(REPO / "experiments"))
 sys.path.insert(0, str(REPO / "src"))
 OUT = REPO / "docs" / "audit" / "assistant" / "dc_perm_ex_v2_equivalence"
