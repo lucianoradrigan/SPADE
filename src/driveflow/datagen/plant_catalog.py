@@ -37,6 +37,9 @@ def _type_name(field: dataclasses.Field) -> str:
 
 def _key_defaults(field_name: str, plant_config_id: str = "dc_perm_ex_v1") -> dict:
     """Defaults of the keys of a dict field, read from the code (never from the YAML)."""
+    # S-23 (2026-11-08): a v2 plant has the motor of its v1 base (decision E3); before this fix the v2 PMG plant
+    # got GEM's stock values (tests/test_plant_catalog_defaults_match_runner.py).
+    plant_config_id = Scenario.DC_V2_BASE.get(plant_config_id, plant_config_id)
     if plant_config_id == "dc_pmg132_v1" and field_name in ("motor_parameter_overrides", "dc_limit_overrides", "dc_nominal_overrides"):
         from driveflow.datagen import runner
 
