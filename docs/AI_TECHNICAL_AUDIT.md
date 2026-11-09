@@ -242,7 +242,7 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N23 | Medium | Negative result (feasibility) | **Closed (negative)** (§11.1): at most 2 IGBT run-to-failure devices on a comparable protocol (with different failure modes); no validated RUL model is feasible. E11 closed; option 3 (another NASA PCoE dataset) postponed |
 | AI-N24 | Medium | Negative result | **Open** (§12.1): `rpi5_tcn/2026-10-20_run01` is numerically correct on the C2000 but takes 520 ms for a 51.2 ms window |
 | AI-N25 | Medium | Negative result (feasibility) | **Open** (§12.2): the promoted `dc_motor/rpi5` w2048 classifier needs a 448 KB arena; the C2000 has 128 KB for tensors |
-| AI-N26 | Medium | Defect (sample rate) | **Fixed in code; pre-registered C2000 verdicts kept** (§12.3): the C2000 real-time budget and the edge examples assumed 5 kHz, the data are 10 kHz. Post-hoc: `esp32_dscnn/2026-10-18_run01` takes 68.5 ms for a 51.2 ms window |
+| AI-N26 | Medium | Defect (sample rate) | **Mitigated (software) · board re-measurement pending in B4** (2026-11-09; pre-registered C2000 verdicts kept, §12.3): the C2000 real-time budget and the edge examples assumed 5 kHz, the data are 10 kHz. Post-hoc: `esp32_dscnn/2026-10-18_run01` takes 68.5 ms for a 51.2 ms window |
 | AI-N27 | **High** | Training-data defect (simulator artifact S-21) | **Mitigated for PC and RPi5** (dcm-trained runs promoted 2026-11-04); **open for ESP32** (§13.1): 7.1 % (ESP32, 3 classes) and 17.8 % (PC and RPi5, 5 classes) of the promoted dc_motor classifiers' training windows contain the one-quadrant converter artifact of S-21; all of them fault classes, none healthy |
 | AI-N28 | **High** | Robustness defect (int8 quantization) | **Open** (§13.2): the ESP32 DS-CNN retrained on the corrected (dcm) grid loses outer_race in int8 (recall 0.38 / 0.05 / 0.21 on test / affected-regime held-out / generalization; Keras 0.76 / 0.31 / 0.90); the 3-class int8 path is fragile to a change of training data; **repair round 2026-11-08 (pre-registered, E1): DOES NOT MEET** — the selected variant (alpha 0.75, noise-free stratified calibration, per-tensor int8) fixes outer_race but loses the healthy class out of the grid (E3 normal recall 0.994 → 0.687, abstention +19 points); the promoted ESP32 stays (`esp32_repair.md`) |
 | AI-N29 | **High** | Generalization regression (low speed) | **Open** (§13.3): the dcm-trained PC classifier promoted on 2026-11-04 is confidently wrong at 50 rad/s (below the 80–220 rad/s grid): of 54 known-class windows it abstains on 44 % and gets 2 of the 30 answered right (0.067); the previous PC on the same data answered 54 % with 1.000; the new RPi5 is not affected (1.000 on 81 % answered) |
@@ -730,7 +730,7 @@ Evidence: [`docs/audit/c2000/report.md`](audit/c2000/report.md), against the cri
 - **Consequence:** the C2000 has the same class coverage as the ESP32, 3 classes (AI-N13): a ball or cage fault is answered as one of those 3.
 - **Open option:** a 5-class distillate trained for this memory budget.
 
-### 12.3 AI-N26 — the C2000 real-time budget and the edge examples assumed 5 kHz; the data are 10 kHz · **Medium** · Defect (sample rate) · **Fixed in code; pre-registered verdicts kept**
+### 12.3 AI-N26 — the C2000 real-time budget and the edge examples assumed 5 kHz; the data are 10 kHz · **Medium** · Defect (sample rate) · **Mitigated (software) · board re-measurement pending in B4**
 
 Found 2026-11-02. Evidence: [`docs/audit/c2000/ai_n26_sample_rate.md`](audit/c2000/ai_n26_sample_rate.md) (`python experiments/report_c2000_sample_rate.py`). **Post-hoc analysis, not pre-registered.**
 
@@ -750,6 +750,12 @@ Found 2026-11-02. Evidence: [`docs/audit/c2000/ai_n26_sample_rate.md`](audit/c20
   - the Model Registry and Edge Deployment pages show the recorded verdict followed by the post-hoc correction.
 - **Tests:** `tests/test_windowing.py` (rate helpers, pinned to `1 / TAU`), `tests/test_edge_examples.py` (sample period in the generated code), `tests/test_c2000_export.py` (manifest rate, post-hoc summary).
 - **Not executed:** re-measuring on the board, or re-exporting the measured kits (they stay as they ran).
+- **Round B, T2 (2026-11-09):**
+  - every run's `run_metadata.json` records `fs_hz` and its source (31 existing runs: from `metrics.json`, or `1 / TAU` = 10 kHz for runs trained before it was recorded; no test pins those files' hashes). Training, custom training and transfer learning write it for new runs;
+  - `WINDOW_S` and `window_samples_for` do not exist in `windowing.py` (nothing to document or remove);
+  - post-hoc C5 at 10 kHz: [`docs/audit/c2000/c5_post_hoc_10khz.md`](audit/c2000/c5_post_hoc_10khz.md) (51.2 ms / 25.6 ms windows), with a note in `criteria.md`; the pre-registered verdicts are unchanged;
+  - test `tests/test_ai_n26_sample_rate.py`: the generated delay equals `1e6 / fs_hz` µs, every run records its rate, and no GUI or example text says 5 kHz except the post-hoc correction;
+  - status: **mitigated (software) · re-medición pendiente en B4**.
 
 
 ## 13. Round Assistant, phase 1 (2026-11-02): simulator artifact in the training data

@@ -413,5 +413,7 @@ def train_from_config(
     # Provenance sidecar (metrics.json's schema is unchanged): commit, library versions, seed and
     # the dataset's content hash -- what "seed + commit + env + data" reproducibility needs.
     with (run_dir / "run_metadata.json").open("w") as f:
-        json.dump({**run_metadata(), "seed": seed_info, "epochs": epochs, "batch_size": batch_size, "dataset_path": str(dataset_path), "dataset_sha256": file_sha256(dataset_path), "distill": bool(teacher is not None), "cap_per_class": cap_per_class}, f, indent=2)
+        json.dump({**run_metadata(), "seed": seed_info, "epochs": epochs, "batch_size": batch_size, "dataset_path": str(dataset_path), "dataset_sha256": file_sha256(dataset_path), "distill": bool(teacher is not None), "cap_per_class": cap_per_class,
+                   # AI-N26 (2026-11-09): the input rate also in the run metadata, from the training data
+                   **({"fs_hz": metrics["fs_hz"], "fs_hz_source": "the training dataset's fs_hz column"} if metrics.get("fs_hz") else {})}, f, indent=2)
     return run_dir

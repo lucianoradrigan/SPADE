@@ -441,13 +441,19 @@ def train(req: dict, df: pd.DataFrame, root: Path | None = None, dataset_root: P
         "class_definitions": req["classes"], "operating_grid": req["operating"],
         "synthetic_only_classes": [c["label"] for c in req["classes"] if c["label"] in ("ball", "cage", VSC_DEGRADED) or (c.get("fault_type") and c["fault_type"] not in DC_BUILTIN_FAULTS)],
     })
+    from driveflow.models.common.windowing import dataset_sample_rate_hz
+
+    if (fs_hz := dataset_sample_rate_hz(df)) is not None:
+        metrics["fs_hz"] = fs_hz  # AI-N26: exporters read the input rate from the run
     model.save_weights(run_dir / "model.weights.h5")
     (run_dir / "metrics.json").write_text(json.dumps(metrics, indent=2, default=float))
     ensure_synthetic_class_finding(run_dir, metrics["classes"])
     (run_dir / "training_request.json").write_text(json.dumps(req, indent=2, default=float))
     (run_dir / "run_metadata.json").write_text(json.dumps({**run_metadata(), "seed": seed_info, "epochs": m["epochs"], "batch_size": m["batch_size"],
                                                            "dataset_path": str(dataset_path), "dataset_sha256": file_sha256(dataset_path),
-                                                           "n_runs": int(df["source_file"].nunique())}, indent=2, default=str))
+                                                           "n_runs": int(df["source_file"].nunique()),
+                                                           **({"fs_hz": metrics["fs_hz"], "fs_hz_source": "the training dataset's fs_hz column"} if metrics.get("fs_hz") else {})},
+                                                          indent=2, default=str))
     return run_dir
 
 

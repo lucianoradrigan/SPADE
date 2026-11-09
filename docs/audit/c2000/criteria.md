@@ -19,3 +19,5 @@ Replaying simulated windows from flash is a parity and timing test. It does not 
 ## Note added after the measurements (2026-11-02, AI-N26)
 
 The criteria above are unchanged. C5's durations assumed 5 kHz; the training data are sampled at 10 kHz, so the actual windows are 51.2 ms for 512 samples and 25.6 ms for 256 samples. The post-hoc re-reading is in [`ai_n26_sample_rate.md`](ai_n26_sample_rate.md). From now on `c2000_collect.py` takes the window duration from the kit's `fs_hz`.
+
+**Note (2026-11-09, post hoc):** C5 re-read at 10 kHz for every measured run in [`c5_post_hoc_10khz.md`](c5_post_hoc_10khz.md). The pre-registered verdicts above and in `report.md` are unchanged.

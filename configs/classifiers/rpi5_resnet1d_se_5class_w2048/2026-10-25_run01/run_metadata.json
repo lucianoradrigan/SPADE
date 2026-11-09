@@ -26,5 +26,7 @@
   "dataset_path": "data/diagnosis_grid_dataset_5class_rk45.parquet",
   "dataset_sha256": "b246a943b918d3f5cc22f7efce26865005a4f3b3d29de4518647140cd8e4fdb7",
   "distill": true,
-  "cap_per_class": 3000
+  "cap_per_class": 3000,
+  "fs_hz": 10000.0,
+  "fs_hz_source": "1 / TAU of the simulator (TAU = 1e-4 s); this run was trained before fs_hz was recorded (AI-N26, added 2026-11-09)"
 }

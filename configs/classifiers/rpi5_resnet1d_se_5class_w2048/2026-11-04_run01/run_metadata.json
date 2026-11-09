@@ -26,5 +26,7 @@
   "dataset_path": "data/diagnosis_grid_dataset_5class_dcm.parquet",
   "dataset_sha256": "f3dc2f56f364dc7ce5b59da46ce7ae544c65edb6398912de1a9842203c6323cc",
   "distill": true,
-  "cap_per_class": 3000
+  "cap_per_class": 3000,
+  "fs_hz": 10000.0,
+  "fs_hz_source": "metrics.json fs_hz (recorded from the training dataset)"
 }

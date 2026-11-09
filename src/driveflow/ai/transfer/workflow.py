@@ -291,7 +291,7 @@ def save_candidate(result: TLResult, base: dict, decision: GateDecision, run_dir
     lineage = {**result.lineage, "model_card": model_card or {}}
     _persist_candidate(
         run_dir, lineage, decision,
-        extra_files={"validation_report.json": result.report, "split_manifest.json": result.lineage["split"], "run_metadata.json": run_metadata()},
+        extra_files={"validation_report.json": result.report, "split_manifest.json": result.lineage["split"], "run_metadata.json": {**run_metadata(), **({"fs_hz": metrics["fs_hz"], "fs_hz_source": "inherited from the base run"} if metrics.get("fs_hz") else {})}},
     )
     return run_dir
 

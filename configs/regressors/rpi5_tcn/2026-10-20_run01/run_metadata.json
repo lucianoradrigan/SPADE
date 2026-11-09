@@ -26,5 +26,7 @@
   "dataset_path": "data/vsc_dpc_grid_dataset.parquet",
   "dataset_sha256": "6d64447e977aa3ad2b653dc7e37e792b008fb5b95ad5243156237da0e4d92482",
   "distill": true,
-  "cap_per_class": 500
+  "cap_per_class": 500,
+  "fs_hz": 10000.0,
+  "fs_hz_source": "1 / TAU of the simulator (TAU = 1e-4 s); this run was trained before fs_hz was recorded (AI-N26, added 2026-11-09)"
 }

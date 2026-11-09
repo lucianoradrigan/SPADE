@@ -26,5 +26,7 @@
   "dataset_path": "/home/seven/post_doc/plataform_proposed/SPADE-dev/data/diagnosis_grid_dataset_dcm.parquet",
   "dataset_sha256": "d09a42b856cf75e9ba9d43e6af63e714d4742e2524f4b57a5f2ff8d451463b46",
   "distill": false,
-  "cap_per_class": 3000
+  "cap_per_class": 3000,
+  "fs_hz": 10000.0,
+  "fs_hz_source": "metrics.json fs_hz (recorded from the training dataset)"
 }

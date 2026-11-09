@@ -25,5 +25,7 @@
   "batch_size": 32,
   "dataset_path": "data/diagnosis_dataset_c1_5s.parquet",
   "dataset_sha256": "f5a7cc8ba5fd1f23b2087f0c09f23e227862ee411162306a67dabe6f8f036c69",
-  "distill": false
+  "distill": false,
+  "fs_hz": 10000.0,
+  "fs_hz_source": "1 / TAU of the simulator (TAU = 1e-4 s); this run was trained before fs_hz was recorded (AI-N26, added 2026-11-09)"
 }
