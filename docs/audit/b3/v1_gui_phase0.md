@@ -39,4 +39,4 @@
 ## Not covered
 
 - The **Advanced Flow** mode of the DC Motor page keeps its options and v2. The new controls are in the single-run mode only.
-- **Visual check:** no screenshot was taken.
+- **Visual check:** not executed. Playwright is not installed on this machine, and installing it would add a dependency.
