@@ -10,9 +10,8 @@
 
 Closing rule (committed before the requests): F1.13 not met, so phase 1 closes anyway. The assistant stays "experimental / demo interna"; the work continues with B1–B3; there is no F1.14 in this phase.
 
-Ten of the thirteen criteria are met (F1.12: 9, F1.11: 7). Three are not:
+Eleven of the thirteen criteria are met (F1.12: 9, F1.11: 7). Two are not:
 - **False statements:** 13 distinct, in 11 turns.
-- **Correct plan:** 84.1 %, below 85 %.
 - **Outside-the-lab latency:** p95 32.1 s, above 30 s. The internal-demo level (≤ 60 s) is met.
 
 | Criterion | Threshold | F1.12 | **F1.13** | Met |
@@ -22,7 +21,7 @@ Ten of the thirteen criteria are met (F1.12: 9, F1.11: 7). Three are not:
 | False statements (separate reviewer) | 0 | 4 distinct / 6 turns (own review) | **13 distinct / 11 turns** | **no** |
 | Model timeouts | 0 | 0 | **0** | yes |
 | Non-empty final answer | ≥ 95 % | 100.0 % | **100.0 %** | yes |
-| Correct plan | ≥ 85 % | 93.7 % | **84.1 %** | **no** |
+| Correct plan | ≥ 85 % | 93.7 % | **88.9 %** (first scored 84.1 %, scorer defect below) | yes |
 | Asks when a required value is missing | ≥ 90 % | 80.0 % | **93.3 %** | yes |
 | ≤ 3 questions; sourced numbers | ≥ 90 % | 74.6 % | **93.0 %** | yes |
 | Explanations with a citation | ≥ 90 % | 100.0 % | **100.0 %** | yes |
@@ -32,6 +31,13 @@ Ten of the thirteen criteria are met (F1.12: 9, F1.11: 7). Three are not:
 | Latency p95 — outside the lab | ≤ 30 s | 34.4 s | **32.1 s** | **no** |
 
 **The reviews differ:** F1.12 was reviewed by Claude Code, and F1.13 by a separate agent that verified every claim against the repository. The two counts are not directly comparable: the separate review is stricter.
+
+## Declared scorer defect (found after the run; the rule did not change)
+
+- **The defect:** the scorer applied the `Scenario` default controller (PI) only to `dc_perm_ex_v1`, `dc_pmg132_v1` and `buck_v1`. The v2 DC plants of decision E3 were missing from that list, so three proposals that use the default PI (c09/s0, c05/s1, o02/s2) were scored as having no controller.
+- **The rule:** the pre-registered rule (the controller must match) is unchanged. The script was fixed to apply it as written, and F1.13 was rescored with `--rescore`. The first-scored value (84.1 %) is kept in `f1_13_benchmark.json` (`scorer_deviation`).
+- **Effect:** the correct-plan row moves from not met to met (88.9 %). The **overall verdict does not change**: false statements and the outside-the-lab latency fail either way.
+- **F1.12:** not affected (no such case).
 
 ## False statements (separate reviewer; summary — the full entries are in the JSON)
 
@@ -62,7 +68,7 @@ The "Tuning proposal" card shows "base motor: custom (…)" for unmodified motor
 
 ## Other criteria (descriptive)
 
-- **Correct plan (53 / 63):** the failing conversations are ['c03', 'c05', 'c09', 'm03', 'o02', 'o05']. The details are in `f1_13_benchmark.json`, `rows.plan`.
+- **Correct plan (56 / 63 after the scorer fix):** the 7 failing units are c03/s0, o05/s0, m03/s0, c03/s1, o05/s1, m03/s1, m03/s2. The details are in `f1_13_benchmark.json`, `rows.plan`.
 - **Latency:** p95 32.1 s, median 16.0 s.
 
 ## What the fixes changed (F1.12 → F1.13, descriptive; the requests differ)

@@ -104,7 +104,9 @@ def plan_correct(conv: dict, r: dict) -> tuple[bool, str]:
         return False, f"plant {d.get('plant')}"
     ctrl = plan["controller_type"]
     ok_ctrl = ctrl if isinstance(ctrl, list) else [ctrl]
-    got_ctrl = d.get("controller_type") or ("PI" if plan["plant"] in ("dc_perm_ex_v1", "dc_pmg132_v1", "buck_v1") else None)
+    # the Scenario default controller of the plant when the draft leaves it unset (PI on every DC plant and the buck).
+    # Fixed 2026-11-09: the v2 DC plants (decision E3) were missing from this list (declared in f1_13_benchmark.md).
+    got_ctrl = d.get("controller_type") or ("PI" if plan["plant"] in ("dc_perm_ex_v1", "dc_pmg132_v1", "dc_perm_ex_v2", "dc_pmg132_v2", "buck_v1") else None)
     if got_ctrl not in ok_ctrl:
         return False, f"controller {got_ctrl}"
     if "experiments" in plan:

@@ -11,7 +11,7 @@
   "invented_numbers_accepted": 0,
   "model_timeouts": 0,
   "non_empty_final_answer": 1.0,
-  "correct_plan": 0.8412698412698413,
+  "correct_plan": 0.8888888888888888,
   "asks_when_missing": 0.9333333333333333,
   "questions_and_suggestions": 0.9302325581395349,
   "explanations_with_citation": 1.0,
@@ -27,7 +27,7 @@
   "invented_numbers_accepted": true,
   "model_timeouts": true,
   "non_empty_final_answer": true,
-  "correct_plan": false,
+  "correct_plan": true,
   "asks_when_missing": true,
   "questions_and_suggestions": true,
   "explanations_with_citation": true,
@@ -43,7 +43,7 @@
    "invented_numbers_accepted": 0,
    "model_timeouts": 0,
    "non_empty_final_answer": 1.0,
-   "correct_plan": 0.8095238095238095,
+   "correct_plan": 0.8571428571428571,
    "asks_when_missing": 0.8,
    "questions_and_suggestions": 0.9137931034482759,
    "explanations_with_citation": 1.0,
@@ -59,7 +59,7 @@
    "invented_numbers_accepted": 0,
    "model_timeouts": 0,
    "non_empty_final_answer": 1.0,
-   "correct_plan": 0.8095238095238095,
+   "correct_plan": 0.8571428571428571,
    "asks_when_missing": 1.0,
    "questions_and_suggestions": 0.9285714285714286,
    "explanations_with_citation": 1.0,
@@ -75,7 +75,7 @@
    "invented_numbers_accepted": 0,
    "model_timeouts": 0,
    "non_empty_final_answer": 1.0,
-   "correct_plan": 0.9047619047619048,
+   "correct_plan": 0.9523809523809523,
    "asks_when_missing": 1.0,
    "questions_and_suggestions": 0.9482758620689655,
    "explanations_with_citation": 1.0,
@@ -113,10 +113,10 @@
    "max": 1.0
   },
   "correct_plan": {
-   "mean": 0.8412698412698413,
+   "mean": 0.8888888888888888,
    "sd": 0.04489566864676492,
-   "min": 0.8095238095238095,
-   "max": 0.9047619047619048
+   "min": 0.8571428571428571,
+   "max": 0.9523809523809523
   },
   "asks_when_missing": {
    "mean": 0.9333333333333332,
@@ -2609,8 +2609,8 @@
    ],
    [
     "c09/s0",
-    false,
-    "controller None"
+    true,
+    "ok"
    ],
    [
     "c10/s0",
@@ -2694,8 +2694,8 @@
    ],
    [
     "c05/s1",
-    false,
-    "controller None"
+    true,
+    "ok"
    ],
    [
     "c06/s1",
@@ -2834,8 +2834,8 @@
    ],
    [
     "o02/s2",
-    false,
-    "controller None"
+    true,
+    "ok"
    ],
    [
     "o03/s2",
@@ -4880,5 +4880,13 @@
   "turns": 11,
   "criterion": 0,
   "met": false
+ },
+ "scorer_deviation": {
+  "declared": "2026-11-09",
+  "what": "plan_correct() applied the Scenario default controller (PI) only to dc_perm_ex_v1, dc_pmg132_v1 and buck_v1; the v2 DC plants (decision E3) were missing, so 3 proposals with the default PI (c09/s0, c05/s1, o02/s2) were scored as wrong",
+  "first_scored_correct_plan": 0.8412698412698413,
+  "rescored_correct_plan": 0.8888888888888888,
+  "rule_changed": false,
+  "effect_on_overall_verdict": "none (false statements and outside-lab latency fail either way)"
  }
 }
