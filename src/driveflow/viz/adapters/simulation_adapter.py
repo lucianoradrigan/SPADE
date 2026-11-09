@@ -22,6 +22,17 @@ VIBRATION_PROVENANCE = "synthetic_approximate — acc_x calibrated against KAt-D
 #: Decision E3 (Luciano, 2026-11-08): the DC plant the GUI simulates -- v2, the converter in discontinuous
 #: conduction (S-21 corrected). dc_perm_ex_v1 (GEM's converter) is frozen and not offered by the GUI.
 DC_PLANT = "dc_perm_ex_v2"
+#: The plant modes the DC Motor page offers (V1, round B): v2 by default, v1 as the GEM-faithful mode.
+DC_PLANT_MODES = {
+    "dc_perm_ex_v2": "v2 (default): converter in discontinuous conduction, S-21 corrected",
+    "dc_perm_ex_v1": "v1: GEM-faithful mode (GEM's one-quadrant converter, S-21 open)",
+}
+#: Shown when v1 is chosen (S-21, docs/SIMULATION_STABILITY_REPORT.md).
+S21_V1_WARNING = ("S-21: in the v1 plant, GEM's one-quadrant converter applies the full supply voltage for a whole control period "
+                  "whenever the armature current is negative. When the speed controller brakes with a light load, the simulated speed "
+                  "rises instead of coasting. Use v1 only to reproduce GEM-based results; v2 corrects it.")
+#: The stock DC-link voltage of the DC plants (datagen/runner.py: IdealVoltageSupply(u_nominal=65.0)).
+DC_SUPPLY_V = 65.0
 
 
 def dc_defaults() -> dict:
@@ -39,14 +50,32 @@ def resolve_fault(fault_label: str, custom_faults: dict) -> tuple:
     return fault_type, None, []
 
 
+def dc_phase0_kwargs(params: dict) -> dict:
+    """The Phase 0 options of the DC Motor page as Scenario keywords. A control left at its stock value
+    is not sent, so the defaults reproduce the run of the page without these options exactly."""
+    defaults = dc_defaults()
+    out = {}
+    if params.get("load_torque_nm"):
+        out["load_torque_nm"] = float(params["load_torque_nm"])
+    if params.get("dc_supply_v") is not None and float(params["dc_supply_v"]) != DC_SUPPLY_V:
+        out["dc_supply_v"] = float(params["dc_supply_v"])
+    for name, stock in (("dc_limit_overrides", defaults["limits"]), ("dc_nominal_overrides", defaults["nominal"])):
+        changed = {k: float(v) for k, v in (params.get(name) or {}).items() if float(v) != float(stock[k])}
+        if changed:
+            out[name] = changed
+    return out
+
+
 def run_dc(params: dict, custom_faults: dict, scenario_id: str = "dashboard_run") -> pd.DataFrame:
+    """Raises ValueError with Scenario's own message when an option is not valid."""
     fault_type, override, extras = resolve_fault(params["fault_label"], custom_faults)
     kwargs = dict(
-        scenario_id=scenario_id, plant_config_id=DC_PLANT, controller_type=params["controller"], fault_type=fault_type, duration_s=params["duration_s"], seed=int(params["seed"]),
+        scenario_id=scenario_id, plant_config_id=params.get("plant", DC_PLANT), controller_type=params["controller"], fault_type=fault_type, duration_s=params["duration_s"], seed=int(params["seed"]),
         electrical_severity=params["electrical_severity"], mechanical_severity=params["mechanical_severity"],
         motor_parameter_overrides=params["motor"], electrical_noise_pct=params["electrical_noise_pct"], mechanical_noise_pct=params["mechanical_noise_pct"],
         fault_order_override=override, extra_faults=extras,
     )
+    kwargs.update(dc_phase0_kwargs(params))
     if params.get("pi_setpoint_weight") is not None and params["controller"] == "PI":
         kwargs["pi_setpoint_weight"] = params["pi_setpoint_weight"]
     if params["control_mode"] == "speed":

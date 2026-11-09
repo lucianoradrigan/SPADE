@@ -100,6 +100,31 @@ def _controls(col, custom_faults: dict, motor: dict) -> dict:
     }
 
 
+_LIMIT_FIELDS = (("i", "Current i (A)"), ("u", "Voltage u (V)"), ("omega", "Speed ω (rad/s)"), ("torque", "Torque (N·m)"))
+
+
+def _advanced_options(defaults: dict) -> dict:
+    """Plant mode, load, supply, limits and nominal values (Scenario's Phase 0 options). Every control
+    starts at the stock value, which the adapter does not send: the default run is unchanged."""
+    out = {}
+    with st.expander("Advanced: plant, load, supply, limits", icon=":material/tune:"):
+        out["plant"] = st.selectbox("Plant mode", list(sim.DC_PLANT_MODES), format_func=sim.DC_PLANT_MODES.get, key="dc_plant_mode",
+                                    help="v2 is the default of every DC simulation in the GUI. v1 is kept bit for bit as the GEM-faithful mode, to reproduce earlier results.")
+        if out["plant"] != sim.DC_PLANT:
+            st.warning(sim.S21_V1_WARNING, icon=":material/warning:")
+        c1, c2 = st.columns(2)
+        out["load_torque_nm"] = c1.number_input("Extra load torque (N·m)", min_value=0.0, value=0.0, step=0.5, key="dc_load_torque_nm",
+                                                help="Constant passive load added to the stock friction (Scenario.load_torque_nm). 0 = the stock load.")
+        out["dc_supply_v"] = c2.number_input("Supply voltage (V)", min_value=1.0, value=sim.DC_SUPPLY_V, step=1.0, key="dc_supply_v",
+                                             help="DC-link voltage of the converter (Scenario.dc_supply_v). Stock: 65 V. When it is changed, a voltage limit above it is rejected.")
+        for name, title, stock in (("dc_limit_overrides", "Limits", defaults["limits"]), ("dc_nominal_overrides", "Nominal values", defaults["nominal"])):
+            st.markdown(f"**{title}**")
+            cols = st.columns(len(_LIMIT_FIELDS))
+            out[name] = {k: cols[j].number_input(label, min_value=0.0, value=float(stock[k]), key=f"dc_{name}_{k}") for j, (k, label) in enumerate(_LIMIT_FIELDS)}
+        st.caption("Stock values: GEM's DcPermanentlyExcitedMotor. A changed value applies to the next run only and is checked by the simulator (same messages as Scenario).")
+    return out
+
+
 def _history_nav() -> dict | None:
     history = st.session_state.get("dc_history", [])
     if not history:
@@ -136,11 +161,12 @@ def _single() -> None:
         l_a = c2.number_input("Armature inductance l_a (H)", min_value=1e-6, value=float(defaults["params"]["l_a"]), format="%.6f", key="dc_l_a")
         psi_e = c3.number_input("Magnetic flux ψ_e (Wb)", min_value=0.01, value=float(defaults["params"]["psi_e"]), format="%.4f", key="dc_psi_e")
         profile_manager(st, group="dc", current_values=dict(r_a=r_a, l_a=l_a, psi_e=psi_e))
+        advanced = _advanced_options(defaults)
         st.divider()
         custom_fault_manager(st.container(border=True))
     motor = dict(r_a=r_a, l_a=l_a, psi_e=psi_e)
 
-    params = _controls(params_col, custom_faults, motor)
+    params = {**_controls(params_col, custom_faults, motor), **advanced}
     current = st.session_state.get("dc_result")
     unchanged = current is not None and current["run"]["config_hash"] == config_hash(params)
     with params_col:
@@ -148,11 +174,16 @@ def _single() -> None:
         st.caption("All parameters apply to the next run only.")
     if clicked:
         with params_col, st.spinner("Simulating…"):
-            df = sim.run_dc(params, custom_faults)
+            try:
+                df = sim.run_dc(params, custom_faults)
+            except ValueError as exc:  # Scenario's own validation message
+                st.error(str(exc), icon=":material/error:")
+                return
             ai = classify_last_window("dc_motor", df)
         rpm = sim.steady_state(df, "rpm")
         run = record_run("dc", params, {"injected": params["fault_label"], "rpm": None if rpm is None else round(rpm, 1), "ai_suggestion": ai["predicted"] if ai else None})
-        entry = {"df": df, "params": params, "run": run, "ai": ai, "envelope": dict(r_a=r_a, psi_e=psi_e, u_lim=float(defaults["limits"]["u"]), i_lim=float(defaults["limits"]["i"]), omega_lim=float(defaults["limits"]["omega"]))}
+        limits = {**defaults["limits"], **(params.get("dc_limit_overrides") or {})}
+        entry = {"df": df, "params": params, "run": run, "ai": ai, "envelope": dict(r_a=r_a, psi_e=psi_e, u_lim=float(limits["u"]), i_lim=float(limits["i"]), omega_lim=float(limits["omega"]))}
         history = st.session_state.setdefault("dc_history", [])
         history.append(entry)
         del history[:-MAX_HISTORY]

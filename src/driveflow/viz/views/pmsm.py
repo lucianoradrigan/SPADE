@@ -10,6 +10,7 @@ import streamlit as st
 
 from driveflow.control.classical import generate_mtpa_vs_naive_cloud
 from driveflow.control.classical.pmsm_foc import MOTOR_PARAMS as PMSM_DEFAULTS
+from driveflow.control.classical.pmsm_foc import U_SUPPLY as PMSM_U_SUPPLY
 from driveflow.viz.adapters.session import config_hash, record_run
 from driveflow.viz.components.inputs import slider_with_custom
 from driveflow.viz.components.page_header import badge_html, page_header, provenance_table, source_badge_html
@@ -17,6 +18,23 @@ from driveflow.viz.components.presets import apply_pending_profile_load, profile
 from driveflow.viz.theme.plotly import PLOTLY_CONFIG, series_color, style_figure
 
 I_LIM = 400.0
+
+
+def pmsm_motor_parameters(values: dict) -> tuple[dict, list[str]]:
+    """The page's motor controls as Scenario.pmsm_motor_parameters (only the values that differ from the
+    stock motor), validated by Scenario itself so the page shows the simulator's own messages. Returns the
+    changed values and Scenario's warnings; raises ValueError with Scenario's message."""
+    import warnings
+
+    from driveflow.datagen.scenario import Scenario
+
+    stock = {**PMSM_DEFAULTS, "u_supply": PMSM_U_SUPPLY}
+    changed = {k: v for k, v in values.items() if v != stock[k]}
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        if changed:
+            Scenario("pmsm_gui_check", plant_config_id="pmsm_v1", controller_type="FOC_MTPA", pmsm_current_ref_a=100.0, pmsm_motor_parameters=changed)
+    return changed, [str(w.message) for w in caught if issubclass(w.category, UserWarning)]
 
 
 def _dq_figure(data: dict) -> go.Figure:
@@ -54,15 +72,28 @@ def render() -> None:
             l_q = st.number_input("q-axis inductance l_q (H)", min_value=1e-6, value=float(PMSM_DEFAULTS["l_q"]), format="%.6f", key="pmsm_l_q", help="MTPA differs from i_d = 0 only when l_d ≠ l_q (salient motor).")
             r_s = st.number_input("Stator resistance r_s (Ω)", min_value=0.001, value=float(PMSM_DEFAULTS["r_s"]), format="%.4f", key="pmsm_r_s")
             psi_p = st.number_input("PM flux ψ_p (Wb)", min_value=0.001, value=float(PMSM_DEFAULTS["psi_p"]), format="%.4f", key="pmsm_psi_p")
+            u_supply = st.number_input("DC-link voltage u_supply (V)", min_value=1.0, value=float(PMSM_U_SUPPLY), step=10.0, key="pmsm_u_supply",
+                                       help="Supply of the inverter (Scenario.pmsm_motor_parameters['u_supply']). Stock: 330 V.")
             with st.expander("Motor profiles"):
                 profile_manager(st, group="pmsm", current_values=dict(p=p, l_d=l_d, l_q=l_q, r_s=r_s, psi_p=psi_p))
         params = {"p": int(p), "l_d": l_d, "l_q": l_q, "r_s": r_s, "psi_p": psi_p, "n_i_s": int(n_i_s), "subsample": int(subsample)}
+        if float(u_supply) != float(PMSM_U_SUPPLY):  # absent at the stock value: the default configuration hash is unchanged
+            params["u_supply"] = float(u_supply)
+        motor_error = None
+        try:
+            _, motor_warnings = pmsm_motor_parameters({"p": int(p), "l_d": l_d, "l_q": l_q, "r_s": r_s, "psi_p": psi_p, "u_supply": float(u_supply)})
+            for message in motor_warnings:
+                st.warning(message, icon=":material/warning:")
+        except ValueError as exc:
+            motor_error = str(exc)
+            st.error(motor_error, icon=":material/error:")
         current = st.session_state.get("pmsm_result")
         unchanged = current is not None and current["run"]["config_hash"] == config_hash(params)
-        clicked = st.button("Generate PMSM cloud", type="primary", key="pmsm_run_button", width="stretch", disabled=unchanged, icon=":material/play_arrow:")
+        clicked = st.button("Generate PMSM cloud", type="primary", key="pmsm_run_button", width="stretch", disabled=unchanged or motor_error is not None, icon=":material/play_arrow:")
     if clicked:
         with view, st.spinner("Simulating current steps…"):
-            data = generate_mtpa_vs_naive_cloud(i_s_values=list(np.linspace(40, 390, params["n_i_s"])), mp=dict(p=p, l_d=l_d, l_q=l_q, r_s=r_s, psi_p=psi_p), subsample=params["subsample"])
+            extra = {"u_supply": params["u_supply"]} if "u_supply" in params else {}
+            data = generate_mtpa_vs_naive_cloud(i_s_values=list(np.linspace(40, 390, params["n_i_s"])), mp=dict(p=p, l_d=l_d, l_q=l_q, r_s=r_s, psi_p=psi_p), subsample=params["subsample"], **extra)
         st.session_state["pmsm_result"] = {"data": data, "params": params, "run": record_run("pmsm", params, {"steps": params["n_i_s"]})}
         st.rerun()
     with view:
