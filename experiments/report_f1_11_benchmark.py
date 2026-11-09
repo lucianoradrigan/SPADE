@@ -260,7 +260,7 @@ def main() -> None:
     ap.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2])
     ap.add_argument("--only", nargs="*", default=None)
     ap.add_argument("--rescore", action="store_true", help="score the existing raw file without running")
-    ap.add_argument("--bench", default="f1_11", choices=("f1_11", "f1_12"), help="which pre-registered bench (requests and output files)")
+    ap.add_argument("--bench", default="f1_11", choices=("f1_11", "f1_12", "f1_13"), help="which pre-registered bench (requests and output files)")
     ap.add_argument("--resume", action="store_true", help="continue an interrupted run: keep the conversations already in the raw file")
     args = ap.parse_args()
     from driveflow.assistant.config import load_config

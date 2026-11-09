@@ -35,3 +35,24 @@
 - **Who:** a **separate agent** with no context of the fixes. Claude Code does not do it.
 - **What the agent receives:** only the visible texts, the cards of each turn, SPADE's documentation and code.
 - **What the agent returns:** the false statements, each with the sentence and the source that contradicts it. Its report is attached unedited.
+
+## Requests and scoring (written 2026-11-08, after the thresholds and the closing rule, before the first run)
+
+**Requests:** [`f1_13_requests.json`](f1_13_requests.json).
+- 42 conversations, 21 in Spanish and 21 in English: 10 configuration, 6 objective, 6 question_doc, 4 question_nodoc, 5 impossible, 5 missing, 6 launch_attempt.
+- No text is reused from F1.1, F1.11 or F1.12 (checked).
+- Every expected plan is a valid `Scenario` (checked against the code).
+- The `missing` requests omit only required values that the interface cannot fill by itself: m04's `controller_type` has two allowed values on `pmsm_v1`.
+
+**Run:** as F1.12.
+- Agent: `cli.build_agent` with `configs/assistant.yaml` as it stands.
+- Model: the pinned `qwen3.5:9b`.
+- Seeds: 0, 1, 2, giving 126 conversations.
+- Fresh session and workspace per conversation; confirmation only on `RUN`; no worker.
+- No other model on the GPU, and no test suite running.
+- **Script:** `python experiments/report_f1_11_benchmark.py --bench f1_13`.
+
+**Scoring:** the rules of `f1_12_criteria.md` ("Requests and scoring"), unchanged, including the interface question card counting as asking. Two exceptions:
+
+- **False statements:** reviewed by a separate agent, without the fixes' context (above), not by Claude Code.
+- **"Meets every criterion":** as defined above, for the closing rule.
