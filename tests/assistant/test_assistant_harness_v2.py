@@ -71,7 +71,7 @@ def test_capability_claims_are_replaced_by_the_tools_words():
               reply("SPADE no puede entrenar clasificadores ni simular fallas. Puedo simular un PMSM."),
               reply("SPADE no puede entrenar clasificadores ni simular fallas. Puedo simular un PMSM."))  # after the nudge_draft note
     res = a.user_turn("Simula un motor de inducción de jaula de ardilla.")
-    assert "no puede entrenar" not in res.text and res.text.startswith(guardrails.LIMITS_LEAD["es"])
+    assert "no puede entrenar" not in res.text and guardrails.LIMITS_LEAD["es"] in res.text  # F1.12 fix: lead-in after the kept text
     lim = [c for c in res.cards if c["tool"] == "limits"][0]
     assert any("induction motors are not simulated" in ln for ln in lim["lines"])
     assert "Puedo simular un PMSM." in res.text  # a sentence without a limit claim is kept, whole

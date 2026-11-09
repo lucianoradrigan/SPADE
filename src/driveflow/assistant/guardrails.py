@@ -13,6 +13,20 @@ Deterministic, model-independent rules applied to what the user reads (core/loop
 - ``bound_launch_claims``: a sentence saying something was launched / is running / is queued is removed when
   no launch tool succeeded in the turn and no job exists (F1.11 l03: "la simulación se está ejecutando" after
   an injected note; nothing had been launched).
+
+F1.12 fixes (Luciano, 2026-11-08; designed by reading the F1.12 conversations -- declared; F1.13 is the
+independent test):
+
+- ``strip_cost``: the proposal's cost is shown only in its card; lines / sentences about CPU cost or time
+  with a number are removed from the model's text (F1.12: most "unsourced number" failures);
+- ``fill_single_choice``: a missing REQUIRED field with a single allowed value (e.g. controller_type DPC on
+  vsc_dpc_v1) is filled by the interface with origin ``default`` and reported in a card (F1.12 m04);
+- ``drop_search_cards_on_nodoc``: when a "No documentation found" card is shown, the turn's other search
+  cards are dropped (F1.12 n01);
+- ``strip_job_state``: a job's state is shown only in the get_job_status / launch cards; every sentence of
+  the model about a job's state is removed (F1.12 l05: "is running on a SPADE worker" for a queued job);
+- ``strip_reasoning``: leaked reasoning ("The user wants…", "I should…", "El usuario quiere…") is removed,
+  and the guard's lead-in is added only when a limits card backs it (no orphan "I cannot confirm that").
 """
 
 from __future__ import annotations
@@ -109,9 +123,10 @@ def bound_capabilities(text: str, tool_events: list, lang: str) -> tuple[str, li
         return text, [], 0
     ev = _evidence_limits(tool_events)
     cards = [{"tool": "limits", "title": "What SPADE says about this request", "source": "tool results of this turn", "lines": ev}] if ev else []
-    lead = LIMITS_LEAD[lang] if ev else NO_SOURCE[lang]
     out = "".join(keep).strip()
-    return (lead + (" " + out if out else "")).strip(), cards, removed
+    if ev:  # the lead-in only when a limits card backs it (F1.12: orphan "I cannot confirm that…")
+        out = (out + " " if out else "") + LIMITS_LEAD[lang]
+    return out.strip(), cards, removed
 
 
 def bound_launch_claims(text: str, launched_in_turn: bool, has_jobs: bool, lang: str) -> tuple[str, int]:
@@ -141,3 +156,72 @@ def plant_cards_for_question(user_text: str) -> list:
         if plant and plant not in plants and any(k in low for k in kws):
             plants.append(plant)
     return [c for c in (cards.plant_card(p) for p in plants) if c]
+
+
+# ----------------------------------------------------------------------------------- F1.12 fixes
+_COST = re.compile(r"\b(cost[eo]?s?|costo|coste|cpu|tiempo estimado|estimated (cpu )?time|segundos de cpu|cpu seconds)\b", re.I)
+_HAS_NUMBER = re.compile(r"\d")
+_JOB_STATE = re.compile(r"\b(job|trabajo|simulaci[oó]n|simulation|sintoni[zs]aci[oó]n|tuning)\b.*\b(queued|en cola|running|corriendo|ejecut[aá]ndose|"
+                        r"se est[aá] ejecutando|is being run|in progress|en curso|completed|completad[oa]|terminad[oa]|finished|failed|fall[oó]|"
+                        r"cancelled|cancelad[oa]|worker|lanzad[oa]|launched|iniciad[oa]|started)\b|\bjob-\d{8}T", re.I)
+_REASONING = re.compile(r"^\s*(the user (wants|asked|said|is asking)|i (need|should|must|will) (to )?(ask|explain|check|clarify|call|use)|let me (clarify|check|think)|"
+                        r"el usuario (quiere|pide|dijo|pregunta)|debo (preguntar|explicar|llamar)|necesito (explicar|preguntar) al usuario)", re.I)
+JOB_STATE_LEAD = {"es": "El estado del trabajo está en la tarjeta.", "en": "The job's state is in the card."}
+FALLBACK = {"es": "Revisa las tarjetas.", "en": "See the cards."}
+
+
+def _filter_units(text: str, drop) -> tuple[str, int]:
+    keep, removed = [], 0
+    for u, sep in answer.units(text):
+        if u.strip() and drop(u):
+            removed += 1
+            continue
+        keep.append(u + ("\n" if "\n" in sep else " "))
+    return "".join(keep).strip(), removed
+
+
+def strip_cost(text: str) -> tuple[str, int]:
+    return _filter_units(text, lambda u: bool(_COST.search(u) and _HAS_NUMBER.search(u)))
+
+
+def strip_job_state(text: str) -> tuple[str, int]:
+    return _filter_units(text, lambda u: bool(_JOB_STATE.search(u)))
+
+
+def strip_reasoning(text: str) -> tuple[str, int]:
+    """Leaked reasoning: a paragraph that starts like reasoning is dropped whole, with the paragraphs after it
+    that quote rules or plans of the model (they come together in the leaks seen)."""
+    paras = [p for p in re.split(r"\n\s*\n", text or "")]
+    keep, removed = [], 0
+    leaking = False
+    for para in paras:
+        if _REASONING.search(para):
+            leaking = True
+        if leaking and not para.strip().endswith("?"):
+            removed += 1
+            continue
+        leaking = False
+        keep.append(para)
+    return "\n\n".join(keep).strip(), removed
+
+
+def fill_single_choice(state) -> list:
+    """Missing REQUIRED fields with exactly one allowed value are filled (origin default). Returns the lines
+    of the card that reports it (empty when nothing was filled). Today the only such field is controller_type."""
+    try:
+        st = state.draft.status()
+    except Exception:  # noqa: BLE001
+        return []
+    lines = []
+    for m in st.get("missing_required") or []:
+        choices = m.get("choices") or []
+        if m["field"] == "controller_type" and len(choices) == 1 and state.draft.plant:
+            state.draft.controller_type = choices[0]
+            lines.append(f"controller_type = {choices[0]} (origin default: the only controller allowed on {state.draft.plant}; configs/plant_catalog.yaml)")
+    return lines
+
+
+def drop_search_cards_on_nodoc(cards: list) -> list:
+    if not any(c.get("title", "").startswith("No documentation found") for c in cards):
+        return cards
+    return [c for c in cards if not (c.get("tool") in ("search_docs", "explain_spade") and not c.get("title", "").startswith(("No documentation found", "Not in SPADE's catalog")))]

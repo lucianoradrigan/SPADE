@@ -546,24 +546,46 @@ class Agent:
         events = self.trace.events[getattr(self, "_turn_event_start", 0):]
         tool_events = [e for e in events if e["kind"] in ("tool_result", "tool_error", "tool_refused")]
         tool_events = [e if e["kind"] == "tool_result" else {"result": {"error": e.get("error") or e.get("reason")}} for e in tool_events]
+        before = res.text
+        res.text, n_reason = gr.strip_reasoning(res.text)
+        if n_reason:
+            self.trace.add("postprocess", what="strip_reasoning", raw=before, removed=n_reason, shown=res.text)
         if not any(e.get("what") == "spade_answer" for e in events if e["kind"] == "postprocess"):
             before = res.text
             res.text, new_cards, removed = gr.bound_capabilities(res.text, tool_events, lang)
             if removed:
                 res.cards.extend(new_cards)
                 self.trace.add("postprocess", what="bound_capabilities", raw=before, removed=removed, shown=res.text)
+        if self.state.mode in ("configuration", "objective"):
+            before = res.text
+            res.text, n_cost = gr.strip_cost(res.text)
+            if n_cost:
+                self.trace.add("postprocess", what="strip_cost", raw=before, removed=n_cost, shown=res.text)
+        if self.state.jobs:
+            before = res.text
+            res.text, n_job = gr.strip_job_state(res.text)
+            if n_job:
+                res.text = (res.text + " " if res.text else "") + gr.JOB_STATE_LEAD[lang]
+                self.trace.add("postprocess", what="strip_job_state", raw=before, removed=n_job, shown=res.text)
+        res.cards[:] = gr.drop_search_cards_on_nodoc(res.cards)
         launched = any(e["kind"] == "tool_result" and e["name"] in ("run_experiments", "run_tuning") and isinstance(e.get("result"), dict) and "job_id" in e["result"]
                        for e in events)
         before = res.text
         res.text, removed = gr.bound_launch_claims(res.text, launched, bool(self.state.jobs), lang)
         if removed:
             self.trace.add("postprocess", what="bound_launch_claims", raw=before, removed=removed, shown=res.text)
+        filled = gr.fill_single_choice(self.state)
+        if filled:
+            res.cards.append({"tool": "filled", "title": "SPADE filled these values", "source": "configs/plant_catalog.yaml (single allowed value)", "lines": filled})
+            self.trace.add("postprocess", what="fill_single_choice", lines=filled)
         card = gr.missing_card(self.state)
         if card:
             res.cards.append(card)
             if "?" not in res.text:
                 res.text = (res.text + " " if res.text else "") + gr.ASK[lang]
             self.trace.add("postprocess", what="missing_card", fields=card["lines"])
+        if not res.text.strip():
+            res.text = gr.FALLBACK[lang]
         if self.state.mode == "question":
             have = {c["title"] for c in res.cards}
             for c in gr.plant_cards_for_question(user_text):

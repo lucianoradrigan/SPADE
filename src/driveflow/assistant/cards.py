@@ -15,7 +15,7 @@ from __future__ import annotations
 import re
 
 CARD_TOOLS = ("explain_spade", "search_docs", "describe_plant", "describe_tunable", "propose_experiments", "propose_tuning", "summarize_results", "check_requirements",
-              "suggest_value")
+              "suggest_value", "get_job_status", "run_experiments", "run_tuning")
 SHOWN_NOTE = ("This result is shown to the user verbatim, as a card with its source. Do not restate or paraphrase it, "
               "do not repeat its values: add at most one sentence.")
 PLANT_SOURCE = "configs/plant_catalog.yaml (driveflow.datagen.plant_catalog)"
@@ -70,6 +70,19 @@ def card_from_tool(name: str, arguments: dict, result: dict) -> list:
         if not cards:
             cards.append({"tool": name, "title": f"No documentation found for: {result.get('query', '')}", "source": "docs/, README.md", "lines": []})
         return cards
+    if name == "get_job_status":
+        # F1.12 fix: a job's state is shown only here (the model's sentences about it are removed)
+        p = result.get("progress") or {}
+        lines = [f"state: {result.get('state')}", f"progress: {p.get('done')}/{p.get('total')}" + (f" ({p.get('phase')})" if p.get("phase") else "")]
+        if result.get("run_id"):
+            lines.append(f"run: {result['run_id']} ({result.get('run_status')})")
+        if result.get("error"):
+            lines.append(f"error: {result['error']}")
+        lines.append("a SPADE worker must process queued jobs (Process queued jobs button, /worker, or python -m driveflow.jobs.worker)")
+        return [{"tool": name, "title": f"Job {result.get('job_id')}", "source": "get_job_status (job service)", "lines": lines}]
+    if name in ("run_experiments", "run_tuning"):
+        return [{"tool": name, "title": f"Job {result.get('job_id')} submitted", "source": f"{name} (job service)",
+                 "lines": ["state: queued (waiting for a SPADE worker)", f"experiment: {result.get('experiment_id')}"]}]
     if name == "suggest_value":
         # AI-N30 3(b): a suggestion and its source are shown as a card (the model does not restate them)
         if result.get("value") is None:
