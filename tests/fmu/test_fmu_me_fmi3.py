@@ -199,19 +199,10 @@ def test_upload_rejects_non_fmus(tmp_path):
 
 @pytest.mark.fmu
 def test_a_plecs_labelled_model_exchange_fmu_goes_from_upload_to_publication(tmp_path, monkeypatch):
-    import time
-    import types
-
     from driveflow.envs import registry
     from driveflow.integrations.fmu import gym_profile as gp
 
     monkeypatch.setenv("SPADE_FMU_DIR", str(tmp_path / "empty"))
-    # S-22 (stabilized 2026-11-09, E9): check 12 times each step with time.perf_counter. Under CPU load
-    # that wall time includes waiting for a core (p50 0.550-0.566 ms against the 0.5 ms limit with 10
-    # simulation processes running). Here the step is timed with this process's CPU time instead, so
-    # the check still fails if the step itself costs more than the limit. The limit, the steps and the
-    # product's check (wall time) are unchanged.
-    monkeypatch.setattr(gp, "time", types.SimpleNamespace(time=time.time, perf_counter=time.process_time))
     src = _relabel_as_plecs(_need("BuckAveraged_fmi2_me"), tmp_path / "PlecsBuck.fmu")
     gp.save_upload(src.read_bytes(), "PlecsBuck.fmu")
     cand = next(c for c in gp.candidates() if c["name"] == "PlecsBuck")
