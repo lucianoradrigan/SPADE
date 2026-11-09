@@ -92,14 +92,15 @@ min armature current seen: -144.683 A
 
 ## Possible fix (three levels)
 
-1. **Document and warn.** State in the `ContOneQuadrantConverter` docstring and docs that the model allows a negative current and applies the full supply voltage when it is negative. Warn when the converter is built. This changes no result.
+1. **Document and warn.** State in the `ContOneQuadrantConverter` docstring and docs that the model is valid only in continuous conduction. Warn the first time the current becomes negative. This changes no result.
 2. **Clamp the current at zero.** `_convert` returns the duty cycle for every sign, and the physical system keeps the armature current at zero once it reaches zero while the commanded voltage does not exceed the back-EMF. This is done in the ODE right-hand side, so the default adaptive solver stops at the zero crossing inside the step, and again after the step for fixed-step solvers. It is a small change.
-   - **Our local prototype** (a fork of `b474daf9`, not submitted): the suite passes (1230 tests: the 1226 existing ones plus 4 new). With the reproduction above, i ≥ 0 and ω stays at 150.00 rad/s.
+   - Clipping only after each step is not enough: the negative current inside the step still brakes the motor. In the reproduction above, ω falls from 150 to 39 rad/s in 0.5 s.
+   - **Our local prototype** (a fork of `b474daf9`, not submitted): the suite passes (1231 tests: the 1226 existing ones plus 5 new). With the reproduction above, i ≥ 0 and ω stays at 150.00 rad/s. In continuous conduction the results are identical to the current ones.
    - For motors with two currents (shunt, externally excited) the clamp is not applied; the prototype only warns there.
    - We can open it as a PR after this issue, if you want it.
-3. **Model discontinuous conduction within the period.** Re-evaluate the converter inside the step, or solve the conduction interval in closed form.
+3. **Optional: a new converter that models discontinuous conduction within the period.** It would solve the conduction interval of each period in closed form. We could contribute ours, since SPADE and GEM are both MIT-licensed.
    - **Our implementation in SPADE:** a substepped version with linear localization of the zero crossing converges (NRMS < 1e-4 at 1000 substeps per `tau` against 10000). A closed-form per-period version (linear back-EMF, Heun mechanics) reaches 3.0e-5 against 10000 substeps and is 28× cheaper than 1000 substeps.
-   - This is the most accurate option, and the largest change.
+   - This is the most accurate option, and the largest change. As a separate class, it leaves `Cont1QC` as it is for existing users.
 
 The discrete `FiniteOneQuadrantConverter` has the same `i < 0 → 1` logic and might deserve the same treatment.
 

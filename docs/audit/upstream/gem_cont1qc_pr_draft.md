@@ -1,7 +1,7 @@
 # Draft pull request for upstream gym-electric-motor — LOCAL ONLY, NOT PUBLISHED
 
 **Status (2026-11-09, T7):**
-- Prepared in a local fork with no public remote: `/mnt/datos/upstream/gym-electric-motor`, branch `fix/cont1qc-negative-current`, commit `6eb727fc` on `b474daf9` (`master` = v3.0.3). The patch is [`gem_cont1qc_fix.patch`](gem_cont1qc_fix.patch).
+- Prepared in a local fork with no public remote: `/mnt/datos/upstream/gym-electric-motor`, branch `fix/cont1qc-negative-current`, commit `5ec848d9` on `b474daf9` (`master` = v3.0.3). The patch is [`gem_cont1qc_fix.patch`](gem_cont1qc_fix.patch).
 - **Nothing was published** (stop point P1). Luciano decides whether, and when, the issue and the PR go upstream. The issue would go first: [`gem_cont1qc_issue_draft.md`](gem_cont1qc_issue_draft.md).
 
 ## Check: do other continuous converters decide by the current's sign?
@@ -24,12 +24,16 @@ The interlocking term is evaluated from the current at the start of the step in 
 | Command | Result |
 |---|---|
 | GEM suite before the change (`PATH=<venv>/bin:$PATH python -m pytest -q tests`) | **1226 passed** (the 7 example tests need `python` on `PATH`) |
-| GEM suite with the change | **1230 passed** (1226 + 4 new), 0 failed |
-| The 4 new tests against the unfixed code | 3 failed (coasting, braking, warning), 1 passed (continuous conduction unchanged, as intended) |
+| GEM suite with the change | **1231 passed** (1226 + 5 new), 0 failed |
+| The new tests against the unfixed code (first 4, before the first-clamp warning test was added) | 3 failed (coasting, braking, two-current warning), 1 passed (continuous conduction unchanged, as intended) |
+| Continuous conduction against the unfixed code | ω and i at steps 1, 10, 50, 100, 200 (duty 0.9 from 150 rad/s) are identical, to every digit, to those recorded on `b474daf9`; the test pins them at rel 1e-12 |
+| `python experiments/report_gem_cont1qc_poststep_only.py` (fork's venv): the post-step clip alone, as the task asked, against the fork's clamp in the right-hand side plus post-step | duty 0, no load, 0.5 s: **post-step only 39.276 rad/s** (the in-step negative current brakes the motor); **RHS + post-step 150.0 rad/s** |
 | Issue reproduction (`docs/audit/upstream/gem_cont1qc_mre.py`) with the fork | i min **0.000 A**, ω **150.00 rad/s** at 0.5 s (before: −144.683 A, 181.82 rad/s) |
 | `python experiments/report_gem_cont1qc_fork.py` (braking at duty 0.2 for 25 ms, then duty 0.5; friction a = 0.01, b = 0.05) | i min 0.0 A for τ = 1e-4, 1e-5, 1e-6; ω at 50 ms 170.6524 rad/s for τ = 1e-4 and 1e-5, 170.6519 for 1e-6 (difference 4.9e-4 rad/s). The default solver is `ScipyOdeSolver`, so the clamp acts at the zero crossing inside the step |
 
 Environment: Python 3.14.4, separate venv `/mnt/datos/upstream/gem-venv` (`pip install -e .` of the fork); SPADE's environment was not touched.
+
+**Declared deviation from task T7(b):** the task asked to clip the current after each step only. That alone leaves the negative current inside each step, which brakes an unloaded motor from 150 to 39 rad/s in 0.5 s at duty 0 (row above). So the fork also clamps in the ODE right-hand side, and the post-step clip remains for fixed-step solvers.
 
 **Declared:** the existing upstream test `TestContOneQuadrantConverter.test__convert` asserted the old behaviour (`u == 1` for `i < 0`). The PR changes it to expect the duty cycle, with a comment.
 
@@ -59,14 +63,16 @@ Since #138 the DC environments default to a four-quadrant converter, so this onl
    With the clamp active the analytic jacobian is not passed to the solver, because it ignores the clamp. For motors with two currents, or with Cont1QC inside a multi converter, nothing changes except a warning.
 3. Tests, in `tests/test_physical_systems/test_cont1qc_discontinuous_conduction.py`:
    - duty 0 coasting: i ≥ 0, ω constant;
-   - continuous conduction identical to Cont2QC (atol 1e-9);
+   - continuous conduction identical to the unchanged converter (values recorded on `b474daf9`) and to Cont2QC;
    - braking with friction only slows the motor;
-   - the warning for a two-current motor.
+   - the warning for a two-current motor;
+   - the first-clamp warning, issued once.
 
    `test__convert` now expects the duty cycle for a negative current.
-4. Changelog entry under *Fixed*.
+4. A warning (once) the first time the current is clamped: the averaged model is exact only in continuous conduction.
+5. Changelog entry under *Fixed*.
 
-**Results:** the suite passes, 1230 tests (1226 before, plus the 4 new ones). The reproduction from the issue now gives i ≥ 0 and ω = 150.00 rad/s throughout.
+**Results:** the suite passes, 1231 tests (1226 before, plus the 5 new ones). The reproduction from the issue now gives i ≥ 0 and ω = 150.00 rad/s throughout.
 
 **Not covered:**
 - `FiniteOneQuadrantConverter` has the same `i < 0 → 1` logic in the switched model; it is left for a separate change.

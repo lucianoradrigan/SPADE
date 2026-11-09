@@ -1,4 +1,4 @@
-From 6eb727fcda4b984dbffe4eb5b5dd6deb1ea89cce Mon Sep 17 00:00:00 2001
+From 5ec848d94ba4dbbaca392c5708e747ab98261d5b Mon Sep 17 00:00:00 2001
 From: Luciano Radrigan <lucianoradrigan@gmail.com>
 Date: Mon, 9 Nov 2026 10:17:40 -0300
 Subject: [PATCH] Cont1QC: clamp the armature current at zero (discontinuous
@@ -19,12 +19,12 @@ accelerated from 150 to 182 rad/s in 0.5 s with i down to -145 A.
   _convert test now expects the duty cycle for negative current
 ---
  CHANGELOG.md                                  |  1 +
- .../physical_systems/converters/1QC.rst       | 13 ++++
- .../physical_systems/converters.py            | 16 ++++-
- .../physical_systems/physical_systems.py      | 37 ++++++++++-
- .../test_cont1qc_discontinuous_conduction.py  | 66 +++++++++++++++++++
+ .../physical_systems/converters/1QC.rst       | 14 +++
+ .../physical_systems/converters.py            | 16 +++-
+ .../physical_systems/physical_systems.py      | 50 ++++++++++-
+ .../test_cont1qc_discontinuous_conduction.py  | 87 +++++++++++++++++++
  .../test_physical_systems/test_converters.py  |  7 +-
- 6 files changed, 133 insertions(+), 7 deletions(-)
+ 6 files changed, 168 insertions(+), 7 deletions(-)
  create mode 100644 tests/test_physical_systems/test_cont1qc_discontinuous_conduction.py
 
 diff --git a/CHANGELOG.md b/CHANGELOG.md
@@ -40,10 +40,10 @@ index f379ab53..f72bd312 100644
  ## [3.0.3] - 2025-12-19
  ## Added
 diff --git a/docs/parts_gem/physical_systems/converters/1QC.rst b/docs/parts_gem/physical_systems/converters/1QC.rst
-index db5d8d03..256730e3 100644
+index db5d8d03..dbd1e249 100644
 --- a/docs/parts_gem/physical_systems/converters/1QC.rst
 +++ b/docs/parts_gem/physical_systems/converters/1QC.rst
-@@ -13,6 +13,19 @@ Discrete One Quadrant Converter
+@@ -13,6 +13,20 @@ Discrete One Quadrant Converter
  Continuous One Quadrant Converter
  '''''''''''''''''''''''''''''''''
  
@@ -53,7 +53,8 @@ index db5d8d03..256730e3 100644
 +   conduction) and the machine coasts. For DC motors with a single current (permanently excited,
 +   series) the physical system clamps the current at zero during integration. For motors with two
 +   currents (shunt, externally excited) and inside a multi converter the clamp is not applied, and a
-+   warning is issued.
++   warning is issued. The averaged model is exact only in continuous conduction, so a warning is also
++   issued, once, the first time the current is clamped.
 +
 +   The clamp acts on the right-hand side of the ODE, so a solver that subdivides the step (the default
 +   ``ScipyOdeSolver``) stops the current at its zero crossing inside the step. A fixed-step solver
@@ -99,16 +100,17 @@ index 2327ec4b..b4c7310c 100644
      def _interlock(self, *_):
          # Docstring in base class
 diff --git a/src/gym_electric_motor/physical_systems/physical_systems.py b/src/gym_electric_motor/physical_systems/physical_systems.py
-index 3845127e..90caa1a5 100644
+index 3845127e..638f7a47 100644
 --- a/src/gym_electric_motor/physical_systems/physical_systems.py
 +++ b/src/gym_electric_motor/physical_systems/physical_systems.py
-@@ -101,6 +101,34 @@ class SCMLSystem(PhysicalSystem, RandomComponent):
+@@ -101,6 +101,46 @@ class SCMLSystem(PhysicalSystem, RandomComponent):
              self._ode_solver,
          ]
          self._converter.tau = self.tau
 +        # Converters that cannot carry a negative output current (Cont1QC) need the current clamped at
 +        # zero inside the integration (discontinuous conduction). Done here for a single current only.
 +        self._clamp_current_idx = None
++        self._clamp_warned = False
 +        if getattr(self._converter, "blocks_negative_current", False):
 +            if len(self._ode_currents_idx) == 1:
 +                self._clamp_current_idx = self._ode_currents_idx[0]
@@ -130,14 +132,25 @@ index 3845127e..90caa1a5 100644
 +    def _clamp_current(self, ode_state):
 +        """Clamp the converter's output current at zero after an integration step (Cont1QC)."""
 +        if self._clamp_current_idx is not None and ode_state[self._clamp_current_idx] < 0:
++            self._warn_clamp()
 +            ode_state = np.array(ode_state, dtype=float)
 +            ode_state[self._clamp_current_idx] = 0.0
 +            self._ode_solver.set_initial_value(ode_state, self._ode_solver.t)
 +        return ode_state
++
++    def _warn_clamp(self):
++        """Warn once, the first time the converter's current would become negative."""
++        if not self._clamp_warned:
++            self._clamp_warned = True
++            warnings.warn(
++                f"{type(self._converter).__name__}: the current reached zero and would become negative "
++                "(discontinuous conduction); it is clamped at zero. The averaged converter model is exact only "
++                "in continuous conduction."
++            )
  
      def _set_limits(self):
          """
-@@ -180,7 +208,7 @@ class SCMLSystem(PhysicalSystem, RandomComponent):
+@@ -180,7 +220,7 @@ class SCMLSystem(PhysicalSystem, RandomComponent):
              u_in = self._converter.convert(i_in, self._ode_solver.t)
              u_in = [u * u_s for u in u_in for u_s in u_sup]
              self._ode_solver.set_f_params(u_in)
@@ -146,7 +159,7 @@ index 3845127e..90caa1a5 100644
              i_in = self._electrical_motor.i_in(ode_state[self._ode_currents_idx])
  
          i_sup = self._converter.i_sup(i_in)
-@@ -188,7 +216,7 @@ class SCMLSystem(PhysicalSystem, RandomComponent):
+@@ -188,7 +228,7 @@ class SCMLSystem(PhysicalSystem, RandomComponent):
          u_in = self._converter.convert(i_in, self._ode_solver.t)
          u_in = [u * u_s for u in u_in for u_s in u_sup]
          self._ode_solver.set_f_params(u_in)
@@ -155,7 +168,7 @@ index 3845127e..90caa1a5 100644
          self._t = self._ode_solver.t
          self._k += 1
          torque = self._electrical_motor.torque(ode_state[self._motor_ode_idx])
-@@ -232,6 +260,11 @@ class SCMLSystem(PhysicalSystem, RandomComponent):
+@@ -232,6 +272,12 @@ class SCMLSystem(PhysicalSystem, RandomComponent):
              self._system_eq_placeholder[self._load_deriv_size :] = self._electrical_motor.electrical_ode(
                  motor_state, u_in, state[self._omega_ode_idx]
              ).ravel()
@@ -164,15 +177,16 @@ index 3845127e..90caa1a5 100644
 +            if state[k] <= 0 and self._system_eq_placeholder[k] < 0:
 +                # Discontinuous conduction: the diode blocks, the current stays at zero.
 +                self._system_eq_placeholder[k] = 0.0
++                self._warn_clamp()
  
          return self._system_eq_placeholder
  
 diff --git a/tests/test_physical_systems/test_cont1qc_discontinuous_conduction.py b/tests/test_physical_systems/test_cont1qc_discontinuous_conduction.py
 new file mode 100644
-index 00000000..c7bd4b9c
+index 00000000..5a7159fd
 --- /dev/null
 +++ b/tests/test_physical_systems/test_cont1qc_discontinuous_conduction.py
-@@ -0,0 +1,66 @@
+@@ -0,0 +1,87 @@
 +"""Cont1QC in discontinuous conduction: the armature current never becomes negative.
 +
 +A one-quadrant (buck) converter cannot carry a negative current. When the induced voltage exceeds the
@@ -215,14 +229,35 @@ index 00000000..c7bd4b9c
 +    assert np.allclose(omegas, 150.0, atol=1e-9)
 +
 +
++#: (step, omega rad/s, i A) recorded with the unchanged converter (master b474daf9), duty 0.9 from 150 rad/s.
++CONTINUOUS_REFERENCE = [
++    (1, 150.01862140493884, 147.64219489443565),
++    (10, 153.45464377506755, 1032.1085365011463),
++    (50, 189.54152429883806, 1504.8713548600876),
++    (100, 228.8271376997817, 1102.3674752718907),
++    (200, 275.25740397119245, 578.5717219609104),
++]
++
++
 +def test_continuous_conduction_is_unchanged():
-+    """While the current stays positive, Cont1QC applies the duty cycle exactly like Cont2QC."""
++    """While the current stays positive, the results are those of the unchanged converter, and the same as
++    Cont2QC (which applies the duty cycle for both current signs)."""
 +    duty = 0.9  # 54 V against an induced voltage of 0.165 * 150 = 24.8 V: the current only rises
 +    o1, i1 = _run(_env(ContOneQuadrantConverter(), omega0=150.0, a=0.01, b=0.05), duty, 200)
 +    o2, i2 = _run(_env(ContTwoQuadrantConverter(), omega0=150.0, a=0.01, b=0.05), duty, 200)
-+    assert i2.min() > 0.0
++    assert i1.min() > 0.0
++    for step, omega, current in CONTINUOUS_REFERENCE:
++        assert o1[step - 1] == pytest.approx(omega, rel=1e-12)
++        assert i1[step - 1] == pytest.approx(current, rel=1e-12)
 +    np.testing.assert_allclose(i1, i2, rtol=0, atol=1e-9)
 +    np.testing.assert_allclose(o1, o2, rtol=0, atol=1e-9)
++
++
++def test_the_first_clamp_warns_once():
++    env = _env(ContOneQuadrantConverter())
++    with pytest.warns(UserWarning, match="clamped at zero") as record:
++        _run(env, 0.0, 50)
++    assert sum("clamped at zero" in str(w.message) for w in record) == 1
 +
 +
 +def test_braking_with_friction_only_slows_the_motor():
