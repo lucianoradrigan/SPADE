@@ -244,6 +244,11 @@ def _classifier_panel(domain: str, df: pd.DataFrame, data_key: str = "", operati
     st.html('<div class="spade-root spade-badges">' + badge_html("AI SUGGESTION — REQUIRES VERIFICATION", "warning", "▲") + badge_html(info["model_id"], "training")
             + ("" if info.get("promoted") else badge_html("CANDIDATE — NOT PROMOTED", "warning", "▲")) + "</div>")
     _state_box(a)
+    early = da_ai.startup_window(df, info["input_window"]) if domain == "dc_motor" and a.state != condition.INPUT_INVALID else None
+    if early:
+        st.warning(f"**Start-up window (AI-N33).** The evaluated window spans t = {early[0]:.2f}–{early[1]:.2f} s, inside the start-up transient "
+                   f"(t < {da_ai.STARTUP_S:g} s). The promoted classifiers were measured at only 0.50–0.60 accuracy there, so this output can be wrong "
+                   "even when it is confident. Increase **Duration** (for example to 1 s) to evaluate the steady state.", icon=":material/timer:")
     if a.state != condition.INPUT_INVALID:
         shown = a.suggested_class or {condition.STATE_UNKNOWN: "Unknown condition", condition.STATE_UNCERTAIN: "No class suggested"}.get(a.state)
         st.metric("Classifier output", shown, f"top class {a.top_class}: {a.confidence * 100:.1f}% ({'temperature-calibrated' if a.calibrated else 'uncalibrated softmax'})", delta_color="off")

@@ -79,6 +79,20 @@ def normalize_window(window: np.ndarray, metrics: dict | None = None) -> tuple:
     return normalize_window_like_training(window, metrics["channels"], metrics.get("level_scaling"))
 
 
+#: dc_motor start-up transient as in report_classifier_evaluation.CONDITIONS ("startup_transient": t < 0.5 s). The
+#: promoted 5-class classifiers were measured at 0.50-0.60 accuracy there (docs/AI_TECHNICAL_AUDIT.md, AI-N33).
+STARTUP_S = 0.5
+
+
+def startup_window(df, input_window: int) -> tuple[float, float] | None:
+    """(start, end) in seconds of the last input_window rows when they begin inside the start-up transient, else None (AI-N33)."""
+    if "timestamp_s" not in df.columns or len(df) < input_window:
+        return None
+    t = df["timestamp_s"].iloc[-input_window:]
+    start, end = float(t.iloc[0]), float(t.iloc[-1])
+    return (start, end) if start < STARTUP_S else None
+
+
 def classify_last_window(domain: str, df) -> dict | None:
     """AI suggestion on the last input_window rows of df, or None if no classifier is promoted /
     channels are missing / too few rows. Returns probabilities with the model's identity."""
@@ -99,6 +113,7 @@ def classify_last_window(domain: str, df) -> dict | None:
         "classes": list(metrics["classes"]), "probs": [float(p) for p in probs], "predicted": metrics["classes"][k], "confidence": float(probs[k]),
         "decision": label, "abstained": label == UNCERTAIN, "unknown": label == UNKNOWN, "synthetic_only": metrics["classes"][k] in (metrics.get("synthetic_only_classes") or []) or is_synthetic_class(metrics["classes"][k]), "ood_checked": ood_score is not None, "calibrated": "calibration" in metrics,
         "model_id": f"{run_dir.parent.name}/{run_dir.name}", "test_macro_f1": metrics.get("test_macro_f1"), "n_test": metrics.get("n_test"),
+        "startup_window": startup_window(df, config.input_window) if domain == "dc_motor" else None,
     }
 
 
