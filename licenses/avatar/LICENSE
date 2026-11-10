@@ -7,3 +7,4 @@ replacement of them in the same directories. On 2026-11-09 these are:
   src/driveflow/viz/assets/assistant/base.webp
   src/driveflow/viz/assets/assistant/hand.webp
   docs/screenshots/assistant/avatar_*.png (13 screenshots of the assistant's avatar states)
+  docs/audit/release/fresh_clone/14_assistant.png (Assistant page in the fresh-clone check)
