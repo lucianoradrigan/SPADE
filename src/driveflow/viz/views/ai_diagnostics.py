@@ -46,6 +46,7 @@ DOMAIN_LABELS = {"dc_motor": "DC motor (dc_motor)", "vsc_dpc": "VSC / DPC (vsc_d
 TIER = "pc"
 CANDIDATES = {"dc_motor": CANDIDATE_CHANNELS, "vsc_dpc": VSC_DPC_CANDIDATE_CHANNELS}
 DC_DEFAULT_OMEGA_REF = 300.0  # GEM nominal speed, same default as the DC Motor page
+DC_DEFAULT_DURATION_S = 0.82  # AI-N33 (Luciano, decision N-D1, 2026-11-09): was 0.6
 MAX_UPLOAD_MB = 50
 _PALETTE = ["#38BDF8", "#F59E0B", "#A78BFA", "#F472B6", "#22C55E", "#94A3B8"]
 
@@ -88,7 +89,10 @@ def _sample_controls(domain: str) -> dict:
                 kwargs["fault_order_override"] = override
             if extras:
                 kwargs["extra_faults"] = extras
-        kwargs["duration_s"] = slider_with_custom(st, "Duration (s)", 0.05, 2.0, 0.6, key="ia_duration")
+        # AI-N33: 0.82 s is the shortest run whose last training-grid window (0.6144-0.8192 s) lies after the start-up
+        # transient (t >= 0.5 s), so the default sample is classified in steady state (docs/audit/release/ai_n33.md).
+        kwargs["duration_s"] = slider_with_custom(st, "Duration (s)", 0.05, 2.0, DC_DEFAULT_DURATION_S, key="ia_duration",
+                                                  help="The classifier evaluates the last window aligned like its training windows (from t = 0). Below 0.82 s that window is inside the start-up transient.")
         kwargs["seed"] = int(st.number_input("Seed", value=0, step=1, key="ia_seed"))
         with st.expander("Noise and plant parameters"):
             kwargs["electrical_noise_pct"] = slider_with_custom(st, "Electrical noise (%)", 0.0, 100.0, 0.0, key="ia_elec_noise")
@@ -230,7 +234,7 @@ def _agent_section(domain: str, df: pd.DataFrame, data_key: str, operating_point
 def _classifier_panel(domain: str, df: pd.DataFrame, data_key: str = "", operating_point: dict | None = None, provenance: dict | None = None, run_dir=None) -> None:
     st.markdown("##### Classifier")
     try:
-        out = da_ai.assess_last_window(domain, df, TIER, run_dir=run_dir)
+        out = da_ai.assess_training_window(domain, df, TIER, run_dir=run_dir)  # AI-N33: the training window rule
     except RegistryError as exc:
         if run_dir is not None:
             st.error(f"Could not load the selected classifier: {exc}", icon=":material/error:")
@@ -244,11 +248,12 @@ def _classifier_panel(domain: str, df: pd.DataFrame, data_key: str = "", operati
     st.html('<div class="spade-root spade-badges">' + badge_html("AI SUGGESTION — REQUIRES VERIFICATION", "warning", "▲") + badge_html(info["model_id"], "training")
             + ("" if info.get("promoted") else badge_html("CANDIDATE — NOT PROMOTED", "warning", "▲")) + "</div>")
     _state_box(a)
-    early = da_ai.startup_window(df, info["input_window"]) if domain == "dc_motor" and a.state != condition.INPUT_INVALID else None
+    w0 = da_ai.training_window_start(df, info["input_window"]) if domain == "dc_motor" and a.state != condition.INPUT_INVALID else None
+    early = da_ai.startup_window(df.iloc[w0:w0 + info["input_window"]], info["input_window"]) if w0 is not None else None
     if early:
         st.warning(f"**Start-up window (AI-N33).** The evaluated window spans t = {early[0]:.2f}–{early[1]:.2f} s, inside the start-up transient "
                    f"(t < {da_ai.STARTUP_S:g} s). The promoted classifiers were measured at only 0.50–0.60 accuracy there, so this output can be wrong "
-                   "even when it is confident. Increase **Duration** (for example to 1 s) to evaluate the steady state.", icon=":material/timer:")
+                   f"even when it is confident. Use a **Duration** of at least {DC_DEFAULT_DURATION_S:g} s (the default) to evaluate the steady state.", icon=":material/timer:")
     if a.state != condition.INPUT_INVALID:
         shown = a.suggested_class or {condition.STATE_UNKNOWN: "Unknown condition", condition.STATE_UNCERTAIN: "No class suggested"}.get(a.state)
         st.metric("Classifier output", shown, f"top class {a.top_class}: {a.confidence * 100:.1f}% ({'temperature-calibrated' if a.calibrated else 'uncalibrated softmax'})", delta_color="off")

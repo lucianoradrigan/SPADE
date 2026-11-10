@@ -54,10 +54,11 @@ Changes since `main` at `df1950f` (2026-11-02). The evidence for each item is in
 
 ### Found by the fresh-clone check before release
 - **AI-N32 (fixed):** the assistant now honours `OLLAMA_HOST`, Ollama's standard variable. The loopback rule is unchanged.
-- **AI-N33 (mitigated):** AI Diagnostics' default sample (300 rad/s, 0.6 s) classifies a window inside the start-up transient, where the promoted classifier can be confidently wrong.
-  - The page now warns on start-up windows, and the DC Motor AI card marks them.
-  - The defaults are unchanged.
-  - Evidence: `docs/audit/release/fresh_clone.md`.
+- **AI-N33 (corrected):** AI Diagnostics' default sample (300 rad/s, 0.6 s) classified a window inside the start-up transient. The promoted classifier then said 'cage' on a healthy motor.
+  - The page now classifies the last window aligned like the training windows.
+  - Its default duration is 0.82 s, the shortest that puts that window in steady state.
+  - A warning remains for shorter samples.
+  - Evidence: `docs/audit/release/ai_n33.md`.
 
 ### Repository housekeeping
 - **Avatar license:** it now covers every image that shows the avatar, including the screenshots in `docs/screenshots/assistant/`.

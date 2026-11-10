@@ -1,0 +1,354 @@
+{
+  "finding": "AI-N33",
+  "decision": "N-D1 (Luciano, 2026-11-09 23:16)",
+  "command": "PYTHONPATH=src python ai_n33_probe.py 0.6 0.82 1.0 (scratch script; cases below)",
+  "sample": "AI Diagnostics defaults: dc_perm_ex_v2, PI, speed mode, electrical severity 8.0, calibrated mechanical severity, seed 0, no noise; promoted dc_motor/pc/classifier pc_server_5class_w2048/2026-11-04_run01",
+  "cause": {
+    "training_windows": "src/driveflow/models/common/windowing.py:215-216 (build_classification_windows: starts = window_starts(...); every run contributes its first non-overlapping windows, from t = 0)",
+    "window_grid": "src/driveflow/models/common/acquisitions.py:64-75 (window_starts: range(a, b - seg_len + 1, seg_len), aligned to the run start)",
+    "no_settling_discard": "experiments/generate_diagnosis_grid_dataset.py:67-100 (build_jobs/_run_job: 2.5 s runs, default at :123, no start-up trimming); the start-up is in training only up to 220 rad/s",
+    "page_before": "src/driveflow/viz/adapters/ai_adapter.py assess_last_window: the LAST input_window rows, not aligned to the training grid; with the 0.6 s default that is t = 0.40-0.60 s, the end of the acceleration to 300 rad/s (a regime outside the 80-220 rad/s grid)"
+  },
+  "fix": {
+    "window": "ai_adapter.training_window_start / assess_training_window: the last complete window of the training grid (window_starts)",
+    "default_duration_s": {
+      "before": 0.6,
+      "after": 0.82,
+      "why": "shortest duration whose last training-grid window (0.6144-0.8192 s) lies entirely after t = 0.5 s, the start-up boundary used to evaluate the promoted models (report_classifier_evaluation 'startup_transient')"
+    },
+    "unchanged": [
+      "Scenario",
+      "datagen/",
+      "dataset scripts",
+      "models",
+      "thresholds",
+      "byte-for-byte tests"
+    ]
+  },
+  "before": [
+    {
+      "case": "healthy",
+      "speed_rad_s": 80.0,
+      "duration_s": 0.6,
+      "rule": "last_rows",
+      "window_s": [
+        0.3953,
+        0.6
+      ],
+      "state": "known",
+      "suggested": "normal",
+      "top_class": "normal",
+      "confidence": 0.999,
+      "abstained": false
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 300.0,
+      "duration_s": 0.6,
+      "rule": "last_rows",
+      "window_s": [
+        0.3953,
+        0.6
+      ],
+      "state": "known",
+      "suggested": "cage",
+      "top_class": "cage",
+      "confidence": 1.0,
+      "abstained": false
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 350.0,
+      "duration_s": 0.6,
+      "rule": "last_rows",
+      "window_s": [
+        0.3953,
+        0.6
+      ],
+      "state": "known",
+      "suggested": "cage",
+      "top_class": "cage",
+      "confidence": 1.0,
+      "abstained": false
+    },
+    {
+      "case": "outer_race",
+      "speed_rad_s": 300.0,
+      "duration_s": 0.6,
+      "rule": "last_rows",
+      "window_s": [
+        0.3953,
+        0.6
+      ],
+      "state": "known",
+      "suggested": "cage",
+      "top_class": "cage",
+      "confidence": 0.999,
+      "abstained": false
+    },
+    {
+      "case": "inner_race",
+      "speed_rad_s": 300.0,
+      "duration_s": 0.6,
+      "rule": "last_rows",
+      "window_s": [
+        0.3953,
+        0.6
+      ],
+      "state": "known",
+      "suggested": "cage",
+      "top_class": "cage",
+      "confidence": 1.0,
+      "abstained": false
+    },
+    {
+      "case": "ball",
+      "speed_rad_s": 300.0,
+      "duration_s": 0.6,
+      "rule": "last_rows",
+      "window_s": [
+        0.3953,
+        0.6
+      ],
+      "state": "known",
+      "suggested": "cage",
+      "top_class": "cage",
+      "confidence": 1.0,
+      "abstained": false
+    },
+    {
+      "case": "cage",
+      "speed_rad_s": 300.0,
+      "duration_s": 0.6,
+      "rule": "last_rows",
+      "window_s": [
+        0.3953,
+        0.6
+      ],
+      "state": "known",
+      "suggested": "cage",
+      "top_class": "cage",
+      "confidence": 1.0,
+      "abstained": false
+    }
+  ],
+  "after": [
+    {
+      "case": "healthy",
+      "speed_rad_s": 80.0,
+      "duration_s": 0.82,
+      "rule": "training_grid",
+      "window_s": [
+        0.6145,
+        0.8192
+      ],
+      "state": "known",
+      "suggested": "normal",
+      "top_class": "normal",
+      "confidence": 0.999,
+      "abstained": false
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 300.0,
+      "duration_s": 0.82,
+      "rule": "training_grid",
+      "window_s": [
+        0.6145,
+        0.8192
+      ],
+      "state": "known",
+      "suggested": "normal",
+      "top_class": "normal",
+      "confidence": 0.955,
+      "abstained": false
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 350.0,
+      "duration_s": 0.82,
+      "rule": "training_grid",
+      "window_s": [
+        0.6145,
+        0.8192
+      ],
+      "state": "known",
+      "suggested": "normal",
+      "top_class": "normal",
+      "confidence": 0.909,
+      "abstained": false
+    },
+    {
+      "case": "outer_race",
+      "speed_rad_s": 300.0,
+      "duration_s": 0.82,
+      "rule": "training_grid",
+      "window_s": [
+        0.6145,
+        0.8192
+      ],
+      "state": "known",
+      "suggested": "outer_race",
+      "top_class": "outer_race",
+      "confidence": 0.95,
+      "abstained": false
+    },
+    {
+      "case": "inner_race",
+      "speed_rad_s": 300.0,
+      "duration_s": 0.82,
+      "rule": "training_grid",
+      "window_s": [
+        0.6145,
+        0.8192
+      ],
+      "state": "known",
+      "suggested": "inner_race",
+      "top_class": "inner_race",
+      "confidence": 1.0,
+      "abstained": false
+    },
+    {
+      "case": "ball",
+      "speed_rad_s": 300.0,
+      "duration_s": 0.82,
+      "rule": "training_grid",
+      "window_s": [
+        0.6145,
+        0.8192
+      ],
+      "state": "known",
+      "suggested": "ball",
+      "top_class": "ball",
+      "confidence": 1.0,
+      "abstained": false
+    },
+    {
+      "case": "cage",
+      "speed_rad_s": 300.0,
+      "duration_s": 0.82,
+      "rule": "training_grid",
+      "window_s": [
+        0.6145,
+        0.8192
+      ],
+      "state": "known",
+      "suggested": "cage",
+      "top_class": "cage",
+      "confidence": 1.0,
+      "abstained": false
+    }
+  ],
+  "also_measured_training_grid_at_0_6_s": [
+    {
+      "case": "healthy",
+      "speed_rad_s": 80.0,
+      "duration_s": 0.6,
+      "rule": "training_grid",
+      "window_s": [
+        0.2049,
+        0.4096
+      ],
+      "state": "known",
+      "suggested": "normal",
+      "top_class": "normal",
+      "confidence": 0.999,
+      "abstained": false
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 300.0,
+      "duration_s": 0.6,
+      "rule": "training_grid",
+      "window_s": [
+        0.2049,
+        0.4096
+      ],
+      "state": "known",
+      "suggested": "normal",
+      "top_class": "normal",
+      "confidence": 0.965,
+      "abstained": false
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 350.0,
+      "duration_s": 0.6,
+      "rule": "training_grid",
+      "window_s": [
+        0.2049,
+        0.4096
+      ],
+      "state": "known",
+      "suggested": "normal",
+      "top_class": "normal",
+      "confidence": 0.965,
+      "abstained": false
+    },
+    {
+      "case": "outer_race",
+      "speed_rad_s": 300.0,
+      "duration_s": 0.6,
+      "rule": "training_grid",
+      "window_s": [
+        0.2049,
+        0.4096
+      ],
+      "state": "known",
+      "suggested": "outer_race",
+      "top_class": "outer_race",
+      "confidence": 0.999,
+      "abstained": false
+    },
+    {
+      "case": "inner_race",
+      "speed_rad_s": 300.0,
+      "duration_s": 0.6,
+      "rule": "training_grid",
+      "window_s": [
+        0.2049,
+        0.4096
+      ],
+      "state": "known",
+      "suggested": "normal",
+      "top_class": "normal",
+      "confidence": 0.958,
+      "abstained": false
+    },
+    {
+      "case": "ball",
+      "speed_rad_s": 300.0,
+      "duration_s": 0.6,
+      "rule": "training_grid",
+      "window_s": [
+        0.2049,
+        0.4096
+      ],
+      "state": "known",
+      "suggested": "normal",
+      "top_class": "normal",
+      "confidence": 0.951,
+      "abstained": false
+    },
+    {
+      "case": "cage",
+      "speed_rad_s": 300.0,
+      "duration_s": 0.6,
+      "rule": "training_grid",
+      "window_s": [
+        0.2049,
+        0.4096
+      ],
+      "state": "known",
+      "suggested": "normal",
+      "top_class": "normal",
+      "confidence": 0.93,
+      "abstained": false
+    }
+  ],
+  "criterion": {
+    "healthy_normal_or_abstain_at_80_300_350": true,
+    "no_fault_worse": true
+  },
+  "verdict": "CORRECTED"
+}
