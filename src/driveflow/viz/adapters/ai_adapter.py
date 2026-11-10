@@ -143,6 +143,28 @@ def assess_last_window(domain: str, df: pd.DataFrame, tier: str = "pc", run_dir=
     return condition.assess(raw, list(metrics["classes"]), metrics, ood_score), window, info
 
 
+def training_window_start(df: pd.DataFrame, input_window: int) -> int | None:
+    """Row index where the classifier's window starts, chosen with the TRAINING rule (AI-N33): training takes
+    non-overlapping windows aligned to the start of each run (models/common/windowing.build_classification_windows ->
+    acquisitions.window_starts), so the page evaluates the LAST complete window of that grid, not the last rows."""
+    from driveflow.models.common.acquisitions import window_starts
+
+    t = df["timestamp_s"].to_numpy(dtype=float) if "timestamp_s" in df.columns else None
+    starts = window_starts(len(df), input_window, t)
+    return starts[-1] if starts else None
+
+
+def assess_training_window(domain: str, df: pd.DataFrame, tier: str = "pc", run_dir=None):
+    """assess_last_window, but on the window chosen by training_window_start (AI Diagnostics, AI-N33)."""
+    try:
+        _, config, _, _ = model_at(domain, tier, "classifier", run_dir)
+    except RegistryError:
+        return None
+    start = training_window_start(df, config.input_window)
+    sub = df if start is None else df.iloc[start:start + config.input_window]
+    return assess_last_window(domain, sub, tier, run_dir)
+
+
 def _is_promoted(domain: str, tier: str, run_dir: Path) -> bool:
     try:
         return resolve(domain, tier, "classifier").resolve() == Path(run_dir).resolve()
