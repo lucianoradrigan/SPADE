@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ipaddress
+import os
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -44,10 +45,38 @@ def check_runtime_url(base_url: str, allow_remote_runtime: bool) -> list[str]:
     return [f"remote runtime {base_url}: conversations leave this machine (allow_remote_runtime: true)"]
 
 
+OLLAMA_DEFAULT_PORT = 11434
+
+
+def base_url_from_ollama_host(value: str) -> str:
+    """Ollama's own OLLAMA_HOST convention ('host', 'host:port', ':port', 'http(s)://host:port') as a client URL.
+    0.0.0.0 / :: mean "listen on every interface" for the server; the client then talks to the loopback address."""
+    value = value.strip()
+    scheme = "http"
+    if "://" in value:
+        scheme, value = value.split("://", 1)
+    value = value.rstrip("/")
+    host, _, port = value.rpartition(":") if value.count(":") == 1 or value.startswith("[") else (value, "", "")
+    host = host.strip("[]") or "127.0.0.1"
+    if host in ("0.0.0.0", "::"):
+        host = "127.0.0.1"
+    port = port or str(OLLAMA_DEFAULT_PORT)
+    host = f"[{host}]" if ":" in host else host
+    return f"{scheme}://{host}:{port}"
+
+
 def load_config(path: Path | str | None = None, overrides: dict | None = None) -> dict:
+    """configs/assistant.yaml, then OLLAMA_HOST (Ollama's standard variable, AI-N32), then explicit overrides.
+    The loopback rule applies to whatever base_url results: a remote host still needs allow_remote_runtime."""
     with Path(path or CONFIG_PATH).open() as f:
         cfg = yaml.safe_load(f)
+    cfg["base_url_source"] = "configs/assistant.yaml"
+    if os.environ.get("OLLAMA_HOST", "").strip():
+        cfg["base_url"] = base_url_from_ollama_host(os.environ["OLLAMA_HOST"])
+        cfg["base_url_source"] = "OLLAMA_HOST"
     cfg = {**cfg, **(overrides or {})}
+    if (overrides or {}).get("base_url"):
+        cfg["base_url_source"] = "override"
     if cfg.get("runtime") != "ollama":
         raise ConfigError(f"runtime must be 'ollama' (decision B1), got {cfg.get('runtime')!r}")
     for key in ("base_url", "model", "temperature", "seed", "limits", "timeout_s"):
