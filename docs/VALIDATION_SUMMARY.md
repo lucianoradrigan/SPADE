@@ -660,5 +660,14 @@ Local LLM `qwen3.5:9b` through Ollama. Each benchmark had its thresholds committ
 
 - **Fresh clone of `release/v0.2.0`** (no `data/`, no `workspace/`, Ollama unreachable): smoke 7/7, the 18 pages open without an exception, the assistant reports "unavailable" without crashing ([`audit/release/fresh_clone.md`](audit/release/fresh_clone.md)).
 - **CI:** `tests.yml` cancels superseded runs on `dev` and `feat/*` only (`tests/test_ci_concurrency.py`).
-- **B4** (pre-registration approved 2026-11-09, N-D3): see [`audit/b4/b4_results.md`](audit/b4/b4_results.md). No model is promoted (N-D4).
+- **B4** (pre-registration approved 2026-11-09, N-D3; [`audit/b4/b4_results.md`](audit/b4/b4_results.md)): **no tier meets its criterion; nothing is promoted (N-D4).**
+
+| ID | Status | Evidence |
+|---|---|---|
+| AI-N34 (Medium) | **Open.** B4 PC candidate `pc_server_5class_w2048/2026-11-10_run01` fails only the two-sided \|Δ abstention\| ≤ 5 pt on E4 (−16.3 pt: it abstains less); E4 macro-F1 0.994 against 0.684, every other check passes | `audit/b4/b4_results.md` |
+| AI-N35 (Medium) | **Open.** B4 RPi5 candidate (float16): the same, −20.6 pt on E4; E4 macro-F1 0.993 against 0.922 | `audit/b4/b4_results.md` |
+| AI-N36 (High) | **Open.** B4 ESP32 int8 (V1): D1 gate 0.838 < 0.88; inner_race at 50/70 rad/s is lost in int8 (Keras 1.000, int8 0.346). AI-N27/AI-N28 stay open for the ESP32 | `audit/b4/b4_results.md` |
+| AI-N37 (Low) | **Open.** `--teacher-run` is not recorded in the run's metadata | `AI_TECHNICAL_AUDIT.md` §13.8 |
+
+- **B4 cost:** simulation 5.66 CPU-h (estimate 3.2) in 35 min; training 2.10 CPU-h in 23 min.
 - **C2000 visit kit** (D-B4-4 option B): [`audit/b4/c2000_visit_kit.md`](audit/b4/c2000_visit_kit.md). Nothing measured on the board yet.
