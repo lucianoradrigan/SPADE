@@ -1,0 +1,35 @@
+# B4 plan (pre-registration docs/audit/b4/b4_preregistration.md), machine-readable. Nothing here has been generated.
+# Decisions D-B4-1 and D-B4-3 approved by Luciano 2026-11-09; D-B4-2 approved with a change; D-B4-4 pending.
+plant: dc_perm_ex_v2
+grid_speeds_rad_s: [40, 60, 80, 100, 125, 150, 175, 200, 220]   # D-B4-1: 40 and 60 added below the current 80-220 grid
+grid_severity_scales: [0.5, 0.75, 1.0, 1.5, 2.0]
+e4_low_speed_heldout_rad_s: [50, 70]                              # D-B4-1: evaluation only, never trained on
+e4_severity_scales: [1.0, 1.5]
+# D-B4-3: healthy (normal) runs outside the grid, ESP32 training only. 20 conditions x 3 seeds = 60 runs.
+# Speeds avoid the grid speeds and the E4 speeds; no condition equals an E3 condition (report_classifier_evaluation).
+esp32_offgrid_healthy:
+  - {omega_ref_rad_s: 30}
+  - {omega_ref_rad_s: 90}
+  - {omega_ref_rad_s: 140}
+  - {omega_ref_rad_s: 210}
+  - {omega_ref_rad_s: 100, load_torque_nm: 1.0}
+  - {omega_ref_rad_s: 100, load_torque_nm: 2.0}
+  - {omega_ref_rad_s: 100, load_torque_nm: 4.0}
+  - {omega_ref_rad_s: 175, load_torque_nm: 1.0}
+  - {omega_ref_rad_s: 175, load_torque_nm: 2.0}
+  - {omega_ref_rad_s: 175, load_torque_nm: 4.0}
+  - {omega_ref_rad_s: 150, electrical_noise_pct: 120, mechanical_noise_pct: 120}
+  - {omega_ref_rad_s: 150, electrical_noise_pct: 150, mechanical_noise_pct: 150}
+  - {omega_ref_rad_s: 125, electrical_noise_pct: 120, mechanical_noise_pct: 120}
+  - {omega_ref_rad_s: 200, electrical_noise_pct: 150, mechanical_noise_pct: 150}
+  - {omega_ref_rad_s: 90, psi_e_scale: 0.9, j_rotor_scale: 1.5}
+  - {omega_ref_rad_s: 140, psi_e_scale: 0.9, j_rotor_scale: 1.5}
+  - {omega_ref_rad_s: 210, psi_e_scale: 0.9, j_rotor_scale: 1.5}
+  - {omega_ref_rad_s: 150, dc_supply_v: 60}
+  - {omega_ref_rad_s: 150, dc_supply_v: 70}
+  - {omega_ref_rad_s: 125, load_torque_nm: 2.0, electrical_noise_pct: 120, mechanical_noise_pct: 120}
+esp32_offgrid_healthy_seeds_per_condition: 3
+criteria:
+  in_grid: ai_n27            # D1 gate on E1; delta macro-F1 >= -1 pt; delta recall >= -5 pt per class; |delta abstention| <= 5 pt
+  low_speed_e4: {macro_f1_min: 0.80, recall_min_per_class: 0.50}        # D-B4-2 (PC, RPi5)
+  int8_vs_keras: {max_recall_drop_pts_per_class: 5.0, max_macro_f1_drop_pts: 3.0}   # D-B4-2 as changed by Luciano (ESP32)
