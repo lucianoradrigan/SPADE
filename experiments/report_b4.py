@@ -125,6 +125,9 @@ def main(argv=None) -> None:
         assert prom["window"] == cand["window"]
         sets = _sets(tier, cand, prom, frames)
         t = {"promoted": PROMOTED[tier], "candidate": cands[tier], "artifact": KIND[tier], "classes": classes, "sets": {}, "candidate_dataset": cand["dataset"]}
+        gh = cand["metrics"]["split"]["group_hashes"]  # Q2 (§2): no acquisition in two splits
+        t["Q2_split_by_acquisition"] = {"overlaps": {f"{a}~{b}": len(set(gh[a]) & set(gh[b])) for a, b in (("train", "val"), ("train", "test"), ("val", "test"))}}
+        t["Q2_split_by_acquisition"]["pass"] = not any(t["Q2_split_by_acquisition"]["overlaps"].values())
         for s, (X, y, g) in sets.items():
             t["sets"][s] = RG._compare(prom, cand, KIND[tier], X, y, g, classes)
         assert t["sets"]["E1"]["candidate"]["n_windows"] == cand["metrics"]["n_test"], f"{tier}: E1 differs from the candidate's recorded test set"
