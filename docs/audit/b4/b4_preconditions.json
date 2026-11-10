@@ -1,0 +1,107 @@
+{
+  "command": "python experiments/b4_preconditions.py",
+  "simulated": true,
+  "preregistration": "docs/audit/b4/b4_preregistration.md \u00a72",
+  "Q1": {
+    "runs": [
+      {
+        "source": "grid_normal_w80_s0.00_seed1001",
+        "fault": null,
+        "speed": 80.0,
+        "severity_scale": 0.0,
+        "noise_free": false,
+        "nrms": {
+          "current_r": 1.6457088611266775e-07,
+          "rpm": 1.1748871294807494e-07,
+          "torque_nm": 3.3488853555658454e-07
+        },
+        "min_current_r_a": -62.959104267465634,
+        "pass": true
+      },
+      {
+        "source": "grid_inner_race_w150_s1.00_seed1263",
+        "fault": "inner_race",
+        "speed": 150.0,
+        "severity_scale": 1.0,
+        "noise_free": true,
+        "nrms": {
+          "current_r": 2.811132022705172e-05,
+          "rpm": 9.994113992365192e-07,
+          "torque_nm": 2.811132022705141e-05
+        },
+        "min_current_r_a": 33.803637523567275,
+        "pass": true
+      },
+      {
+        "source": "grid_cage_w220_s2.00_seed1525",
+        "fault": "cage",
+        "speed": 220.0,
+        "severity_scale": 2.0,
+        "noise_free": false,
+        "nrms": {
+          "current_r": 3.326021076084278e-05,
+          "rpm": 1.5382460939885202e-06,
+          "torque_nm": 7.431421681266562e-05
+        },
+        "min_current_r_a": -102.08928623250576,
+        "pass": true
+      }
+    ],
+    "nrms_max": 0.0001,
+    "pass": true
+  },
+  "Q3": {
+    "seed_ranges": {
+      "b4_grid_5class": [
+        80001,
+        80675
+      ],
+      "b4_grid_3class": [
+        80001,
+        80405
+      ],
+      "offgrid": [
+        85001,
+        85060
+      ],
+      "e4_5class": [
+        90001,
+        90060
+      ],
+      "e4_3class": [
+        90001,
+        90036
+      ],
+      "e5": [
+        95001,
+        95030
+      ],
+      "earlier_grids": [
+        1001,
+        1675
+      ],
+      "evaluation": [
+        200,
+        203
+      ]
+    },
+    "overlaps": {
+      "e4_3class~b4_grid_5class": 0,
+      "e4_3class~b4_grid_3class": 0,
+      "e4_3class~offgrid": 0,
+      "e4_3class~earlier_grids": 0,
+      "e4_3class~evaluation": 0,
+      "e4_5class~b4_grid_5class": 0,
+      "e4_5class~b4_grid_3class": 0,
+      "e4_5class~offgrid": 0,
+      "e4_5class~earlier_grids": 0,
+      "e4_5class~evaluation": 0,
+      "e5~b4_grid_5class": 0,
+      "e5~b4_grid_3class": 0,
+      "e5~offgrid": 0,
+      "e5~earlier_grids": 0,
+      "e5~evaluation": 0
+    },
+    "pass": true
+  }
+}

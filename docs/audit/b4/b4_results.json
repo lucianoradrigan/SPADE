@@ -1,0 +1,2283 @@
+{
+  "command": "python experiments/report_b4.py --pc configs/classifiers/pc_server_5class_w2048/2026-11-10_run01 --rpi5 configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-11-10_run01 --esp32 /mnt/datos/spade/b4_work/variants/V1 --esp32-keras configs/classifiers/esp32_dscnn/2026-11-10_run01 --teacher3 configs/classifiers/pc_server/2026-11-10_run01",
+  "preregistration": "docs/audit/b4/b4_preregistration.md",
+  "plan": "configs/b4_plan.yaml",
+  "host": "Linux-7.0.0-43-generic-x86_64-with-glibc2.43",
+  "python": "3.12.13",
+  "rule_ai_n27": {
+    "gate_min_macro_f1": 0.88,
+    "gate_min_recall": 0.7,
+    "min_delta_macro_f1_points": -1.0,
+    "min_delta_recall_points": -5.0,
+    "max_abs_delta_abstention_points": 5.0
+  },
+  "low_speed": {
+    "macro_f1_min": 0.8,
+    "recall_min_per_class": 0.5
+  },
+  "int8_vs_keras": {
+    "max_recall_drop_pts_per_class": 5.0,
+    "max_macro_f1_drop_pts": 3.0
+  },
+  "data": {
+    "G3": "data/b4_train_3class.parquet",
+    "G5": "data/b4_grid_5class.parquet",
+    "E3": "data/b4_eval_cache_5class.parquet",
+    "E4_3class": "data/b4_e4_3class.parquet",
+    "E4_5class": "data/b4_e4_5class.parquet"
+  },
+  "promoted": {
+    "PC": "configs/classifiers/pc_server_5class_w2048/2026-11-04_run01",
+    "RPi5": "configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-11-04_run01",
+    "ESP32": "configs/classifiers/esp32_dscnn/2026-10-18_run01"
+  },
+  "candidates": {
+    "PC": "configs/classifiers/pc_server_5class_w2048/2026-11-10_run01",
+    "RPi5": "configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+    "ESP32": "/mnt/datos/spade/b4_work/variants/V1"
+  },
+  "tiers": {
+    "PC": {
+      "promoted": "configs/classifiers/pc_server_5class_w2048/2026-11-04_run01",
+      "candidate": "configs/classifiers/pc_server_5class_w2048/2026-11-10_run01",
+      "artifact": "keras",
+      "classes": [
+        "ball",
+        "cage",
+        "inner_race",
+        "normal",
+        "outer_race"
+      ],
+      "sets": {
+        "E1": {
+          "n_acquisitions": 70,
+          "promoted": {
+            "n_windows": 840,
+            "accuracy": 0.8857142857142857,
+            "macro_f1": 0.8847097790108215,
+            "recall": {
+              "ball": 0.9166666666666666,
+              "cage": 0.9166666666666666,
+              "inner_race": 0.7261904761904762,
+              "normal": 0.9523809523809523,
+              "outer_race": 0.9166666666666666
+            },
+            "n_per_class": {
+              "ball": 168,
+              "cage": 168,
+              "inner_race": 168,
+              "normal": 168,
+              "outer_race": 168
+            },
+            "abstention": 0.14166666666666666,
+            "confusion": [
+              [
+                154,
+                6,
+                1,
+                5,
+                2
+              ],
+              [
+                6,
+                154,
+                1,
+                7,
+                0
+              ],
+              [
+                4,
+                2,
+                122,
+                2,
+                38
+              ],
+              [
+                6,
+                2,
+                0,
+                160,
+                0
+              ],
+              [
+                9,
+                3,
+                1,
+                1,
+                154
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 840,
+            "accuracy": 0.9380952380952381,
+            "macro_f1": 0.9387184261301732,
+            "recall": {
+              "ball": 0.9107142857142857,
+              "cage": 0.9523809523809523,
+              "inner_race": 0.8928571428571429,
+              "normal": 0.9880952380952381,
+              "outer_race": 0.9464285714285714
+            },
+            "n_per_class": {
+              "ball": 168,
+              "cage": 168,
+              "inner_race": 168,
+              "normal": 168,
+              "outer_race": 168
+            },
+            "abstention": 0.0988095238095238,
+            "confusion": [
+              [
+                153,
+                7,
+                2,
+                6,
+                0
+              ],
+              [
+                0,
+                160,
+                0,
+                8,
+                0
+              ],
+              [
+                1,
+                6,
+                150,
+                9,
+                2
+              ],
+              [
+                0,
+                2,
+                0,
+                166,
+                0
+              ],
+              [
+                0,
+                2,
+                1,
+                6,
+                159
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 5.400864711935172,
+            "accuracy": 5.238095238095242,
+            "abstention": -4.285714285714286,
+            "recall": {
+              "ball": -0.5952380952380931,
+              "cage": 3.57142857142857,
+              "inner_race": 16.666666666666675,
+              "normal": 3.571428571428581,
+              "outer_race": 2.9761904761904767
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            1.1194672219678454,
+            10.938956598335063
+          ]
+        },
+        "E3": {
+          "n_acquisitions": 260,
+          "promoted": {
+            "n_windows": 1000,
+            "accuracy": 0.982,
+            "macro_f1": 0.9822812684688186,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.98,
+              "inner_race": 0.98,
+              "normal": 0.97,
+              "outer_race": 0.98
+            },
+            "n_per_class": {
+              "ball": 200,
+              "cage": 200,
+              "inner_race": 200,
+              "normal": 200,
+              "outer_race": 200
+            },
+            "abstention": 0.024,
+            "confusion": [
+              [
+                200,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                196,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                0,
+                196,
+                0,
+                0
+              ],
+              [
+                6,
+                0,
+                0,
+                194,
+                0
+              ],
+              [
+                4,
+                0,
+                0,
+                0,
+                196
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 1000,
+            "accuracy": 0.984,
+            "macro_f1": 0.98411605866469,
+            "recall": {
+              "ball": 0.98,
+              "cage": 1.0,
+              "inner_race": 0.98,
+              "normal": 0.98,
+              "outer_race": 0.98
+            },
+            "n_per_class": {
+              "ball": 200,
+              "cage": 200,
+              "inner_race": 200,
+              "normal": 200,
+              "outer_race": 200
+            },
+            "abstention": 0.024,
+            "confusion": [
+              [
+                196,
+                0,
+                0,
+                4,
+                0
+              ],
+              [
+                0,
+                200,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                196,
+                4,
+                0
+              ],
+              [
+                0,
+                4,
+                0,
+                196,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                4,
+                196
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 0.18347901958714052,
+            "accuracy": 0.20000000000000018,
+            "abstention": 0.0,
+            "recall": {
+              "ball": -2.0000000000000018,
+              "cage": 2.0000000000000018,
+              "inner_race": 0.0,
+              "normal": 1.0000000000000009,
+              "outer_race": 0.0
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -0.4959312066702948,
+            0.8342640752657859
+          ]
+        },
+        "E4": {
+          "n_acquisitions": 60,
+          "promoted": {
+            "n_windows": 540,
+            "accuracy": 0.6962962962962963,
+            "macro_f1": 0.683840669841145,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.9814814814814815,
+              "inner_race": 0.4444444444444444,
+              "normal": 0.5833333333333334,
+              "outer_race": 0.4722222222222222
+            },
+            "n_per_class": {
+              "ball": 108,
+              "cage": 108,
+              "inner_race": 108,
+              "normal": 108,
+              "outer_race": 108
+            },
+            "abstention": 0.16666666666666666,
+            "confusion": [
+              [
+                108,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                106,
+                0,
+                2,
+                0
+              ],
+              [
+                0,
+                0,
+                48,
+                0,
+                60
+              ],
+              [
+                0,
+                45,
+                0,
+                63,
+                0
+              ],
+              [
+                57,
+                0,
+                0,
+                0,
+                51
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 540,
+            "accuracy": 0.9944444444444445,
+            "macro_f1": 0.994443372564152,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.9722222222222222,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 108,
+              "cage": 108,
+              "inner_race": 108,
+              "normal": 108,
+              "outer_race": 108
+            },
+            "abstention": 0.003703703703703704,
+            "confusion": [
+              [
+                108,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                105,
+                0,
+                3,
+                0
+              ],
+              [
+                0,
+                0,
+                108,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                108,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                108
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 31.060270272300706,
+            "accuracy": 29.814814814814817,
+            "abstention": -16.296296296296294,
+            "recall": {
+              "ball": 0.0,
+              "cage": -0.92592592592593,
+              "inner_race": 55.55555555555556,
+              "normal": 41.666666666666664,
+              "outer_race": 52.77777777777778
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            21.687419526621515,
+            43.234094241136276
+          ]
+        }
+      },
+      "candidate_dataset": "data/b4_grid_5class.parquet",
+      "Q2_split_by_acquisition": {
+        "overlaps": {
+          "train~val": 0,
+          "train~test": 0,
+          "val~test": 0
+        },
+        "pass": true
+      },
+      "checks": {
+        "gate_D1_E1_macro_f1": {
+          "value": 0.9387184261301732,
+          "threshold": 0.88,
+          "pass": true
+        },
+        "gate_D1_E1_min_recall": {
+          "value": 0.8928571428571429,
+          "threshold": 0.7,
+          "pass": true
+        },
+        "E1_delta_macro_f1": {
+          "value": 5.400864711935172,
+          "threshold": -1.0,
+          "pass": true
+        },
+        "E1_worst_delta_recall": {
+          "class": "ball",
+          "value": -0.5952380952380931,
+          "threshold": -5.0,
+          "pass": true
+        },
+        "E1_delta_abstention": {
+          "value": -4.285714285714286,
+          "threshold": 5.0,
+          "pass": true
+        },
+        "E3_delta_macro_f1": {
+          "value": 0.18347901958714052,
+          "threshold": -1.0,
+          "pass": true
+        },
+        "E3_worst_delta_recall": {
+          "class": "ball",
+          "value": -2.0000000000000018,
+          "threshold": -5.0,
+          "pass": true
+        },
+        "E3_delta_abstention": {
+          "value": 0.0,
+          "threshold": 5.0,
+          "pass": true
+        },
+        "E4_delta_macro_f1": {
+          "value": 31.060270272300706,
+          "threshold": -1.0,
+          "pass": true
+        },
+        "E4_worst_delta_recall": {
+          "class": "cage",
+          "value": -0.92592592592593,
+          "threshold": -5.0,
+          "pass": true
+        },
+        "E4_delta_abstention": {
+          "value": -16.296296296296294,
+          "threshold": 5.0,
+          "pass": false
+        },
+        "E4_low_speed_macro_f1": {
+          "value": 0.994443372564152,
+          "threshold": 0.8,
+          "pass": true
+        },
+        "E4_low_speed_min_recall": {
+          "value": 0.9722222222222222,
+          "threshold": 0.5,
+          "pass": true
+        }
+      },
+      "verdict": "DOES NOT MEET THE CRITERION"
+    },
+    "RPi5": {
+      "promoted": "configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-11-04_run01",
+      "candidate": "configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+      "artifact": "tflite",
+      "classes": [
+        "ball",
+        "cage",
+        "inner_race",
+        "normal",
+        "outer_race"
+      ],
+      "sets": {
+        "E1": {
+          "n_acquisitions": 70,
+          "promoted": {
+            "n_windows": 840,
+            "accuracy": 0.9166666666666666,
+            "macro_f1": 0.9168143558146353,
+            "recall": {
+              "ball": 0.8869047619047619,
+              "cage": 0.9226190476190477,
+              "inner_race": 0.9047619047619048,
+              "normal": 0.9523809523809523,
+              "outer_race": 0.9166666666666666
+            },
+            "n_per_class": {
+              "ball": 168,
+              "cage": 168,
+              "inner_race": 168,
+              "normal": 168,
+              "outer_race": 168
+            },
+            "abstention": 0.14523809523809525,
+            "confusion": [
+              [
+                149,
+                6,
+                7,
+                4,
+                2
+              ],
+              [
+                4,
+                155,
+                4,
+                5,
+                0
+              ],
+              [
+                2,
+                5,
+                152,
+                8,
+                1
+              ],
+              [
+                4,
+                3,
+                1,
+                160,
+                0
+              ],
+              [
+                6,
+                3,
+                2,
+                3,
+                154
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 840,
+            "accuracy": 0.9119047619047619,
+            "macro_f1": 0.9129646235609137,
+            "recall": {
+              "ball": 0.8690476190476191,
+              "cage": 0.9404761904761905,
+              "inner_race": 0.8809523809523809,
+              "normal": 0.9821428571428571,
+              "outer_race": 0.8869047619047619
+            },
+            "n_per_class": {
+              "ball": 168,
+              "cage": 168,
+              "inner_race": 168,
+              "normal": 168,
+              "outer_race": 168
+            },
+            "abstention": 0.14285714285714285,
+            "confusion": [
+              [
+                146,
+                10,
+                0,
+                12,
+                0
+              ],
+              [
+                0,
+                158,
+                0,
+                10,
+                0
+              ],
+              [
+                4,
+                5,
+                148,
+                10,
+                1
+              ],
+              [
+                0,
+                3,
+                0,
+                165,
+                0
+              ],
+              [
+                6,
+                7,
+                0,
+                6,
+                149
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -0.38497322537216494,
+            "accuracy": -0.4761904761904745,
+            "abstention": -0.23809523809524002,
+            "recall": {
+              "ball": -1.7857142857142794,
+              "cage": 1.7857142857142794,
+              "inner_race": -2.3809523809523836,
+              "normal": 2.9761904761904767,
+              "outer_race": -2.9761904761904767
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -2.2055587243108223,
+            1.3123403464705858
+          ]
+        },
+        "E3": {
+          "n_acquisitions": 260,
+          "promoted": {
+            "n_windows": 1000,
+            "accuracy": 0.98,
+            "macro_f1": 0.9801856556142271,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.98,
+              "inner_race": 0.98,
+              "normal": 0.96,
+              "outer_race": 0.98
+            },
+            "n_per_class": {
+              "ball": 200,
+              "cage": 200,
+              "inner_race": 200,
+              "normal": 200,
+              "outer_race": 200
+            },
+            "abstention": 0.024,
+            "confusion": [
+              [
+                200,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                196,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                0,
+                196,
+                0,
+                0
+              ],
+              [
+                4,
+                4,
+                0,
+                192,
+                0
+              ],
+              [
+                4,
+                0,
+                0,
+                0,
+                196
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 1000,
+            "accuracy": 0.978,
+            "macro_f1": 0.978210299459648,
+            "recall": {
+              "ball": 0.98,
+              "cage": 0.98,
+              "inner_race": 0.98,
+              "normal": 0.98,
+              "outer_race": 0.97
+            },
+            "n_per_class": {
+              "ball": 200,
+              "cage": 200,
+              "inner_race": 200,
+              "normal": 200,
+              "outer_race": 200
+            },
+            "abstention": 0.035,
+            "confusion": [
+              [
+                196,
+                0,
+                0,
+                4,
+                0
+              ],
+              [
+                0,
+                196,
+                0,
+                4,
+                0
+              ],
+              [
+                0,
+                0,
+                196,
+                4,
+                0
+              ],
+              [
+                0,
+                4,
+                0,
+                196,
+                0
+              ],
+              [
+                2,
+                0,
+                0,
+                4,
+                194
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -0.1975356154579111,
+            "accuracy": -0.20000000000000018,
+            "abstention": 1.1000000000000003,
+            "recall": {
+              "ball": -2.0000000000000018,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 2.0000000000000018,
+              "outer_race": -1.0000000000000009
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -0.950621544780601,
+            0.45004114037613174
+          ]
+        },
+        "E4": {
+          "n_acquisitions": 60,
+          "promoted": {
+            "n_windows": 540,
+            "accuracy": 0.9259259259259259,
+            "macro_f1": 0.9221223090193981,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.9814814814814815,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 0.6481481481481481
+            },
+            "n_per_class": {
+              "ball": 108,
+              "cage": 108,
+              "inner_race": 108,
+              "normal": 108,
+              "outer_race": 108
+            },
+            "abstention": 0.22037037037037038,
+            "confusion": [
+              [
+                108,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                106,
+                1,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                108,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                108,
+                0
+              ],
+              [
+                30,
+                0,
+                8,
+                0,
+                70
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 540,
+            "accuracy": 0.9925925925925926,
+            "macro_f1": 0.9925747253682013,
+            "recall": {
+              "ball": 0.9907407407407407,
+              "cage": 0.9722222222222222,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 108,
+              "cage": 108,
+              "inner_race": 108,
+              "normal": 108,
+              "outer_race": 108
+            },
+            "abstention": 0.014814814814814815,
+            "confusion": [
+              [
+                107,
+                0,
+                0,
+                0,
+                1
+              ],
+              [
+                1,
+                105,
+                0,
+                1,
+                1
+              ],
+              [
+                0,
+                0,
+                108,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                108,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                108
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 7.045241634880329,
+            "accuracy": 6.666666666666665,
+            "abstention": -20.555555555555557,
+            "recall": {
+              "ball": -0.92592592592593,
+              "cage": -0.92592592592593,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 35.18518518518518
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            1.9422560863584595,
+            13.029147478646166
+          ]
+        }
+      },
+      "candidate_dataset": "data/b4_grid_5class.parquet",
+      "Q2_split_by_acquisition": {
+        "overlaps": {
+          "train~val": 0,
+          "train~test": 0,
+          "val~test": 0
+        },
+        "pass": true
+      },
+      "keras_descriptive": {
+        "E1": {
+          "n_acquisitions": 70,
+          "promoted": {
+            "n_windows": 840,
+            "accuracy": 0.9154761904761904,
+            "macro_f1": 0.915636463885918,
+            "recall": {
+              "ball": 0.8869047619047619,
+              "cage": 0.9166666666666666,
+              "inner_race": 0.9047619047619048,
+              "normal": 0.9523809523809523,
+              "outer_race": 0.9166666666666666
+            },
+            "n_per_class": {
+              "ball": 168,
+              "cage": 168,
+              "inner_race": 168,
+              "normal": 168,
+              "outer_race": 168
+            },
+            "abstention": 0.14642857142857144,
+            "confusion": [
+              [
+                149,
+                6,
+                7,
+                4,
+                2
+              ],
+              [
+                5,
+                154,
+                4,
+                5,
+                0
+              ],
+              [
+                2,
+                5,
+                152,
+                8,
+                1
+              ],
+              [
+                4,
+                3,
+                1,
+                160,
+                0
+              ],
+              [
+                6,
+                3,
+                2,
+                3,
+                154
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 840,
+            "accuracy": 0.9119047619047619,
+            "macro_f1": 0.9129646235609137,
+            "recall": {
+              "ball": 0.8690476190476191,
+              "cage": 0.9404761904761905,
+              "inner_race": 0.8809523809523809,
+              "normal": 0.9821428571428571,
+              "outer_race": 0.8869047619047619
+            },
+            "n_per_class": {
+              "ball": 168,
+              "cage": 168,
+              "inner_race": 168,
+              "normal": 168,
+              "outer_race": 168
+            },
+            "abstention": 0.14285714285714285,
+            "confusion": [
+              [
+                146,
+                10,
+                0,
+                12,
+                0
+              ],
+              [
+                0,
+                158,
+                0,
+                10,
+                0
+              ],
+              [
+                4,
+                5,
+                148,
+                10,
+                1
+              ],
+              [
+                0,
+                3,
+                0,
+                165,
+                0
+              ],
+              [
+                6,
+                7,
+                0,
+                6,
+                149
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -0.26718403250043377,
+            "accuracy": -0.3571428571428559,
+            "abstention": -0.35714285714285865,
+            "recall": {
+              "ball": -1.7857142857142794,
+              "cage": 2.3809523809523836,
+              "inner_race": -2.3809523809523836,
+              "normal": 2.9761904761904767,
+              "outer_race": -2.9761904761904767
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -2.0290022067796385,
+            1.4348889654116133
+          ]
+        },
+        "E3": {
+          "n_acquisitions": 260,
+          "promoted": {
+            "n_windows": 1000,
+            "accuracy": 0.98,
+            "macro_f1": 0.9801856556142271,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.98,
+              "inner_race": 0.98,
+              "normal": 0.96,
+              "outer_race": 0.98
+            },
+            "n_per_class": {
+              "ball": 200,
+              "cage": 200,
+              "inner_race": 200,
+              "normal": 200,
+              "outer_race": 200
+            },
+            "abstention": 0.024,
+            "confusion": [
+              [
+                200,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                196,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                0,
+                196,
+                0,
+                0
+              ],
+              [
+                4,
+                4,
+                0,
+                192,
+                0
+              ],
+              [
+                4,
+                0,
+                0,
+                0,
+                196
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 1000,
+            "accuracy": 0.978,
+            "macro_f1": 0.978210299459648,
+            "recall": {
+              "ball": 0.98,
+              "cage": 0.98,
+              "inner_race": 0.98,
+              "normal": 0.98,
+              "outer_race": 0.97
+            },
+            "n_per_class": {
+              "ball": 200,
+              "cage": 200,
+              "inner_race": 200,
+              "normal": 200,
+              "outer_race": 200
+            },
+            "abstention": 0.035,
+            "confusion": [
+              [
+                196,
+                0,
+                0,
+                4,
+                0
+              ],
+              [
+                0,
+                196,
+                0,
+                4,
+                0
+              ],
+              [
+                0,
+                0,
+                196,
+                4,
+                0
+              ],
+              [
+                0,
+                4,
+                0,
+                196,
+                0
+              ],
+              [
+                2,
+                0,
+                0,
+                4,
+                194
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -0.1975356154579111,
+            "accuracy": -0.20000000000000018,
+            "abstention": 1.1000000000000003,
+            "recall": {
+              "ball": -2.0000000000000018,
+              "cage": 0.0,
+              "inner_race": 0.0,
+              "normal": 2.0000000000000018,
+              "outer_race": -1.0000000000000009
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -0.950621544780601,
+            0.45004114037613174
+          ]
+        },
+        "E4": {
+          "n_acquisitions": 60,
+          "promoted": {
+            "n_windows": 540,
+            "accuracy": 0.9259259259259259,
+            "macro_f1": 0.9218701032937588,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.9814814814814815,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 0.6481481481481481
+            },
+            "n_per_class": {
+              "ball": 108,
+              "cage": 108,
+              "inner_race": 108,
+              "normal": 108,
+              "outer_race": 108
+            },
+            "abstention": 0.22037037037037038,
+            "confusion": [
+              [
+                108,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                106,
+                1,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                108,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                108,
+                0
+              ],
+              [
+                28,
+                0,
+                10,
+                0,
+                70
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 540,
+            "accuracy": 0.9925925925925926,
+            "macro_f1": 0.9925747253682013,
+            "recall": {
+              "ball": 0.9907407407407407,
+              "cage": 0.9722222222222222,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 108,
+              "cage": 108,
+              "inner_race": 108,
+              "normal": 108,
+              "outer_race": 108
+            },
+            "abstention": 0.014814814814814815,
+            "confusion": [
+              [
+                107,
+                0,
+                0,
+                0,
+                1
+              ],
+              [
+                1,
+                105,
+                0,
+                1,
+                1
+              ],
+              [
+                0,
+                0,
+                108,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                108,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                108
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 7.07046220744425,
+            "accuracy": 6.666666666666665,
+            "abstention": -20.555555555555557,
+            "recall": {
+              "ball": -0.92592592592593,
+              "cage": -0.92592592592593,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 35.18518518518518
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            1.9479494424441581,
+            13.125924068106723
+          ]
+        }
+      },
+      "checks": {
+        "gate_D1_E1_macro_f1": {
+          "value": 0.9129646235609137,
+          "threshold": 0.88,
+          "pass": true
+        },
+        "gate_D1_E1_min_recall": {
+          "value": 0.8690476190476191,
+          "threshold": 0.7,
+          "pass": true
+        },
+        "E1_delta_macro_f1": {
+          "value": -0.38497322537216494,
+          "threshold": -1.0,
+          "pass": true
+        },
+        "E1_worst_delta_recall": {
+          "class": "outer_race",
+          "value": -2.9761904761904767,
+          "threshold": -5.0,
+          "pass": true
+        },
+        "E1_delta_abstention": {
+          "value": -0.23809523809524002,
+          "threshold": 5.0,
+          "pass": true
+        },
+        "E3_delta_macro_f1": {
+          "value": -0.1975356154579111,
+          "threshold": -1.0,
+          "pass": true
+        },
+        "E3_worst_delta_recall": {
+          "class": "ball",
+          "value": -2.0000000000000018,
+          "threshold": -5.0,
+          "pass": true
+        },
+        "E3_delta_abstention": {
+          "value": 1.1000000000000003,
+          "threshold": 5.0,
+          "pass": true
+        },
+        "E4_delta_macro_f1": {
+          "value": 7.045241634880329,
+          "threshold": -1.0,
+          "pass": true
+        },
+        "E4_worst_delta_recall": {
+          "class": "ball",
+          "value": -0.92592592592593,
+          "threshold": -5.0,
+          "pass": true
+        },
+        "E4_delta_abstention": {
+          "value": -20.555555555555557,
+          "threshold": 5.0,
+          "pass": false
+        },
+        "E4_low_speed_macro_f1": {
+          "value": 0.9925747253682013,
+          "threshold": 0.8,
+          "pass": true
+        },
+        "E4_low_speed_min_recall": {
+          "value": 0.9722222222222222,
+          "threshold": 0.5,
+          "pass": true
+        }
+      },
+      "verdict": "DOES NOT MEET THE CRITERION"
+    },
+    "ESP32": {
+      "promoted": "configs/classifiers/esp32_dscnn/2026-10-18_run01",
+      "candidate": "/mnt/datos/spade/b4_work/variants/V1",
+      "artifact": "tflite",
+      "classes": [
+        "inner_race",
+        "normal",
+        "outer_race"
+      ],
+      "sets": {
+        "E1": {
+          "n_acquisitions": 41,
+          "promoted": {
+            "n_windows": 898,
+            "accuracy": 0.8073496659242761,
+            "macro_f1": 0.8075202643668836,
+            "recall": {
+              "inner_race": 0.8327759197324415,
+              "normal": 0.82,
+              "outer_race": 0.7692307692307693
+            },
+            "n_per_class": {
+              "inner_race": 299,
+              "normal": 300,
+              "outer_race": 299
+            },
+            "abstention": 0.33853006681514475,
+            "confusion": [
+              [
+                249,
+                16,
+                34
+              ],
+              [
+                17,
+                246,
+                37
+              ],
+              [
+                44,
+                25,
+                230
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 898,
+            "accuracy": 0.8385300668151447,
+            "macro_f1": 0.8384405601901772,
+            "recall": {
+              "inner_race": 0.745819397993311,
+              "normal": 0.95,
+              "outer_race": 0.8193979933110368
+            },
+            "n_per_class": {
+              "inner_race": 299,
+              "normal": 300,
+              "outer_race": 299
+            },
+            "abstention": 0.026726057906458798,
+            "confusion": [
+              [
+                223,
+                35,
+                41
+              ],
+              [
+                0,
+                285,
+                15
+              ],
+              [
+                4,
+                50,
+                245
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 3.0920295823293587,
+            "accuracy": 3.11804008908686,
+            "abstention": -31.180400890868594,
+            "recall": {
+              "inner_race": -8.695652173913048,
+              "normal": 13.0,
+              "outer_race": 5.0167224080267525
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -2.5935412717175783,
+            10.372768498244756
+          ]
+        },
+        "E3": {
+          "n_acquisitions": 156,
+          "promoted": {
+            "n_windows": 2844,
+            "accuracy": 0.989803094233474,
+            "macro_f1": 0.9898077547537651,
+            "recall": {
+              "inner_race": 0.9873417721518988,
+              "normal": 0.9936708860759493,
+              "outer_race": 0.9883966244725738
+            },
+            "n_per_class": {
+              "inner_race": 948,
+              "normal": 948,
+              "outer_race": 948
+            },
+            "abstention": 0.039029535864978905,
+            "confusion": [
+              [
+                936,
+                8,
+                4
+              ],
+              [
+                1,
+                942,
+                5
+              ],
+              [
+                3,
+                8,
+                937
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 2844,
+            "accuracy": 0.9873417721518988,
+            "macro_f1": 0.9873649107267953,
+            "recall": {
+              "inner_race": 0.9831223628691983,
+              "normal": 0.9915611814345991,
+              "outer_race": 0.9873417721518988
+            },
+            "n_per_class": {
+              "inner_race": 948,
+              "normal": 948,
+              "outer_race": 948
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                932,
+                12,
+                4
+              ],
+              [
+                0,
+                940,
+                8
+              ],
+              [
+                0,
+                12,
+                936
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -0.24428440269698148,
+            "accuracy": -0.24613220815752346,
+            "abstention": -3.9029535864978904,
+            "recall": {
+              "inner_race": -0.42194092827004814,
+              "normal": -0.21097046413501852,
+              "outer_race": -0.10548523206750371
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -0.4483957555307322,
+            -0.08107713719659489
+          ]
+        },
+        "E4": {
+          "n_acquisitions": 36,
+          "promoted": {
+            "n_windows": 1404,
+            "accuracy": 0.7613960113960114,
+            "macro_f1": 0.7256977714917903,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 0.2841880341880342
+            },
+            "n_per_class": {
+              "inner_race": 468,
+              "normal": 468,
+              "outer_race": 468
+            },
+            "abstention": 0.3076923076923077,
+            "confusion": [
+              [
+                468,
+                0,
+                0
+              ],
+              [
+                0,
+                468,
+                0
+              ],
+              [
+                331,
+                4,
+                133
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 1404,
+            "accuracy": 0.7806267806267806,
+            "macro_f1": 0.7547570436913026,
+            "recall": {
+              "inner_race": 0.34615384615384615,
+              "normal": 1.0,
+              "outer_race": 0.9957264957264957
+            },
+            "n_per_class": {
+              "inner_race": 468,
+              "normal": 468,
+              "outer_race": 468
+            },
+            "abstention": 0.06623931623931624,
+            "confusion": [
+              [
+                162,
+                0,
+                306
+              ],
+              [
+                0,
+                468,
+                0
+              ],
+              [
+                2,
+                0,
+                466
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 2.905927219951232,
+            "accuracy": 1.9230769230769162,
+            "abstention": -24.14529914529915,
+            "recall": {
+              "inner_race": -65.38461538461539,
+              "normal": 0.0,
+              "outer_race": 71.15384615384616
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -12.315009419197793,
+            16.795664084577428
+          ]
+        }
+      },
+      "candidate_dataset": "data/b4_train_3class.parquet",
+      "Q2_split_by_acquisition": {
+        "overlaps": {
+          "train~val": 0,
+          "train~test": 0,
+          "val~test": 0
+        },
+        "pass": true
+      },
+      "int8_vs_keras": {
+        "E1": {
+          "int8": {
+            "n_windows": 898,
+            "accuracy": 0.8385300668151447,
+            "macro_f1": 0.8384405601901772,
+            "recall": {
+              "inner_race": 0.745819397993311,
+              "normal": 0.95,
+              "outer_race": 0.8193979933110368
+            },
+            "n_per_class": {
+              "inner_race": 299,
+              "normal": 300,
+              "outer_race": 299
+            },
+            "abstention": 0.026726057906458798,
+            "confusion": [
+              [
+                223,
+                35,
+                41
+              ],
+              [
+                0,
+                285,
+                15
+              ],
+              [
+                4,
+                50,
+                245
+              ]
+            ]
+          },
+          "keras": {
+            "n_windows": 898,
+            "accuracy": 0.8407572383073497,
+            "macro_f1": 0.8420770727803438,
+            "recall": {
+              "inner_race": 0.8695652173913043,
+              "normal": 0.7733333333333333,
+              "outer_race": 0.8795986622073578
+            },
+            "n_per_class": {
+              "inner_race": 299,
+              "normal": 300,
+              "outer_race": 299
+            },
+            "abstention": 0.10579064587973273,
+            "confusion": [
+              [
+                260,
+                15,
+                24
+              ],
+              [
+                3,
+                232,
+                65
+              ],
+              [
+                14,
+                22,
+                263
+              ]
+            ]
+          }
+        },
+        "E3": {
+          "int8": {
+            "n_windows": 2844,
+            "accuracy": 0.9873417721518988,
+            "macro_f1": 0.9873649107267953,
+            "recall": {
+              "inner_race": 0.9831223628691983,
+              "normal": 0.9915611814345991,
+              "outer_race": 0.9873417721518988
+            },
+            "n_per_class": {
+              "inner_race": 948,
+              "normal": 948,
+              "outer_race": 948
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                932,
+                12,
+                4
+              ],
+              [
+                0,
+                940,
+                8
+              ],
+              [
+                0,
+                12,
+                936
+              ]
+            ]
+          },
+          "keras": {
+            "n_windows": 2844,
+            "accuracy": 0.9873417721518988,
+            "macro_f1": 0.9873498389496461,
+            "recall": {
+              "inner_race": 0.9831223628691983,
+              "normal": 0.9873417721518988,
+              "outer_race": 0.9915611814345991
+            },
+            "n_per_class": {
+              "inner_race": 948,
+              "normal": 948,
+              "outer_race": 948
+            },
+            "abstention": 0.008438818565400843,
+            "confusion": [
+              [
+                932,
+                8,
+                8
+              ],
+              [
+                3,
+                936,
+                9
+              ],
+              [
+                0,
+                8,
+                940
+              ]
+            ]
+          }
+        },
+        "E4": {
+          "int8": {
+            "n_windows": 1404,
+            "accuracy": 0.7806267806267806,
+            "macro_f1": 0.7547570436913026,
+            "recall": {
+              "inner_race": 0.34615384615384615,
+              "normal": 1.0,
+              "outer_race": 0.9957264957264957
+            },
+            "n_per_class": {
+              "inner_race": 468,
+              "normal": 468,
+              "outer_race": 468
+            },
+            "abstention": 0.06623931623931624,
+            "confusion": [
+              [
+                162,
+                0,
+                306
+              ],
+              [
+                0,
+                468,
+                0
+              ],
+              [
+                2,
+                0,
+                466
+              ]
+            ]
+          },
+          "keras": {
+            "n_windows": 1404,
+            "accuracy": 0.8867521367521367,
+            "macro_f1": 0.885838299496836,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 0.7628205128205128,
+              "outer_race": 0.8974358974358975
+            },
+            "n_per_class": {
+              "inner_race": 468,
+              "normal": 468,
+              "outer_race": 468
+            },
+            "abstention": 0.1915954415954416,
+            "confusion": [
+              [
+                468,
+                0,
+                0
+              ],
+              [
+                0,
+                357,
+                111
+              ],
+              [
+                48,
+                0,
+                420
+              ]
+            ]
+          }
+        }
+      },
+      "keras_descriptive": {
+        "E1": {
+          "n_acquisitions": 41,
+          "promoted": {
+            "n_windows": 898,
+            "accuracy": 0.8195991091314031,
+            "macro_f1": 0.8174472471220439,
+            "recall": {
+              "inner_race": 0.8929765886287625,
+              "normal": 0.8766666666666667,
+              "outer_race": 0.6889632107023411
+            },
+            "n_per_class": {
+              "inner_race": 299,
+              "normal": 300,
+              "outer_race": 299
+            },
+            "abstention": 0.3062360801781737,
+            "confusion": [
+              [
+                267,
+                23,
+                9
+              ],
+              [
+                18,
+                263,
+                19
+              ],
+              [
+                64,
+                29,
+                206
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 898,
+            "accuracy": 0.8407572383073497,
+            "macro_f1": 0.8420770727803438,
+            "recall": {
+              "inner_race": 0.8695652173913043,
+              "normal": 0.7733333333333333,
+              "outer_race": 0.8795986622073578
+            },
+            "n_per_class": {
+              "inner_race": 299,
+              "normal": 300,
+              "outer_race": 299
+            },
+            "abstention": 0.10579064587973273,
+            "confusion": [
+              [
+                260,
+                15,
+                24
+              ],
+              [
+                3,
+                232,
+                65
+              ],
+              [
+                14,
+                22,
+                263
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 2.4629825658299964,
+            "accuracy": 2.1158129175946616,
+            "abstention": -20.044543429844097,
+            "recall": {
+              "inner_race": -2.341137123745818,
+              "normal": -10.33333333333334,
+              "outer_race": 19.06354515050167
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -4.480463861600796,
+            9.716107325714715
+          ]
+        },
+        "E3": {
+          "n_acquisitions": 156,
+          "promoted": {
+            "n_windows": 2844,
+            "accuracy": 0.9887482419127989,
+            "macro_f1": 0.9887682528240593,
+            "recall": {
+              "inner_race": 0.9873417721518988,
+              "normal": 0.9957805907172996,
+              "outer_race": 0.9831223628691983
+            },
+            "n_per_class": {
+              "inner_race": 948,
+              "normal": 948,
+              "outer_race": 948
+            },
+            "abstention": 0.00808720112517581,
+            "confusion": [
+              [
+                936,
+                12,
+                0
+              ],
+              [
+                4,
+                944,
+                0
+              ],
+              [
+                4,
+                12,
+                932
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 2844,
+            "accuracy": 0.9873417721518988,
+            "macro_f1": 0.9873498389496461,
+            "recall": {
+              "inner_race": 0.9831223628691983,
+              "normal": 0.9873417721518988,
+              "outer_race": 0.9915611814345991
+            },
+            "n_per_class": {
+              "inner_race": 948,
+              "normal": 948,
+              "outer_race": 948
+            },
+            "abstention": 0.008438818565400843,
+            "confusion": [
+              [
+                932,
+                8,
+                8
+              ],
+              [
+                3,
+                936,
+                9
+              ],
+              [
+                0,
+                8,
+                940
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": -0.14184138744132158,
+            "accuracy": -0.14064697609000865,
+            "abstention": 0.035161744022503376,
+            "recall": {
+              "inner_race": -0.42194092827004814,
+              "normal": -0.8438818565400852,
+              "outer_race": 0.8438818565400852
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            -0.5550098070812511,
+            0.28219291290062953
+          ]
+        },
+        "E4": {
+          "n_acquisitions": 36,
+          "promoted": {
+            "n_windows": 1404,
+            "accuracy": 0.7058404558404558,
+            "macro_f1": 0.6655525695090906,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 0.8995726495726496,
+              "outer_race": 0.21794871794871795
+            },
+            "n_per_class": {
+              "inner_race": 468,
+              "normal": 468,
+              "outer_race": 468
+            },
+            "abstention": 0.4458689458689459,
+            "confusion": [
+              [
+                468,
+                0,
+                0
+              ],
+              [
+                0,
+                421,
+                47
+              ],
+              [
+                366,
+                0,
+                102
+              ]
+            ]
+          },
+          "candidate": {
+            "n_windows": 1404,
+            "accuracy": 0.8867521367521367,
+            "macro_f1": 0.885838299496836,
+            "recall": {
+              "inner_race": 1.0,
+              "normal": 0.7628205128205128,
+              "outer_race": 0.8974358974358975
+            },
+            "n_per_class": {
+              "inner_race": 468,
+              "normal": 468,
+              "outer_race": 468
+            },
+            "abstention": 0.1915954415954416,
+            "confusion": [
+              [
+                468,
+                0,
+                0
+              ],
+              [
+                0,
+                357,
+                111
+              ],
+              [
+                48,
+                0,
+                420
+              ]
+            ]
+          },
+          "delta_points": {
+            "macro_f1": 22.028572998774543,
+            "accuracy": 18.091168091168086,
+            "abstention": -25.427350427350426,
+            "recall": {
+              "inner_race": 0.0,
+              "normal": -13.675213675213682,
+              "outer_race": 67.94871794871796
+            }
+          },
+          "delta_macro_f1_ci95_points": [
+            12.685878178486796,
+            30.081329109444674
+          ]
+        }
+      },
+      "checks": {
+        "gate_D1_E1_macro_f1": {
+          "value": 0.8384405601901772,
+          "threshold": 0.88,
+          "pass": false
+        },
+        "gate_D1_E1_min_recall": {
+          "value": 0.745819397993311,
+          "threshold": 0.7,
+          "pass": true
+        },
+        "E1_delta_macro_f1": {
+          "value": 3.0920295823293587,
+          "threshold": -1.0,
+          "pass": true
+        },
+        "E1_worst_delta_recall": {
+          "class": "inner_race",
+          "value": -8.695652173913048,
+          "threshold": -5.0,
+          "pass": false
+        },
+        "E1_delta_abstention": {
+          "value": -31.180400890868594,
+          "threshold": 5.0,
+          "pass": false
+        },
+        "E3_delta_macro_f1": {
+          "value": -0.24428440269698148,
+          "threshold": -1.0,
+          "pass": true
+        },
+        "E3_worst_delta_recall": {
+          "class": "inner_race",
+          "value": -0.42194092827004814,
+          "threshold": -5.0,
+          "pass": true
+        },
+        "E3_delta_abstention": {
+          "value": -3.9029535864978904,
+          "threshold": 5.0,
+          "pass": true
+        },
+        "E4_delta_macro_f1": {
+          "value": 2.905927219951232,
+          "threshold": -1.0,
+          "pass": true
+        },
+        "E4_worst_delta_recall": {
+          "class": "inner_race",
+          "value": -65.38461538461539,
+          "threshold": -5.0,
+          "pass": false
+        },
+        "E4_delta_abstention": {
+          "value": -24.14529914529915,
+          "threshold": 5.0,
+          "pass": false
+        },
+        "E1_int8_macro_f1_drop": {
+          "value": 0.36365125901666184,
+          "threshold": 3.0,
+          "pass": true
+        },
+        "E1_int8_worst_recall_drop": {
+          "class": "inner_race",
+          "value": 12.374581939799334,
+          "threshold": 5.0,
+          "pass": false
+        },
+        "E3_int8_macro_f1_drop": {
+          "value": -0.0015071777149211485,
+          "threshold": 3.0,
+          "pass": true
+        },
+        "E3_int8_worst_recall_drop": {
+          "class": "outer_race",
+          "value": 0.42194092827003704,
+          "threshold": 5.0,
+          "pass": true
+        },
+        "E4_int8_macro_f1_drop": {
+          "value": 13.108125580553342,
+          "threshold": 3.0,
+          "pass": false
+        },
+        "E4_int8_worst_recall_drop": {
+          "class": "inner_race",
+          "value": 65.38461538461539,
+          "threshold": 5.0,
+          "pass": false
+        }
+      },
+      "verdict": "DOES NOT MEET THE CRITERION"
+    }
+  },
+  "teacher_3class": {
+    "run": "configs/classifiers/pc_server/2026-11-10_run01",
+    "test_macro_f1": 0.8967804184550324,
+    "test_accuracy": 0.8964365256124721,
+    "n_test": 898
+  },
+  "evaluation_wall_s": 89.3,
+  "cpu_time": {
+    "source": "docs/audit/b4/b4_times.tsv (GNU time, user+sys)",
+    "simulation_cpu_h": 5.66,
+    "simulation_wall_min": 35,
+    "training_cpu_h": 2.1,
+    "training_wall_min": 23,
+    "exports_cpu_h": 0.02,
+    "evaluation_cpu_h": 0.04,
+    "estimate_simulation_cpu_h": 3.2,
+    "estimate_training_cpu_h_max": 5
+  },
+  "esp32_selection": "docs/audit/b4/b4_esp32_selection.json (selected V1)",
+  "deviations": [
+    "per-tensor ESP32 variant labelled (C1,Qt) in \u00a74, described and executed as noise-free stratified (C2,Qt)",
+    "off-grid healthy runs follow the acquisition split",
+    "E5 not executed (conditions unspecified)",
+    "grid RNG seed = generator default 7",
+    "\u00a75.4 bootstrap CI and confusion matrices not executed",
+    "report file name b4_results (night instructions) instead of b4_report"
+  ],
+  "findings": {
+    "PC": "AI-N34",
+    "RPi5": "AI-N35",
+    "ESP32": "AI-N36",
+    "traceability": "AI-N37"
+  },
+  "nothing_promoted": true
+}

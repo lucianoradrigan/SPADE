@@ -1,0 +1,186 @@
+{
+  "grid": "data/b4_train_3class.parquet",
+  "variants": {
+    "V0": {
+      "keras": "configs/classifiers/esp32_dscnn/2026-11-10_run01",
+      "calibration": "current recipe (per channel)",
+      "per_channel": true,
+      "calibration_counts": null,
+      "dir": "(b4_work)/variants/V0",
+      "validation": {
+        "n_windows": 1796,
+        "accuracy": 0.6380846325167038,
+        "macro_f1": 0.5891362520596884,
+        "recall": {
+          "inner_race": 0.822742474916388,
+          "normal": 0.16166666666666665,
+          "outer_race": 0.931438127090301
+        },
+        "n_per_class": {
+          "inner_race": 598,
+          "normal": 600,
+          "outer_race": 598
+        },
+        "abstention": 0.05790645879732739,
+        "confusion": [
+          [
+            492,
+            7,
+            99
+          ],
+          [
+            35,
+            97,
+            468
+          ],
+          [
+            38,
+            3,
+            557
+          ]
+        ],
+        "min_recall": 0.16166666666666665
+      }
+    },
+    "V1": {
+      "keras": "configs/classifiers/esp32_dscnn/2026-11-10_run01",
+      "calibration": "noise-free stratified, training split",
+      "per_channel": false,
+      "calibration_counts": {
+        "inner_race": 334,
+        "normal": 333,
+        "outer_race": 333
+      },
+      "dir": "configs/classifiers/esp32_dscnn/2026-11-10_run01 (selected variant V1, copied from /mnt/datos/spade/b4_work/variants/V1)",
+      "validation": {
+        "n_windows": 1796,
+        "accuracy": 0.8697104677060133,
+        "macro_f1": 0.8702132845489778,
+        "recall": {
+          "inner_race": 0.7976588628762542,
+          "normal": 0.9416666666666667,
+          "outer_race": 0.8695652173913043
+        },
+        "n_per_class": {
+          "inner_race": 598,
+          "normal": 600,
+          "outer_race": 598
+        },
+        "abstention": 0.0400890868596882,
+        "confusion": [
+          [
+            477,
+            83,
+            38
+          ],
+          [
+            5,
+            565,
+            30
+          ],
+          [
+            11,
+            67,
+            520
+          ]
+        ],
+        "min_recall": 0.7976588628762542
+      }
+    },
+    "V2": {
+      "keras": "configs/classifiers/esp32_dscnn/2026-11-10_run02",
+      "calibration": "current recipe (per channel)",
+      "per_channel": true,
+      "calibration_counts": null,
+      "dir": "(b4_work)/variants/V2",
+      "validation": {
+        "n_windows": 1796,
+        "accuracy": 0.8630289532293987,
+        "macro_f1": 0.8621137948472607,
+        "recall": {
+          "inner_race": 0.8361204013377926,
+          "normal": 0.98,
+          "outer_race": 0.7725752508361204
+        },
+        "n_per_class": {
+          "inner_race": 598,
+          "normal": 600,
+          "outer_race": 598
+        },
+        "abstention": 0.11080178173719377,
+        "confusion": [
+          [
+            500,
+            86,
+            12
+          ],
+          [
+            10,
+            588,
+            2
+          ],
+          [
+            79,
+            57,
+            462
+          ]
+        ],
+        "min_recall": 0.7725752508361204
+      }
+    },
+    "V3": {
+      "keras": "configs/classifiers/esp32_dscnn/2026-11-10_run02",
+      "calibration": "noise-free stratified, training split",
+      "per_channel": false,
+      "calibration_counts": {
+        "inner_race": 334,
+        "normal": 333,
+        "outer_race": 333
+      },
+      "dir": "(b4_work)/variants/V3",
+      "validation": {
+        "n_windows": 1796,
+        "accuracy": 0.8452115812917594,
+        "macro_f1": 0.8438454970000152,
+        "recall": {
+          "inner_race": 0.882943143812709,
+          "normal": 0.9366666666666666,
+          "outer_race": 0.7157190635451505
+        },
+        "n_per_class": {
+          "inner_race": 598,
+          "normal": 600,
+          "outer_race": 598
+        },
+        "abstention": 0.14253897550111358,
+        "confusion": [
+          [
+            528,
+            63,
+            7
+          ],
+          [
+            29,
+            562,
+            9
+          ],
+          [
+            125,
+            45,
+            428
+          ]
+        ],
+        "min_recall": 0.7157190635451505
+      }
+    }
+  },
+  "ranking": [
+    "V1",
+    "V2",
+    "V3",
+    "V0"
+  ],
+  "selected": "V1",
+  "n_val_windows": 1796,
+  "wall_s": 41.7
+}

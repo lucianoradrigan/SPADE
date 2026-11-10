@@ -1,0 +1,18 @@
+{
+  "findings": [
+    {
+      "id": "B4-candidate",
+      "severity": "info",
+      "date": "2026-11-10",
+      "summary": "B4 3-class teacher #1 (no tier): teacher of ESP32 candidate 4a. Test macro-F1 0.897 on G3-v2 + off-grid healthy. Not a tier candidate; not evaluated against criteria. NOT promoted.",
+      "evidence": "docs/audit/b4/b4_results.md; docs/audit/b4/b4_results.json; docs/audit/b4/b4_preregistration.md"
+    },
+    {
+      "id": "sim-only",
+      "severity": "medium",
+      "date": "2026-11-10",
+      "summary": "Trained and evaluated only on simulated data (dc_perm_ex_v2, converter dcm_exact, 10 kHz). No measured drive data; not run on its target hardware.",
+      "evidence": "docs/audit/b4/b4_results.md; docs/audit/b4/b4_results.json; docs/audit/b4/b4_preregistration.md"
+    }
+  ]
+}

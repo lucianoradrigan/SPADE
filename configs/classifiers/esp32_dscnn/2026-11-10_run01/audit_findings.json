@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "B4-candidate",
+      "severity": "info",
+      "date": "2026-11-10",
+      "summary": "B4 candidate (pre-registration approved 2026-11-09). NOT promoted (decision N-D4); the promoted run of the tier is unchanged. Distillation teacher passed on the command line (docs/audit/b4/b4_pipeline.sh); train_model does not record it in run_metadata.json (AI-N37).",
+      "evidence": "docs/audit/b4/b4_results.md; docs/audit/b4/b4_results.json; docs/audit/b4/b4_preregistration.md"
+    },
+    {
+      "id": "AI-N36",
+      "severity": "high",
+      "date": "2026-11-10",
+      "summary": "Deployed int8 (variant V1: per tensor, noise-free stratified calibration, model.tflite) does NOT meet the pre-registered B4 criterion: D1 gate macro-F1 0.838 < 0.88 on E1; inner_race recall -8.7 pt on E1 and -65.4 pt on E4 (0.346 vs 1.000); |delta abstention| 31.2 pt (E1) and 24.1 pt (E4); int8 vs its own Keras: inner_race recall drop 12.4 pt on E1 and 65.4 pt on E4, macro-F1 drop 13.1 pt on E4. AI-N28 (int8 fragility) stays open. Distilled (alpha 0.5) from the B4 3-class teacher pc_server/2026-11-10_run01.",
+      "evidence": "docs/audit/b4/b4_results.md; docs/audit/b4/b4_results.json; docs/audit/b4/b4_preregistration.md"
+    },
+    {
+      "id": "sim-only",
+      "severity": "medium",
+      "date": "2026-11-10",
+      "summary": "Trained and evaluated only on simulated data (dc_perm_ex_v2, converter dcm_exact, 10 kHz). No measured drive data; not run on its target hardware.",
+      "evidence": "docs/audit/b4/b4_results.md; docs/audit/b4/b4_results.json; docs/audit/b4/b4_preregistration.md"
+    }
+  ]
+}

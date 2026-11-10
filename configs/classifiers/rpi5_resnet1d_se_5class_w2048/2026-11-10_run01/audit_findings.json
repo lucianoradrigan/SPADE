@@ -1,0 +1,32 @@
+{
+  "findings": [
+    {
+      "id": "B4-candidate",
+      "severity": "info",
+      "date": "2026-11-10",
+      "summary": "B4 candidate (pre-registration approved 2026-11-09). NOT promoted (decision N-D4); the promoted run of the tier is unchanged. Distillation teacher passed on the command line (docs/audit/b4/b4_pipeline.sh); train_model does not record it in run_metadata.json (AI-N37).",
+      "evidence": "docs/audit/b4/b4_results.md; docs/audit/b4/b4_results.json; docs/audit/b4/b4_preregistration.md"
+    },
+    {
+      "id": "AI-N35",
+      "severity": "medium",
+      "date": "2026-11-10",
+      "summary": "Deployed float16 TFLite does NOT meet the pre-registered B4 criterion: the only failing check is |delta abstention| <= 5 pt on E4: abstention 0.015 vs 0.220 (-20.6 pt). Other checks pass: E1 macro-F1 0.913 (promoted 0.917, -0.4 pt), E3 0.978 (0.980), E4 0.993 (0.922), low-speed min recall 0.972. Distilled (alpha 0.5) from the B4 PC candidate pc_server_5class_w2048/2026-11-10_run01.",
+      "evidence": "docs/audit/b4/b4_results.md; docs/audit/b4/b4_results.json; docs/audit/b4/b4_preregistration.md"
+    },
+    {
+      "id": "sim-only",
+      "severity": "medium",
+      "date": "2026-11-10",
+      "summary": "Trained and evaluated only on simulated data (dc_perm_ex_v2, converter dcm_exact, 10 kHz). No measured drive data; not run on its target hardware.",
+      "evidence": "docs/audit/b4/b4_results.md; docs/audit/b4/b4_results.json; docs/audit/b4/b4_preregistration.md"
+    },
+    {
+      "id": "A2-synthetic-ball-cage",
+      "severity": "high",
+      "summary": "ball/cage: synthetic-only, uncalibrated amplitude. The ball and cage classes were trained on simulated faults whose mechanical amplitude (CALIBRATED_MECHANICAL_SEVERITY in datagen/scenario.py) is a placeholder: KAt has no clean single-defect code for these faults, so it cannot be calibrated without real data.",
+      "evidence": "docs/AI_TECHNICAL_AUDIT.md Sec. 8.4-8.5",
+      "date": "2026-11-10"
+    }
+  ]
+}

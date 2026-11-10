@@ -1,0 +1,16 @@
+preconditions	STAGE_TIME	13.72_wall_s	39.18_user_s	12.20_sys_s
+gen_G3	STAGE_TIME	606.16_wall_s	6056.49_user_s	25.44_sys_s
+gen_G5	STAGE_TIME	994.03_wall_s	10244.43_user_s	37.95_sys_s
+gen_offgrid	STAGE_TIME	87.20_wall_s	808.18_user_s	7.42_sys_s
+concat	STAGE_TIME	12.36_wall_s	17.41_user_s	4.69_sys_s
+gen_E4_3	STAGE_TIME	56.91_wall_s	523.03_user_s	6.68_sys_s
+gen_E4_5	STAGE_TIME	94.06_wall_s	851.36_user_s	7.64_sys_s
+gen_E3	STAGE_TIME	231.94_wall_s	1729.13_user_s	9.70_sys_s
+train_c1_teacher3	STAGE_TIME	190.81_wall_s	957.90_user_s	35.50_sys_s
+train_c2_pc	STAGE_TIME	629.74_wall_s	4449.24_user_s	189.02_sys_s
+train_c3_rpi5	STAGE_TIME	296.16_wall_s	1322.79_user_s	33.24_sys_s
+train_c4a_esp32	STAGE_TIME	136.31_wall_s	259.21_user_s	22.73_sys_s
+train_c4b_esp32	STAGE_TIME	138.93_wall_s	265.05_user_s	23.23_sys_s
+export_rpi5	STAGE_TIME	3.16_wall_s	4.19_user_s	0.56_sys_s
+esp32_variants	STAGE_TIME	42.38_wall_s	56.29_user_s	18.81_sys_s
+STAGE_TIME	90.13_wall_s	119.73_user_s	22.02_sys_s

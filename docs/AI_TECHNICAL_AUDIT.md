@@ -250,6 +250,10 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N31 | Low | Assistant card defect (introduced by decision E3) | **Fixed (2026-11-09)** (§13.5): the tuning proposal card names an unmodified motor by its plant (`objective.default_motor_block` / `base_motor_label`) and says "custom (<changed keys>)" only for real overrides; `tests/assistant/test_assistant_ai_n31.py` covers every DC plant, v1 and v2, unmodified and changed |
 | AI-N32 | Low | Assistant configuration (runtime address) | **Fixed (2026-11-09)** (§13.6): the assistant ignored `OLLAMA_HOST`, Ollama's standard variable, and always used `base_url` from `configs/assistant.yaml`; found by the fresh-clone test of v0.2.0 (round C) |
 | AI-N33 | Medium | GUI default meets a known weakness (start-up transient) | **Corrected (2026-11-09, decision N-D1)** (§13.7): the page now classifies the last training-grid window and defaults to 0.82 s (`docs/audit/release/ai_n33.md`). First found as: AI Diagnostics' default sample (healthy, PI, 300 rad/s, 0.6 s) classifies a start-up window; the promoted PC classifier answers 'cage' at 100 % calibrated confidence as a known condition. The page now warns on start-up windows; the default and the model are unchanged |
+| AI-N34 | Medium | Pre-registered retraining not met (B4, PC) | **Open (2026-11-10)** (§13.8): the B4 PC candidate `pc_server_5class_w2048/2026-11-10_run01` fails only the two-sided |Δ abstention| ≤ 5 pt check on E4: it abstains 16.3 pt **less** than the promoted run (0.004 vs 0.167). All other checks pass, including low speed (E4 macro-F1 0.994). Not promoted (N-D4); the promoted run stays |
+| AI-N35 | Medium | Pre-registered retraining not met (B4, RPi5) | **Open (2026-11-10)** (§13.8): the B4 RPi5 candidate (float16) fails only |Δ abstention| on E4: −20.6 pt (0.015 vs 0.220). All other checks pass. Not promoted |
+| AI-N36 | High | Pre-registered retraining not met (B4, ESP32) | **Open (2026-11-10)** (§13.8): the B4 ESP32 int8 (V1) fails the D1 gate (E1 macro-F1 0.838 < 0.88), inner_race recall (−8.7 pt E1, −65.4 pt E4), abstention (E1, E4) and int8 vs Keras (inner_race −12.4 pt E1, −65.4 pt E4; macro-F1 −13.1 pt E4). AI-N27 and AI-N28 stay open for the ESP32 |
+| AI-N37 | Low | Traceability (training metadata) | **Open (2026-11-10)** (§13.8): `train_model.py --teacher-run` does not record the teacher run in `run_metadata.json` or `metrics.json`; only `distill` / `distill_alpha` are stored. B4 records its teachers in its evidence |
 | AI-N19 | Medium | Evaluation limit | **Documented** (§10): simulated healthy current/rpm are constant in steady state, so the residual AUROC (1.000) and the persistence baseline are optimistic |
 | AI-N15 | Medium | Defect (estimator bias) | **Open** (§9.1): the VSC PINN estimates C systematically low, −1.3 % to −9.1 % mean error at 0–5 % noise |
 | AI-N16 | Medium | Defect (uncertainty) | **Open** (§9.2): the PINN's 5–95 % bootstrap interval covers the truth in 52–78 % of noisy runs for C; the GUI says "Coverage not validated" |
@@ -949,3 +953,11 @@ Found 2026-11-09 by the fresh-clone check of `release/v0.2.0` (round C, Playwrig
   - **Unchanged:** the model, the thresholds, `Scenario`, `datagen/` and the data scripts.
   - Evidence: `docs/audit/release/ai_n33.{md,json}`.
 
+
+### 13.8 B4 (2026-11-10): AI-N34 to AI-N37 · pre-registered retraining on the v2 plants · **Open**
+
+- **What ran:** `docs/audit/b4/b4_preregistration.md` (approved 2026-11-09, decision N-D3, before any data). Grids G3-v2 / G5-v2 with 40 and 60 rad/s added, 60 off-grid healthy runs for the ESP32, held-out E4 at 50 and 70 rad/s, E3 regenerated on v2. Evidence: `docs/audit/b4/b4_results.{md,json}`.
+- **AI-N34 (PC) and AI-N35 (RPi5):** the only failing check is the two-sided |Δ abstention| ≤ 5 pt on E4. The candidates abstain much less at low speed because they now answer it correctly (E4 macro-F1 0.994 and 0.993, against 0.684 and 0.922). The rule is applied as written; the verdict is **does not meet**. Whether a decrease in abstention should count is Luciano's decision; it does not change this verdict.
+- **AI-N36 (ESP32):** fails on several checks, mostly through inner_race at 50/70 rad/s after int8 quantization: the Keras model gets 1.000 there, the int8 file 0.346. No rescue retraining (pre-registration §6). The options in §6 go to Luciano.
+- **AI-N37:** the teacher of a distilled run is not written to its metadata. Not fixed (training code).
+- **Not promoted:** nothing (N-D4).
