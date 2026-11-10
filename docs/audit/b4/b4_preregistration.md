@@ -1,6 +1,6 @@
 # B4: consolidated model round — PRE-REGISTRATION (draft for approval, P6)
 
-**Status: DRAFT, NOT APPROVED AS A WHOLE.** Written 2026-11-09 (round C, T9, decision C11). **Decisions D-B4-1 and D-B4-3 were approved by Luciano on 2026-11-09, and D-B4-2 was approved with a change (§0). D-B4-4 is pending (options in §7). B4 is not executed until Luciano approves this file.**
+**Status: APPROVED (2026-11-09, Luciano; decision N-D3, 23:16).** D-B4-1, D-B4-2 (with his change) and D-B4-3 as written below; **D-B4-4: option B** (the ESP32 that results from B4, and `esp32_tiny`). This status was committed **before any B4 data was generated**. Decision N-D4: **no model is promoted**; B4 leaves candidates, evidence and a recommendation per tier.
 
 **Thresholds fixed before any data.** Every threshold in §5 (the AI-N27 rule, the absolute low-speed criterion and the int8-vs-Keras limit) was fixed on 2026-11-09, before any B4 dataset, candidate or evaluation existed. They are not changed after results are seen.
 
@@ -15,7 +15,7 @@ Findings addressed: **AI-N14** and **AI-N29** (low speed), **AI-N28** (ESP32 int
 | D-B4-1 | Speeds added to the training grid below 80 rad/s | **Approved:** 40 and 60 rad/s in training; held-out low speeds **50 and 70 rad/s** (§3.4) |
 | D-B4-2 | Thresholds | **Approved with a change:** within the grid, the AI-N27 rule; at low speed (E4), macro-F1 ≥ 0.80 and recall ≥ 0.50 in every class; **int8 against Keras: at most 5 points of recall per class and 3 of macro-F1** (§5) |
 | D-B4-3 | Healthy off-grid conditions in the ESP32 training (AI-N28) | **Approved**, with a test that they do not coincide with the evaluation conditions (§3.5) |
-| D-B4-4 | Which runs go to the C2000 visit | **Pending:** options and costs in §7 |
+| D-B4-4 | Which runs go to the C2000 visit | **Option B** (N-D3): the ESP32 classifier that results from B4, and `esp32_tiny` |
 
 ## 1. Data: the v2 plants
 
@@ -126,7 +126,7 @@ The comparison is made with the currently promoted run of the tier, on the same 
 - **ESP32:** if it fails again, the next options go to Luciano: another architecture, a float model on a larger MCU, or accepting AI-N28 as a documented limitation. AI-N27 then stays open for the ESP32.
 - **The tiers are decided separately.** Meeting the criterion is **not** a promotion: Luciano decides from the report (`promote_run.py` only with his OK).
 
-## 7. The single C2000 visit (AI-N26) [D-B4-4, PENDING]
+## 7. The single C2000 visit (AI-N26) [D-B4-4: option B, approved]
 
 - **The window at 10 kHz:** 51.2 ms (512 samples), 25.6 ms (256 samples).
 - **Criteria:** C1–C5 of `docs/audit/c2000/criteria.md`, with C5's window at 10 kHz, committed again before the visit. The verdicts of 2026-10-30 stay as recorded.
