@@ -649,3 +649,16 @@ Local LLM `qwen3.5:9b` through Ollama. Each benchmark had its thresholds committ
 
 - **New finding S-24** (Low): `Scenario` compared the voltage limit with the supply only when both were given explicitly. **Corrected on `dev` for v0.2.1** (round C, decision C6): the limit is checked against the effective supply, the given one or the stock 65 V (`tests/test_s24_voltage_limit.py`).
 - **Not changed:** any default, the v1 plants, the byte-for-byte tests, `main`.
+
+### 14.7 Night of 2026-11-09/10: AI-N32, AI-N33, S-24, B4
+
+| ID | Status | Evidence |
+|---|---|---|
+| S-24 (Low) | **Corrected on `dev` (v0.2.1).** The voltage limit is checked against the effective supply (§14.6) | `tests/test_s24_voltage_limit.py` |
+| AI-N32 (Low) | **Corrected (release v0.2.0).** The assistant ignored `OLLAMA_HOST`; it now honours it and still refuses remote hosts. Found by the fresh-clone test | `tests/assistant/test_assistant_ollama_host.py`; [`audit/release/fresh_clone.md`](audit/release/fresh_clone.md) |
+| AI-N33 (Medium) | **Corrected (release v0.2.0, decision N-D1).** With the page defaults (healthy, PI, 300 rad/s, 0.6 s), AI Diagnostics classified the last 2048 samples, inside the start-up; the promoted PC classifier said "cage" at 100 %. The page now classifies the last window of the training grid (non-overlapping, aligned to t = 0, as `acquisitions.window_starts`) and defaults to 0.82 s, the shortest duration whose last grid window is steady. Healthy → normal at 80, 300 and 350 rad/s; every fault at 300 rad/s is still detected. Model and thresholds unchanged | [`audit/release/ai_n33.md`](audit/release/ai_n33.md); `tests/test_ai_n33_startup_window.py` |
+
+- **Fresh clone of `release/v0.2.0`** (no `data/`, no `workspace/`, Ollama unreachable): smoke 7/7, the 18 pages open without an exception, the assistant reports "unavailable" without crashing ([`audit/release/fresh_clone.md`](audit/release/fresh_clone.md)).
+- **CI:** `tests.yml` cancels superseded runs on `dev` and `feat/*` only (`tests/test_ci_concurrency.py`).
+- **B4** (pre-registration approved 2026-11-09, N-D3): see [`audit/b4/b4_results.md`](audit/b4/b4_results.md). No model is promoted (N-D4).
+- **C2000 visit kit** (D-B4-4 option B): [`audit/b4/c2000_visit_kit.md`](audit/b4/c2000_visit_kit.md). Nothing measured on the board yet.
