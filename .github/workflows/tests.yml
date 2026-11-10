@@ -7,6 +7,12 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# A newer run on the same branch cancels the older one on dev and feat/* only; never on main (round C, Luciano).
+# Pull requests (refs/pull/...) and other branches are not cancelled either.
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref == 'refs/heads/dev' || startsWith(github.ref, 'refs/heads/feat/') }}
+
 jobs:
   # Unit + integration + short simulation tests. The >20 s tests (marker `slow`) run in
   # validation-scheduled.yml instead. No dataset download and no model training happens here.
