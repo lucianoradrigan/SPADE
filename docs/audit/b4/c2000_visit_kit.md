@@ -11,17 +11,17 @@ Prepared 2026-11-10 by Claude Code for Luciano. **Nothing in this file has been 
 | Kit | Source run | Samples | C5 budget at 10 kHz | Built here | Status |
 |---|---|---|---|---|---|
 | `c2000_kit/esp32_tiny` | `esp32_tiny/2026-10-19_run01` (vsc_dpc regressor) | 256 | 25.6 ms | host parity 4.8e-7 (gcc, this PC); `make` with cl2000 exit 0 | **ready** |
-| `c2000_kit/esp32_b4` | the Keras run of the selected B4 ESP32 variant (`b4_results.md`) | 512 | 51.2 ms | — | **pending B4** (see below) |
+| `c2000_kit/esp32_b4` | pre-registration §7: the B4 ESP32 (Keras run of the selected variant) **if it meets its criterion**, otherwise the current `esp32_dscnn/2026-10-18_run01` | 512 | 51.2 ms | — | **pending B4** (see below) |
 
 `model_id` of the new `esp32_tiny` kit is `08626a228bca`, the same as the October kit: same weights.
 
 **What to expect (not a result):** in October `esp32_tiny` took 19.7 ms (budget 25.6 ms) and `esp32_dscnn` 68.5 ms (budget 51.2 ms). The B4 ESP32 keeps the `esp32_dscnn` architecture and its 512-sample input, so its latency should be close to 68.5 ms, which **would fail C5** at 10 kHz. The visit measures it; it does not assume it.
 
-**To make the B4 kit** (Claude Code, after B4 selects a variant; about 2 min):
+**To make the B4 kit** (Claude Code, after B4 is evaluated; about 2 min). `<run>` is the Keras run of the selected variant if the ESP32 tier meets its criterion in `b4_results.md`, else `configs/classifiers/esp32_dscnn/2026-10-18_run01` re-exported with `fs_hz` (its October `c2000/` kit stays untouched):
 
 ```bash
 .venv/bin/python scripts/edge_benchmark/c2000_visit_kit.py --domain dc_motor --block classifier \
-    --run-dir <the Keras run of the selected variant> --out docs/audit/b4/c2000_kit/esp32_b4
+    --run-dir <run> --out docs/audit/b4/c2000_kit/esp32_b4
 ```
 
 The C2000 kit uses SPADE's float32 C kernels from the Keras weights, not the int8 TFLite file, as in October.
