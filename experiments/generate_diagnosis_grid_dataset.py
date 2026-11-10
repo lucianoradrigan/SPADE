@@ -64,11 +64,12 @@ NOMINAL_PSI_E = 0.165
 NOMINAL_J_ROTOR = 0.025
 
 
-def build_jobs(n_seeds: int, duration_s: float, seed: int, faults: tuple = FAULTS) -> list:
+def build_jobs(n_seeds: int, duration_s: float, seed: int, faults: tuple = FAULTS, speeds: tuple = SPEEDS_RAD_S, first_run_seed: int = 1001) -> list:
+    """speeds / first_run_seed (B4, 2026-11-09): defaults reproduce every grid made before exactly."""
     rng = np.random.default_rng(seed)
     jobs = []
-    run_seed = 1000
-    for speed in SPEEDS_RAD_S:
+    run_seed = first_run_seed - 1
+    for speed in speeds:
         for sev in SEVERITY_SCALES:
             for _ in range(n_seeds):
                 for fault in faults:
@@ -131,11 +132,14 @@ def main(argv=None):
     ap.add_argument("--plant", choices=("dc_perm_ex_v2", "dc_perm_ex_v1"), default="dc_perm_ex_v2",
                     help="DC plant (decision E3, 2026-11-08): dc_perm_ex_v2 = converter in discontinuous conduction (default of new datasets); "
                          "dc_perm_ex_v1 = the frozen GEM-faithful plant, to reproduce the grids made before 2026-11-08 (with --dc-converter-model as they were made)")
+    ap.add_argument("--speeds", default=None, help="comma-separated speed references in rad/s (default: SPEEDS_RAD_S, 80-220; B4 adds 40 and 60)")
+    ap.add_argument("--first-run-seed", type=int, default=1001, help="seed of the first run (default 1001, as every earlier grid; B4 uses 80001)")
     ap.add_argument("--faults", default=",".join(f for f in FAULTS if f), help="comma-separated fault classes besides healthy (default: outer_race,inner_race)")
     args = ap.parse_args(argv)
 
     faults = (None,) + tuple(f.strip() for f in args.faults.split(",") if f.strip())
-    jobs = build_jobs(args.seeds, args.duration_s, args.seed, faults)
+    speeds = tuple(float(x) for x in args.speeds.split(",")) if args.speeds else SPEEDS_RAD_S
+    jobs = build_jobs(args.seeds, args.duration_s, args.seed, faults, speeds=speeds, first_run_seed=args.first_run_seed)
     if args.dc_plant_solver == "rk45":
         for j in jobs:
             j["dc_plant_solver"] = "rk45"
@@ -146,7 +150,7 @@ def main(argv=None):
             j["dc_converter_model"] = args.dc_converter_model
         if args.dc_plant_substeps:
             j["dc_plant_substeps"] = args.dc_plant_substeps
-    print(f"{len(jobs)} runs ({len(SPEEDS_RAD_S)} speeds x {len(SEVERITY_SCALES)} severities x {args.seeds} seeds x {len(faults)} classes), {args.duration_s} s each")
+    print(f"{len(jobs)} runs ({len(speeds)} speeds x {len(SEVERITY_SCALES)} severities x {args.seeds} seeds x {len(faults)} classes), {args.duration_s} s each")
     t0 = time.time()
     with mp.get_context("spawn").Pool(args.workers) as pool:
         frames = pool.map(_simulate, jobs)

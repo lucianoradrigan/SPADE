@@ -219,6 +219,7 @@ def main(argv=None):
     ap.add_argument("--extra-faults", default="", help="comma-separated fault types simulated in every condition besides healthy/outer/inner (A2: ball,cage)")
     ap.add_argument("--out-stem", default="classifier_evaluation", help="output file name stem in --out-dir")
     ap.add_argument("--dc-converter-model", choices=("gem", "dcm"), default=None, help="S-21/AI-N27: Scenario.dc_converter_model for the simulated runs (default: not set)")
+    ap.add_argument("--plant", default=None, help="plant_config_id of the simulated runs (B4: dc_perm_ex_v2); default: not set = the Scenario default, as before")
     ap.add_argument("--dc-plant-substeps", type=int, default=None, help="Scenario.dc_plant_substeps for the simulated runs (default: not set)")
     ap.add_argument("--generate-only", action="store_true", help="only simulate and write --cache; evaluate nothing and write no report")
     ap.add_argument("--run-dir", type=Path, action="append", default=None, help="model run(s) to evaluate; default: promoted pc classifier, its no-rpm-level ablation, the 2026-10-13 candidate and the pre-2026-10-18 production run")
@@ -229,7 +230,7 @@ def main(argv=None):
     if args.cache is not None and args.cache.exists():
         data = pd.read_parquet(args.cache)
     else:
-        plant_opts = {k: v for k, v in (("dc_converter_model", args.dc_converter_model), ("dc_plant_substeps", args.dc_plant_substeps)) if v}
+        plant_opts = {k: v for k, v in (("plant_config_id", args.plant), ("dc_converter_model", args.dc_converter_model), ("dc_plant_substeps", args.dc_plant_substeps)) if v}
         data = generate(seeds, args.duration_s, args.workers, tuple(f for f in args.extra_faults.split(",") if f), plant_opts or None)
         if args.cache is not None:
             args.cache.parent.mkdir(parents=True, exist_ok=True)
