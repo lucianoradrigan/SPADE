@@ -23,7 +23,7 @@
   },
   "epochs": 30,
   "batch_size": 32,
-  "dataset_path": "/home/seven/post_doc/plataform_proposed/SPADE-dev/data/diagnosis_grid_dataset_dcm.parquet",
+  "dataset_path": "data/diagnosis_grid_dataset_dcm.parquet",
   "dataset_sha256": "d09a42b856cf75e9ba9d43e6af63e714d4742e2524f4b57a5f2ff8d451463b46",
   "distill": true,
   "cap_per_class": 3000,

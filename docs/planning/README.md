@@ -1,0 +1,1 @@
+Internal planning documents in Spanish (instructions, plans, specifications and decisions written for Luciano Radrigan and Claude Code); the technical record is in `docs/VALIDATION_SUMMARY.md` and `docs/audit/`.

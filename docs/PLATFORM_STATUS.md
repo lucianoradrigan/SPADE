@@ -1,7 +1,7 @@
 # SPADE — platform status (2026-11-09)
 
 What the platform does today, what is only simulated and what is open. It replaces
-[`plataforma_estado_actual.md`](plataforma_estado_actual.md) (2026-09-15, Spanish, superseded).
+[`archive/plataforma_estado_actual.md`](archive/plataforma_estado_actual.md) (2026-09-15, Spanish, superseded).
 The audit trail behind every statement is [`VALIDATION_SUMMARY.md`](VALIDATION_SUMMARY.md); when the
 two disagree, the validation summary and the audit reports win.
 

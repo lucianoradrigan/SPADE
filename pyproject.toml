@@ -1,6 +1,6 @@
 [project]
 name = "driveflow"
-version = "0.1.0"
+version = "0.2.0"
 description = "A unified simulation, differentiable predictive control (DPC), and ML fault-diagnosis platform for electric drives -- config-driven classifiers/regressors with edge deployment (Raspberry Pi 5/ESP32 TFLite, TI C2000 float32 C export) and rule-based monitoring agents, ships as the 'driveflow' Python package."
 readme = "README.md"
 requires-python = ">=3.11,<3.13"

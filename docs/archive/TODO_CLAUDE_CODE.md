@@ -1,3 +1,5 @@
+> **Superseded — kept for history; see CLAUDE.md.** (moved to docs/archive/ on 2026-11-09, decision C4)
+
 # SPADE: lista de tareas para Claude Code
 
 *Generada el 2026-10-20 · Base: commit `5427819` (main = dev) · Autor: Luciano Radrigan*

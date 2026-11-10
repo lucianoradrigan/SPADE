@@ -248,6 +248,8 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N29 | **High** | Generalization regression (low speed) | **Open** (§13.3): the dcm-trained PC classifier promoted on 2026-11-04 is confidently wrong at 50 rad/s (below the 80–220 rad/s grid): of 54 known-class windows it abstains on 44 % and gets 2 of the 30 answered right (0.067); the previous PC on the same data answered 54 % with 1.000; the new RPi5 is not affected (1.000 on 81 % answered) |
 | AI-N30 | **High** | Assistant behaviour (local LLM) | **Open** (§13.4): the pre-registered F1.11 benchmark of the assistant (`qwen3.5:9b`) is **not met**: 5 distinct false statements about SPADE (15 turns), "not documented" 0 % (≥ 80 %), asks when a required value is missing 60 % (≥ 90 %), questions / sourced numbers 76 % (≥ 90 %), citations 83 % (≥ 90 %), p95 latency 35.8 s (≤ 30 s outside the lab). Met: 0 launches without confirmation, 0 invented numbers, 0 timeouts, correct plan 90.5 %, impossible requests 100 %; **F1.12 (independent, after the harness fixes, 2026-11-08): NOT MET** — 9 of 13 criteria met (F1.11: 7); fails false statements (4 distinct, one from catalog defect S-23), asks-when-missing 80 %, sourced numbers 74.6 %, not-documented 75 %, outside-lab p95 34.4 s; `qwen3:14b` on F1.11 (descriptive) was worse (plan 44 %, p95 134 s); **F1.13 (last bench of phase 1, 2026-11-09): NOT MET** — 11 of 13 (correct plan 88.9 % after a declared scorer fix; 84.1 % first scored); fails false statements (13 distinct, separate reviewer), outside-lab p95 32.1 s; phase 1 closes with the assistant "experimental / demo interna" (closing rule) |
 | AI-N31 | Low | Assistant card defect (introduced by decision E3) | **Fixed (2026-11-09)** (§13.5): the tuning proposal card names an unmodified motor by its plant (`objective.default_motor_block` / `base_motor_label`) and says "custom (<changed keys>)" only for real overrides; `tests/assistant/test_assistant_ai_n31.py` covers every DC plant, v1 and v2, unmodified and changed |
+| AI-N32 | Low | Assistant configuration (runtime address) | **Fixed (2026-11-09)** (§13.6): the assistant ignored `OLLAMA_HOST`, Ollama's standard variable, and always used `base_url` from `configs/assistant.yaml`; found by the fresh-clone test of v0.2.0 (round C) |
+| AI-N33 | Medium | GUI default meets a known weakness (start-up transient) | **Mitigated (2026-11-09)** (§13.7): AI Diagnostics' default sample (healthy, PI, 300 rad/s, 0.6 s) classifies a start-up window; the promoted PC classifier answers 'cage' at 100 % calibrated confidence as a known condition. The page now warns on start-up windows; the default and the model are unchanged |
 | AI-N19 | Medium | Evaluation limit | **Documented** (§10): simulated healthy current/rpm are constant in steady state, so the residual AUROC (1.000) and the persistence baseline are optimistic |
 | AI-N15 | Medium | Defect (estimator bias) | **Open** (§9.1): the VSC PINN estimates C systematically low, −1.3 % to −9.1 % mean error at 0–5 % noise |
 | AI-N16 | Medium | Defect (uncertainty) | **Open** (§9.2): the PINN's 5–95 % bootstrap interval covers the truth in 52–78 % of noisy runs for C; the GUI says "Coverage not validated" |
@@ -914,4 +916,31 @@ Found 2026-11-09 by the separate false-statement reviewer of F1.13 (`docs/audit/
 - Fails false statements (13 distinct in 11 turns, separate reviewer) and outside-lab latency p95 32.1 s.
 - By the closing rule, phase 1 closes with the assistant **"experimental / demo interna"**; no F1.14.
 - **Next action when the assistant work resumes (R2, recorded 2026-11-09, not implemented):** most F1.13 false statements are alternatives the model invents for impossible requests (induction motor, other faults, Tuning Studio for FOC, a buck that boosts). The alternatives should come from a catalog table (request → what SPADE offers instead, with its source) and be shown in a card, so that the model's free text no longer states them.
+
+### 13.6 AI-N32 — the assistant ignored OLLAMA_HOST · **Low** · Configuration · **Fixed (2026-11-09)**
+
+Found 2026-11-09 while preparing the fresh-clone test of `release/v0.2.0` (round C): with `OLLAMA_HOST` pointing to a closed port, the assistant still used `base_url: http://127.0.0.1:11434` from `configs/assistant.yaml`, because nothing read the variable.
+- **Effect:** a user who runs Ollama on another address or port (the documented way to do it in Ollama) saw "Assistant unavailable" although Ollama was running; and a test could not simulate a missing runtime by environment.
+- **Fix:** `assistant.config.load_config` now takes `OLLAMA_HOST` when it is set (Ollama's forms: `host`, `host:port`, `:port`, `http(s)://host:port`; `0.0.0.0` / `::` mean the loopback address for a client), before explicit overrides. `cfg["base_url_source"]` says which one was used. The loopback rule is unchanged: a remote host is still refused unless `allow_remote_runtime` is set. The file's default (127.0.0.1:11434) is unchanged when the variable is absent.
+- **Tests:** `tests/assistant/test_assistant_ollama_host.py` (13): the forms, the default, a refused remote host, the override, and a closed port giving the "does not answer" error.
+
+### 13.7 AI-N33 — AI Diagnostics' default sample is a start-up window, and the classifier is confidently wrong there · **Medium** · **Mitigated (2026-11-09)**
+
+Found 2026-11-09 by the fresh-clone check of `release/v0.2.0` (round C, Playwright over every page).
+- **What:** the default sample of AI Diagnostics is healthy, PI, 300 rad/s and 0.6 s. The classified window is the last 2048 samples, t = 0.40–0.60 s, and the motor reaches 300 rad/s at about 0.45 s. On that window the promoted PC classifier (`pc_server_5class_w2048/2026-11-04_run01`) answers **'cage' with 100 % calibrated confidence**, and the page shows it as a known condition.
+- **Reproduction (v1 and v2 give the same):** healthy PI runs, `ai_adapter.assess_last_window`:
+
+  | Speed | Duration 0.6 s | Duration 1.0 s | Duration 2.0 s |
+  |---|---|---|---|
+  | 300 rad/s | **cage 1.00** | normal 0.96 | normal 0.96 |
+  | 250 rad/s | normal 0.97 | normal 0.97 | normal 0.97 |
+  | 220 rad/s | normal 0.98 | normal 0.98 | normal 0.97 |
+  | 150 rad/s | normal 0.93 | normal 0.93 | normal 0.93 |
+- **Known weakness, new exposure:** start-up accuracy of the 5-class models is 0.50–0.60 (§8.2 evaluation). What is new is that a GUI default lands on it.
+- **Mitigation:**
+  - AI Diagnostics shows a warning whenever the evaluated dc_motor window starts inside the start-up transient (t < 0.5 s, the `startup_transient` condition of `report_classifier_evaluation`);
+  - the DC Motor page's AI-suggestion card adds "start-up window: unreliable".
+  - `ai_adapter.startup_window()`.
+  - Tests: `tests/test_ai_n33_startup_window.py`.
+- **Not changed (needs Luciano):** the default duration (0.6 s) and the model. Options: a default of 1.0 s, or B4 (start-up windows in training/evaluation).
 
