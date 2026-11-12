@@ -674,4 +674,4 @@ Local LLM `qwen3.5:9b` through Ollama. Each benchmark had its thresholds committ
 
 - **B4 cost:** simulation 5.66 CPU-h (estimate 3.2) in 35 min; training 2.10 CPU-h in 23 min.
 - **C2000 visit kit** (D-B4-4 option B): [`audit/b4/c2000_visit_kit.md`](audit/b4/c2000_visit_kit.md). Nothing measured on the board yet.
-- **`dev` stability (2026-11-12, `849721c`): stable**, gates G1–G8 green ([`audit/release/dev_stability_2026-11-12.md`](audit/release/dev_stability_2026-11-12.md)). Draft notes: `docs/RELEASE_NOTES_v0.2.1.md` (no tag, M-D7).
+- **`dev` stability (2026-11-12): stable at `e4fed56`** (first verdict at `849721c` revised to *not stable* after AI-N39 was found; fixed and gates re-run, G5 extended to a real browser turn) ([`audit/release/dev_stability_2026-11-12.md`](audit/release/dev_stability_2026-11-12.md)). Draft notes: `docs/RELEASE_NOTES_v0.2.1.md` (no tag, M-D7).

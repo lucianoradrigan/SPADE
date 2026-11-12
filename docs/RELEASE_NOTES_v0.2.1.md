@@ -15,6 +15,7 @@ Changes since `v0.2.0` (`aa6c5fd`, 2026-11-12). The evidence for each item is in
   - supply voltage;
   - motor limits and nominal values.
 - **PMSM page:** the supply voltage.
+- **Rotor inertia** `j_rotor` on both pages (M6.2, 2026-11-12).
 - Every value is validated by `Scenario`, and no default changed. The stock run is identical frame for frame. Evidence: `docs/audit/b3/v1_gui_phase0.md`.
 
 ### MCP server of the assistant's tools (V4)
@@ -35,6 +36,8 @@ Changes since `v0.2.0` (`aa6c5fd`, 2026-11-12). The evidence for each item is in
 - **C2000 visit kit** (`docs/audit/b4/c2000_visit_kit.md`): kits with `fs_hz` 10 kHz for `esp32_tiny` and the ESP32 classifier, and a step sheet. **Nothing measured on the board yet.**
 
 ## Fixed
+
+- **AI-N39 (High, present in v0.2.0):** the Assistant page never finished a turn in a real browser with the local model running. The avatar's state report requested a rerun on every repaint and cancelled the turn. The component now reports only when asked. The CLI and the MCP server were not affected.
 
 - **S-24:** `Scenario` checks the DC voltage limit against the effective supply, the given one or the stock 65 V. Before, it did so only when both were given explicitly.
 - **AI-N37:** a distilled run's `run_metadata.json` now records `teacher_run`, `teacher_source` and `distill_alpha`. For a registry teacher, `metrics.json` had kept only the registry key.
@@ -62,17 +65,17 @@ Also open, unchanged: AI-N24, AI-N25 and S-22. Full lists: `docs/SIMULATION_STAB
 
 ## Verification (dev stability check, `docs/audit/release/dev_stability_2026-11-12.md`)
 
-Run on `dev` at `849721c` (2026-11-12, Linux, Python 3.12, nothing heavy in parallel). Verdict: **stable**.
+First run on `dev` at `849721c`, then **re-run at `e4fed56`** after AI-N39 was found and fixed (2026-11-12, Linux, Python 3.12). Verdict: **stable at `e4fed56`**.
 
 | Gate | Result |
 |---|---|
-| Full suite | 2009 passed, 1 skipped, 9 xfailed, 0 failed |
+| Full suite | 2019 passed, 1 skipped, 9 xfailed, 0 failed |
 | Smoke `--launch` | 7/7 |
-| CI | 5/5 (run 43217225417) |
+| CI | 5/5 (run 43250952418) |
 | Fresh clone (no `data/`, Ollama unreachable) | smoke 7/7; 18/18 pages open, 18 screenshots; the assistant reports itself unavailable |
-| Assistant with the real model | LLM test passes; the end-to-end demo completes both conversations |
+| Assistant with the real model | LLM test passes; end-to-end demo completes; **one real turn in Chrome: reply in 18 s** |
 | AI Diagnostics defaults | healthy → normal at 80, 300 and 350 rad/s |
 | Byte-for-byte tests | unchanged and passing |
 | Absolute paths | none |
 
-*(Section reserved for the frontend round M6, if V1 integration changes before the release.)*
+Frontend: the assistant page polish of M6.3 is on the branch `feat/FE-assistant-polish`, **not included** (pending Luciano's review).

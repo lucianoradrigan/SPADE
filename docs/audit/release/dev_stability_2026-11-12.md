@@ -1,4 +1,4 @@
-# `dev` stability verdict (2026-11-12): **stable**
+# `dev` stability verdict (2026-11-12): **stable at `e4fed56`** (revised; see §Revision)
 
 Commit **`849721c`** (dev with M2, M3 and M4 integrated). Every result is **simulated**. The gates ran with nothing heavy in parallel (G1 09:22–09:43, then G4, G6 and G5 one after another). Raw: [`dev_stability_2026-11-12.json`](dev_stability_2026-11-12.json); screenshots and outputs in [`dev_stability_2026-11-12/`](dev_stability_2026-11-12/).
 
@@ -29,3 +29,30 @@ pytest --run-llm -m llm; python experiments/report_f1_10_demo.py (OUT redirected
 python ai_n33_probe.py 0.82                                  # G6 (the probe of docs/audit/release/ai_n33.md)
 grep -rn "/home/" --include=*.py --include=*.yaml --include=*.toml --include=*.sh   # G8
 ```
+
+## Revision (12:25): AI-N39 found after the verdict → *not stable* at `849721c`/`09bd3bb`; fixed; gates re-run at `e4fed56`
+
+- **Finding AI-N39 (High).** In a real browser with Ollama running, the Assistant page never finished a turn.
+  - The avatar reported its state on every repaint, each report requested a rerun, and the rerun cancelled the turn after its first model call (813 runs in 3 min).
+  - It was present in the published **v0.2.0** too. Evidence: [`../assistant/ai_n39_avatar_rerun.md`](../assistant/ai_n39_avatar_rerun.md).
+- **Why the gates missed it:**
+  - G5 drove the page through AppTest, which does not execute component JavaScript;
+  - G4 used a real browser but with Ollama unreachable, so no turn started.
+- **The first verdict ("stable") does not hold** for `849721c` and `09bd3bb`: those commits are **not stable**.
+- **Fix:** `e4fed56` (small: the component reports its state only when asked; only the demo page asks). Merged by fast-forward.
+- **G5 is extended:** it now also requires one real turn in a real browser.
+
+**Gates re-run at `e4fed56`:**
+
+| # | Result | Pass |
+|---|---|---|
+| G1 | 2019 passed, 1 skipped, 9 xfailed, 0 failures (same 9 xfails); run on the branch head that became `dev` | ✓ |
+| G2 | smoke `--launch` 7/7 | ✓ |
+| G3 | CI run 43250952418 at `e4fed56`: 5/5 success | ✓ |
+| G4 | clean clone at `e4fed56` (no `data/` or `workspace/` at start, port 9 closed): smoke 7/7, 18/18 pages without exception | ✓ |
+| G5 | `pytest --run-llm -m llm` 1 passed; **one real turn in Chrome with `qwen3.5:9b` in the clean clone: reply in 18 s** | ✓ |
+| G6 | 0.999 / 0.955 / 0.909 normal at 80/300/350 rad/s; faults correct | ✓ |
+| G7 | 0 diff lines in the byte-for-byte tests since v0.2.0; they pass in G1 | ✓ |
+| G8 | the same 3 `/home/` matches, none a host path | ✓ |
+
+**Final verdict: `dev` is stable at `e4fed56`** (all eight gates green after the AI-N39 fix, with G5 extended to a real browser turn).
