@@ -32,12 +32,13 @@ E4_RNG_SEED, E4_FIRST_RUN_SEED, OFFGRID_FIRST_RUN_SEED = 20261120, 90001, 85001
 CLASSES = {"3class": (None, "outer_race", "inner_race"), "5class": (None, "outer_race", "inner_race", "ball", "cage")}
 
 
-def e4_jobs(grid_name: str) -> list:
-    rng = np.random.default_rng(E4_RNG_SEED)
-    jobs, run_seed = [], E4_FIRST_RUN_SEED - 1
-    for speed in PLAN["e4_low_speed_heldout_rad_s"]:
-        for sev in PLAN["e4_severity_scales"]:
-            for _ in range(3):
+def e4_jobs(grid_name: str, speeds=None, severities=None, rng_seed: int = E4_RNG_SEED, first_run_seed: int = E4_FIRST_RUN_SEED, per_cell: int = 3) -> list:
+    """E4 with the defaults; B4c's E4c (2026-11-12) passes its own speeds and seed block (configs/b4c_plan.yaml)."""
+    rng = np.random.default_rng(rng_seed)
+    jobs, run_seed = [], first_run_seed - 1
+    for speed in (PLAN["e4_low_speed_heldout_rad_s"] if speeds is None else speeds):
+        for sev in (PLAN["e4_severity_scales"] if severities is None else severities):
+            for _ in range(per_cell):
                 for fault in CLASSES[grid_name]:
                     run_seed += 1
                     noisy = rng.random() >= grid.NOISE_FREE_SHARE
@@ -71,24 +72,29 @@ def _offgrid_run(job: dict) -> pd.DataFrame:
     return df
 
 
+def e4c_jobs() -> list:
+    c = yaml.safe_load((REPO / "configs" / "b4c_plan.yaml").read_text())
+    return e4_jobs("5class", c["e4c_speeds_rad_s"], c["e4c_severity_scales"], c["e4c_rng_seed"], c["e4c_first_run_seed"], c["e4c_runs_per_severity_and_class"])
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("set", choices=("e4", "offgrid"))
+    ap.add_argument("set", choices=("e4", "offgrid", "e4c"))
     ap.add_argument("--grid", choices=tuple(CLASSES), default="5class")
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--workers", type=int, default=max(1, (mp.cpu_count() or 2) - 2))
     args = ap.parse_args(argv)
     t0 = time.time()
     with mp.get_context("spawn").Pool(args.workers) as pool:
-        if args.set == "e4":
-            jobs = e4_jobs(args.grid)
+        if args.set in ("e4", "e4c"):
+            jobs = e4_jobs(args.grid) if args.set == "e4" else e4c_jobs()
             frames = pool.map(grid._simulate, jobs)
         else:
             n = PLAN["esp32_offgrid_healthy_seeds_per_condition"]
             jobs = [{"condition": c, "index": i, "seed": OFFGRID_FIRST_RUN_SEED + i * n + k} for i, c in enumerate(PLAN["esp32_offgrid_healthy"]) for k in range(n)]
             frames = pool.map(_offgrid_run, jobs)
     df = pd.concat(frames, ignore_index=True)
-    df["b4_set"] = args.set if args.set == "offgrid" else f"e4_{args.grid}"
+    df["b4_set"] = {"offgrid": "offgrid", "e4c": "e4c_5class"}.get(args.set, f"e4_{args.grid}")
     args.out.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(args.out)
     print(f"{args.set}: {len(jobs)} runs, {len(df)} rows -> {args.out} in {time.time() - t0:.0f} s")

@@ -1,0 +1,1581 @@
+{
+  "command": "python experiments/report_b4c.py",
+  "simulated": true,
+  "preregistration": "docs/audit/b4/b4c_confirmatory_preregistration.md",
+  "plan": {
+    "plant": "dc_perm_ex_v2",
+    "e4c_speeds_rad_s": [
+      45,
+      55,
+      65,
+      50,
+      70
+    ],
+    "e4c_severity_scales": [
+      1.0,
+      1.5
+    ],
+    "e4c_runs_per_severity_and_class": 3,
+    "e4c_rng_seed": 20261212,
+    "e4c_first_run_seed": 100001,
+    "models": {
+      "PC": {
+        "candidate": "configs/classifiers/pc_server_5class_w2048/2026-11-10_run01",
+        "promoted": "configs/classifiers/pc_server_5class_w2048/2026-11-04_run01",
+        "artifact": "keras"
+      },
+      "RPi5": {
+        "candidate": "configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+        "promoted": "configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-11-04_run01",
+        "artifact": "tflite"
+      }
+    },
+    "criteria": {
+      "low_speed": {
+        "macro_f1_min": 0.8,
+        "recall_min_per_class": 0.5
+      },
+      "max_recall_drop_pts_per_class": 5.0,
+      "abstention_one_sided": {
+        "max_rise_pts": 5.0,
+        "max_selective_risk_excess_pts_if_lower": 1.0
+      }
+    }
+  },
+  "host": "Linux-7.0.0-43-generic-x86_64-with-glibc2.43",
+  "e4c": {
+    "file": "data/b4c_e4c_5class.parquet",
+    "n_runs": 150,
+    "seeds": [
+      100001,
+      100150
+    ]
+  },
+  "tiers": {
+    "PC": {
+      "promoted": "configs/classifiers/pc_server_5class_w2048/2026-11-04_run01",
+      "candidate": "configs/classifiers/pc_server_5class_w2048/2026-11-10_run01",
+      "artifact": "keras",
+      "classes": [
+        "ball",
+        "cage",
+        "inner_race",
+        "normal",
+        "outer_race"
+      ],
+      "n_windows": 1350,
+      "n_acquisitions": 150,
+      "promoted_scores": {
+        "n_windows": 1350,
+        "accuracy": 0.6792592592592592,
+        "macro_f1": 0.6609445847122966,
+        "recall": {
+          "ball": 0.9925925925925926,
+          "cage": 0.9777777777777777,
+          "inner_race": 0.3037037037037037,
+          "normal": 0.6666666666666666,
+          "outer_race": 0.45555555555555555
+        },
+        "n_per_class": {
+          "ball": 270,
+          "cage": 270,
+          "inner_race": 270,
+          "normal": 270,
+          "outer_race": 270
+        },
+        "abstention": 0.18814814814814815,
+        "confusion": [
+          [
+            268,
+            2,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            264,
+            0,
+            6,
+            0
+          ],
+          [
+            0,
+            0,
+            82,
+            0,
+            188
+          ],
+          [
+            0,
+            90,
+            0,
+            180,
+            0
+          ],
+          [
+            147,
+            0,
+            0,
+            0,
+            123
+          ]
+        ],
+        "abstain_below": 0.8275719019192634,
+        "selective_risk": 0.27463503649635035,
+        "per_speed": {
+          "45": {
+            "n_windows": 270,
+            "accuracy": 0.42962962962962964,
+            "macro_f1": 0.3127824138958005,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.9074074074074074,
+              "inner_race": 0.0,
+              "normal": 0.0,
+              "outer_race": 0.24074074074074073
+            },
+            "n_per_class": {
+              "ball": 54,
+              "cage": 54,
+              "inner_race": 54,
+              "normal": 54,
+              "outer_race": 54
+            },
+            "abstention": 0.2518518518518518,
+            "confusion": [
+              [
+                54,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                49,
+                0,
+                5,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                54
+              ],
+              [
+                0,
+                54,
+                0,
+                0,
+                0
+              ],
+              [
+                41,
+                0,
+                0,
+                0,
+                13
+              ]
+            ]
+          },
+          "50": {
+            "n_windows": 270,
+            "accuracy": 0.5074074074074074,
+            "macro_f1": 0.43207080906333706,
+            "recall": {
+              "ball": 0.9814814814814815,
+              "cage": 0.9814814814814815,
+              "inner_race": 0.0,
+              "normal": 0.3333333333333333,
+              "outer_race": 0.24074074074074073
+            },
+            "n_per_class": {
+              "ball": 54,
+              "cage": 54,
+              "inner_race": 54,
+              "normal": 54,
+              "outer_race": 54
+            },
+            "abstention": 0.2851851851851852,
+            "confusion": [
+              [
+                53,
+                1,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                53,
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                54
+              ],
+              [
+                0,
+                36,
+                0,
+                18,
+                0
+              ],
+              [
+                41,
+                0,
+                0,
+                0,
+                13
+              ]
+            ]
+          },
+          "55": {
+            "n_windows": 270,
+            "accuracy": 0.674074074074074,
+            "macro_f1": 0.6147099881130178,
+            "recall": {
+              "ball": 0.9814814814814815,
+              "cage": 1.0,
+              "inner_race": 0.0,
+              "normal": 1.0,
+              "outer_race": 0.3888888888888889
+            },
+            "n_per_class": {
+              "ball": 54,
+              "cage": 54,
+              "inner_race": 54,
+              "normal": 54,
+              "outer_race": 54
+            },
+            "abstention": 0.22592592592592592,
+            "confusion": [
+              [
+                53,
+                1,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                54,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                54
+              ],
+              [
+                0,
+                0,
+                0,
+                54,
+                0
+              ],
+              [
+                33,
+                0,
+                0,
+                0,
+                21
+              ]
+            ]
+          },
+          "65": {
+            "n_windows": 270,
+            "accuracy": 0.8333333333333334,
+            "macro_f1": 0.8288630184454633,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 0.5370370370370371,
+              "normal": 1.0,
+              "outer_race": 0.6296296296296297
+            },
+            "n_per_class": {
+              "ball": 54,
+              "cage": 54,
+              "inner_race": 54,
+              "normal": 54,
+              "outer_race": 54
+            },
+            "abstention": 0.08888888888888889,
+            "confusion": [
+              [
+                54,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                54,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                29,
+                0,
+                25
+              ],
+              [
+                0,
+                0,
+                0,
+                54,
+                0
+              ],
+              [
+                20,
+                0,
+                0,
+                0,
+                34
+              ]
+            ]
+          },
+          "70": {
+            "n_windows": 270,
+            "accuracy": 0.9518518518518518,
+            "macro_f1": 0.951326717410155,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 0.9814814814814815,
+              "normal": 1.0,
+              "outer_race": 0.7777777777777778
+            },
+            "n_per_class": {
+              "ball": 54,
+              "cage": 54,
+              "inner_race": 54,
+              "normal": 54,
+              "outer_race": 54
+            },
+            "abstention": 0.08888888888888889,
+            "confusion": [
+              [
+                54,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                54,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                53,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                0,
+                54,
+                0
+              ],
+              [
+                12,
+                0,
+                0,
+                0,
+                42
+              ]
+            ]
+          }
+        }
+      },
+      "candidate_scores": {
+        "n_windows": 1350,
+        "accuracy": 0.9940740740740741,
+        "macro_f1": 0.9940727731738104,
+        "recall": {
+          "ball": 1.0,
+          "cage": 0.9703703703703703,
+          "inner_race": 1.0,
+          "normal": 1.0,
+          "outer_race": 1.0
+        },
+        "n_per_class": {
+          "ball": 270,
+          "cage": 270,
+          "inner_race": 270,
+          "normal": 270,
+          "outer_race": 270
+        },
+        "abstention": 0.0044444444444444444,
+        "confusion": [
+          [
+            270,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            262,
+            0,
+            8,
+            0
+          ],
+          [
+            0,
+            0,
+            270,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            270,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            270
+          ]
+        ],
+        "abstain_below": 0.7682819889276217,
+        "selective_risk": 0.004464285714285714,
+        "per_speed": {
+          "45": {
+            "n_windows": 270,
+            "accuracy": 0.9777777777777777,
+            "macro_f1": 0.9777089783281735,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.8888888888888888,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 54,
+              "cage": 54,
+              "inner_race": 54,
+              "normal": 54,
+              "outer_race": 54
+            },
+            "abstention": 0.007407407407407408,
+            "confusion": [
+              [
+                54,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                48,
+                0,
+                6,
+                0
+              ],
+              [
+                0,
+                0,
+                54,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                54,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                54
+              ]
+            ]
+          },
+          "50": {
+            "n_windows": 270,
+            "accuracy": 0.9962962962962963,
+            "macro_f1": 0.9962959787361741,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.9814814814814815,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 54,
+              "cage": 54,
+              "inner_race": 54,
+              "normal": 54,
+              "outer_race": 54
+            },
+            "abstention": 0.011111111111111112,
+            "confusion": [
+              [
+                54,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                53,
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                54,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                54,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                54
+              ]
+            ]
+          },
+          "55": {
+            "n_windows": 270,
+            "accuracy": 0.9962962962962963,
+            "macro_f1": 0.9962959787361741,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.9814814814814815,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 54,
+              "cage": 54,
+              "inner_race": 54,
+              "normal": 54,
+              "outer_race": 54
+            },
+            "abstention": 0.003703703703703704,
+            "confusion": [
+              [
+                54,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                53,
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                54,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                54,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                54
+              ]
+            ]
+          },
+          "65": {
+            "n_windows": 270,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 54,
+              "cage": 54,
+              "inner_race": 54,
+              "normal": 54,
+              "outer_race": 54
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                54,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                54,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                54,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                54,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                54
+              ]
+            ]
+          },
+          "70": {
+            "n_windows": 270,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 54,
+              "cage": 54,
+              "inner_race": 54,
+              "normal": 54,
+              "outer_race": 54
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                54,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                54,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                54,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                54,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                54
+              ]
+            ]
+          }
+        }
+      },
+      "delta_points": {
+        "macro_f1": 33.31281884615138,
+        "abstention": -18.37037037037037,
+        "recall": {
+          "ball": 0.7407407407407418,
+          "cage": -0.7407407407407418,
+          "inner_race": 69.62962962962963,
+          "normal": 33.333333333333336,
+          "outer_race": 54.44444444444445
+        },
+        "selective_risk": -27.017075078206464
+      },
+      "ci95_points": {
+        "delta_macro_f1": [
+          27.26057064010112,
+          40.20632344113232
+        ],
+        "delta_selective_risk": [
+          -34.197290520709586,
+          -20.52109267454019
+        ]
+      },
+      "checks": {
+        "1_low_speed_macro_f1": {
+          "value": 0.9940727731738104,
+          "threshold": 0.8,
+          "pass": true
+        },
+        "1_low_speed_min_recall": {
+          "value": 0.9703703703703703,
+          "threshold": 0.5,
+          "pass": true
+        },
+        "2_worst_delta_recall": {
+          "class": "cage",
+          "value": -0.7407407407407418,
+          "threshold": -5.0,
+          "pass": true
+        },
+        "3_abstention": {
+          "branch": "fall_or_equal",
+          "delta_abstention_points": -18.37037037037037,
+          "selective_risk_candidate": 0.004464285714285714,
+          "selective_risk_promoted": 0.27463503649635035,
+          "excess_points": -27.017075078206464,
+          "threshold": 1.0,
+          "pass": true
+        }
+      },
+      "verdict": "PASSES"
+    },
+    "RPi5": {
+      "promoted": "configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-11-04_run01",
+      "candidate": "configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+      "artifact": "tflite",
+      "classes": [
+        "ball",
+        "cage",
+        "inner_race",
+        "normal",
+        "outer_race"
+      ],
+      "n_windows": 1350,
+      "n_acquisitions": 150,
+      "promoted_scores": {
+        "n_windows": 1350,
+        "accuracy": 0.8948148148148148,
+        "macro_f1": 0.8918650824329047,
+        "recall": {
+          "ball": 1.0,
+          "cage": 0.9777777777777777,
+          "inner_race": 1.0,
+          "normal": 0.8,
+          "outer_race": 0.6962962962962963
+        },
+        "n_per_class": {
+          "ball": 270,
+          "cage": 270,
+          "inner_race": 270,
+          "normal": 270,
+          "outer_race": 270
+        },
+        "abstention": 0.16666666666666666,
+        "confusion": [
+          [
+            270,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            1,
+            264,
+            0,
+            5,
+            0
+          ],
+          [
+            0,
+            0,
+            270,
+            0,
+            0
+          ],
+          [
+            0,
+            54,
+            0,
+            216,
+            0
+          ],
+          [
+            65,
+            0,
+            17,
+            0,
+            188
+          ]
+        ],
+        "abstain_below": 0.767686078229481,
+        "selective_risk": 0.024,
+        "per_speed": {
+          "45": {
+            "n_windows": 270,
+            "accuracy": 0.6555555555555556,
+            "macro_f1": 0.58077495939584,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.9074074074074074,
+              "inner_race": 1.0,
+              "normal": 0.0,
+              "outer_race": 0.37037037037037035
+            },
+            "n_per_class": {
+              "ball": 54,
+              "cage": 54,
+              "inner_race": 54,
+              "normal": 54,
+              "outer_race": 54
+            },
+            "abstention": 0.28888888888888886,
+            "confusion": [
+              [
+                54,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                49,
+                0,
+                5,
+                0
+              ],
+              [
+                0,
+                0,
+                54,
+                0,
+                0
+              ],
+              [
+                0,
+                54,
+                0,
+                0,
+                0
+              ],
+              [
+                27,
+                0,
+                7,
+                0,
+                20
+              ]
+            ]
+          },
+          "50": {
+            "n_windows": 270,
+            "accuracy": 0.9111111111111111,
+            "macro_f1": 0.9064935064935066,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 0.5555555555555556
+            },
+            "n_per_class": {
+              "ball": 54,
+              "cage": 54,
+              "inner_race": 54,
+              "normal": 54,
+              "outer_race": 54
+            },
+            "abstention": 0.3148148148148148,
+            "confusion": [
+              [
+                54,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                54,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                54,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                54,
+                0
+              ],
+              [
+                24,
+                0,
+                0,
+                0,
+                30
+              ]
+            ]
+          },
+          "55": {
+            "n_windows": 270,
+            "accuracy": 0.9111111111111111,
+            "macro_f1": 0.9041132218481678,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.9814814814814815,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 0.5740740740740741
+            },
+            "n_per_class": {
+              "ball": 54,
+              "cage": 54,
+              "inner_race": 54,
+              "normal": 54,
+              "outer_race": 54
+            },
+            "abstention": 0.08518518518518518,
+            "confusion": [
+              [
+                54,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                1,
+                53,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                54,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                54,
+                0
+              ],
+              [
+                13,
+                0,
+                10,
+                0,
+                31
+              ]
+            ]
+          },
+          "65": {
+            "n_windows": 270,
+            "accuracy": 0.9962962962962963,
+            "macro_f1": 0.9962959787361744,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 0.9814814814814815
+            },
+            "n_per_class": {
+              "ball": 54,
+              "cage": 54,
+              "inner_race": 54,
+              "normal": 54,
+              "outer_race": 54
+            },
+            "abstention": 0.07777777777777778,
+            "confusion": [
+              [
+                54,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                54,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                54,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                54,
+                0
+              ],
+              [
+                1,
+                0,
+                0,
+                0,
+                53
+              ]
+            ]
+          },
+          "70": {
+            "n_windows": 270,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 54,
+              "cage": 54,
+              "inner_race": 54,
+              "normal": 54,
+              "outer_race": 54
+            },
+            "abstention": 0.06666666666666667,
+            "confusion": [
+              [
+                54,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                54,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                54,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                54,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                54
+              ]
+            ]
+          }
+        }
+      },
+      "candidate_scores": {
+        "n_windows": 1350,
+        "accuracy": 0.9940740740740741,
+        "macro_f1": 0.9940566716251314,
+        "recall": {
+          "ball": 1.0,
+          "cage": 0.9703703703703703,
+          "inner_race": 1.0,
+          "normal": 1.0,
+          "outer_race": 1.0
+        },
+        "n_per_class": {
+          "ball": 270,
+          "cage": 270,
+          "inner_race": 270,
+          "normal": 270,
+          "outer_race": 270
+        },
+        "abstention": 0.011111111111111112,
+        "confusion": [
+          [
+            270,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            2,
+            262,
+            0,
+            6,
+            0
+          ],
+          [
+            0,
+            0,
+            270,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            270,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            270
+          ]
+        ],
+        "abstain_below": 0.7065518539677342,
+        "selective_risk": 0.0044943820224719105,
+        "per_speed": {
+          "45": {
+            "n_windows": 270,
+            "accuracy": 0.9740740740740741,
+            "macro_f1": 0.9736526927028987,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.8703703703703703,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 54,
+              "cage": 54,
+              "inner_race": 54,
+              "normal": 54,
+              "outer_race": 54
+            },
+            "abstention": 0.011111111111111112,
+            "confusion": [
+              [
+                54,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                2,
+                47,
+                0,
+                5,
+                0
+              ],
+              [
+                0,
+                0,
+                54,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                54,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                54
+              ]
+            ]
+          },
+          "50": {
+            "n_windows": 270,
+            "accuracy": 0.9962962962962963,
+            "macro_f1": 0.9962959787361741,
+            "recall": {
+              "ball": 1.0,
+              "cage": 0.9814814814814815,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 54,
+              "cage": 54,
+              "inner_race": 54,
+              "normal": 54,
+              "outer_race": 54
+            },
+            "abstention": 0.040740740740740744,
+            "confusion": [
+              [
+                54,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                53,
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                54,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                54,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                54
+              ]
+            ]
+          },
+          "55": {
+            "n_windows": 270,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 54,
+              "cage": 54,
+              "inner_race": 54,
+              "normal": 54,
+              "outer_race": 54
+            },
+            "abstention": 0.003703703703703704,
+            "confusion": [
+              [
+                54,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                54,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                54,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                54,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                54
+              ]
+            ]
+          },
+          "65": {
+            "n_windows": 270,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 54,
+              "cage": 54,
+              "inner_race": 54,
+              "normal": 54,
+              "outer_race": 54
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                54,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                54,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                54,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                54,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                54
+              ]
+            ]
+          },
+          "70": {
+            "n_windows": 270,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "recall": {
+              "ball": 1.0,
+              "cage": 1.0,
+              "inner_race": 1.0,
+              "normal": 1.0,
+              "outer_race": 1.0
+            },
+            "n_per_class": {
+              "ball": 54,
+              "cage": 54,
+              "inner_race": 54,
+              "normal": 54,
+              "outer_race": 54
+            },
+            "abstention": 0.0,
+            "confusion": [
+              [
+                54,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                54,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                54,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                54,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                54
+              ]
+            ]
+          }
+        }
+      },
+      "delta_points": {
+        "macro_f1": 10.219158919222671,
+        "abstention": -15.555555555555555,
+        "recall": {
+          "ball": 0.0,
+          "cage": -0.7407407407407418,
+          "inner_race": 0.0,
+          "normal": 19.999999999999996,
+          "outer_race": 30.37037037037037
+        },
+        "selective_risk": -1.950561797752809
+      },
+      "ci95_points": {
+        "delta_macro_f1": [
+          6.367092862985795,
+          14.66510194279174
+        ],
+        "delta_selective_risk": [
+          -3.3682082653206296,
+          -0.775615112786623
+        ]
+      },
+      "checks": {
+        "1_low_speed_macro_f1": {
+          "value": 0.9940566716251314,
+          "threshold": 0.8,
+          "pass": true
+        },
+        "1_low_speed_min_recall": {
+          "value": 0.9703703703703703,
+          "threshold": 0.5,
+          "pass": true
+        },
+        "2_worst_delta_recall": {
+          "class": "cage",
+          "value": -0.7407407407407418,
+          "threshold": -5.0,
+          "pass": true
+        },
+        "3_abstention": {
+          "branch": "fall_or_equal",
+          "delta_abstention_points": -15.555555555555555,
+          "selective_risk_candidate": 0.0044943820224719105,
+          "selective_risk_promoted": 0.024,
+          "excess_points": -1.950561797752809,
+          "threshold": 1.0,
+          "pass": true
+        }
+      },
+      "verdict": "PASSES"
+    }
+  },
+  "nothing_promoted": true,
+  "cpu": {
+    "generation": {
+      "wall_s": 269.09,
+      "user_s": 1480.56,
+      "sys_s": 8.37,
+      "cpu_h": 0.41,
+      "workers": 6,
+      "source": "GNU time"
+    },
+    "evaluation_wall_s": 12.3,
+    "evaluation_process_cpu_s": 23.2
+  }
+}
