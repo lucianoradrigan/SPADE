@@ -1,0 +1,15 @@
+# B4c confirmatory evaluation (docs/audit/b4/b4c_confirmatory_preregistration.md, approved by Luciano 2026-11-12, M-D2).
+# Committed before any E4c data. Frozen models; no retraining or recalibration.
+plant: dc_perm_ex_v2
+e4c_speeds_rad_s: [45, 55, 65, 50, 70]      # 50 and 70 again, with new seeds
+e4c_severity_scales: [1.0, 1.5]              # as E4
+e4c_runs_per_severity_and_class: 3           # as E4
+e4c_rng_seed: 20261212
+e4c_first_run_seed: 100001                   # 150 runs: 100001-100150
+models:
+  PC: {candidate: configs/classifiers/pc_server_5class_w2048/2026-11-10_run01, promoted: configs/classifiers/pc_server_5class_w2048/2026-11-04_run01, artifact: keras}
+  RPi5: {candidate: configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-11-10_run01, promoted: configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-11-04_run01, artifact: tflite}
+criteria:
+  low_speed: {macro_f1_min: 0.80, recall_min_per_class: 0.50}
+  max_recall_drop_pts_per_class: 5.0
+  abstention_one_sided: {max_rise_pts: 5.0, max_selective_risk_excess_pts_if_lower: 1.0}
