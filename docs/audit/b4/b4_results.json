@@ -2270,7 +2270,7 @@
     "off-grid healthy runs follow the acquisition split",
     "E5 not executed (conditions unspecified)",
     "grid RNG seed = generator default 7",
-    "\u00a75.4 bootstrap CI and confusion matrices not executed",
+    "\u00a75.4: CI and confusion matrices were computed and stored in the JSON at evaluation time, but the first report omitted them and wrongly called them not executed (corrected 2026-11-12)",
     "report file name b4_results (night instructions) instead of b4_report"
   ],
   "findings": {
@@ -2279,5 +2279,635 @@
     "ESP32": "AI-N36",
     "traceability": "AI-N37"
   },
-  "nothing_promoted": true
+  "nothing_promoted": true,
+  "descriptive_5_4": {
+    "PC": {
+      "E1": {
+        "delta_macro_f1_points": 5.400864711935172,
+        "ci95_points": [
+          1.1194672219678454,
+          10.938956598335063
+        ],
+        "n_acquisitions": 70,
+        "confusion_candidate": [
+          [
+            153,
+            7,
+            2,
+            6,
+            0
+          ],
+          [
+            0,
+            160,
+            0,
+            8,
+            0
+          ],
+          [
+            1,
+            6,
+            150,
+            9,
+            2
+          ],
+          [
+            0,
+            2,
+            0,
+            166,
+            0
+          ],
+          [
+            0,
+            2,
+            1,
+            6,
+            159
+          ]
+        ],
+        "confusion_promoted": [
+          [
+            154,
+            6,
+            1,
+            5,
+            2
+          ],
+          [
+            6,
+            154,
+            1,
+            7,
+            0
+          ],
+          [
+            4,
+            2,
+            122,
+            2,
+            38
+          ],
+          [
+            6,
+            2,
+            0,
+            160,
+            0
+          ],
+          [
+            9,
+            3,
+            1,
+            1,
+            154
+          ]
+        ]
+      },
+      "E3": {
+        "delta_macro_f1_points": 0.18347901958714052,
+        "ci95_points": [
+          -0.4959312066702948,
+          0.8342640752657859
+        ],
+        "n_acquisitions": 260,
+        "confusion_candidate": [
+          [
+            196,
+            0,
+            0,
+            4,
+            0
+          ],
+          [
+            0,
+            200,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            196,
+            4,
+            0
+          ],
+          [
+            0,
+            4,
+            0,
+            196,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            4,
+            196
+          ]
+        ],
+        "confusion_promoted": [
+          [
+            200,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            4,
+            196,
+            0,
+            0,
+            0
+          ],
+          [
+            4,
+            0,
+            196,
+            0,
+            0
+          ],
+          [
+            6,
+            0,
+            0,
+            194,
+            0
+          ],
+          [
+            4,
+            0,
+            0,
+            0,
+            196
+          ]
+        ]
+      },
+      "E4": {
+        "delta_macro_f1_points": 31.060270272300706,
+        "ci95_points": [
+          21.687419526621515,
+          43.234094241136276
+        ],
+        "n_acquisitions": 60,
+        "confusion_candidate": [
+          [
+            108,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            105,
+            0,
+            3,
+            0
+          ],
+          [
+            0,
+            0,
+            108,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            108,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            108
+          ]
+        ],
+        "confusion_promoted": [
+          [
+            108,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            106,
+            0,
+            2,
+            0
+          ],
+          [
+            0,
+            0,
+            48,
+            0,
+            60
+          ],
+          [
+            0,
+            45,
+            0,
+            63,
+            0
+          ],
+          [
+            57,
+            0,
+            0,
+            0,
+            51
+          ]
+        ]
+      }
+    },
+    "RPi5": {
+      "E1": {
+        "delta_macro_f1_points": -0.38497322537216494,
+        "ci95_points": [
+          -2.2055587243108223,
+          1.3123403464705858
+        ],
+        "n_acquisitions": 70,
+        "confusion_candidate": [
+          [
+            146,
+            10,
+            0,
+            12,
+            0
+          ],
+          [
+            0,
+            158,
+            0,
+            10,
+            0
+          ],
+          [
+            4,
+            5,
+            148,
+            10,
+            1
+          ],
+          [
+            0,
+            3,
+            0,
+            165,
+            0
+          ],
+          [
+            6,
+            7,
+            0,
+            6,
+            149
+          ]
+        ],
+        "confusion_promoted": [
+          [
+            149,
+            6,
+            7,
+            4,
+            2
+          ],
+          [
+            4,
+            155,
+            4,
+            5,
+            0
+          ],
+          [
+            2,
+            5,
+            152,
+            8,
+            1
+          ],
+          [
+            4,
+            3,
+            1,
+            160,
+            0
+          ],
+          [
+            6,
+            3,
+            2,
+            3,
+            154
+          ]
+        ]
+      },
+      "E3": {
+        "delta_macro_f1_points": -0.1975356154579111,
+        "ci95_points": [
+          -0.950621544780601,
+          0.45004114037613174
+        ],
+        "n_acquisitions": 260,
+        "confusion_candidate": [
+          [
+            196,
+            0,
+            0,
+            4,
+            0
+          ],
+          [
+            0,
+            196,
+            0,
+            4,
+            0
+          ],
+          [
+            0,
+            0,
+            196,
+            4,
+            0
+          ],
+          [
+            0,
+            4,
+            0,
+            196,
+            0
+          ],
+          [
+            2,
+            0,
+            0,
+            4,
+            194
+          ]
+        ],
+        "confusion_promoted": [
+          [
+            200,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            4,
+            196,
+            0,
+            0,
+            0
+          ],
+          [
+            4,
+            0,
+            196,
+            0,
+            0
+          ],
+          [
+            4,
+            4,
+            0,
+            192,
+            0
+          ],
+          [
+            4,
+            0,
+            0,
+            0,
+            196
+          ]
+        ]
+      },
+      "E4": {
+        "delta_macro_f1_points": 7.045241634880329,
+        "ci95_points": [
+          1.9422560863584595,
+          13.029147478646166
+        ],
+        "n_acquisitions": 60,
+        "confusion_candidate": [
+          [
+            107,
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            105,
+            0,
+            1,
+            1
+          ],
+          [
+            0,
+            0,
+            108,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            108,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            108
+          ]
+        ],
+        "confusion_promoted": [
+          [
+            108,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            106,
+            1,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            108,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            108,
+            0
+          ],
+          [
+            30,
+            0,
+            8,
+            0,
+            70
+          ]
+        ]
+      }
+    },
+    "ESP32": {
+      "E1": {
+        "delta_macro_f1_points": 3.0920295823293587,
+        "ci95_points": [
+          -2.5935412717175783,
+          10.372768498244756
+        ],
+        "n_acquisitions": 41,
+        "confusion_candidate": [
+          [
+            223,
+            35,
+            41
+          ],
+          [
+            0,
+            285,
+            15
+          ],
+          [
+            4,
+            50,
+            245
+          ]
+        ],
+        "confusion_promoted": [
+          [
+            249,
+            16,
+            34
+          ],
+          [
+            17,
+            246,
+            37
+          ],
+          [
+            44,
+            25,
+            230
+          ]
+        ]
+      },
+      "E3": {
+        "delta_macro_f1_points": -0.24428440269698148,
+        "ci95_points": [
+          -0.4483957555307322,
+          -0.08107713719659489
+        ],
+        "n_acquisitions": 156,
+        "confusion_candidate": [
+          [
+            932,
+            12,
+            4
+          ],
+          [
+            0,
+            940,
+            8
+          ],
+          [
+            0,
+            12,
+            936
+          ]
+        ],
+        "confusion_promoted": [
+          [
+            936,
+            8,
+            4
+          ],
+          [
+            1,
+            942,
+            5
+          ],
+          [
+            3,
+            8,
+            937
+          ]
+        ]
+      },
+      "E4": {
+        "delta_macro_f1_points": 2.905927219951232,
+        "ci95_points": [
+          -12.315009419197793,
+          16.795664084577428
+        ],
+        "n_acquisitions": 36,
+        "confusion_candidate": [
+          [
+            162,
+            0,
+            306
+          ],
+          [
+            0,
+            468,
+            0
+          ],
+          [
+            2,
+            0,
+            466
+          ]
+        ],
+        "confusion_promoted": [
+          [
+            468,
+            0,
+            0
+          ],
+          [
+            0,
+            468,
+            0
+          ],
+          [
+            331,
+            4,
+            133
+          ]
+        ]
+      }
+    }
+  },
+  "teacher_run": {
+    "configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-11-10_run01": "configs/classifiers/pc_server_5class_w2048/2026-11-10_run01",
+    "configs/classifiers/esp32_dscnn/2026-11-10_run01": "configs/classifiers/pc_server/2026-11-10_run01"
+  }
 }

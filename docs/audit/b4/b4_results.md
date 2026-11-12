@@ -124,11 +124,150 @@ The simulation took 1.8 times the estimated CPU, at the estimated wall time; mor
 | 2 | The 60 off-grid healthy runs follow the acquisition split (train/val/test) like any other run, instead of going all to training | minor | `train_model.py` has no option to force runs into training; training code was not changed |
 | 3 | **E5 not executed** | minor (descriptive only, does not decide) | §3.5 gives its seeds and size but not its conditions; inventing them would be improvising |
 | 4 | The grid's noise/drift RNG seed is the generator default 7 (not stated in §3.1) | minor | "same generator as today" |
-| 5 | §5.4 descriptive items: the bootstrap CI of Δ macro-F1 and the confusion matrices are **not executed**; the start-up/steady split is only in E3 | minor (descriptive) | not implemented in `report_b4.py` before the data, and not added afterwards |
+| 5 | §5.4 descriptive items: the bootstrap CI of Δ macro-F1 and the confusion matrices **were computed** by `report_b4.py` and stored in the JSON, but this report first omitted them and wrongly called them not executed (**corrected 2026-11-12**, section §5.4 below). The start-up/steady split is only in E3 | none (reporting error) | — |
 | 6 | The report is `b4_results.{md,json}` (night instructions), not `b4_report.{md,json}` (§9) | none | file name only |
 
 No threshold, hyperparameter, set or seed was changed after a result was seen. No candidate was retrained.
 
+<!-- B4-5.4-BEGIN -->
+
+## §5.4 descriptive (pre-registered; no verdict changes)
+
+Computed by `report_b4.py` at evaluation time (stored in `b4_results.json`) and laid out by `python experiments/report_b4_descriptive.py`. CI: 95 % percentile bootstrap of Δ macro-F1 (candidate − promoted, points), 1000 resamples of whole acquisitions, seed 0.
+
+| Tier | Set | Acquisitions | Δ macro-F1 (pt) | 95 % CI (pt) | CI below −1 pt? |
+|---|---|---|---|---|---|
+| PC | E1 | 70 | +5.4 | [+1.1, +10.9] | no |
+| PC | E3 | 260 | +0.2 | [-0.5, +0.8] | no |
+| PC | E4 | 60 | +31.1 | [+21.7, +43.2] | no |
+| RPi5 | E1 | 70 | -0.4 | [-2.2, +1.3] | yes |
+| RPi5 | E3 | 260 | -0.2 | [-1.0, +0.5] | no |
+| RPi5 | E4 | 60 | +7.0 | [+1.9, +13.0] | no |
+| ESP32 | E1 | 41 | +3.1 | [-2.6, +10.4] | yes |
+| ESP32 | E3 | 156 | -0.2 | [-0.4, -0.1] | no |
+| ESP32 | E4 | 36 | +2.9 | [-12.3, +16.8] | yes |
+
+**Reading.** No CI changes a verdict (the rule is on the point estimates). Four notes:
+- **RPi5 E1:** the point estimate (−0.4 pt) passes, but the CI reaches −2.2 pt: non-inferiority on E1 is not established with confidence.
+- **ESP32 E1:** +3.1 pt, CI [−2.6, +10.4]: the gain is not established.
+- **ESP32 E3:** the whole CI is below 0 ([−0.4, −0.1] pt): a small but consistent loss, within the −1 pt margin.
+- **ESP32 E4:** the CI spans −12.3 to +16.8 pt (36 acquisitions): the low-speed comparison is not informative on its own; the int8-vs-Keras check is.
+
+### Confusion matrices (rows: true class, columns: predicted; argmax, abstention not applied)
+
+**PC · E1**
+
+| true \ pred | ball | cage | inner_race | normal | outer_race |
+|---|---|---|---|---|---|
+| ball | 153 (154) | 7 (6) | 2 (1) | 6 (5) | 0 (2) |
+| cage | 0 (6) | 160 (154) | 0 (1) | 8 (7) | 0 (0) |
+| inner_race | 1 (4) | 6 (2) | 150 (122) | 9 (2) | 2 (38) |
+| normal | 0 (6) | 2 (2) | 0 (0) | 166 (160) | 0 (0) |
+| outer_race | 0 (9) | 2 (3) | 1 (1) | 6 (1) | 159 (154) |
+
+Candidate (promoted).
+
+**PC · E3**
+
+| true \ pred | ball | cage | inner_race | normal | outer_race |
+|---|---|---|---|---|---|
+| ball | 196 (200) | 0 (0) | 0 (0) | 4 (0) | 0 (0) |
+| cage | 0 (4) | 200 (196) | 0 (0) | 0 (0) | 0 (0) |
+| inner_race | 0 (4) | 0 (0) | 196 (196) | 4 (0) | 0 (0) |
+| normal | 0 (6) | 4 (0) | 0 (0) | 196 (194) | 0 (0) |
+| outer_race | 0 (4) | 0 (0) | 0 (0) | 4 (0) | 196 (196) |
+
+Candidate (promoted).
+
+**PC · E4**
+
+| true \ pred | ball | cage | inner_race | normal | outer_race |
+|---|---|---|---|---|---|
+| ball | 108 (108) | 0 (0) | 0 (0) | 0 (0) | 0 (0) |
+| cage | 0 (0) | 105 (106) | 0 (0) | 3 (2) | 0 (0) |
+| inner_race | 0 (0) | 0 (0) | 108 (48) | 0 (0) | 0 (60) |
+| normal | 0 (0) | 0 (45) | 0 (0) | 108 (63) | 0 (0) |
+| outer_race | 0 (57) | 0 (0) | 0 (0) | 0 (0) | 108 (51) |
+
+Candidate (promoted).
+
+**RPi5 · E1**
+
+| true \ pred | ball | cage | inner_race | normal | outer_race |
+|---|---|---|---|---|---|
+| ball | 146 (149) | 10 (6) | 0 (7) | 12 (4) | 0 (2) |
+| cage | 0 (4) | 158 (155) | 0 (4) | 10 (5) | 0 (0) |
+| inner_race | 4 (2) | 5 (5) | 148 (152) | 10 (8) | 1 (1) |
+| normal | 0 (4) | 3 (3) | 0 (1) | 165 (160) | 0 (0) |
+| outer_race | 6 (6) | 7 (3) | 0 (2) | 6 (3) | 149 (154) |
+
+Candidate (promoted).
+
+**RPi5 · E3**
+
+| true \ pred | ball | cage | inner_race | normal | outer_race |
+|---|---|---|---|---|---|
+| ball | 196 (200) | 0 (0) | 0 (0) | 4 (0) | 0 (0) |
+| cage | 0 (4) | 196 (196) | 0 (0) | 4 (0) | 0 (0) |
+| inner_race | 0 (4) | 0 (0) | 196 (196) | 4 (0) | 0 (0) |
+| normal | 0 (4) | 4 (4) | 0 (0) | 196 (192) | 0 (0) |
+| outer_race | 2 (4) | 0 (0) | 0 (0) | 4 (0) | 194 (196) |
+
+Candidate (promoted).
+
+**RPi5 · E4**
+
+| true \ pred | ball | cage | inner_race | normal | outer_race |
+|---|---|---|---|---|---|
+| ball | 107 (108) | 0 (0) | 0 (0) | 0 (0) | 1 (0) |
+| cage | 1 (0) | 105 (106) | 0 (1) | 1 (1) | 1 (0) |
+| inner_race | 0 (0) | 0 (0) | 108 (108) | 0 (0) | 0 (0) |
+| normal | 0 (0) | 0 (0) | 0 (0) | 108 (108) | 0 (0) |
+| outer_race | 0 (30) | 0 (0) | 0 (8) | 0 (0) | 108 (70) |
+
+Candidate (promoted).
+
+**ESP32 · E1**
+
+| true \ pred | inner_race | normal | outer_race |
+|---|---|---|---|
+| inner_race | 223 (249) | 35 (16) | 41 (34) |
+| normal | 0 (17) | 285 (246) | 15 (37) |
+| outer_race | 4 (44) | 50 (25) | 245 (230) |
+
+Candidate (promoted).
+
+**ESP32 · E3**
+
+| true \ pred | inner_race | normal | outer_race |
+|---|---|---|---|
+| inner_race | 932 (936) | 12 (8) | 4 (4) |
+| normal | 0 (1) | 940 (942) | 8 (5) |
+| outer_race | 0 (3) | 12 (8) | 936 (937) |
+
+Candidate (promoted).
+
+**ESP32 · E4**
+
+| true \ pred | inner_race | normal | outer_race |
+|---|---|---|---|
+| inner_race | 162 (468) | 0 (0) | 306 (0) |
+| normal | 0 (0) | 468 (468) | 0 (0) |
+| outer_race | 2 (331) | 0 (4) | 466 (133) |
+
+Candidate (promoted).
+
+- **ESP32 E4:** 306 of 468 inner_race windows go to outer_race in the int8 candidate (the promoted run's error goes the other way). That is where AI-N36 loses inner_race.
+
+### Teachers of the distilled B4 runs (AI-N37)
+
+| Run | Teacher (from `b4_pipeline.sh`) |
+|---|---|
+| `configs/classifiers/rpi5_resnet1d_se_5class_w2048/2026-11-10_run01` | `configs/classifiers/pc_server_5class_w2048/2026-11-10_run01` |
+| `configs/classifiers/esp32_dscnn/2026-11-10_run01` | `configs/classifiers/pc_server/2026-11-10_run01` |
+
+<!-- B4-5.4-END -->
+
 ## New findings
 
-AI-N34 (PC), AI-N35 (RPi5), AI-N36 (ESP32), AI-N37 (the teacher of a distilled run is not recorded in its metadata). See `docs/AI_TECHNICAL_AUDIT.md` §13.8. Each candidate run has its `audit_findings.json`.
+AI-N34 (PC), AI-N35 (RPi5), AI-N36 (ESP32), AI-N37 (`run_metadata.json` did not name the teacher run; corrected 2026-11-12 in `train_model`, the B4 teachers are listed in §5.4 above). See `docs/AI_TECHNICAL_AUDIT.md` §13.8. Each candidate run has its `audit_findings.json`.

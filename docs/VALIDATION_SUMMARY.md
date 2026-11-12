@@ -667,7 +667,7 @@ Local LLM `qwen3.5:9b` through Ollama. Each benchmark had its thresholds committ
 | AI-N34 (Medium) | **Open.** B4 PC candidate `pc_server_5class_w2048/2026-11-10_run01` fails only the two-sided \|Δ abstention\| ≤ 5 pt on E4 (−16.3 pt: it abstains less); E4 macro-F1 0.994 against 0.684, every other check passes | `audit/b4/b4_results.md` |
 | AI-N35 (Medium) | **Open.** B4 RPi5 candidate (float16): the same, −20.6 pt on E4; E4 macro-F1 0.993 against 0.922 | `audit/b4/b4_results.md` |
 | AI-N36 (High) | **Open.** B4 ESP32 int8 (V1): D1 gate 0.838 < 0.88; inner_race at 50/70 rad/s is lost in int8 (Keras 1.000, int8 0.346). AI-N27/AI-N28 stay open for the ESP32 | `audit/b4/b4_results.md` |
-| AI-N37 (Low) | **Open.** `--teacher-run` is not recorded in the run's metadata | `AI_TECHNICAL_AUDIT.md` §13.8 |
+| AI-N37 (Low) | **Corrected (2026-11-12).** `run_metadata.json` now names the teacher run of a distilled model (`metrics.json` had only `distilled_from`, a registry key for registry teachers) | `tests/test_ai_n37_teacher_provenance.py`; `AI_TECHNICAL_AUDIT.md` §13.8 |
 
 - **B4 cost:** simulation 5.66 CPU-h (estimate 3.2) in 35 min; training 2.10 CPU-h in 23 min.
 - **C2000 visit kit** (D-B4-4 option B): [`audit/b4/c2000_visit_kit.md`](audit/b4/c2000_visit_kit.md). Nothing measured on the board yet.

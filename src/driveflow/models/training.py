@@ -47,7 +47,7 @@ from sklearn.preprocessing import LabelEncoder
 
 from driveflow.ai.calibration import fit_calibration
 from driveflow.ai.provenance import file_sha256, run_metadata, set_global_seed
-from driveflow.ai.registry import DEFAULT_REGISTRY_PATH, RegistryError, load_promoted_model, load_run_model
+from driveflow.ai.registry import DEFAULT_REGISTRY_PATH, REPO_ROOT, RegistryError, load_promoted_model, load_run_model, resolve
 from driveflow.models.classifiers.builder import build_classifier
 from driveflow.models.classifiers.schemas import ClassifierConfig, load_classifier_config
 from driveflow.models.common import (
@@ -348,6 +348,15 @@ def _save_artifacts(run_dir: Path, config_path: Path, model, metrics: dict) -> N
         json.dump(metrics, f, indent=2)
 
 
+def _repo_relative(path) -> str:
+    """A run path as stored in metadata: relative to the repo when inside it (portable), else absolute."""
+    p = Path(path).resolve()
+    try:
+        return p.relative_to(Path(REPO_ROOT).resolve()).as_posix()
+    except ValueError:
+        return p.as_posix()
+
+
 def train_from_config(
     config_path, dataset_path, epochs: int = 20, batch_size: int = 32, seed: int = 42,
     distill: bool = False, distill_alpha: float = 0.5, registry_path: Path = DEFAULT_REGISTRY_PATH,
@@ -379,12 +388,17 @@ def train_from_config(
     df = _load_domain_dataframe(Path(dataset_path), config.domain)
 
     teacher = None
+    teacher_provenance = {}
     if distill and config.tier != "pc":
         block = _KIND_TO_REGISTRY_BLOCK[kind]
         if teacher_run is not None:
             teacher, _, teacher_metrics = load_run_model(teacher_run, block)
+            teacher_provenance = {"teacher_run": Path(teacher_run).as_posix(), "teacher_source": "--teacher-run"}
         else:
             teacher, _, teacher_metrics = load_promoted_model(config.domain, "pc", block, registry_path=registry_path)
+            # AI-N37 (2026-11-12): record WHICH run the registry resolved, not only the registry key.
+            teacher_provenance = {"teacher_run": _repo_relative(resolve(config.domain, "pc", block, registry_path=registry_path)),
+                                  "teacher_source": f"registry ({config.domain}/pc/{block})"}
         if kind == "classifier":
             level_scaling = teacher_metrics.get("level_scaling")
             if len(teacher_metrics["classes"]) != config.num_classes:
@@ -414,6 +428,7 @@ def train_from_config(
     # the dataset's content hash -- what "seed + commit + env + data" reproducibility needs.
     with (run_dir / "run_metadata.json").open("w") as f:
         json.dump({**run_metadata(), "seed": seed_info, "epochs": epochs, "batch_size": batch_size, "dataset_path": str(dataset_path), "dataset_sha256": file_sha256(dataset_path), "distill": bool(teacher is not None), "cap_per_class": cap_per_class,
+                   **({**teacher_provenance, "distill_alpha": distill_alpha} if teacher is not None else {}),
                    # AI-N26 (2026-11-09): the input rate also in the run metadata, from the training data
                    **({"fs_hz": metrics["fs_hz"], "fs_hz_source": "the training dataset's fs_hz column"} if metrics.get("fs_hz") else {})}, f, indent=2)
     return run_dir

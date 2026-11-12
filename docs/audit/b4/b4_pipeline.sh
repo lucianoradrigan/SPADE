@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 # B4 pipeline (night 2026-11-09/10). Resumable: each stage is skipped if its output exists.
-# Run:  bash /mnt/datos/spade/b4_work/b4_pipeline.sh >> /mnt/datos/spade/b4_work/b4_pipeline.log 2>&1
+# Run from anywhere:  bash docs/audit/b4/b4_pipeline.sh >> "${B4_WORK:-workspace/b4_work}/b4_pipeline.log" 2>&1
+# Environment (all optional): SPADE_REPO (default: the repo that holds this script), PY (default: $SPADE_REPO/.venv/bin/python),
+# B4_WORK (logs, run pointers, times and ESP32 variants; default: $SPADE_REPO/workspace/b4_work; on 2026-11-10 it was /mnt/datos/spade/b4_work).
 set -euo pipefail
-cd /mnt/datos/spade/wt_b4
+SPADE_REPO="${SPADE_REPO:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)}"
+cd "$SPADE_REPO"
 export PYTHONPATH=src:. TF_CPP_MIN_LOG_LEVEL=2
-PY=$HOME/post_doc/plataform_proposed/SPADE-dev/.venv/bin/python
-W=/mnt/datos/spade/b4_work
+PY="${PY:-$SPADE_REPO/.venv/bin/python}"
+W="${B4_WORK:-$SPADE_REPO/workspace/b4_work}"
+mkdir -p "$W"
 T="/usr/bin/time -f STAGE_TIME\t%e_wall_s\t%U_user_s\t%S_sys_s -a -o $W/times.tsv"
 SP=40,60,80,100,125,150,175,200,220
 COMMON="--epochs 30 --batch-size 32 --seed 42 --cap-per-class 3000 --keep-rpm-level"
