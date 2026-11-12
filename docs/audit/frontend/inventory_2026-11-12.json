@@ -342,7 +342,8 @@
       "status": "missing",
       "file": "—",
       "screenshot": "",
-      "note": "supported by Scenario, not exposed"
+      "note": "supported by Scenario, not exposed",
+      "status_after_M6_2": "done (feat/V1-gui-phase0, v1_rotor_inertia.md)"
     },
     {
       "area": "V1",
@@ -360,7 +361,8 @@
       "status": "missing",
       "file": "—",
       "screenshot": "",
-      "note": "supported by Scenario, not exposed"
+      "note": "supported by Scenario, not exposed",
+      "status_after_M6_2": "done (feat/V1-gui-phase0, v1_rotor_inertia.md)"
     },
     {
       "area": "V1",

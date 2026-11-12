@@ -47,9 +47,9 @@ Page check: `python scripts/oneoff/frontend_inventory_pages.py http://127.0.0.1:
 | Assistant | extraction_review (datasheets) | ESPEC §5 | **not applicable** | `—` | — | phase 2 |
 | V1 | DC Motor: plant mode (v2/v1 with S-21 warning), load N·m, supply V, limits, nominals | PLAN V1 | **done** | `viz/views/dc_motor.py` | `desktop_03_dc_motor.png` | round B (90943b5) |
 | V1 | DC Motor: motor parameters r_a, l_a, ψ_e | PLAN V1 | **done** | `dc_motor.py` | — |  |
-| V1 | DC Motor: rotor inertia j_rotor | PLAN V1 (Scenario.motor_parameter_overrides) | **missing** | `—` | — | supported by Scenario, not exposed |
+| V1 | DC Motor: rotor inertia j_rotor | PLAN V1 (Scenario.motor_parameter_overrides) | **missing → done in M6.2** | `—` | — | supported by Scenario, not exposed |
 | V1 | PMSM: p, l_d, l_q, r_s, ψ_p, supply | PLAN V1 | **done** | `viz/views/pmsm.py` | `desktop_04_pmsm.png` |  |
-| V1 | PMSM: rotor inertia j_rotor | PLAN V1 (Scenario.pmsm_motor_parameters) | **missing** | `—` | — | supported by Scenario, not exposed |
+| V1 | PMSM: rotor inertia j_rotor | PLAN V1 (Scenario.pmsm_motor_parameters) | **missing → done in M6.2** | `—` | — | supported by Scenario, not exposed |
 | V1 | Scenario validation (incl. S-24) as a clear message, not an exception | M6.2 | **done** | `dc_motor.py, pmsm.py st.error` | — |  |
 
 ## 2. Coherence across the 18 pages
