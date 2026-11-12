@@ -13,3 +13,4 @@ replacement of them in the same directories. On 2026-11-09 these are:
   docs/screenshots/frontend/narrow_14_assistant.png (Assistant page at 390 px, frontend inventory 2026-11-12)
   docs/audit/assistant/ai_n39/before_fix_stuck.png (Assistant page, AI-N39 evidence, 2026-11-12)
   docs/audit/assistant/ai_n39/after_fix_reply.png (Assistant page, AI-N39 evidence, 2026-11-12)
+  docs/screenshots/frontend/polish/*.png (Assistant page before/after the M6.3 polish, 2026-11-12)

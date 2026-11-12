@@ -12,6 +12,8 @@ Taken from the inventory (`inventory_2026-11-12.md` §3): the "partial" or "miss
 | 4 | **Model digest in the header's tooltip** | ESPEC §1.4 | tag and status only | tooltip: tag, digest, "runs on this machine; no data leave it" |
 | 5 | **Link from job progress to Experiment Runs** | ESPEC §3 (`job_progress`) | progress bar only | `st.page_link` under the progress (a caption when the view runs outside the app) |
 
+**Observed in the screenshots, not changed (layout, already in dev):** right after a turn, the chat input appears between the first message and the new turn, because the turn is drawn after the input in the same run. The next run puts it back at the bottom.
+
 **Not done here, and why:**
 - Draft as a tab under the chat on narrow screens: it needs restructuring the three columns and changes the page layout; better reviewed separately.
 - A3 head crop, A4 poses, A6 light variant: they need assets (FE-D2).
@@ -24,4 +26,4 @@ Taken from the inventory (`inventory_2026-11-12.md` §3): the "partial" or "miss
 - `tests/assistant/test_assistant_page_polish.py` (4): response time shown and stored, minimum thinking time, origin colours and legend with the text kept, WCAG AA of the chip colours, digest in the tooltip.
 - `tests/assistant/test_assistant_page.py` (3) passes unchanged.
 
-**Screenshots:** `docs/screenshots/frontend/polish/`, before (dev `849721c`) and after (this branch), desktop 1440 px and narrow 390 px, after one turn with the real local model. Because they are real model replies, the text of the turn differs between before and after. The avatar in them is covered by `licenses/avatar/LICENSE`.
+**Screenshots:** `docs/screenshots/frontend/polish/`, before (dev `e4fed56`) and after (this branch, which includes dev's AI-N39 fix; without it no turn finishes in a browser), desktop 1440 px and narrow 390 px, after one turn with the real local model. Because they are real model replies, the text of the turn differs between before and after. The avatar in them is covered by `licenses/avatar/LICENSE`.
