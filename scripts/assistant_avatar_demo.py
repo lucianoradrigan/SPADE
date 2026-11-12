@@ -47,7 +47,7 @@ with right:
 
 labels = {"running": "Simulation running: 3/5", "using_tool": "Checking the plant…", "error": "describe_plant: unknown plant 'x'"}
 with slot:
-    res = radrigan_avatar(state, label=labels.get(state), progress=0.6 if state == "running" else None, compact=compact, avatar_dir=avatar_dir)
+    res = radrigan_avatar(state, label=labels.get(state), progress=0.6 if state == "running" else None, compact=compact, avatar_dir=avatar_dir, report_env=True)
 env = getattr(res, "env", None) if res is not None else None
 if env:
     st.caption(f"component reports: reduced_motion={env.get('reduced_motion')} state={env.get('state')} has_assets={env.get('has_assets')}")
