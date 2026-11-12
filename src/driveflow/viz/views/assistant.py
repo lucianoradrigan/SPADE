@@ -34,6 +34,14 @@ from driveflow.viz.components.radrigan_avatar import radrigan_avatar
 FOOTER = "All results are SIMULATED."
 WORDS_PER_BEAT = 4
 STREAM_DELAY_S = 0.02
+#: FE polish (2026-11-12, ESPEC §1.3): "thinking" stays on screen at least this long, so a fast reply does not flicker.
+MIN_THINKING_S = 0.4
+#: FE polish (2026-11-12): the draft panel's origin chips get a colour; the text stays, so colour is never the only signal.
+#: Light background + dark text (contrast > 7:1 in both themes, the chip carries its own background).
+ORIGIN_STYLE = {"USER": ("#dbeafe", "#1e3a8a"), "DERIVED": ("#ede9fe", "#4c1d95"), "SUGGESTED": ("#fef3c7", "#78350f"),
+                "DEFAULT": ("#e5e7eb", "#111827"), "ASSUMED": ("#fee2e2", "#7f1d1d"), "DATASHEET": ("#dcfce7", "#14532d")}
+ORIGIN_LEGEND = ("Origin: USER = you gave it · DERIVED = computed from your values · SUGGESTED = proposed by the assistant · "
+                 "DEFAULT = SPADE's default · ASSUMED = an assumption to verify · DATASHEET = read from a document")
 #: Tests replace this with a factory returning a ReplayClient; None = the configured OllamaClient.
 CLIENT_FACTORY = None
 NARROW_CSS = """
@@ -92,12 +100,19 @@ def _render_cards(cards: list) -> None:
                     st.text(ln)  # verbatim: never interpreted as markdown
 
 
+def _answered_in(wall_s: float) -> str:
+    """FE polish (2026-11-12): the visible response time of a turn (model and tools, not the visual streaming)."""
+    return f"Answered in {wall_s:.1f} s · local model"
+
+
 def _render_message(m: dict) -> None:
     with st.chat_message(m["role"]):
         if m["text"]:
             st.markdown(m["text"])
         if m.get("cards"):
             _render_cards(m["cards"])
+        if m.get("wall_s") is not None:
+            st.caption(_answered_in(m["wall_s"]))
 
 
 def _turn(agent, text: str, how: str | None, avatar_slot) -> None:
@@ -105,8 +120,12 @@ def _turn(agent, text: str, how: str | None, avatar_slot) -> None:
     ss.assistant_history.append({"role": "user", "text": text, "cards": []})
     _render_message(ss.assistant_history[-1])
     agent.on_event = lambda e: (ss.assistant_events.append(e), _avatar(avatar_slot))
+    t0 = time.monotonic()
     try:
         res = agent.user_turn(text, confirmed_how=how)
+        wall_s = time.monotonic() - t0
+        if wall_s < MIN_THINKING_S:  # keep "thinking" visible at least MIN_THINKING_S (no flicker on fast replies)
+            time.sleep(MIN_THINKING_S - wall_s)
     except (llm.RuntimeUnavailable, llm.ModelNotAvailable) as exc:
         ss.assistant_unavailable = unavailable_message(exc, _config())
         ss.assistant_history.append({"role": "assistant", "text": ss.assistant_unavailable, "cards": []})
@@ -126,7 +145,8 @@ def _turn(agent, text: str, how: str | None, avatar_slot) -> None:
             time.sleep(STREAM_DELAY_S)
         if res.cards:
             _render_cards(res.cards)
-    ss.assistant_history.append({"role": "assistant", "text": res.text, "cards": res.cards})
+        st.caption(_answered_in(wall_s))
+    ss.assistant_history.append({"role": "assistant", "text": res.text, "cards": res.cards, "wall_s": wall_s})
     _avatar(avatar_slot)
 
 
@@ -158,14 +178,27 @@ def _jobs_panel() -> None:
             continue
         total = job.progress_total or 1
         st.progress(min(1.0, (job.progress_done or 0) / total), text=f"{j['job_id']} · {job.state.value} · {job.progress_done or 0}/{job.progress_total or '?'}")
+    try:  # a link only exists inside the app's navigation; the view rendered alone (tests, demo) gets a caption
+        st.page_link("pages/experiment_runs.py", label="Open Experiment Runs", icon=":material/open_in_new:")
+    except Exception:  # noqa: BLE001 -- StreamlitAPIException / KeyError when the page is not registered
+        st.caption("The runs are listed on the Experiment Runs page.")
+
+
+def _origin_css(origin: str) -> str:
+    """CSS for one origin cell; several origins ("DEFAULT/USER") take the first one's colour."""
+    bg, fg = ORIGIN_STYLE.get(str(origin).split("/")[0], ("", ""))
+    return f"background-color: {bg}; color: {fg}; font-weight: 600" if bg else ""
 
 
 def _draft_panel(agent) -> None:
     st.markdown("**Draft**")
     rows = answer.draft_panel(agent.state.draft)
     if rows:
-        st.dataframe([{"Field": r["field"], "Value": str(r["value"]) + (f" {r['unit']}" if r.get("unit") else ""), "Origin": r["origin"]} for r in rows],
-                     hide_index=True, use_container_width=True)
+        import pandas as pd
+
+        df = pd.DataFrame([{"Field": r["field"], "Value": str(r["value"]) + (f" {r['unit']}" if r.get("unit") else ""), "Origin": r["origin"]} for r in rows])
+        st.dataframe(df.style.map(_origin_css, subset=["Origin"]), hide_index=True, use_container_width=True)
+        st.caption(ORIGIN_LEGEND)
     else:
         st.caption("Empty: describe what you want to simulate.")
     p = agent.state.proposal
@@ -191,7 +224,9 @@ def render() -> None:
     cfg = _config()
     status = (cfg.get("model") or {}).get("status")
     st.title("Assistant")
-    st.caption(f"Local model `{(cfg.get('model') or {}).get('tag')}` via Ollama" + (f" · status: {status}" if status else ""))
+    model = cfg.get("model") or {}
+    st.caption(f"Local model `{model.get('tag')}` via Ollama" + (f" · status: {status}" if status else ""),
+               help=f"Model {model.get('tag')} · digest {model.get('digest') or 'not pinned'} · runs on this machine; no data leave it.")
     with st.container(key="assistant_header_avatar"):
         _avatar(st.empty(), compact=True, key="assistant_avatar_compact")
     col_avatar, col_chat, col_draft = st.columns([1.1, 2.6, 1.5])
