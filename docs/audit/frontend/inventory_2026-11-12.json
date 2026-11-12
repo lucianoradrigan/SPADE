@@ -1,0 +1,384 @@
+{
+  "date": "2026-11-12",
+  "commit": "33e1e29",
+  "items": [
+    {
+      "area": "Assistant",
+      "element": "11 avatar states",
+      "specified_in": "ESPEC §1.3; ADENDA FE-3",
+      "status": "done",
+      "file": "viz/components/radrigan_avatar/avatar.js (CLASS)",
+      "screenshot": "desktop_14_assistant.png",
+      "note": ""
+    },
+    {
+      "area": "Assistant",
+      "element": "Event contract and event→state mapping with priority",
+      "specified_in": "ESPEC §2; FE-1",
+      "status": "done",
+      "file": "assistant/events.py; viz/adapters/assistant_adapter.py",
+      "screenshot": "",
+      "note": ""
+    },
+    {
+      "area": "Assistant",
+      "element": "Readable label per tool",
+      "specified_in": "FE-1.4",
+      "status": "done",
+      "file": "assistant_adapter.TOOL_LABELS",
+      "screenshot": "",
+      "note": ""
+    },
+    {
+      "area": "Assistant",
+      "element": "Three columns: avatar, chat, draft with Run",
+      "specified_in": "ESPEC §1.2; FE-4.1",
+      "status": "done",
+      "file": "viz/views/assistant.py",
+      "screenshot": "desktop_14_assistant.png",
+      "note": ""
+    },
+    {
+      "area": "Assistant",
+      "element": "Figure sticky, bottom-anchored, overlapping the chat column by ~8 %",
+      "specified_in": "ESPEC §1.2",
+      "status": "partial",
+      "file": "viz/views/assistant.py",
+      "screenshot": "desktop_14_assistant.png",
+      "note": "inside its own column (spec fallback, fe3_spike.md (b))"
+    },
+    {
+      "area": "Assistant",
+      "element": "Bubble tail toward the figure; last message at head height",
+      "specified_in": "ESPEC §1.2",
+      "status": "missing",
+      "file": "—",
+      "screenshot": "desktop_14_assistant.png",
+      "note": ""
+    },
+    {
+      "area": "Assistant",
+      "element": "Status chip with text, aria-live=polite",
+      "specified_in": "ESPEC §1.3",
+      "status": "done",
+      "file": "avatar.html",
+      "screenshot": "desktop_14_assistant.png",
+      "note": ""
+    },
+    {
+      "area": "Assistant",
+      "element": "Narrow screens (<900 px): compact avatar in the header",
+      "specified_in": "ESPEC §1.2",
+      "status": "done",
+      "file": "assistant.py NARROW_CSS",
+      "screenshot": "narrow_14_assistant.png",
+      "note": ""
+    },
+    {
+      "area": "Assistant",
+      "element": "Narrow screens: draft as a tab under the chat",
+      "specified_in": "ESPEC §1.2",
+      "status": "partial",
+      "file": "assistant.py",
+      "screenshot": "narrow_14_assistant.png",
+      "note": "columns stack; draft is a stacked column, not a tab"
+    },
+    {
+      "area": "Assistant",
+      "element": "prefers-reduced-motion turns animations off",
+      "specified_in": "ESPEC §1.3",
+      "status": "done",
+      "file": "avatar.css @media; avatar.js",
+      "screenshot": "",
+      "note": ""
+    },
+    {
+      "area": "Assistant",
+      "element": "Animations pause when the tab is hidden",
+      "specified_in": "ESPEC §1.3",
+      "status": "done",
+      "file": "avatar.js visibilitychange",
+      "screenshot": "",
+      "note": ""
+    },
+    {
+      "area": "Assistant",
+      "element": "alt text of the figure",
+      "specified_in": "ESPEC §1.3",
+      "status": "done",
+      "file": "avatar.html",
+      "screenshot": "",
+      "note": ""
+    },
+    {
+      "area": "Assistant",
+      "element": "Chip contrast ≥ 4.5:1 in both themes",
+      "specified_in": "ESPEC §1.3, §7",
+      "status": "done",
+      "file": "avatar.css",
+      "screenshot": "",
+      "note": "the component has its own dark panel: text 15.3:1, amber 10.5:1, tagline 6.9:1"
+    },
+    {
+      "area": "Assistant",
+      "element": "Visible keyboard focus",
+      "specified_in": "M6.3",
+      "status": "partial",
+      "file": "theme/css.py :focus-visible",
+      "screenshot": "",
+      "note": "SPADE elements have a 3 px focus ring; the avatar is not focusable (decorative); native widgets use Streamlit's"
+    },
+    {
+      "area": "Assistant",
+      "element": "A1 figure with alpha",
+      "specified_in": "ESPEC §1.1",
+      "status": "partial",
+      "file": "assets/assistant/base.webp",
+      "screenshot": "",
+      "note": "provisional asset (FE-D2)"
+    },
+    {
+      "area": "Assistant",
+      "element": "A2 name as CSS neon text",
+      "specified_in": "ESPEC §1.1",
+      "status": "done",
+      "file": "avatar.css .rad-name",
+      "screenshot": "",
+      "note": ""
+    },
+    {
+      "area": "Assistant",
+      "element": "A3 head crop in the chat bubbles",
+      "specified_in": "ESPEC §1.1",
+      "status": "missing",
+      "file": "—",
+      "screenshot": "desktop_14_assistant.png",
+      "note": "chat bubbles use Streamlit's default icon"
+    },
+    {
+      "area": "Assistant",
+      "element": "A4 poses (hand on chin, paper, wink)",
+      "specified_in": "ESPEC §1.1",
+      "status": "missing",
+      "file": "—",
+      "screenshot": "",
+      "note": "needs assets (FE-D2)"
+    },
+    {
+      "area": "Assistant",
+      "element": "A5 overlay layers (chip glow, scan line, data lines)",
+      "specified_in": "ESPEC §1.1",
+      "status": "partial",
+      "file": "avatar.css",
+      "screenshot": "",
+      "note": "glow, ring and scan line in CSS; no data lines from the glasses"
+    },
+    {
+      "area": "Assistant",
+      "element": "A6 light-theme variant",
+      "specified_in": "ESPEC §1.1",
+      "status": "missing",
+      "file": "—",
+      "screenshot": "",
+      "note": "known limitation of the provisional assets"
+    },
+    {
+      "area": "Assistant",
+      "element": "Tagline 'AI assistant · local model'",
+      "specified_in": "FE-D5",
+      "status": "done",
+      "file": "avatar.html",
+      "screenshot": "desktop_14_assistant.png",
+      "note": ""
+    },
+    {
+      "area": "Assistant",
+      "element": "Tooltip with model and digest",
+      "specified_in": "ESPEC §1.4",
+      "status": "partial",
+      "file": "assistant.py caption",
+      "screenshot": "desktop_14_assistant.png",
+      "note": "tag and status shown; digest not shown"
+    },
+    {
+      "area": "Assistant",
+      "element": "Fixed first message; footer 'All results are SIMULATED.'",
+      "specified_in": "FE-4.3",
+      "status": "done",
+      "file": "assistant.py",
+      "screenshot": "desktop_14_assistant.png",
+      "note": ""
+    },
+    {
+      "area": "Assistant",
+      "element": "No approval gesture on results; 'confirmed' only on the user's confirmation",
+      "specified_in": "FE-D6",
+      "status": "done",
+      "file": "avatar.css .s-results; tests",
+      "screenshot": "",
+      "note": ""
+    },
+    {
+      "area": "Assistant",
+      "element": "Job progress every 2 s",
+      "specified_in": "ESPEC §2",
+      "status": "done",
+      "file": "assistant.py _jobs_panel",
+      "screenshot": "",
+      "note": ""
+    },
+    {
+      "area": "Assistant",
+      "element": "Minimum 400 ms of 'thinking'",
+      "specified_in": "ESPEC §1.3",
+      "status": "missing",
+      "file": "—",
+      "screenshot": "",
+      "note": "the adapter delegates it to the UI; the UI does not enforce it"
+    },
+    {
+      "area": "Assistant",
+      "element": "Visual streaming with a beat per few words",
+      "specified_in": "FE-4.2",
+      "status": "done",
+      "file": "assistant.py _turn",
+      "screenshot": "",
+      "note": ""
+    },
+    {
+      "area": "Assistant",
+      "element": "Fact cards with their source",
+      "specified_in": "CLAUDE.md assistant rules",
+      "status": "done",
+      "file": "assistant.py _render_cards",
+      "screenshot": "",
+      "note": ""
+    },
+    {
+      "area": "Assistant",
+      "element": "proposal_card: experiments, assumptions, cost, Run / Edit",
+      "specified_in": "ESPEC §3",
+      "status": "partial",
+      "file": "assistant.py; assistant/cards.py",
+      "screenshot": "",
+      "note": "cards and Run; no Edit button"
+    },
+    {
+      "area": "Assistant",
+      "element": "draft_panel: origin chips with colours and a legend",
+      "specified_in": "ESPEC §3, §5",
+      "status": "partial",
+      "file": "assistant.py _draft_panel",
+      "screenshot": "desktop_14_assistant.png",
+      "note": "origin as plain text column; no colours, no legend"
+    },
+    {
+      "area": "Assistant",
+      "element": "job_progress with a link to Experiment Runs",
+      "specified_in": "ESPEC §3",
+      "status": "partial",
+      "file": "assistant.py _jobs_panel",
+      "screenshot": "",
+      "note": "progress bar, no link"
+    },
+    {
+      "area": "Assistant",
+      "element": "results_summary with KPIs, Plotly charts and SIMULATED",
+      "specified_in": "ESPEC §3",
+      "status": "partial",
+      "file": "assistant/cards.py",
+      "screenshot": "",
+      "note": "KPIs in a card; no charts"
+    },
+    {
+      "area": "Assistant",
+      "element": "Visible response times",
+      "specified_in": "M6.3",
+      "status": "missing",
+      "file": "—",
+      "screenshot": "",
+      "note": "not shown per turn"
+    },
+    {
+      "area": "Assistant",
+      "element": "Assets < 1 MB",
+      "specified_in": "ESPEC §7",
+      "status": "done",
+      "file": "assets/assistant + component",
+      "screenshot": "",
+      "note": "58 KB in total"
+    },
+    {
+      "area": "Assistant",
+      "element": "extraction_review (datasheets)",
+      "specified_in": "ESPEC §5",
+      "status": "not applicable",
+      "file": "—",
+      "screenshot": "",
+      "note": "phase 2"
+    },
+    {
+      "area": "V1",
+      "element": "DC Motor: plant mode (v2/v1 with S-21 warning), load N·m, supply V, limits, nominals",
+      "specified_in": "PLAN V1",
+      "status": "done",
+      "file": "viz/views/dc_motor.py",
+      "screenshot": "desktop_03_dc_motor.png",
+      "note": "round B (90943b5)"
+    },
+    {
+      "area": "V1",
+      "element": "DC Motor: motor parameters r_a, l_a, ψ_e",
+      "specified_in": "PLAN V1",
+      "status": "done",
+      "file": "dc_motor.py",
+      "screenshot": "",
+      "note": ""
+    },
+    {
+      "area": "V1",
+      "element": "DC Motor: rotor inertia j_rotor",
+      "specified_in": "PLAN V1 (Scenario.motor_parameter_overrides)",
+      "status": "missing",
+      "file": "—",
+      "screenshot": "",
+      "note": "supported by Scenario, not exposed",
+      "status_after_M6_2": "done (feat/V1-gui-phase0, v1_rotor_inertia.md)"
+    },
+    {
+      "area": "V1",
+      "element": "PMSM: p, l_d, l_q, r_s, ψ_p, supply",
+      "specified_in": "PLAN V1",
+      "status": "done",
+      "file": "viz/views/pmsm.py",
+      "screenshot": "desktop_04_pmsm.png",
+      "note": ""
+    },
+    {
+      "area": "V1",
+      "element": "PMSM: rotor inertia j_rotor",
+      "specified_in": "PLAN V1 (Scenario.pmsm_motor_parameters)",
+      "status": "missing",
+      "file": "—",
+      "screenshot": "",
+      "note": "supported by Scenario, not exposed",
+      "status_after_M6_2": "done (feat/V1-gui-phase0, v1_rotor_inertia.md)"
+    },
+    {
+      "area": "V1",
+      "element": "Scenario validation (incl. S-24) as a clear message, not an exception",
+      "specified_in": "M6.2",
+      "status": "done",
+      "file": "dc_motor.py, pmsm.py st.error",
+      "screenshot": "",
+      "note": ""
+    }
+  ],
+  "summary": {
+    "done": 22,
+    "partial": 10,
+    "missing": 8,
+    "not applicable": 1
+  },
+  "pages": "inventory_pages_2026-11-12.json"
+}

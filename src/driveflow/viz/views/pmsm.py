@@ -11,6 +11,10 @@ import streamlit as st
 from driveflow.control.classical import generate_mtpa_vs_naive_cloud
 from driveflow.control.classical.pmsm_foc import MOTOR_PARAMS as PMSM_DEFAULTS
 from driveflow.control.classical.pmsm_foc import U_SUPPLY as PMSM_U_SUPPLY
+from driveflow.control.classical.pmsm_foc import PermanentMagnetSynchronousMotor as _PMSM
+
+#: V1 (2026-11-12): the stock rotor inertia of the PMSM (GEM's default motor parameter), kg·m².
+PMSM_J_ROTOR = float(_PMSM._default_motor_parameter["j_rotor"])
 from driveflow.viz.adapters.session import config_hash, record_run
 from driveflow.viz.components.inputs import slider_with_custom
 from driveflow.viz.components.page_header import badge_html, page_header, provenance_table, source_badge_html
@@ -28,7 +32,7 @@ def pmsm_motor_parameters(values: dict) -> tuple[dict, list[str]]:
 
     from driveflow.datagen.scenario import Scenario
 
-    stock = {**PMSM_DEFAULTS, "u_supply": PMSM_U_SUPPLY}
+    stock = {**PMSM_DEFAULTS, "u_supply": PMSM_U_SUPPLY, "j_rotor": PMSM_J_ROTOR}
     changed = {k: v for k, v in values.items() if v != stock[k]}
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
@@ -74,14 +78,18 @@ def render() -> None:
             psi_p = st.number_input("PM flux ψ_p (Wb)", min_value=0.001, value=float(PMSM_DEFAULTS["psi_p"]), format="%.4f", key="pmsm_psi_p")
             u_supply = st.number_input("DC-link voltage u_supply (V)", min_value=1.0, value=float(PMSM_U_SUPPLY), step=10.0, key="pmsm_u_supply",
                                        help="Supply of the inverter (Scenario.pmsm_motor_parameters['u_supply']). Stock: 330 V.")
+            j_rotor = st.number_input("Rotor inertia j_rotor (kg·m²)", min_value=1e-5, value=PMSM_J_ROTOR, format="%.5f", key="pmsm_j_rotor",
+                                      help="Moment of inertia of the rotor (Scenario.pmsm_motor_parameters['j_rotor']). Stock: 0.03883 kg·m².")
             with st.expander("Motor profiles"):
                 profile_manager(st, group="pmsm", current_values=dict(p=p, l_d=l_d, l_q=l_q, r_s=r_s, psi_p=psi_p))
         params = {"p": int(p), "l_d": l_d, "l_q": l_q, "r_s": r_s, "psi_p": psi_p, "n_i_s": int(n_i_s), "subsample": int(subsample)}
         if float(u_supply) != float(PMSM_U_SUPPLY):  # absent at the stock value: the default configuration hash is unchanged
             params["u_supply"] = float(u_supply)
+        if float(j_rotor) != PMSM_J_ROTOR:  # same rule (V1, 2026-11-12)
+            params["j_rotor"] = float(j_rotor)
         motor_error = None
         try:
-            _, motor_warnings = pmsm_motor_parameters({"p": int(p), "l_d": l_d, "l_q": l_q, "r_s": r_s, "psi_p": psi_p, "u_supply": float(u_supply)})
+            _, motor_warnings = pmsm_motor_parameters({"p": int(p), "l_d": l_d, "l_q": l_q, "r_s": r_s, "psi_p": psi_p, "u_supply": float(u_supply), "j_rotor": float(j_rotor)})
             for message in motor_warnings:
                 st.warning(message, icon=":material/warning:")
         except ValueError as exc:
@@ -93,7 +101,8 @@ def render() -> None:
     if clicked:
         with view, st.spinner("Simulating current steps…"):
             extra = {"u_supply": params["u_supply"]} if "u_supply" in params else {}
-            data = generate_mtpa_vs_naive_cloud(i_s_values=list(np.linspace(40, 390, params["n_i_s"])), mp=dict(p=p, l_d=l_d, l_q=l_q, r_s=r_s, psi_p=psi_p), subsample=params["subsample"], **extra)
+            mp = dict(p=p, l_d=l_d, l_q=l_q, r_s=r_s, psi_p=psi_p, **({"j_rotor": params["j_rotor"]} if "j_rotor" in params else {}))
+            data = generate_mtpa_vs_naive_cloud(i_s_values=list(np.linspace(40, 390, params["n_i_s"])), mp=mp, subsample=params["subsample"], **extra)
         st.session_state["pmsm_result"] = {"data": data, "params": params, "run": record_run("pmsm", params, {"steps": params["n_i_s"]})}
         st.rerun()
     with view:

@@ -160,11 +160,17 @@ def _single() -> None:
         r_a = c1.number_input("Armature resistance r_a (Ω)", min_value=0.001, value=float(defaults["params"]["r_a"]), format="%.4f", key="dc_r_a")
         l_a = c2.number_input("Armature inductance l_a (H)", min_value=1e-6, value=float(defaults["params"]["l_a"]), format="%.6f", key="dc_l_a")
         psi_e = c3.number_input("Magnetic flux ψ_e (Wb)", min_value=0.01, value=float(defaults["params"]["psi_e"]), format="%.4f", key="dc_psi_e")
+        # V1 (2026-11-12): the rotor inertia, Scenario.motor_parameter_overrides["j_rotor"]; sent only when it differs from
+        # the stock value, so the stock configuration (and its hash) is exactly the one before this control existed.
+        j_rotor = c1.number_input("Rotor inertia j_rotor (kg·m²)", min_value=1e-5, value=float(defaults["params"]["j_rotor"]), format="%.5f", key="dc_j_rotor",
+                                  help="Moment of inertia of the rotor (Scenario.motor_parameter_overrides). Stock: 0.025 kg·m².")
         profile_manager(st, group="dc", current_values=dict(r_a=r_a, l_a=l_a, psi_e=psi_e))
         advanced = _advanced_options(defaults)
         st.divider()
         custom_fault_manager(st.container(border=True))
     motor = dict(r_a=r_a, l_a=l_a, psi_e=psi_e)
+    if float(j_rotor) != float(defaults["params"]["j_rotor"]):
+        motor["j_rotor"] = float(j_rotor)
 
     params = {**_controls(params_col, custom_faults, motor), **advanced}
     current = st.session_state.get("dc_result")
