@@ -254,6 +254,7 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N35 | Medium | Pre-registered retraining not met (B4, RPi5) | **Open (2026-11-10)** (§13.8): the B4 RPi5 candidate (float16) fails only |Δ abstention| on E4: −20.6 pt (0.015 vs 0.220). All other checks pass. Not promoted. **B4c (2026-11-12, confirmatory, pre-registered before its data): PASSES** every criterion on the new low-speed set E4c (RPi5 macro-F1 0.994 vs 0.892, selective risk 0.004 vs 0.024); recommended for promotion, not promoted (M-D5). Status stays open until Luciano decides |
 | AI-N36 | High | Pre-registered retraining not met (B4, ESP32) | **Open (2026-11-10)** (§13.8): the B4 ESP32 int8 (V1) fails the D1 gate (E1 macro-F1 0.838 < 0.88), inner_race recall (−8.7 pt E1, −65.4 pt E4), abstention (E1, E4) and int8 vs Keras (inner_race −12.4 pt E1, −65.4 pt E4; macro-F1 −13.1 pt E4). AI-N27 and AI-N28 stay open for the ESP32. **Diagnosis (2026-11-12, M-D3, validation only):** the loss comes from int8 rounding of activations (mainly the second depthwise output), not from weights, input or clipping; the float model is itself fragile at 40/60 rad/s (normal 0.392). Neither calibration with low speeds nor per-channel input scaling recovers it (`docs/audit/b4/ai_n36_quant_diagnosis.md`) |
 | AI-N37 | Low | Traceability (training metadata) | **Corrected (2026-11-12, decision M-D4)** (§13.8): `run_metadata.json` of a distilled run did not say which teacher run was used. `metrics.json` keeps `distilled_from`, but for a registry teacher only the key (`dc_motor/pc/classifier`), not the run it resolved to. **Correction of the 2026-11-10 text:** it said the teacher was in neither file; `metrics.json` did carry `distilled_from`. Now `run_metadata.json` records `teacher_run` (the resolved run, repo-relative), `teacher_source` and `distill_alpha`; existing runs are not rewritten; `tests/test_ai_n37_teacher_provenance.py` |
+| AI-N38 | Low | Assistant behaviour (communication of a refused request) | **Open (2026-11-12)** (§13.11): when the user explicitly asks for a frozen v1 DC plant, `set_plant` correctly refuses it (decision E3, `PatchError` with the reason), but the model's reply does not say so: it presents a v2 proposal without explaining that the requested plant was replaced. The proposal card does show v2, so nothing false is stated and nothing launches without confirmation; the user is not told why. Found in M5 (G5, end-to-end demo with the real model) |
 | AI-N19 | Medium | Evaluation limit | **Documented** (§10): simulated healthy current/rpm are constant in steady state, so the residual AUROC (1.000) and the persistence baseline are optimistic |
 | AI-N15 | Medium | Defect (estimator bias) | **Open** (§9.1): the VSC PINN estimates C systematically low, −1.3 % to −9.1 % mean error at 0–5 % noise |
 | AI-N16 | Medium | Defect (uncertainty) | **Open** (§9.2): the PINN's 5–95 % bootstrap interval covers the truth in 52–78 % of noisy runs for C; the GUI says "Coverage not validated" |
@@ -990,3 +991,19 @@ Found 2026-11-09 by the fresh-clone check of `release/v0.2.0` (round C, Playwrig
 - **Exploratory:** 16-bit activations bring back the float behavior, so quantization alone cannot do better than the float model.
 - **`esp32_tiny`** is a vsc_dpc regressor, so the comparison asked for could not be made.
 - **Next step:** a pre-registration proposal in the evidence file (§5).
+
+### 13.11 AI-N38 — a refused plant request is not explained to the user · **Low** · **Open**
+
+- **Found:** 2026-11-12, dev stability check (G5).
+  - The real model `qwen3.5:9b` ran in `experiments/report_f1_10_demo.py`, conversation B, with its output redirected to `/mnt/datos/spade/m5/`.
+  - Turn 2 asks for "dc_perm_ex_v1". The tool refuses it, as decided in E3.
+  - The reply proposes `dc_perm_ex_v2` without mentioning the refusal.
+  - The demo's fallback text predates E3. The demo committed on 2026-11-05 (`f1_10_demo.json`, before E3) still accepted v1.
+- **Why it is low:**
+  - the card states the plant actually drafted (v2);
+  - the launch still needs the user's Run;
+  - the v1 refusal itself is intended.
+- **Not fixed:** it is assistant behaviour, and this round forbids changing the assistant's logic (M6.3).
+- **Possible fixes** (for Luciano):
+  - a fixed card that relays `PatchError` reasons;
+  - a test case in the next assistant bench.

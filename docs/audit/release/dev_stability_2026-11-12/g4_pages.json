@@ -1,0 +1,403 @@
+{
+  "base": "http://127.0.0.1:8791",
+  "pages": [
+    {
+      "section": "Workspace",
+      "page": "Overview",
+      "file": "pages/overview.py",
+      "load_s": 2.8,
+      "url_after_load": "http://127.0.0.1:8791/",
+      "heading": [
+        "Electric drives, simulation & AI"
+      ],
+      "page_missing_message": false,
+      "buttons": [],
+      "simulation": "none on this page (no primary action)",
+      "exceptions": [],
+      "errors": [],
+      "screenshot": "01_overview.png",
+      "ok": true
+    },
+    {
+      "section": "Workspace",
+      "page": "Experiment Runs",
+      "file": "pages/experiment_runs.py",
+      "load_s": 2.7,
+      "url_after_load": "http://127.0.0.1:8791/experiment_runs",
+      "heading": [
+        "Experiment Runs"
+      ],
+      "page_missing_message": false,
+      "buttons": [
+        "Start local worker"
+      ],
+      "simulation": "none on this page (no primary action)",
+      "exceptions": [],
+      "errors": [],
+      "screenshot": "02_experiment_runs.png",
+      "ok": true
+    },
+    {
+      "section": "Simulation",
+      "page": "DC Motor",
+      "file": "pages/dc_motor.py",
+      "load_s": 2.7,
+      "url_after_load": "http://127.0.0.1:8791/dc_motor",
+      "heading": [
+        "Motor health & signal diagnostics"
+      ],
+      "page_missing_message": false,
+      "buttons": [
+        "",
+        "Run simulation"
+      ],
+      "simulation": "Run simulation",
+      "simulation_s": 6.3,
+      "exceptions": [],
+      "errors": [],
+      "screenshot": "03_dc_motor.png",
+      "ok": true
+    },
+    {
+      "section": "Simulation",
+      "page": "PMSM / FOC",
+      "file": "pages/pmsm.py",
+      "load_s": 2.7,
+      "url_after_load": "http://127.0.0.1:8791/pmsm",
+      "heading": [
+        "PMSM field-oriented control: MTPA vs. naive"
+      ],
+      "page_missing_message": false,
+      "buttons": [
+        "",
+        "Generate PMSM cloud"
+      ],
+      "simulation": "Generate PMSM cloud",
+      "simulation_s": 4.8,
+      "exceptions": [],
+      "errors": [],
+      "screenshot": "04_pmsm.png",
+      "ok": true
+    },
+    {
+      "section": "Simulation",
+      "page": "VSC / DPC",
+      "file": "pages/vsc_dpc.py",
+      "load_s": 2.7,
+      "url_after_load": "http://127.0.0.1:8791/vsc_dpc",
+      "heading": [
+        "Direct Power Control of a Voltage Source Converter"
+      ],
+      "page_missing_message": false,
+      "buttons": [
+        "",
+        "Generate DPC scenario"
+      ],
+      "simulation": "first primary button: 'play_arrow\\n\\nGenerate DPC scenario'",
+      "simulation_s": 3.3,
+      "exceptions": [],
+      "errors": [],
+      "screenshot": "05_vsc_dpc.png",
+      "ok": true
+    },
+    {
+      "section": "Simulation",
+      "page": "DC-DC Converters",
+      "file": "pages/dcdc_converters.py",
+      "load_s": 2.7,
+      "url_after_load": "http://127.0.0.1:8791/dcdc_converters",
+      "heading": [
+        "DC-DC Converters"
+      ],
+      "page_missing_message": false,
+      "buttons": [
+        "",
+        "Generate Buck scenario"
+      ],
+      "simulation": "first primary button: 'play_arrow\\n\\nGenerate Buck scenario'",
+      "simulation_s": 2.7,
+      "exceptions": [],
+      "errors": [],
+      "screenshot": "06_dcdc_converters.png",
+      "ok": true
+    },
+    {
+      "section": "Simulation",
+      "page": "PLECS Plant Studio",
+      "file": "pages/plecs_plant_studio.py",
+      "load_s": 2.7,
+      "url_after_load": "http://127.0.0.1:8791/plecs_plant_studio",
+      "heading": [
+        "PLECS Plant Studio"
+      ],
+      "page_missing_message": false,
+      "buttons": [],
+      "simulation": "none on this page (no primary action)",
+      "exceptions": [],
+      "errors": [],
+      "screenshot": "07_plecs_plant_studio.png",
+      "ok": true
+    },
+    {
+      "section": "Design & Control",
+      "page": "Tuning Studio",
+      "file": "pages/tuning_studio.py",
+      "load_s": 2.7,
+      "url_after_load": "http://127.0.0.1:8791/tuning_studio",
+      "heading": [
+        "Tuning Studio"
+      ],
+      "page_missing_message": false,
+      "buttons": [
+        "",
+        "Refresh",
+        "Start tuning"
+      ],
+      "simulation": "first primary button: 'play_arrow\\n\\nStart tuning'",
+      "simulation_s": 2.7,
+      "exceptions": [],
+      "errors": [],
+      "screenshot": "08_tuning_studio.png",
+      "ok": true
+    },
+    {
+      "section": "Design & Control",
+      "page": "RL Lab",
+      "file": "pages/rl_lab.py",
+      "load_s": 2.7,
+      "url_after_load": "http://127.0.0.1:8791/rl_lab",
+      "heading": [
+        "RL Lab"
+      ],
+      "page_missing_message": false,
+      "buttons": [
+        ""
+      ],
+      "simulation": "none on this page (no primary action)",
+      "exceptions": [],
+      "errors": [],
+      "screenshot": "09_rl_lab.png",
+      "ok": true
+    },
+    {
+      "section": "Intelligence",
+      "page": "AI Diagnostics",
+      "file": "pages/ai_diagnostics.py",
+      "load_s": 2.7,
+      "url_after_load": "http://127.0.0.1:8791/ai_diagnostics",
+      "heading": [
+        "Evaluate and train diagnosis models"
+      ],
+      "page_missing_message": false,
+      "buttons": [
+        "",
+        "Generate"
+      ],
+      "simulation": "first primary button: 'play_arrow\\n\\nGenerate'",
+      "simulation_s": 4.7,
+      "exceptions": [],
+      "errors": [],
+      "screenshot": "10_ai_diagnostics.png",
+      "ok": true
+    },
+    {
+      "section": "Intelligence",
+      "page": "Edge Deployment",
+      "file": "pages/edge_deployment.py",
+      "load_s": 2.7,
+      "url_after_load": "http://127.0.0.1:8791/edge_deployment",
+      "heading": [
+        "Run your models on edge hardware"
+      ],
+      "page_missing_message": false,
+      "buttons": [
+        "",
+        "Download ESP32 model (.tflite)"
+      ],
+      "simulation": "first primary button: 'download\\n\\nDownload ESP32 model (.tflite)'",
+      "simulation_s": 2.7,
+      "exceptions": [],
+      "errors": [],
+      "screenshot": "11_edge_deployment.png",
+      "ok": true
+    },
+    {
+      "section": "Intelligence",
+      "page": "Transfer Learning",
+      "file": "pages/transfer_learning.py",
+      "load_s": 2.7,
+      "url_after_load": "http://127.0.0.1:8791/transfer_learning",
+      "heading": [
+        "Adapt a model safely"
+      ],
+      "page_missing_message": false,
+      "buttons": [
+        "",
+        "Prepare dataset",
+        "Upload"
+      ],
+      "simulation": "first primary button: 'dataset\\n\\nPrepare dataset'",
+      "simulation_s": 40.4,
+      "exceptions": [],
+      "errors": [],
+      "screenshot": "12_transfer_learning.png",
+      "ok": true
+    },
+    {
+      "section": "Intelligence",
+      "page": "Model Registry",
+      "file": "pages/model_registry.py",
+      "load_s": 2.7,
+      "url_after_load": "http://127.0.0.1:8791/model_registry",
+      "heading": [
+        "Model registry & artifacts"
+      ],
+      "page_missing_message": false,
+      "buttons": [
+        ""
+      ],
+      "simulation": "none on this page (no primary action)",
+      "exceptions": [],
+      "errors": [],
+      "screenshot": "13_model_registry.png",
+      "ok": true
+    },
+    {
+      "section": "Intelligence",
+      "page": "Assistant",
+      "file": "pages/assistant.py",
+      "load_s": 2.7,
+      "url_after_load": "http://127.0.0.1:8791/assistant",
+      "heading": [
+        "Assistant"
+      ],
+      "page_missing_message": false,
+      "buttons": [
+        "",
+        "Run"
+      ],
+      "simulation": "none on this page (no primary action)",
+      "assistant_notice": [
+        "Local model qwen3.5:9b via Ollama · status: internal-demo; F1.1 round-3 rule not met",
+        "Assistant unavailable: the local model runtime does not answer at http://127.0.0.1:9 (<urlopen error [Errno 111] Connection refused>). Is Ollama installed and running? (systemctl status ollama). Start the local runtime with: systemctl start ollama (or ollama serve)."
+      ],
+      "assistant_message_sent": true,
+      "assistant_after_message": [
+        "Local model qwen3.5:9b via Ollama · status: internal-demo; F1.1 round-3 rule not met",
+        "Assistant unavailable: the local model runtime does not answer at http://127.0.0.1:9 (<urlopen error [Errno 111] Connection refused>). Is Ollama installed and running? (systemctl status ollama). Start the local runtime with: systemctl start ollama (or ollama serve)."
+      ],
+      "exceptions": [],
+      "errors": [],
+      "screenshot": "14_assistant.png",
+      "ok": true
+    },
+    {
+      "section": "Operations",
+      "page": "Monitoring",
+      "file": "pages/monitoring.py",
+      "load_s": 2.7,
+      "url_after_load": "http://127.0.0.1:8791/monitoring",
+      "heading": [
+        "Agent consensus & alert analysis"
+      ],
+      "page_missing_message": false,
+      "buttons": [
+        "",
+        "Run monitoring"
+      ],
+      "simulation": "first primary button: 'play_arrow\\n\\nRun monitoring'",
+      "simulation_s": 13.3,
+      "exceptions": [],
+      "errors": [],
+      "screenshot": "15_monitoring.png",
+      "ok": true
+    },
+    {
+      "section": "Operations",
+      "page": "Alert History",
+      "file": "pages/alert_history.py",
+      "load_s": 2.7,
+      "url_after_load": "http://127.0.0.1:8791/alert_history",
+      "heading": [
+        "Alert history"
+      ],
+      "page_missing_message": false,
+      "buttons": [],
+      "simulation": "none on this page (no primary action)",
+      "exceptions": [],
+      "errors": [],
+      "screenshot": "16_alert_history.png",
+      "ok": true
+    },
+    {
+      "section": "Help",
+      "page": "Documentation",
+      "file": "pages/documentation.py",
+      "load_s": 2.7,
+      "url_after_load": "http://127.0.0.1:8791/documentation",
+      "heading": [
+        "How to read SPADE"
+      ],
+      "page_missing_message": false,
+      "buttons": [],
+      "simulation": "none on this page (no primary action)",
+      "exceptions": [],
+      "errors": [],
+      "screenshot": "17_documentation.png",
+      "ok": true
+    },
+    {
+      "section": "Help",
+      "page": "Algorithm Guide",
+      "file": "pages/algorithm_guide.py",
+      "load_s": 2.7,
+      "url_after_load": "http://127.0.0.1:8791/algorithm_guide",
+      "heading": [
+        "Which algorithm family fits my problem?"
+      ],
+      "page_missing_message": false,
+      "buttons": [],
+      "simulation": "none on this page (no primary action)",
+      "exceptions": [],
+      "errors": [],
+      "screenshot": "18_algorithm_guide.png",
+      "ok": true
+    }
+  ],
+  "console_errors": [
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ]
+}
