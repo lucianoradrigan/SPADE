@@ -32,4 +32,6 @@ def test_per_tensor_weight_rounding_and_fake_quant():
     assert np.max(np.abs(q - w)) <= np.max(np.abs(w)) / 127 / 2 + 1e-9 and np.isclose(q[-1], 1.27)
     x = np.linspace(-2, 2, 101).astype(np.float32)
     y = D._fq(x, (-1.0, 1.0))
-    assert y.min() >= -1.0 - 1e-6 and y.max() <= 1.0 + 1e-6 and len(np.unique(y)) <= 256
+    step = 2.0 / 255  # fake_quant nudges the range so that 0 is exact (as TFLite does): at most one step of shift
+    assert y.min() >= -1.0 - step - 1e-6 and y.max() <= 1.0 + step + 1e-6 and len(np.unique(y)) <= 256
+    assert np.any(np.isclose(D._fq(np.array([0.0], np.float32), (-1.0, 1.0)), 0.0))
