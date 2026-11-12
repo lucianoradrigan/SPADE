@@ -252,7 +252,7 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N33 | Medium | GUI default meets a known weakness (start-up transient) | **Corrected (2026-11-09, decision N-D1)** (§13.7): the page now classifies the last training-grid window and defaults to 0.82 s (`docs/audit/release/ai_n33.md`). First found as: AI Diagnostics' default sample (healthy, PI, 300 rad/s, 0.6 s) classifies a start-up window; the promoted PC classifier answers 'cage' at 100 % calibrated confidence as a known condition. The page now warns on start-up windows; the default and the model are unchanged |
 | AI-N34 | Medium | Pre-registered retraining not met (B4, PC) | **Open (2026-11-10)** (§13.8): the B4 PC candidate `pc_server_5class_w2048/2026-11-10_run01` fails only the two-sided |Δ abstention| ≤ 5 pt check on E4: it abstains 16.3 pt **less** than the promoted run (0.004 vs 0.167). All other checks pass, including low speed (E4 macro-F1 0.994). Not promoted (N-D4); the promoted run stays. **B4c (2026-11-12, confirmatory, pre-registered before its data): PASSES** every criterion on the new low-speed set E4c (PC macro-F1 0.994 vs 0.661, selective risk 0.004 vs 0.275); recommended for promotion, not promoted (M-D5). Status stays open until Luciano decides |
 | AI-N35 | Medium | Pre-registered retraining not met (B4, RPi5) | **Open (2026-11-10)** (§13.8): the B4 RPi5 candidate (float16) fails only |Δ abstention| on E4: −20.6 pt (0.015 vs 0.220). All other checks pass. Not promoted. **B4c (2026-11-12, confirmatory, pre-registered before its data): PASSES** every criterion on the new low-speed set E4c (RPi5 macro-F1 0.994 vs 0.892, selective risk 0.004 vs 0.024); recommended for promotion, not promoted (M-D5). Status stays open until Luciano decides |
-| AI-N36 | High | Pre-registered retraining not met (B4, ESP32) | **Open (2026-11-10)** (§13.8): the B4 ESP32 int8 (V1) fails the D1 gate (E1 macro-F1 0.838 < 0.88), inner_race recall (−8.7 pt E1, −65.4 pt E4), abstention (E1, E4) and int8 vs Keras (inner_race −12.4 pt E1, −65.4 pt E4; macro-F1 −13.1 pt E4). AI-N27 and AI-N28 stay open for the ESP32 |
+| AI-N36 | High | Pre-registered retraining not met (B4, ESP32) | **Open (2026-11-10)** (§13.8): the B4 ESP32 int8 (V1) fails the D1 gate (E1 macro-F1 0.838 < 0.88), inner_race recall (−8.7 pt E1, −65.4 pt E4), abstention (E1, E4) and int8 vs Keras (inner_race −12.4 pt E1, −65.4 pt E4; macro-F1 −13.1 pt E4). AI-N27 and AI-N28 stay open for the ESP32. **Diagnosis (2026-11-12, M-D3, validation only):** the loss comes from int8 rounding of activations (mainly the second depthwise output), not from weights, input or clipping; the float model is itself fragile at 40/60 rad/s (normal 0.392). Neither calibration with low speeds nor per-channel input scaling recovers it (`docs/audit/b4/ai_n36_quant_diagnosis.md`) |
 | AI-N37 | Low | Traceability (training metadata) | **Corrected (2026-11-12, decision M-D4)** (§13.8): `run_metadata.json` of a distilled run did not say which teacher run was used. `metrics.json` keeps `distilled_from`, but for a registry teacher only the key (`dc_motor/pc/classifier`), not the run it resolved to. **Correction of the 2026-11-10 text:** it said the teacher was in neither file; `metrics.json` did carry `distilled_from`. Now `run_metadata.json` records `teacher_run` (the resolved run, repo-relative), `teacher_source` and `distill_alpha`; existing runs are not rewritten; `tests/test_ai_n37_teacher_provenance.py` |
 | AI-N19 | Medium | Evaluation limit | **Documented** (§10): simulated healthy current/rpm are constant in steady state, so the residual AUROC (1.000) and the persistence baseline are optimistic |
 | AI-N15 | Medium | Defect (estimator bias) | **Open** (§9.1): the VSC PINN estimates C systematically low, −1.3 % to −9.1 % mean error at 0–5 % noise |
@@ -975,3 +975,18 @@ Found 2026-11-09 by the fresh-clone check of `release/v0.2.0` (round C, Playwrig
 - **Recommendation to Luciano:** promote both. **Not promoted** (M-D5).
 - If they are promoted, AI-N29, AI-N34 and AI-N35 close for PC and RPi5.
 - Evidence: `docs/audit/b4/b4c_results.{md,json}`.
+
+### 13.10 AI-N36 diagnosis (2026-11-12): where the ESP32 int8 loses inner_race · **Open**
+
+- **Scope:** validation split of B4 only (M-D3); E4 and E4c were not read. The emulation of TFLite per-tensor quantization agrees with the real V1 file on 99.9 % of the windows.
+- **Where the loss is:**
+  - weights int8 alone and input int8 alone are harmless (low-speed inner_race 0.950 and 0.944, against 0.925 in float);
+  - the int8 activations move the result, mainly the second depthwise output (A3 alone: 0.596);
+  - nothing is clipped; it is rounding resolution.
+- **The float model is fragile at 40/60 rad/s** (normal 0.392 on validation). int8 shifts that inner/normal boundary: inner 0.814, normal 0.908.
+- **Hypotheses:**
+  - (a) calibration with 40/60 rad/s in the validation share: no change;
+  - (b) per-channel input scaling folded into the first depthwise layer: worse (inner 0.03), because the rpm taps become small in a per-tensor quantized kernel.
+- **Exploratory:** 16-bit activations bring back the float behavior, so quantization alone cannot do better than the float model.
+- **`esp32_tiny`** is a vsc_dpc regressor, so the comparison asked for could not be made.
+- **Next step:** a pre-registration proposal in the evidence file (§5).
