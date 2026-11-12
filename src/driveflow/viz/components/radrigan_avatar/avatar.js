@@ -43,7 +43,9 @@ export default function (component) {
     root.dataset.vis = "1";
     document.addEventListener("visibilitychange", () => root.classList.toggle("paused", document.hidden));
   }
-  if (setStateValue && prev !== d.state) {
+  // AI-N39: report only when Python asks (the demo page). Setting the component's state requests a rerun, and on the
+  // Assistant page every repaint is a new component, so reporting there restarted the script in the middle of a turn.
+  if (d.report_env && setStateValue && prev !== d.state) {
     setStateValue("env", { reduced_motion: reduced, state: d.state, has_assets: !root.classList.contains("no-assets") });
   }
 }

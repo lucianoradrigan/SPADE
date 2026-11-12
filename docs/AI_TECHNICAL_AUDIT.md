@@ -255,6 +255,7 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N36 | High | Pre-registered retraining not met (B4, ESP32) | **Open (2026-11-10)** (§13.8): the B4 ESP32 int8 (V1) fails the D1 gate (E1 macro-F1 0.838 < 0.88), inner_race recall (−8.7 pt E1, −65.4 pt E4), abstention (E1, E4) and int8 vs Keras (inner_race −12.4 pt E1, −65.4 pt E4; macro-F1 −13.1 pt E4). AI-N27 and AI-N28 stay open for the ESP32. **Diagnosis (2026-11-12, M-D3, validation only):** the loss comes from int8 rounding of activations (mainly the second depthwise output), not from weights, input or clipping; the float model is itself fragile at 40/60 rad/s (normal 0.392). Neither calibration with low speeds nor per-channel input scaling recovers it (`docs/audit/b4/ai_n36_quant_diagnosis.md`) |
 | AI-N37 | Low | Traceability (training metadata) | **Corrected (2026-11-12, decision M-D4)** (§13.8): `run_metadata.json` of a distilled run did not say which teacher run was used. `metrics.json` keeps `distilled_from`, but for a registry teacher only the key (`dc_motor/pc/classifier`), not the run it resolved to. **Correction of the 2026-11-10 text:** it said the teacher was in neither file; `metrics.json` did carry `distilled_from`. Now `run_metadata.json` records `teacher_run` (the resolved run, repo-relative), `teacher_source` and `distill_alpha`; existing runs are not rewritten; `tests/test_ai_n37_teacher_provenance.py` |
 | AI-N38 | Low | Assistant behaviour (communication of a refused request) | **Open (2026-11-12)** (§13.11): when the user explicitly asks for a frozen v1 DC plant, `set_plant` correctly refuses it (decision E3, `PatchError` with the reason), but the model's reply does not say so: it presents a v2 proposal without explaining that the requested plant was replaced. The proposal card does show v2, so nothing false is stated and nothing launches without confirmation; the user is not told why. Found in M5 (G5, end-to-end demo with the real model) |
+| AI-N39 | High | GUI defect (Assistant page in a browser) | **Corrected (2026-11-12, `feat/AI-N39-avatar-rerun`)** (§13.12): in a real browser with the model running, a turn never finished: the avatar reported its state on every repaint, each report requested a rerun, and the rerun cancelled the turn after its first model call. Present in the published v0.2.0. The component now reports only when asked (the demo page). Browser check: reply in 13 s, 4 script runs (before: no reply, 813 runs in 3 min) |
 | AI-N19 | Medium | Evaluation limit | **Documented** (§10): simulated healthy current/rpm are constant in steady state, so the residual AUROC (1.000) and the persistence baseline are optimistic |
 | AI-N15 | Medium | Defect (estimator bias) | **Open** (§9.1): the VSC PINN estimates C systematically low, −1.3 % to −9.1 % mean error at 0–5 % noise |
 | AI-N16 | Medium | Defect (uncertainty) | **Open** (§9.2): the PINN's 5–95 % bootstrap interval covers the truth in 52–78 % of noisy runs for C; the GUI says "Coverage not validated" |
@@ -1007,3 +1008,13 @@ Found 2026-11-09 by the fresh-clone check of `release/v0.2.0` (round C, Playwrig
 - **Possible fixes** (for Luciano):
   - a fixed card that relays `PatchError` reasons;
   - a test case in the next assistant bench.
+
+### 13.12 AI-N39 — the Assistant page never finished a turn in a real browser · **High** · **Corrected (2026-11-12)**
+
+- **Symptom:** the user's message stays under "Thinking…" with no reply (Chrome, real `qwen3.5:9b`, `dev` and v0.2.0).
+- **Cause:** `avatar.js` called `setStateValue` on each state change. The page repaints the avatar as a new component on every agent event, and setting a component's state requests a rerun, so the first state change of a turn restarted the script. The result was one model call, then a rerun storm (813 runs in 3 min).
+- **Why it was missed:**
+  - AppTest does not run component JavaScript;
+  - the fresh-clone checks ran with Ollama unreachable.
+- **Fix:** `report_env=False` by default; only the avatar demo page asks for the report. After the fix: reply in 13 s, 4 runs.
+- Evidence: `docs/audit/assistant/ai_n39_avatar_rerun.md`; test `tests/assistant/test_ai_n39_avatar_rerun.py`.

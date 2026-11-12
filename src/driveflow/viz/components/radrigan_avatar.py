@@ -57,8 +57,13 @@ def _images(avatar_dir: str) -> dict | None:
 
 
 def avatar_props(state: str, label: str | None = None, progress: float | None = None, compact: bool = False, beat: int = 0, wave: int = 0,
-                 speaking: bool = False, avatar_dir: str = "") -> dict:
-    """The data sent to the component (pure; tested without a browser)."""
+                 speaking: bool = False, avatar_dir: str = "", report_env: bool = False) -> dict:
+    """The data sent to the component (pure; tested without a browser).
+
+    report_env (AI-N39, 2026-11-12): the component reports {reduced_motion, state, has_assets} back to Python only when
+    asked. Reporting it sets the component's state, and in a browser that requests a rerun; on the Assistant page every
+    repaint is a new component, so each repaint during a turn restarted the script and the turn never finished. Only the
+    avatar demo page (the FE-3 spike) asks for it."""
     if state not in STATES:
         raise UnknownAvatarState(f"unknown avatar state {state!r}; states: {list(STATES)}")
     if progress is not None and not 0.0 <= float(progress) <= 1.0:
@@ -67,10 +72,12 @@ def avatar_props(state: str, label: str | None = None, progress: float | None = 
 
     persona = load_config().get("persona") or {}
     return {"state": state, "label": label, "progress": progress, "compact": bool(compact), "beat": int(beat), "wave": int(wave), "speaking": bool(speaking),
-            "name": persona.get("name", "SPADE assistant"), "tagline": persona.get("tagline", "AI assistant · local model"), "images": _images(avatar_dir)}
+            "name": persona.get("name", "SPADE assistant"), "tagline": persona.get("tagline", "AI assistant · local model"), "images": _images(avatar_dir),
+            "report_env": bool(report_env)}
 
 
 def radrigan_avatar(state: str, label: str | None = None, progress: float | None = None, compact: bool = False, beat: int = 0, wave: int = 0,
-                    speaking: bool = False, key: str = "radrigan_avatar", avatar_dir: str = ""):
-    """Mount the avatar. Raises UnknownAvatarState for a state outside the 11 of ESPEC_FRONTEND §1.3."""
-    return _component()(key=key, data=avatar_props(state, label, progress, compact, beat, wave, speaking, avatar_dir), on_env_change=lambda: None)
+                    speaking: bool = False, key: str = "radrigan_avatar", avatar_dir: str = "", report_env: bool = False):
+    """Mount the avatar. Raises UnknownAvatarState for a state outside the 11 of ESPEC_FRONTEND §1.3.
+    report_env: see avatar_props (AI-N39); False on the Assistant page."""
+    return _component()(key=key, data=avatar_props(state, label, progress, compact, beat, wave, speaking, avatar_dir, report_env), on_env_change=lambda: None)
