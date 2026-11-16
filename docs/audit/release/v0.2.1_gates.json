@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-15",
+  "commit": "e804fc4",
+  "simulated": true,
+  "gates": {
+    "G1": {
+      "criterion": "full suite: 0 failures; no new xfail without a finding",
+      "result": "2045 passed, 1 skipped, 9 xfailed, 0 failures (22 min 12 s); the same 9 xfails",
+      "pass": true
+    },
+    "G2": {
+      "criterion": "smoke --launch all green",
+      "result": "7/7",
+      "pass": true
+    },
+    "G3": {
+      "criterion": "CI on the gated commit 5/5",
+      "result": "run 43783489255 at e804fc4: pytest 3.11, 3.12; smoke Ubuntu, Windows, macOS: 5/5",
+      "url": "https://github.com/lucianoradrigan/SPADE/actions/runs/43783489255",
+      "pass": true
+    },
+    "G4": {
+      "criterion": "fresh clone of dev from GitHub, new .venv, no data/ or workspace/, OLLAMA_HOST closed",
+      "result": "clone at e804fc4; no data/ or workspace/ at start; port 9 closed; smoke 7/7; 18/18 pages without exception, 18 screenshots; the assistant reports itself unavailable",
+      "pass": true
+    },
+    "G5": {
+      "criterion": "assistant with real Ollama, including one real browser turn (AI-N39)",
+      "result": "pytest --run-llm -m llm: 1 passed; one turn in Chrome with qwen3.5:9b in the clean clone: reply in 18 s (screenshot g5_browser_turn.png)",
+      "pass": true
+    },
+    "G6": {
+      "criterion": "AI Diagnostics defaults: healthy normal at 80/300/max",
+      "result": "normal 0.999 / 0.955 / 0.909 at 80 / 300 / 350 rad/s; outer 0.95, inner 1.00, ball 1.00, cage 1.00 at 300 rad/s",
+      "pass": true
+    },
+    "G7": {
+      "criterion": "byte-for-byte tests intact",
+      "result": "0 diff lines since v0.2.0 in test_datagen, test_scml_system_regression, test_patch3_regression, test_r2_sensitivity_regression and tests/data; they pass in G1",
+      "pass": true
+    },
+    "G8": {
+      "criterion": "no absolute paths outside logs",
+      "result": "the same 3 /home/ matches as on 2026-11-12, none a host path (container path in scripts/fmu/om.sh; two tests of this rule)",
+      "pass": true
+    }
+  },
+  "verdict": "all 8 gates pass",
+  "script": "G1, G2, G4, G5, G6 ran sequentially (r1/gates.sh) with nothing heavy in parallel"
+}
