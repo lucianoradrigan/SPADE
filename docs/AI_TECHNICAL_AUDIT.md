@@ -257,6 +257,7 @@ Excessive alarming is bounded by the on-delay hysteresis. Detection gaps are AI-
 | AI-N38 | Low | Assistant behaviour (communication of a refused request) | **Corrected (2026-11-15, R1)** (§13.11): when the user explicitly asks for a frozen v1 DC plant, `set_plant` correctly refuses it (decision E3, `PatchError` with the reason), but the model's reply does not say so: it presents a v2 proposal without explaining that the requested plant was replaced. The proposal card does show v2, so nothing false is stated and nothing launches without confirmation; the user is not told why. Found in M5 (G5, end-to-end demo with the real model). **Correction:** the Assistant page adds a fixed card (text written in the page, not by the model) whenever a tool refuses a v1 plant in the turn: why (S-21, decision E3) and what is simulated instead; `tests/assistant/test_assistant_ai_n38.py` |
 | AI-N39 | High | GUI defect (Assistant page in a browser) | **Corrected (2026-11-12, `feat/AI-N39-avatar-rerun`)** (§13.12): in a real browser with the model running, a turn never finished: the avatar reported its state on every repaint, each report requested a rerun, and the rerun cancelled the turn after its first model call. Present in the published v0.2.0. The component now reports only when asked (the demo page). Browser check: reply in 13 s, 4 script runs (before: no reply, 813 runs in 3 min) |
 | AI-N40 | High | Generalization gap (speed above the training grid) | **Mitigated (2026-11-15): visible notice in `dev`; open for the models** (§13.13): the dc_motor classifiers were trained and evaluated only on 80–220 rad/s (B4 and B4c added low speed, never above 220), while AI Diagnostics and the DC Motor page default to 300 rad/s and go to 350. Above the grid they can be confidently wrong: the RPi5 model shipped in v0.2.1 calls a healthy motor at 350 rad/s 'cage' 1.00; the B4 PC candidate calls it 'ball' 0.88. Found by G6 of the R2 promotion, which was not merged. Present in v0.2.0 and v0.2.1 |
+| AI-N41 | Low | Assistant search (glossary) | **Open (2026-11-15)** (§13.14): `glossary.build_glossary` drops an entry whose words all appear in more than `MAX_DF` = 3 entries, so a finding can become unfindable even when the user names its ID (`search_docs('AI-N29 …')` returned nothing after the AI-N40 heading added 'confidently wrong'). Found by `test_search_docs_still_finds_what_spade_documents`; avoided by rewording the AI-N40 heading. Not fixed (assistant logic) |
 | AI-N19 | Medium | Evaluation limit | **Documented** (§10): simulated healthy current/rpm are constant in steady state, so the residual AUROC (1.000) and the persistence baseline are optimistic |
 | AI-N15 | Medium | Defect (estimator bias) | **Open** (§9.1): the VSC PINN estimates C systematically low, −1.3 % to −9.1 % mean error at 0–5 % noise |
 | AI-N16 | Medium | Defect (uncertainty) | **Open** (§9.2): the PINN's 5–95 % bootstrap interval covers the truth in 52–78 % of noisy runs for C; the GUI says "Coverage not validated" |
@@ -1022,7 +1023,7 @@ Found 2026-11-09 by the fresh-clone check of `release/v0.2.0` (round C, Playwrig
 
 **AI-N38 correction (2026-11-15, R1 of the v0.2.1 hotfix):** `viz/views/assistant.py` detects the refusal in the turn's trace. It looks for `update_draft` errors and failed tool calls containing "frozen GEM-faithful plant", and appends a fixed card, *Plant v1 not used: the v2 plant is simulated instead*. The card says why (S-21), what is simulated (the v2 plant of the same motor) and where to run v1 (DC Motor page, Plant mode). The assistant's logic, tools and prompts are unchanged. Tests: `tests/assistant/test_assistant_ai_n38.py` (3).
 
-### 13.13 AI-N40 — the dc_motor classifiers are confidently wrong above their training grid · **High** · **Mitigated (notice), open (models)**
+### 13.13 AI-N40 — dc_motor diagnoses are unreliable above the 80–220 rad/s training grid · **High** · **Mitigated (notice), open (models)**
 
 - **Found:** 2026-11-15, by G6 of the promotion of the B4 candidates (R2, `docs/audit/b4/b4_promotion.md`).
 - **Comparison:** AI Diagnostics' defaults (0.82 s, PI, seed 0, no noise), training-grid window.
@@ -1043,3 +1044,10 @@ Found 2026-11-09 by the fresh-clone check of `release/v0.2.0` (round C, Playwrig
 - **Open:**
   - an evaluation above the grid, pre-registered on new data;
   - and either extending the training grid or limiting the GUI's speed range (decisions for Luciano).
+
+### 13.14 AI-N41 — a finding named by its ID can drop out of the assistant's glossary · **Low** · **Open**
+
+- **What happens:** `driveflow.assistant.glossary.build_glossary` keeps, for each finding heading, only the words that appear in at most `MAX_DF` = 3 entries, and **drops the entry** when none is left. `lookup` then cannot return it even if the query names its ID, and `search_docs` (which ranks the named finding first through the glossary) finds nothing.
+- **Found:** 2026-11-15. The first wording of the AI-N40 heading ("…classifiers are confidently wrong…") made 'confidently' and 'wrong' frequent. AI-N29 ("the promoted PC classifier is confidently wrong at 50 rad/s") lost all its terms, and `tests/assistant/test_assistant_harness_v2.py::test_search_docs_still_finds_what_spade_documents` failed.
+- **Avoided:** the AI-N40 heading was reworded. The code is unchanged, so the next heading that shares words can trigger it again.
+- **Proposed fix (needs Luciano's OK; it is assistant logic):** keep an entry that is named by its ID even when it has no distinctive term.

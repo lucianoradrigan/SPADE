@@ -672,6 +672,7 @@ Local LLM `qwen3.5:9b` through Ollama. Each benchmark had its thresholds committ
 | AI-N38 (Low) | **Corrected (2026-11-15).** A refused v1 plant request is now explained by a fixed card on the Assistant page (S-21, decision E3; what is simulated instead) | `tests/assistant/test_assistant_ai_n38.py`; `AI_TECHNICAL_AUDIT.md` §13.11 |
 | AI-N39 (High) | **Corrected (2026-11-12).** The Assistant page never finished a turn in a real browser with the model running: the avatar's state report requested a rerun on every repaint and cancelled the turn. Present in v0.2.0 | [`audit/assistant/ai_n39_avatar_rerun.md`](audit/assistant/ai_n39_avatar_rerun.md); `tests/assistant/test_ai_n39_avatar_rerun.py` |
 | AI-N40 (High) | **Mitigated (notice in `dev`, 2026-11-15); open for the models.** The dc_motor classifiers are confidently wrong above their 80–220 rad/s grid (shipped RPi5: healthy 350 rad/s → cage 1.00), while the GUI defaults to 300 rad/s | `AI_TECHNICAL_AUDIT.md` §13.13; `audit/b4/b4_promotion.md`; `tests/test_ai_n40_speed_grid_notice.py` |
+| AI-N41 (Low) | **Open (2026-11-15).** The assistant's glossary drops a finding whose heading words are all frequent, so even its ID stops finding it; avoided once by rewording, code unchanged | `AI_TECHNICAL_AUDIT.md` §13.14 |
 
 - **B4 cost:** simulation 5.66 CPU-h (estimate 3.2) in 35 min; training 2.10 CPU-h in 23 min.
 - **C2000 visit kit** (D-B4-4 option B): [`audit/b4/c2000_visit_kit.md`](audit/b4/c2000_visit_kit.md). Nothing measured on the board yet.
