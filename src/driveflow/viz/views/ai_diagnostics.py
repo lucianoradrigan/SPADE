@@ -32,7 +32,7 @@ from driveflow.ai import condition
 from driveflow.viz.adapters import ai_adapter as da_ai
 from driveflow.viz.adapters.ai_adapter import normalize_window, promoted_model, run_metrics
 from driveflow.viz.adapters.session import record_run
-from driveflow.viz.components.model_notices import esp32_low_speed_notice, is_esp32_classifier
+from driveflow.viz.components.model_notices import esp32_low_speed_notice, is_esp32_classifier, speed_grid_notice
 from driveflow.viz.components.inputs import slider_with_custom
 from driveflow.viz.components.page_header import badge_html, page_header, provenance_table, source_badge_html
 from driveflow.ai.custom_training import list_classifier_runs
@@ -248,6 +248,8 @@ def _classifier_panel(domain: str, df: pd.DataFrame, data_key: str = "", operati
     metrics, run_dir = info["metrics"], info["run_dir"]
     st.html('<div class="spade-root spade-badges">' + badge_html("AI SUGGESTION — REQUIRES VERIFICATION", "warning", "▲") + badge_html(info["model_id"], "training")
             + ("" if info.get("promoted") else badge_html("CANDIDATE — NOT PROMOTED", "warning", "▲")) + "</div>")
+    if domain == "dc_motor":  # AI-N40 / AI-N29: a setpoint outside the classifiers' training grid
+        speed_grid_notice(st, (operating_point or {}).get("omega_ref_rad_s"))
     _state_box(a)
     w0 = da_ai.training_window_start(df, info["input_window"]) if domain == "dc_motor" and a.state != condition.INPUT_INVALID else None
     early = da_ai.startup_window(df.iloc[w0:w0 + info["input_window"]], info["input_window"]) if w0 is not None else None
