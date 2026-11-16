@@ -60,11 +60,12 @@ def gateway_agent(domain: str) -> GatewayAgent | None:
     return st.session_state[key]
 
 
-def record_classifier_confidence_if_available(domain: str, df: pd.DataFrame, server_agent: ServerAgent) -> dict | None:
+def record_classifier_confidence_if_available(domain: str, df: pd.DataFrame, server_agent: ServerAgent, speed_rad_s: float | None = None) -> dict | None:
     """Feeds the promoted classifier's confidence on the tail of this run into the drift monitor.
-    Returns the classifier output (AI suggestion) or None if not available for this domain."""
-    out = classify_last_window(domain, df)
-    if out is not None:
+    Returns the classifier output (AI suggestion) or None if not available for this domain.
+    AI-N40 (D1): outside the classifier's trained envelope there is no output to record (no confidence)."""
+    out = classify_last_window(domain, df, speed_rad_s)
+    if out is not None and not out.get("outside_envelope"):
         server_agent.record_classifier_confidence(domain, out["confidence"])
     return out
 
@@ -113,7 +114,7 @@ def run_monitoring_pass(domain: str, scenario_kwargs: dict, server_agent: Server
             # the gateway's own state.
             server_agent.record_alert(domain, dataclasses.replace(event, timestamp=now), source_id="gateway")
 
-    classifier = record_classifier_confidence_if_available(domain, df, server_agent)
+    classifier = record_classifier_confidence_if_available(domain, df, server_agent, operating_point.get("omega_ref_rad_s"))
     resid = residual_assessment(domain, df) if domain == "dc_motor" else {"available": False, "reason": "no forecast-residual detector for this domain"}
     tail = df.iloc[int(len(df) * 0.8):]
     rpm = float(tail["rpm"].mean()) if domain == "dc_motor" and "rpm" in df and df["rpm"].notna().any() else None
@@ -129,6 +130,6 @@ def run_monitoring_pass(domain: str, scenario_kwargs: dict, server_agent: Server
     return {
         "domain": domain, "timestamp": now, "score": float(score), "diagnosis": diagnosis, "explanation": explanation,
         "rule_events": rule_events, "hypotheses": list(agent.HYPOTHESES), "classifier": classifier,
-        "confidence": classifier["confidence"] if classifier else None, "rpm": rpm, "agents": agents,
+        "confidence": (classifier or {}).get("confidence"), "rpm": rpm, "agents": agents,
         "n_rows": int(len(df)), "scenario": dict(scenario_kwargs), "residual": {k: v for k, v in resid.items() if k not in ("window", "forecast")},
     }

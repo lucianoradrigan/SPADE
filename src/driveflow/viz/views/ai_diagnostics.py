@@ -32,7 +32,8 @@ from driveflow.ai import condition
 from driveflow.viz.adapters import ai_adapter as da_ai
 from driveflow.viz.adapters.ai_adapter import normalize_window, promoted_model, run_metrics
 from driveflow.viz.adapters.session import record_run
-from driveflow.viz.components.model_notices import esp32_low_speed_notice, is_esp32_classifier, speed_grid_notice
+from driveflow.ai import envelope
+from driveflow.viz.components.model_notices import esp32_low_speed_notice, is_esp32_classifier
 from driveflow.viz.components.inputs import slider_with_custom
 from driveflow.viz.components.page_header import badge_html, page_header, provenance_table, source_badge_html
 from driveflow.ai.custom_training import list_classifier_runs
@@ -46,7 +47,7 @@ from driveflow.viz.theme.plotly import PLOTLY_CONFIG, series_color, style_figure
 DOMAIN_LABELS = {"dc_motor": "DC motor (dc_motor)", "vsc_dpc": "VSC / DPC (vsc_dpc)"}
 TIER = "pc"
 CANDIDATES = {"dc_motor": CANDIDATE_CHANNELS, "vsc_dpc": VSC_DPC_CANDIDATE_CHANNELS}
-DC_DEFAULT_OMEGA_REF = 300.0  # GEM nominal speed, same default as the DC Motor page
+DC_DEFAULT_OMEGA_REF = 150.0  # decision D2 (2026-11-16): inside the classifiers' trained envelope (was 300, GEM's nominal speed: AI-N40)
 DC_DEFAULT_DURATION_S = 0.82  # AI-N33 (Luciano, decision N-D1, 2026-11-09): was 0.6
 MAX_UPLOAD_MB = 50
 _PALETTE = ["#38BDF8", "#F59E0B", "#A78BFA", "#F472B6", "#22C55E", "#94A3B8"]
@@ -232,8 +233,29 @@ def _agent_section(domain: str, df: pd.DataFrame, data_key: str, operating_point
                f"features {', '.join(r['features'])} · operating point {r['operating_point'] or 'n/a'}. Not a confirmed diagnosis.")
 
 
+def _outside_envelope(domain: str, df, operating_point: dict | None, run_dir) -> bool:
+    """AI-N40 (decision D1): the deterministic envelope rule, before the model runs. True (and a visible box, no class,
+    no bars, no confidence) when the simulated speed is outside the selected classifier's trained range."""
+    try:
+        _, _, _, rdir = da_ai.model_at(domain, TIER, "classifier", run_dir)
+    except RegistryError:
+        return False
+    chk = envelope.check(rdir, envelope.speed_of(df, operating_point))
+    if chk["status"] == "outside":
+        st.html('<div class="spade-root spade-badges">' + badge_html(f"{rdir.parent.name}/{rdir.name}", "training") + "</div>")
+        st.error(f"**{chk['message']}.** This classifier was trained on {chk['envelope'][0]:.0f}–{chk['envelope'][1]:.0f} rad/s "
+                 f"(simulated) and this sample runs at {chk['speed_rad_s']:.0f} rad/s. Outside that range it has been found confidently "
+                 "wrong (AI-N40), so no class is suggested.", icon=":material/block:")
+        return True
+    if chk["status"] in ("unknown_envelope", "unknown_speed"):
+        st.caption(chk["message"] + ".")
+    return False
+
+
 def _classifier_panel(domain: str, df: pd.DataFrame, data_key: str = "", operating_point: dict | None = None, provenance: dict | None = None, run_dir=None) -> None:
     st.markdown("##### Classifier")
+    if domain == "dc_motor" and _outside_envelope(domain, df, operating_point, run_dir):
+        return
     try:
         out = da_ai.assess_training_window(domain, df, TIER, run_dir=run_dir)  # AI-N33: the training window rule
     except RegistryError as exc:
@@ -248,8 +270,6 @@ def _classifier_panel(domain: str, df: pd.DataFrame, data_key: str = "", operati
     metrics, run_dir = info["metrics"], info["run_dir"]
     st.html('<div class="spade-root spade-badges">' + badge_html("AI SUGGESTION — REQUIRES VERIFICATION", "warning", "▲") + badge_html(info["model_id"], "training")
             + ("" if info.get("promoted") else badge_html("CANDIDATE — NOT PROMOTED", "warning", "▲")) + "</div>")
-    if domain == "dc_motor":  # AI-N40 / AI-N29: a setpoint outside the classifiers' training grid
-        speed_grid_notice(st, (operating_point or {}).get("omega_ref_rad_s"))
     _state_box(a)
     w0 = da_ai.training_window_start(df, info["input_window"]) if domain == "dc_motor" and a.state != condition.INPUT_INVALID else None
     early = da_ai.startup_window(df.iloc[w0:w0 + info["input_window"]], info["input_window"]) if w0 is not None else None

@@ -75,7 +75,10 @@ def test_page_tells_the_truth(page):
     text = _text(at)
     assert not _banned(page, text), _banned(page, text)
     if page in PREDICTION_PAGES:
-        assert FULL_AI_LABEL in text, f"{page} shows a prediction without '{FULL_AI_LABEL}'"
+        # Updated 2026-11-16 (decision D1): outside a model's trained envelope the page shows no prediction, only the
+        # 'Outside the trained range ...: no diagnosis' box; otherwise the prediction carries the full label.
+        outside = "Outside the trained range" in text and "no diagnosis" in text
+        assert outside or FULL_AI_LABEL in text, f"{page} shows a prediction without '{FULL_AI_LABEL}'"
     if page not in NO_RESULTS:
         assert "SIMULATED" in text, f"{page} shows results without the SIMULATED label"
 

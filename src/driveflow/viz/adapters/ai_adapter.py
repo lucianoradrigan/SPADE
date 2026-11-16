@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
+from driveflow.ai import envelope
 from driveflow.ai import condition
 from driveflow.ai.audit_findings import is_synthetic_class
 from driveflow.ai.calibration import UNCERTAIN, UNKNOWN, decide
@@ -93,13 +94,21 @@ def startup_window(df, input_window: int) -> tuple[float, float] | None:
     return (start, end) if start < STARTUP_S else None
 
 
-def classify_last_window(domain: str, df) -> dict | None:
+def classify_last_window(domain: str, df, speed_rad_s: float | None = None) -> dict | None:
     """AI suggestion on the last input_window rows of df, or None if no classifier is promoted /
-    channels are missing / too few rows. Returns probabilities with the model's identity."""
+    channels are missing / too few rows. Returns probabilities with the model's identity.
+
+    AI-N40 (decision D1, 2026-11-16): for dc_motor the simulated speed (speed_rad_s, else the run's mean rpm at the end)
+    is checked against the model's trained envelope FIRST. Outside it the model is not run and the result carries no
+    class, probability or confidence: {"outside_envelope": True, "message", "envelope", "speed_rad_s", "model_id"}."""
     try:
         model, config, metrics, run_dir = promoted_model(domain, "pc", "classifier")
     except RegistryError:
         return None
+    env = envelope.check(run_dir, envelope.speed_of(df, {"omega_ref_rad_s": speed_rad_s} if speed_rad_s is not None else None)) if domain == "dc_motor" else None
+    if env and env["status"] == "outside":
+        return {"outside_envelope": True, "message": env["message"], "envelope": env["envelope"], "speed_rad_s": env["speed_rad_s"],
+                "model_id": f"{run_dir.parent.name}/{run_dir.name}"}
     channels = metrics["channels"]
     if len(df) < config.input_window or any(c not in df.columns or df[c].isna().all() for c in channels):
         return None
@@ -114,6 +123,7 @@ def classify_last_window(domain: str, df) -> dict | None:
         "decision": label, "abstained": label == UNCERTAIN, "unknown": label == UNKNOWN, "synthetic_only": metrics["classes"][k] in (metrics.get("synthetic_only_classes") or []) or is_synthetic_class(metrics["classes"][k]), "ood_checked": ood_score is not None, "calibrated": "calibration" in metrics,
         "model_id": f"{run_dir.parent.name}/{run_dir.name}", "test_macro_f1": metrics.get("test_macro_f1"), "n_test": metrics.get("n_test"),
         "startup_window": startup_window(df, config.input_window) if domain == "dc_motor" else None,
+        "envelope_check": env,
     }
 
 

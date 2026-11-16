@@ -32,7 +32,6 @@ from driveflow.monitoring.motor_status import derive_motor_view
 from driveflow.viz.adapters import simulation_adapter as sim
 from driveflow.viz.adapters.ai_adapter import classify_last_window
 from driveflow.viz.adapters.session import config_hash, record_run
-from driveflow.viz.components.model_notices import speed_grid_notice
 from driveflow.viz.components.inputs import slider_with_custom
 from driveflow.viz.components.metric_cards import kpi_row
 from driveflow.viz.components.motor_status import render_motor_status
@@ -186,9 +185,10 @@ def _single() -> None:
             except ValueError as exc:  # Scenario's own validation message
                 st.error(str(exc), icon=":material/error:")
                 return
-            ai = classify_last_window("dc_motor", df)
+            # AI-N40 (D1): the speed setpoint, when the run is speed-controlled, is checked against the trained envelope
+            ai = classify_last_window("dc_motor", df, params["setpoint"] if params["control_mode"] == "speed" else None)
         rpm = sim.steady_state(df, "rpm")
-        run = record_run("dc", params, {"injected": params["fault_label"], "rpm": None if rpm is None else round(rpm, 1), "ai_suggestion": ai["predicted"] if ai else None})
+        run = record_run("dc", params, {"injected": params["fault_label"], "rpm": None if rpm is None else round(rpm, 1), "ai_suggestion": (ai or {}).get("predicted")})
         limits = {**defaults["limits"], **(params.get("dc_limit_overrides") or {})}
         entry = {"df": df, "params": params, "run": run, "ai": ai, "envelope": dict(r_a=r_a, psi_e=psi_e, u_lim=float(limits["u"]), i_lim=float(limits["i"]), omega_lim=float(limits["omega"]))}
         history = st.session_state.setdefault("dc_history", [])
@@ -217,12 +217,16 @@ def _single() -> None:
     with kpi_slot:
         if stale:
             st.warning("Controls changed since this result was produced — it still shows run " + run["run_id"] + "'s parameters. Click Run simulation to refresh.", icon=":material/history:")
-        kpi_row([
+        ai_shown = ai if ai and not ai.get("outside_envelope") else None  # AI-N40: an outside result has no class or confidence
+        tiles = [
             {"label": "Speed (steady state)", "value": "—" if rpm is None else f"{rpm:,.0f}", "unit": "rpm", "sub": f"target {target_rpm:,.0f} rpm" if target_rpm else "torque mode — speed free-running", "tone": "primary"},
             {"label": "Armature current", "value": "—" if cur is None else f"{cur:.1f}", "unit": "A", "sub": f"nominal {sim.dc_defaults()['nominal']['i']} A", "tone": "training"},
             {"label": "Shaft torque", "value": "—" if torque is None else f"{torque:.2f}", "unit": "N·m", "sub": f"nominal {sim.dc_defaults()['nominal']['torque']} N·m", "tone": "healthy"},
-            {"label": "AI suggestion", "value": (ai.get("decision") or ai["predicted"]) if ai else "n/a", "sub": (f"p={ai['confidence']:.2f}{' calibrated' if ai.get('calibrated') else ''}{' · below abstention threshold' if ai.get('abstained') else ''}{' · unknown condition (OOD)' if ai.get('unknown') else ''}{' · ball/cage: synthetic-only, uncalibrated amplitude' if ai.get('synthetic_only') else ''}{' · start-up window: unreliable (AI-N33)' if ai.get('startup_window') else ''} · requires verification" if ai else "no promoted classifier / not enough rows"), "tone": "warning" if ai else "unknown"},
-        ])
+            {"label": "AI suggestion", "value": (ai_shown.get("decision") or ai_shown["predicted"]) if ai_shown else "n/a", "sub": (f"p={ai_shown['confidence']:.2f}{' calibrated' if ai_shown.get('calibrated') else ''}{' · below abstention threshold' if ai_shown.get('abstained') else ''}{' · unknown condition (OOD)' if ai_shown.get('unknown') else ''}{' · ball/cage: synthetic-only, uncalibrated amplitude' if ai_shown.get('synthetic_only') else ''}{' · start-up window: unreliable (AI-N33)' if ai_shown.get('startup_window') else ''} · requires verification" if ai_shown else "no promoted classifier / not enough rows"), "tone": "warning" if ai_shown else "unknown"},
+        ]
+        if (ai or {}).get("outside_envelope"):  # AI-N40 (D1): no class and no confidence outside the trained range
+            tiles[-1] = {"label": "AI suggestion", "value": "no diagnosis", "sub": ai["message"], "tone": "unknown"}
+        kpi_row(tiles)
         st.html('<div class="spade-root spade-badges">' + badge_html(f"Injected condition (simulation input): {p['fault_label']}", "unknown", "◆") + source_badge_html("simulated") + "</div>")
 
     with tabs[0]:
@@ -259,9 +263,11 @@ def _single() -> None:
             st.markdown("##### Fault classification — AI suggestion")
             if ai is None:
                 st.info("No promoted PC-tier classifier for dc_motor, or the run is shorter than one input window.")
+            elif ai.get("outside_envelope"):  # AI-N40 (D1): no class, no bars, no confidence
+                st.error(f"**{ai['message']}.** The promoted classifier ({ai['model_id']}) was trained on {ai['envelope'][0]:.0f}–{ai['envelope'][1]:.0f} rad/s "
+                         f"(simulated); this run is at {ai['speed_rad_s']:.0f} rad/s, where it has been found confidently wrong (AI-N40).", icon=":material/block:")
             else:
                 st.html('<div class="spade-root spade-badges">' + badge_html("AI SUGGESTION — REQUIRES VERIFICATION", "warning", "▲", "A model output on simulated data, not a certified diagnosis.") + badge_html(f"model {ai['model_id']}", "training") + "</div>")
-                speed_grid_notice(st, p["setpoint"] if p["control_mode"] == "speed" else None)  # AI-N40 / AI-N29
                 order = np.argsort(ai["probs"])
                 fig = go.Figure(go.Bar(x=[ai["probs"][i] for i in order], y=[ai["classes"][i] for i in order], orientation="h", marker_color=[series_color("candidate") if ai["classes"][i] == ai["predicted"] else series_color("base") for i in order], text=[f"{ai['probs'][i]:.0%}" for i in order], textposition="auto"))
                 style_figure(fig, height=60 + 48 * len(order), x_title=("Class probability (temperature-calibrated)" if ai.get("calibrated") else "Class probability (softmax, uncalibrated)"), legend=False)
@@ -271,7 +277,7 @@ def _single() -> None:
                 st.caption(f"Prediction on the last input window of this run. Model test macro-F1 at training time: {f1:.3f} on n={ai.get('n_test')} windows (simulated data, grouped-by-run split)." if f1 is not None else "No test macro-F1 recorded for this model.")
                 st.caption(f"Ground truth of this simulation: **{p['fault_label']}** (the injected condition). Agreement here says nothing about real machines.")
         with c2:
-            view = derive_motor_view(None, "dc_motor", motor_id="dc_motor/sim", source_mode="simulated", rpm=rpm, rpm_target=target_rpm, vibration_rms_g=sim.vibration_rms(df), timestamp_utc=run["utc"], prediction=ai["predicted"] if ai else None, confidence=ai["confidence"] if ai else None, model_id=ai["model_id"] if ai else None)
+            view = derive_motor_view(None, "dc_motor", motor_id="dc_motor/sim", source_mode="simulated", rpm=rpm, rpm_target=target_rpm, vibration_rms_g=sim.vibration_rms(df), timestamp_utc=run["utc"], prediction=(ai or {}).get("predicted"), confidence=(ai or {}).get("confidence"), model_id=(ai or {}).get("model_id"))
             render_motor_status(view)
             st.page_link("pages/monitoring.py", label="Evaluate with the monitoring agents", icon=":material/monitor_heart:")
 
