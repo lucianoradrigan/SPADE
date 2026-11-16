@@ -9,7 +9,7 @@ warned; a field may declare a conversion):
     {"id": "P1", "simulable_today": true,
      "fields": [{"field": "kt", "label_printed": "...", "value": 1.4, "unit": "Nm/A", "basis": "line-line", "waveform": "rms",
                  "variant": null, "converted_by": null}, ...],
-     "asked": ["free text of each question the agent asked"],
+     "asked": [{"field": "voltage_constant", "reason": "ambiguous_basis"}, ...],
      "warned": ["free text of each warning the agent gave"]}
 
 A field is matched to the expected field with the same (field or label_printed, variant); a key printed several times pairs by order. Metrics, per document and in total:
@@ -20,14 +20,15 @@ A field is matched to the expected field with the same (field or label_printed, 
   only if the field declares "converted_by": <rule id of configs/assistant_conversions.yaml> and the value equals the
   printed one times that rule's factor; an undeclared conversion is wrong.
 - invention (severe, separate): any value given where the expected one is null, "illegible" or "ambiguous: must ask".
-- questions: share of must_ask items the agent asked (text match, see _matches), and the questions that ask for a
-  value that is printed and legible (unneeded questions).
+- questions (decision D8, 2026-11-16): structured. Each expected must_ask entry is {field, reason, item, text} with reason
+  from REASONS; it is asked when the output's "asked" holds an entry with the same field AND reason (exact, no text
+  matching). An asked field that is printed and legible in the document, and not in must_ask, is an unneeded question.
 - warnings: share of must_warn items the agent gave.
 - simulable: whether the output's simulable_today equals the expected one.
 
-Text matching of questions and warnings is lenient by design (the agent paraphrases): normalised exact match, or a share
-of the expected item's content words present in the answer >= --text-threshold (default 0.6). The threshold is a
-proposal, not a decision (docs/audit/assistant/phase2_scoring_proposal.md, DRAFT).
+Warnings are still free text (lenient match: normalised exact, or >= --text-threshold of the expected item's content words).
+
+Held-out set (decision D8): the IDs in tests/assistant/golden/holdout.yaml are refused unless --final-eval is given.
 """
 
 from __future__ import annotations
@@ -45,6 +46,29 @@ REPO = Path(__file__).resolve().parents[1]
 EXPECTED_DIR = REPO / "tests" / "assistant" / "golden" / "expected"
 CONVERSIONS = REPO / "configs" / "assistant_conversions.yaml"
 NOT_GIVEN = (None, "illegible", "ambiguous: must ask")
+#: D8 (2026-11-16): closed list of reasons for a structured question
+REASONS = ("missing", "variant_unspecified", "ambiguous_basis", "ambiguous_waveform", "inconsistent", "ambiguous_meaning",
+           "condition_unspecified", "machine_type_unspecified", "manufacturer_unnamed")
+HOLDOUT = REPO / "tests" / "assistant" / "golden" / "holdout.yaml"
+
+
+class HoldoutError(PermissionError):
+    pass
+
+
+def holdout_ids() -> set:
+    return set((yaml.safe_load(HOLDOUT.read_text(encoding="utf-8")) or {}).get("ids", [])) if HOLDOUT.exists() else set()
+
+
+def load_expected(doc_id: str, final_eval: bool = False) -> dict:
+    """The only way the Phase 2 tooling reads an expected file: a held-out ID is refused unless final_eval (D8)."""
+    if doc_id in holdout_ids() and not final_eval:
+        raise HoldoutError(f"{doc_id} is in the held-out set (tests/assistant/golden/holdout.yaml); use --final-eval for the final evaluation only")
+    return json.loads((EXPECTED_DIR / f"{doc_id}.json").read_text(encoding="utf-8"))
+
+
+def _ask_key(a) -> tuple | None:
+    return (a.get("field"), a.get("reason")) if isinstance(a, dict) and a.get("field") and a.get("reason") in REASONS else None
 SPECIFIC_BASIS = ("phase", "line-line")
 SPECIFIC_WAVE = ("rms", "peak", "dc_equivalent")
 STOP = set("the a an of and or to in on is are be with for by at from as it its this that not no if than then into per same".split())
@@ -153,18 +177,17 @@ def score_document(expected: dict, output: dict | None, rtol: float = 0.02, text
             res["values_correct"] += 1
         else:
             res["value_errors"].append({"field": key[0], "variant": key[1], "why": why})
-    asked = [str(a) for a in output.get("asked") or []]
-    for item in expected.get("must_ask") or []:
-        if _matches(item, asked, text_threshold):
+    asked = {k for k in (_ask_key(a) for a in output.get("asked") or []) if k}
+    must = {_ask_key(m) for m in expected.get("must_ask") or []} - {None}
+    for m in expected.get("must_ask") or []:
+        if _ask_key(m) in asked:
             res["must_ask_hit"] += 1
         else:
-            res["missed_questions"].append(item)
-    for a in asked:
-        if not any(_matches(m, [a], text_threshold) for m in expected.get("must_ask") or []):
-            low = a.lower()
-            hit = [t for t in printed_terms if len(str(t)) > 2 and str(t).lower().replace("_", " ") in low.replace("_", " ")]
-            if hit:
-                res["unneeded_questions"].append({"question": a, "printed": hit[0]})
+            res["missed_questions"].append({"field": m.get("field"), "reason": m.get("reason")} if isinstance(m, dict) else m)
+    printed = {str(t) for t in printed_terms}
+    for field, reason in sorted(asked - must):
+        if field in printed:
+            res["unneeded_questions"].append({"field": field, "reason": reason})
     warned = [str(w) for w in output.get("warned") or []]
     for item in expected.get("must_warn") or []:
         if _matches(item, warned, text_threshold):
@@ -218,7 +241,8 @@ def perfect_output(expected: dict) -> dict:
                "unit": f.get("unit_printed"), "basis": f.get("basis"), "waveform": f.get("waveform")}
               for f in expected.get("fields") or [] if f.get("value_printed") not in NOT_GIVEN]
     return {"id": expected.get("id"), "simulable_today": expected.get("simulable_today"), "fields": fields,
-            "asked": list(expected.get("must_ask") or []), "warned": list(expected.get("must_warn") or [])}
+            "asked": [{"field": m["field"], "reason": m["reason"]} for m in expected.get("must_ask") or [] if isinstance(m, dict)],
+            "warned": list(expected.get("must_warn") or [])}
 
 
 def main(argv=None) -> None:
@@ -228,12 +252,14 @@ def main(argv=None) -> None:
     ap.add_argument("--rtol", type=float, default=0.02)
     ap.add_argument("--text-threshold", type=float, default=0.6)
     ap.add_argument("--json", type=Path, default=None)
+    ap.add_argument("--final-eval", action="store_true", help="allow the held-out IDs (the final evaluation only, D8)")
     args = ap.parse_args(argv)
-    ids = args.ids or sorted(p.stem for p in EXPECTED_DIR.glob("*.json"))
+    held = holdout_ids()
+    ids = args.ids or sorted(p.stem for p in EXPECTED_DIR.glob("*.json") if args.final_eval or p.stem not in held)
     rules = load_rules()
     docs = []
     for i in ids:
-        exp = json.loads((EXPECTED_DIR / f"{i}.json").read_text(encoding="utf-8"))
+        exp = load_expected(i, args.final_eval)
         p = args.outputs / f"{i}.json"
         try:
             out = json.loads(p.read_text(encoding="utf-8")) if p.exists() and p.read_text(encoding="utf-8").strip() else {}

@@ -178,7 +178,12 @@
     }
   ],
   "must_ask": [
-    "the basis of the back-EMF constant (Vrms/krpm, phase or line-line not printed)"
+    {
+      "field": "back_emf_constant",
+      "reason": "ambiguous_basis",
+      "item": 0,
+      "text": "the basis of the back-EMF constant (Vrms/krpm, phase or line-line not printed)"
+    }
   ],
   "must_warn": [
     "'No. of Poles 6' are poles: 3 pole pairs",

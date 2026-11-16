@@ -260,7 +260,12 @@
     }
   ],
   "must_ask": [
-    "which winding (6 columns, 1.5 to 24 V)"
+    {
+      "field": "winding",
+      "reason": "variant_unspecified",
+      "item": 0,
+      "text": "which winding (6 columns, 1.5 to 24 V)"
+    }
   ],
   "must_warn": [
     "values in two units in one cell: 'mNm (oz-in)'",

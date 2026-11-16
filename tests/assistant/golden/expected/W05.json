@@ -74,8 +74,18 @@
     }
   ],
   "must_ask": [
-    "what '2 × 3400' V means (two windings? two connections?)",
-    "what '(208M)' after 147 A means"
+    {
+      "field": "voltage",
+      "reason": "ambiguous_meaning",
+      "item": 0,
+      "text": "what '2 × 3400' V means (two windings? two connections?)"
+    },
+    {
+      "field": "current",
+      "reason": "ambiguous_meaning",
+      "item": 1,
+      "text": "what '(208M)' after 147 A means"
+    }
   ],
   "must_warn": [
     "147 A at 1000 kVA fits about 3.9 kV line-line, not 3400 V: inconsistent unless the voltage is read differently",

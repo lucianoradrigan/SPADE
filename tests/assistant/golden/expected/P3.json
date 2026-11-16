@@ -189,8 +189,24 @@
     }
   ],
   "must_ask": [
-    "the basis of R and L (not printed; with tau_el they do not agree, see warn)",
-    "the ambient temperature of 'Winding Resistance @ Ambient'"
+    {
+      "field": "resistance",
+      "reason": "ambiguous_basis",
+      "item": 0,
+      "text": "the basis of R and L (not printed; with tau_el they do not agree, see warn)"
+    },
+    {
+      "field": "inductance",
+      "reason": "ambiguous_basis",
+      "item": 0,
+      "text": "the basis of R and L (not printed; with tau_el they do not agree, see warn)"
+    },
+    {
+      "field": "resistance_ambient",
+      "reason": "condition_unspecified",
+      "item": 1,
+      "text": "the ambient temperature of 'Winding Resistance @ Ambient'"
+    }
   ],
   "must_warn": [
     "tau_el printed 1.769 ms vs L/R = 16.1/10.6 = 1.52 ms (16 % apart): R or L on another basis or temperature",

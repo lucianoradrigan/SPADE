@@ -156,9 +156,36 @@
     }
   ],
   "must_ask": [
-    "which of Ke and Kt to use: Ke 0.0225 V/rpm = 0.215 V s/rad but Kt = 0.192 N m/A (+12 %); never average them",
-    "armature resistance, inductance and inertia (not printed)",
-    "the operating voltage within 12-72 V"
+    {
+      "field": "torque_constant",
+      "reason": "inconsistent",
+      "item": 0,
+      "text": "which of Ke and Kt to use: Ke 0.0225 V/rpm = 0.215 V s/rad but Kt = 0.192 N m/A (+12 %); never average them"
+    },
+    {
+      "field": "resistance",
+      "reason": "missing",
+      "item": 1,
+      "text": "armature resistance, inductance and inertia (not printed)"
+    },
+    {
+      "field": "inductance",
+      "reason": "missing",
+      "item": 1,
+      "text": "armature resistance, inductance and inertia (not printed)"
+    },
+    {
+      "field": "inertia",
+      "reason": "missing",
+      "item": 1,
+      "text": "armature resistance, inductance and inertia (not printed)"
+    },
+    {
+      "field": "voltage",
+      "reason": "variant_unspecified",
+      "item": 2,
+      "text": "the operating voltage within 12-72 V"
+    }
   ],
   "must_warn": [
     "internal inconsistency between Ke and Kt (12 %)",

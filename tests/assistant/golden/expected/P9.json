@@ -279,9 +279,42 @@
     }
   ],
   "must_ask": [
-    "which model (rows)",
-    "the continuous current (not printed)",
-    "the basis and waveform of Kt and back EMF (not printed)"
+    {
+      "field": "model",
+      "reason": "variant_unspecified",
+      "item": 0,
+      "text": "which model (rows)"
+    },
+    {
+      "field": "current_continuous",
+      "reason": "missing",
+      "item": 1,
+      "text": "the continuous current (not printed)"
+    },
+    {
+      "field": "torque_constant",
+      "reason": "ambiguous_basis",
+      "item": 2,
+      "text": "the basis and waveform of Kt and back EMF (not printed)"
+    },
+    {
+      "field": "torque_constant",
+      "reason": "ambiguous_waveform",
+      "item": 2,
+      "text": "the basis and waveform of Kt and back EMF (not printed)"
+    },
+    {
+      "field": "back_emf",
+      "reason": "ambiguous_basis",
+      "item": 2,
+      "text": "the basis and waveform of Kt and back EMF (not printed)"
+    },
+    {
+      "field": "back_emf",
+      "reason": "ambiguous_waveform",
+      "item": 2,
+      "text": "the basis and waveform of Kt and back EMF (not printed)"
+    }
   ],
   "must_warn": [
     "typo in the header: 'Valtage'",
