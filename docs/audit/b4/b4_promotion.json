@@ -1,0 +1,339 @@
+{
+  "date": "2026-11-15",
+  "branch": "feat/B4-promote",
+  "commit": "83fcf1d",
+  "decision": "R-D3",
+  "merged": false,
+  "rollback": "none needed (dev was never changed)",
+  "G1": {
+    "result": "5 failed, 2040 passed, 1 skipped, 9 xfailed",
+    "failures": [
+      {
+        "test": "tests/ai/test_classifier_evaluation.py::test_registry_resolves_the_grid_trained_classifier",
+        "cause": "pinned to the 2026-11-04 run (assert resolve(...) == .../2026-11-04_run01)",
+        "fix_needs": "changing an existing test (not allowed this round)"
+      },
+      {
+        "test": "tests/test_ai_n27_warning.py::test_promoted_dc_motor_classifiers_carry_ai_n27",
+        "cause": "requires an AI-N27 finding and entries[key].endswith('2026-11-04_run01')",
+        "fix_needs": "an AI-N27 audit entry (allowed) AND changing the pinned run in the test (not allowed)"
+      },
+      {
+        "test": "tests/test_ai_n27_warning.py::test_model_registry_lists_it_with_the_run",
+        "cause": "the new runs carry no 'AI-N27' audit entry",
+        "fix_needs": "an AI-N27 entry in their audit_findings.json (allowed; not done since the promotion stops anyway)"
+      },
+      {
+        "test": "tests/test_ai_n33_startup_window.py::test_default_healthy_sample_is_normal_without_warning",
+        "cause": "with the new PC model the page's default sample (healthy, 300 rad/s) is no longer 'normal': it abstains (cage 0.62)",
+        "fix_needs": "nothing to fix in the test: a real behaviour change (see G6)"
+      },
+      {
+        "test": "tests/test_dashboard_landing.py::TestSystemDiagramNumbers::test_quoted_metrics_match_the_promoted_runs",
+        "cause": "the system diagram quotes the 2026-11-04 runs' test accuracy",
+        "fix_needs": "updating the quoted numbers in views/system_diagram.py (allowed)"
+      }
+    ],
+    "pass": false
+  },
+  "G3": {
+    "result": "not run: G1 and G6 failed first",
+    "pass": null
+  },
+  "G6": {
+    "criterion": "healthy normal at 80, 300 and 350 rad/s; each fault at 300 rad/s as before or better",
+    "result": "healthy 80: normal 0.998; healthy 300: abstains (cage 0.619); healthy 350: 'ball' 0.879 as a known condition (FALSE); faults at 300: outer 0.995, inner 1.00, ball 1.00, cage 1.00",
+    "pass": false
+  },
+  "high_speed_old_vs_new": [
+    {
+      "case": "healthy",
+      "speed_rad_s": 80.0,
+      "model": "PC old",
+      "state": "known",
+      "top_class": "normal",
+      "confidence": 0.999
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 80.0,
+      "model": "PC new",
+      "state": "known",
+      "top_class": "normal",
+      "confidence": 0.998
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 80.0,
+      "model": "RPi5 old",
+      "state": "known",
+      "top_class": "normal",
+      "confidence": 1.0
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 80.0,
+      "model": "RPi5 new",
+      "state": "known",
+      "top_class": "normal",
+      "confidence": 0.999
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 220.0,
+      "model": "PC old",
+      "state": "known",
+      "top_class": "normal",
+      "confidence": 0.973
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 220.0,
+      "model": "PC new",
+      "state": "known",
+      "top_class": "normal",
+      "confidence": 0.993
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 220.0,
+      "model": "RPi5 old",
+      "state": "known",
+      "top_class": "normal",
+      "confidence": 0.998
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 220.0,
+      "model": "RPi5 new",
+      "state": "known",
+      "top_class": "normal",
+      "confidence": 0.997
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 250.0,
+      "model": "PC old",
+      "state": "known",
+      "top_class": "normal",
+      "confidence": 0.967
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 250.0,
+      "model": "PC new",
+      "state": "known",
+      "top_class": "normal",
+      "confidence": 0.985
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 250.0,
+      "model": "RPi5 old",
+      "state": "known",
+      "top_class": "normal",
+      "confidence": 0.999
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 250.0,
+      "model": "RPi5 new",
+      "state": "known",
+      "top_class": "normal",
+      "confidence": 0.996
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 300.0,
+      "model": "PC old",
+      "state": "known",
+      "top_class": "normal",
+      "confidence": 0.955
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 300.0,
+      "model": "PC new",
+      "state": "uncertain",
+      "top_class": "cage",
+      "confidence": 0.619
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 300.0,
+      "model": "RPi5 old",
+      "state": "uncertain",
+      "top_class": "cage",
+      "confidence": 0.633
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 300.0,
+      "model": "RPi5 new",
+      "state": "known",
+      "top_class": "normal",
+      "confidence": 0.995
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 350.0,
+      "model": "PC old",
+      "state": "known",
+      "top_class": "normal",
+      "confidence": 0.909
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 350.0,
+      "model": "PC new",
+      "state": "known",
+      "top_class": "ball",
+      "confidence": 0.879
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 350.0,
+      "model": "RPi5 old",
+      "state": "known",
+      "top_class": "cage",
+      "confidence": 1.0
+    },
+    {
+      "case": "healthy",
+      "speed_rad_s": 350.0,
+      "model": "RPi5 new",
+      "state": "known",
+      "top_class": "normal",
+      "confidence": 0.985
+    },
+    {
+      "case": "outer_race",
+      "speed_rad_s": 300.0,
+      "model": "PC old",
+      "state": "known",
+      "top_class": "outer_race",
+      "confidence": 0.95
+    },
+    {
+      "case": "outer_race",
+      "speed_rad_s": 300.0,
+      "model": "PC new",
+      "state": "known",
+      "top_class": "outer_race",
+      "confidence": 0.995
+    },
+    {
+      "case": "outer_race",
+      "speed_rad_s": 300.0,
+      "model": "RPi5 old",
+      "state": "known",
+      "top_class": "ball",
+      "confidence": 0.928
+    },
+    {
+      "case": "outer_race",
+      "speed_rad_s": 300.0,
+      "model": "RPi5 new",
+      "state": "known",
+      "top_class": "ball",
+      "confidence": 0.895
+    },
+    {
+      "case": "inner_race",
+      "speed_rad_s": 300.0,
+      "model": "PC old",
+      "state": "known",
+      "top_class": "inner_race",
+      "confidence": 1.0
+    },
+    {
+      "case": "inner_race",
+      "speed_rad_s": 300.0,
+      "model": "PC new",
+      "state": "known",
+      "top_class": "inner_race",
+      "confidence": 1.0
+    },
+    {
+      "case": "inner_race",
+      "speed_rad_s": 300.0,
+      "model": "RPi5 old",
+      "state": "known",
+      "top_class": "inner_race",
+      "confidence": 0.994
+    },
+    {
+      "case": "inner_race",
+      "speed_rad_s": 300.0,
+      "model": "RPi5 new",
+      "state": "uncertain",
+      "top_class": "inner_race",
+      "confidence": 0.534
+    },
+    {
+      "case": "ball",
+      "speed_rad_s": 300.0,
+      "model": "PC old",
+      "state": "known",
+      "top_class": "ball",
+      "confidence": 1.0
+    },
+    {
+      "case": "ball",
+      "speed_rad_s": 300.0,
+      "model": "PC new",
+      "state": "known",
+      "top_class": "ball",
+      "confidence": 1.0
+    },
+    {
+      "case": "ball",
+      "speed_rad_s": 300.0,
+      "model": "RPi5 old",
+      "state": "known",
+      "top_class": "ball",
+      "confidence": 1.0
+    },
+    {
+      "case": "ball",
+      "speed_rad_s": 300.0,
+      "model": "RPi5 new",
+      "state": "known",
+      "top_class": "cage",
+      "confidence": 0.857
+    },
+    {
+      "case": "cage",
+      "speed_rad_s": 300.0,
+      "model": "PC old",
+      "state": "known",
+      "top_class": "cage",
+      "confidence": 1.0
+    },
+    {
+      "case": "cage",
+      "speed_rad_s": 300.0,
+      "model": "PC new",
+      "state": "known",
+      "top_class": "cage",
+      "confidence": 1.0
+    },
+    {
+      "case": "cage",
+      "speed_rad_s": 300.0,
+      "model": "RPi5 old",
+      "state": "known",
+      "top_class": "cage",
+      "confidence": 1.0
+    },
+    {
+      "case": "cage",
+      "speed_rad_s": 300.0,
+      "model": "RPi5 new",
+      "state": "known",
+      "top_class": "cage",
+      "confidence": 0.991
+    }
+  ],
+  "finding": "AI-N40 (classifiers confidently wrong above the training grid, > 220 rad/s; also the promoted RPi5 of v0.2.1: healthy 350 rad/s -> cage 1.00)"
+}
