@@ -48,7 +48,7 @@ from driveflow.viz.adapters.simulation_adapter import resolve_fault
 from driveflow.viz.components.presets import BUILTIN_FAULT_TYPES, load_custom_faults
 from driveflow.viz.components.metric_cards import check_list, kpi_row
 from driveflow.viz.components.model_comparison import model_comparison
-from driveflow.viz.components.page_header import badge_html, page_header, provenance_table, status_badge_html
+from driveflow.viz.components.page_header import badge_html, page_header, provenance_table, source_badge_html, status_badge_html
 from driveflow.viz.components.promotion_gate import promotion_gate
 from driveflow.viz.theme.plotly import PLOTLY_CONFIG, series_color, style_figure
 from driveflow.viz.theme.tokens import SERIES
@@ -348,7 +348,7 @@ def _step_setup(domain: str, block: str, base: dict) -> None:
                 st.caption(f"**Floors (decision D1, 2026-10-22):** macro-F1 ≥ {CLASSIFICATION_FLOORS['min_macro_f1']:g} and recall ≥ {CLASSIFICATION_FLOORS['min_per_class_recall']:g} "
                            "for every class on the independent test set, always applied. You can raise them, not lower them. The max drop vs. base is a proposed default "
                            "and applies only when the base model can be scored on the same classes.")
-                thr = {"max_macro_f1_drop": st.number_input("Max macro-F1 drop vs. base", 0.0, 0.5, DEFAULT_THRESHOLDS["classification"]["max_macro_f1_drop"], 0.01, key="tl_thr_f1_drop")}
+                thr = {"max_macro_f1_drop": st.number_input("Max macro-F1 drop vs. base (fraction; 0.02 = 2 pt)", 0.0, 0.5, DEFAULT_THRESHOLDS["classification"]["max_macro_f1_drop"], 0.01, key="tl_thr_f1_drop")}
                 thr["min_macro_f1"] = st.number_input("Min macro-F1 (floor, raise only)", CLASSIFICATION_FLOORS["min_macro_f1"], 1.0, CLASSIFICATION_FLOORS["min_macro_f1"], 0.01, key="tl_thr_min_f1")
                 thr["min_per_class_recall"] = st.number_input("Min recall of every class (floor, raise only)", CLASSIFICATION_FLOORS["min_per_class_recall"], 1.0,
                                                                CLASSIFICATION_FLOORS["min_per_class_recall"], 0.05, key="tl_thr_min_recall")
@@ -494,7 +494,7 @@ def render() -> None:
         "Intelligence / Transfer learning",
         "Adapt a model safely",
         "Guided fine-tuning of a promoted PC-tier model with explicit dataset checks, an independent test set and a fail-closed promotion gate.",
-        [badge_html("FAIL-CLOSED GATE", "critical", "■"), badge_html("HUMAN APPROVAL REQUIRED", "warning", "▲")],
+        [source_badge_html("simulated", "Base models, datasets and test sets are simulated."), badge_html("FAIL-CLOSED GATE", "critical", "■"), badge_html("HUMAN APPROVAL REQUIRED", "warning", "▲")],
     )
     c1, c2 = st.columns([1, 1])
     domain = c1.selectbox("Domain", list(DOMAIN_LABELS), format_func=DOMAIN_LABELS.get, key="tl_domain")

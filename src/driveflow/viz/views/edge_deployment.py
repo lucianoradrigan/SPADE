@@ -11,6 +11,7 @@ from driveflow.ai.registry import RegistryError
 from driveflow.viz.adapters.registry_adapter import c2000_summary, list_runs
 from driveflow.viz.components.board_card import board_banner, board_cards, panel, tutorial_step
 from driveflow.viz.components.metric_cards import kpi_row
+from driveflow.viz.components.model_notices import esp32_low_speed_notice, is_esp32_classifier
 from driveflow.viz.components.page_header import badge_html, page_header
 
 DOMAIN_LABELS = {"dc_motor": "DC motor (dc_motor)", "vsc_dpc": "VSC / DPC (vsc_dpc)"}
@@ -103,6 +104,8 @@ def _tflite_tab(rows: list, target: str, domain: str, block: str, label: str) ->
         st.info(f"No {BLOCK_LABELS[block].lower()} is promoted for this board and domain.", icon=":material/info:")
         return
     st.caption(f"Promoted run {row['run']} · {row['headline']}. Fixed, already-trained artifact: not re-generated from the sample-run controls of AI Diagnostics.")
+    if is_esp32_classifier(target, block, domain):
+        esp32_low_speed_notice(st)
     tflite = row["run_dir"] / "model.tflite"
     if tflite.exists():
         st.download_button(f"Download {label} model (.tflite)", tflite.read_bytes(), file_name=f"{domain}_{target}_{block}.tflite", key=f"ia_edge_dl_{domain}_{target}_{block}", icon=":material/download:", type="primary")

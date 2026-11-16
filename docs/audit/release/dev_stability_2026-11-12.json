@@ -1,8 +1,8 @@
 {
   "date": "2026-11-12",
-  "commit": "849721c",
+  "commit": "e4fed56",
   "simulated": true,
-  "verdict": "stable",
+  "verdict": "stable at e4fed56 (not stable at 849721c and 09bd3bb: AI-N39)",
   "gates": {
     "G1": {
       "criterion": "full suite on dev: 0 failures; no new xfail without a finding",
@@ -88,5 +88,24 @@
   "findings_new": [
     "AI-N38"
   ],
-  "instructions": "INSTRUCCIONES_CLAUDE_CODE_2026-11-12.md §M5"
+  "instructions": "INSTRUCCIONES_CLAUDE_CODE_2026-11-12.md §M5",
+  "verdict_first": "stable (09:56, 849721c)",
+  "revision": {
+    "time": "12:25",
+    "finding": "AI-N39 (High): the Assistant page never finished a turn in a real browser with the model running (rerun storm from the avatar's state report); present in v0.2.0 and in dev at 849721c and 09bd3bb",
+    "why_the_gates_missed_it": "G5 ran the page through AppTest, which does not execute the component's JavaScript; G4 ran the browser with Ollama unreachable, so no turn started",
+    "verdict_for_849721c_and_09bd3bb": "not stable",
+    "fix": "e4fed56 (feat/AI-N39-avatar-rerun, fast-forwarded into dev)",
+    "gates_rerun_at_e4fed56": {
+      "G1": "2019 passed, 1 skipped, 9 xfailed, 0 failures (same 9 xfails) — run on the branch whose head became dev by fast-forward",
+      "G2": "smoke --launch 7/7",
+      "G3": "CI run 43250952418 at e4fed56: 5/5 success",
+      "G4": "fresh clone at e4fed56, no data/ or workspace/ at start, port 9 closed: smoke 7/7, 18/18 pages without exception",
+      "G5": "pytest --run-llm -m llm: 1 passed; NEW: one real turn in Chrome with qwen3.5:9b in the clean clone: reply in 18 s",
+      "G6": "normal 0.999/0.955/0.909 at 80/300/350 rad/s; faults correct (identical)",
+      "G7": "byte-for-byte tests: 0 diff lines since v0.2.0; pass in G1",
+      "G8": "same 3 /home/ matches, none a host path"
+    },
+    "gate_G5_extended": "G5 now also requires one real turn in a real browser (the check that would have caught AI-N39)"
+  }
 }

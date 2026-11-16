@@ -41,7 +41,7 @@ Rows with non-finite or implausible values are dropped and the gap is treated as
 
 **Hardware evidence** — `deployment_evidence.json` in a run directory, e.g.
 `{"static_compatibility_passed": {...}, "bench_verified": {"board": "...", "runtime": "...", "latency_ms": ..., "ram_kb": ..., "flash_kb": ..., "accuracy_after_quantization": ..., "by": "...", "date": "..."}}`.
-Without it, no run is shown as hardware-verified.
+Without it, no run is shown as measured on hardware.
 """
 
 _LIMITS = """

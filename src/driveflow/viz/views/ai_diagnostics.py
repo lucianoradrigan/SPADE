@@ -32,6 +32,7 @@ from driveflow.ai import condition
 from driveflow.viz.adapters import ai_adapter as da_ai
 from driveflow.viz.adapters.ai_adapter import normalize_window, promoted_model, run_metrics
 from driveflow.viz.adapters.session import record_run
+from driveflow.viz.components.model_notices import esp32_low_speed_notice, is_esp32_classifier
 from driveflow.viz.components.inputs import slider_with_custom
 from driveflow.viz.components.page_header import badge_html, page_header, provenance_table, source_badge_html
 from driveflow.ai.custom_training import list_classifier_runs
@@ -278,6 +279,8 @@ def _classifier_panel(domain: str, df: pd.DataFrame, data_key: str = "", operati
     for f in load_audit_findings(run_dir):
         st.warning(f"**Audit finding:** {f.get('summary')}  \nEvidence: `{f.get('evidence')}`", icon=":material/warning:")
     st.caption(f"Tier: {info['tier']}. Channels: {', '.join(info['channels'])}. Recorded test macro-F1 {metrics.get('test_macro_f1')} / accuracy {metrics.get('test_accuracy')} on n={metrics.get('n_test')} simulated windows (grouped-by-run split). " + (f"Confidence is temperature-calibrated on the validation split (T = {metrics['calibration']['temperature']:.2f}); calibration fitted in-distribution does not make out-of-distribution inputs safe." if a.calibrated else "No calibration or abstention for this model."))
+    if is_esp32_classifier(info["tier"]):
+        esp32_low_speed_notice(st)
 
 
 def _regressor_panel(domain: str, df: pd.DataFrame) -> None:

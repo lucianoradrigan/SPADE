@@ -259,7 +259,7 @@ def _single() -> None:
             if ai is None:
                 st.info("No promoted PC-tier classifier for dc_motor, or the run is shorter than one input window.")
             else:
-                st.html('<div class="spade-root spade-badges">' + badge_html("REQUIRES VERIFICATION", "warning", "▲", "A model output on simulated data, not a certified diagnosis.") + badge_html(f"model {ai['model_id']}", "training") + "</div>")
+                st.html('<div class="spade-root spade-badges">' + badge_html("AI SUGGESTION — REQUIRES VERIFICATION", "warning", "▲", "A model output on simulated data, not a certified diagnosis.") + badge_html(f"model {ai['model_id']}", "training") + "</div>")
                 order = np.argsort(ai["probs"])
                 fig = go.Figure(go.Bar(x=[ai["probs"][i] for i in order], y=[ai["classes"][i] for i in order], orientation="h", marker_color=[series_color("candidate") if ai["classes"][i] == ai["predicted"] else series_color("base") for i in order], text=[f"{ai['probs'][i]:.0%}" for i in order], textposition="auto"))
                 style_figure(fig, height=60 + 48 * len(order), x_title=("Class probability (temperature-calibrated)" if ai.get("calibrated") else "Class probability (softmax, uncalibrated)"), legend=False)
