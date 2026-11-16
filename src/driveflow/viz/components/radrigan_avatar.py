@@ -81,3 +81,31 @@ def radrigan_avatar(state: str, label: str | None = None, progress: float | None
     """Mount the avatar. Raises UnknownAvatarState for a state outside the 11 of ESPEC_FRONTEND §1.3.
     report_env: see avatar_props (AI-N39); False on the Assistant page."""
     return _component()(key=key, data=avatar_props(state, label, progress, compact, beat, wave, speaking, avatar_dir, report_env), on_env_change=lambda: None)
+
+
+#: R3 (2026-11-15, ESPEC §1.1 A3): the head of the provisional base layer, as fractions of its size (x0, y0, x1, y1),
+#: cropped at run time for the assistant's chat bubbles. No new image file: the crop comes from base.webp, which is
+#: covered by licenses/avatar/LICENSE; replacing base.webp (persona.avatar_dir) replaces the head too.
+HEAD_BOX = (110 / 560, 0.0, 450 / 560, 340 / 444)
+HEAD_PX = 96
+
+
+def chat_head_image(avatar_dir: str = ""):
+    """A square RGBA head crop (HEAD_PX) for st.chat_message(avatar=...), or None when the avatar layers are missing
+    (Streamlit's default icon is used then)."""
+    from io import BytesIO
+
+    from PIL import Image
+
+    from driveflow.assistant.config import avatar_assets, load_config
+
+    cfg = load_config()
+    if avatar_dir:
+        cfg = {**cfg, "persona": {**(cfg.get("persona") or {}), "avatar_dir": avatar_dir}}
+    a = avatar_assets(cfg)
+    if not a["ok"]:
+        return None
+    im = Image.open(BytesIO(a["files"]["base.webp"].read_bytes())).convert("RGBA")
+    w, h = im.size
+    x0, y0, x1, y1 = HEAD_BOX
+    return im.crop((round(x0 * w), round(y0 * h), round(x1 * w), round(y1 * h))).resize((HEAD_PX, HEAD_PX), Image.LANCZOS)

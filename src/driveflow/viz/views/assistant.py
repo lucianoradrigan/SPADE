@@ -29,7 +29,7 @@ from driveflow.assistant.cli import FIRST_MESSAGE, build_agent, unavailable_mess
 from driveflow.assistant.core import llm
 from driveflow.assistant.core.policy import is_affirmative
 from driveflow.viz.adapters.assistant_adapter import avatar_state
-from driveflow.viz.components.radrigan_avatar import radrigan_avatar
+from driveflow.viz.components.radrigan_avatar import chat_head_image, radrigan_avatar
 
 FOOTER = "All results are SIMULATED."
 #: AI-N38 (2026-11-15): a fixed card when the draft tool refused a frozen v1 DC plant in this turn. The model's reply did
@@ -117,8 +117,18 @@ def _answered_in(wall_s: float) -> str:
     return f"Answered in {wall_s:.1f} s · local model"
 
 
+def _head():
+    """R3 (A3): the avatar's head for the assistant's chat bubbles, computed once per session (None: default icon)."""
+    if "_assistant_head" not in st.session_state:
+        try:
+            st.session_state["_assistant_head"] = chat_head_image()
+        except Exception:  # noqa: BLE001 -- a missing or unreadable layer must never break the page
+            st.session_state["_assistant_head"] = None
+    return st.session_state["_assistant_head"]
+
+
 def _render_message(m: dict) -> None:
-    with st.chat_message(m["role"]):
+    with st.chat_message(m["role"], avatar=_head() if m["role"] == "assistant" else None):
         if m["text"]:
             st.markdown(m["text"])
         if m.get("cards"):
@@ -139,12 +149,19 @@ def v1_refused_in(events: list) -> bool:
     return False
 
 
+def _paint_all(slots, **kw) -> None:
+    """R3 (2026-11-15): repaint every avatar of the page (the side one and the compact header one used on narrow
+    screens). Before, only the side avatar followed a turn; on a phone the visible header avatar stayed 'idle'."""
+    for slot, base in slots:
+        _avatar(slot, **{**base, **kw})
+
+
 def _turn(agent, text: str, how: str | None, avatar_slot) -> None:
     ss = st.session_state
     n_trace = len(agent.trace.events)
     ss.assistant_history.append({"role": "user", "text": text, "cards": []})
     _render_message(ss.assistant_history[-1])
-    agent.on_event = lambda e: (ss.assistant_events.append(e), _avatar(avatar_slot))
+    agent.on_event = lambda e: (ss.assistant_events.append(e), _paint_all(avatar_slot))
     t0 = time.monotonic()
     try:
         res = agent.user_turn(text, confirmed_how=how)
@@ -154,26 +171,26 @@ def _turn(agent, text: str, how: str | None, avatar_slot) -> None:
     except (llm.RuntimeUnavailable, llm.ModelNotAvailable) as exc:
         ss.assistant_unavailable = unavailable_message(exc, _config())
         ss.assistant_history.append({"role": "assistant", "text": ss.assistant_unavailable, "cards": []})
-        _avatar(avatar_slot)
+        _paint_all(avatar_slot)
         return
     finally:
         agent.on_event = ss.assistant_events.append
     ss.assistant_unavailable = None
     cards = list(res.cards) + ([V1_REFUSED_CARD] if v1_refused_in(agent.trace.events[n_trace:]) else [])
-    with st.chat_message("assistant"):
+    with st.chat_message("assistant", avatar=_head()):
         box = st.empty()
         words, shown = res.text.split(), []
         for i, w in enumerate(words):
             shown.append(w)
             box.markdown(" ".join(shown))
             if i % WORDS_PER_BEAT == 0:
-                _avatar(avatar_slot, beat=i // WORDS_PER_BEAT + 1, speaking=True)
+                _paint_all(avatar_slot, beat=i // WORDS_PER_BEAT + 1, speaking=True)
             time.sleep(STREAM_DELAY_S)
         if cards:
             _render_cards(cards)
         st.caption(_answered_in(wall_s))
     ss.assistant_history.append({"role": "assistant", "text": res.text, "cards": cards, "wall_s": wall_s})
-    _avatar(avatar_slot)
+    _paint_all(avatar_slot)
 
 
 def _apply_job_updates(agent) -> bool:
@@ -254,25 +271,32 @@ def render() -> None:
     st.caption(f"Local model `{model.get('tag')}` via Ollama" + (f" · status: {status}" if status else ""),
                help=f"Model {model.get('tag')} · digest {model.get('digest') or 'not pinned'} · runs on this machine; no data leave it.")
     with st.container(key="assistant_header_avatar"):
-        _avatar(st.empty(), compact=True, key="assistant_avatar_compact")
+        header_slot = st.empty()
+        _avatar(header_slot, compact=True, key="assistant_avatar_compact")
     col_avatar, col_chat, col_draft = st.columns([1.1, 2.6, 1.5])
     with col_avatar:
         with st.container(key="assistant_side_avatar"):
             avatar_slot = st.empty()
             _avatar(avatar_slot)
+    slots = [(avatar_slot, {}), (header_slot, {"compact": True, "key": "assistant_avatar_compact"})]
     with col_chat:
         _render_message({"role": "assistant", "text": FIRST_MESSAGE, "cards": []})
         if ss.get("assistant_unavailable"):
             st.warning(ss.assistant_unavailable)
         for m in ss.assistant_history:
             _render_message(m)
+        # R3 (2026-11-15): the turn is drawn in a container placed BEFORE the input, so the new messages appear above
+        # the input box in the same run (before, they appeared below it until the next run).
+        turn_slot = st.container()
         prompt = st.chat_input("Describe what you want to simulate, tune or know about SPADE")
         pending = ss.pop("assistant_pending", None)
         if pending:
-            _turn(agent, pending[0], pending[1], avatar_slot)
+            with turn_slot:
+                _turn(agent, pending[0], pending[1], slots)
         elif prompt:
             how = f"typed: {prompt}" if agent.state.proposal is not None and is_affirmative(prompt) else None
-            _turn(agent, prompt, how, avatar_slot)
+            with turn_slot:
+                _turn(agent, prompt, how, slots)
     with col_draft:  # filled after the turn so it shows the draft as the turn left it
         _draft_panel(agent)
     st.divider()

@@ -49,3 +49,45 @@ def test_header_tooltip_carries_the_model_digest(tmp_path):
     at = page(tmp_path).run()
     head = [c for c in at.caption if c.value.startswith("Local model")][0]
     assert "digest" in (head.help or "")
+
+
+def test_the_visible_time_is_the_real_time_without_the_thinking_minimum(tmp_path, monkeypatch):
+    """R3: the caption shows the model + tools time, measured before the MIN_THINKING_S pad (which only keeps the avatar
+    in 'thinking' on screen). With a replayed reply and a 1.5 s pad, the shown time stays far below 1.5 s."""
+    ex = [reply("", call("set_mode", mode="configuration"), call("update_draft", ops=OPS)), reply("", call("propose_experiments")), reply("¿Confirmas?")]
+    monkeypatch.setattr(v, "MIN_THINKING_S", 1.5)  # AppTest runs the page in this process: the module attribute applies
+    at = page(tmp_path, ex).run()
+    t0 = time.monotonic()
+    at.chat_input[0].set_value("Simula el motor DC de stock con PI a 100 rad/s durante 0,1 s.").run()
+    assert time.monotonic() - t0 >= 1.5  # the pad was applied
+    wall = at.session_state["assistant_history"][-1]["wall_s"]
+    assert wall < 1.0
+    assert any(c.value == v._answered_in(wall) for c in at.caption)
+
+
+def test_the_new_turn_is_drawn_above_the_input(tmp_path):
+    """R3: the messages of a turn appear before the chat input in the page order (they used to follow it in that run)."""
+    ex = [reply("Hola, ¿qué quieres simular?")]
+    at = page(tmp_path, ex).run()
+    at.chat_input[0].set_value("hola").run()
+    assert not at.exception
+    tree = [type(e).__name__ + ":" + str(getattr(e, "value", ""))[:20] for e in at.main]
+    i_input = next(i for i, t in enumerate(tree) if t.startswith("ChatInput"))
+    assert any(t.startswith("ChatMessage") for t in tree[:i_input])
+
+
+def test_the_chat_head_is_a_crop_of_the_licensed_base_layer():
+    """R3 (ESPEC §1.1 A3): the assistant's chat bubbles show the avatar's head, cropped at run time from base.webp (no new
+    image file); without the layers the default icon is used and nothing fails."""
+    from driveflow.viz.components.radrigan_avatar import HEAD_PX, chat_head_image
+
+    im = chat_head_image()
+    assert im is not None and im.size == (HEAD_PX, HEAD_PX) and im.mode == "RGBA"
+    assert chat_head_image("/nonexistent-avatar-dir") is None
+
+
+def test_assistant_bubbles_use_the_head(tmp_path):
+    at = page(tmp_path, [reply("Hola.")]).run()
+    assert not at.exception
+    first = [m for m in at.chat_message if m.name == "assistant"][0]
+    assert first.avatar is not None and first.avatar != "assistant"
