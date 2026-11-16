@@ -4,15 +4,16 @@
       "id": "B4-candidate",
       "severity": "info",
       "date": "2026-11-10",
-      "summary": "B4 candidate (pre-registration approved 2026-11-09). NOT promoted (decision N-D4); the promoted run of the tier is unchanged. Distillation teacher passed on the command line (docs/audit/b4/b4_pipeline.sh); train_model does not record it in run_metadata.json (AI-N37).",
+      "summary": "B4 candidate (pre-registration approved 2026-11-09). NOT promoted (decision N-D4); the promoted run of the tier is unchanged. Distillation teacher passed on the command line (docs/audit/b4/b4_pipeline.sh); train_model does not record it in run_metadata.json (AI-N37). UPDATE 2026-11-15: promoted for the RPi5 tier by Luciano's decision R-D3 after the confirmatory B4c evaluation passed (it replaces the 2026-11-04 run). Not in main or any release until Luciano's OK.",
       "evidence": "docs/audit/b4/b4_results.md; docs/audit/b4/b4_results.json; docs/audit/b4/b4_preregistration.md"
     },
     {
       "id": "AI-N35",
       "severity": "medium",
       "date": "2026-11-10",
-      "summary": "Deployed float16 TFLite does NOT meet the pre-registered B4 criterion: the only failing check is |delta abstention| <= 5 pt on E4: abstention 0.015 vs 0.220 (-20.6 pt). Other checks pass: E1 macro-F1 0.913 (promoted 0.917, -0.4 pt), E3 0.978 (0.980), E4 0.993 (0.922), low-speed min recall 0.972. Distilled (alpha 0.5) from the B4 PC candidate pc_server_5class_w2048/2026-11-10_run01.",
-      "evidence": "docs/audit/b4/b4_results.md; docs/audit/b4/b4_results.json; docs/audit/b4/b4_preregistration.md"
+      "summary": "Deployed float16 TFLite does NOT meet the pre-registered B4 criterion: the only failing check is |delta abstention| <= 5 pt on E4: abstention 0.015 vs 0.220 (-20.6 pt). Other checks pass: E1 macro-F1 0.913 (promoted 0.917, -0.4 pt), E3 0.978 (0.980), E4 0.993 (0.922), low-speed min recall 0.972. Distilled (alpha 0.5) from the B4 PC candidate pc_server_5class_w2048/2026-11-10_run01. UPDATE 2026-11-15: resolved by B4c (pre-registered before its data, 150 new low-speed runs, one-sided abstention rule with a selective-risk bound): PASSES every criterion (macro-F1 0.994 vs 0.892; selective risk 0.004 vs 0.024).",
+      "evidence": "docs/audit/b4/b4_results.md; docs/audit/b4/b4_results.json; docs/audit/b4/b4_preregistration.md",
+      "status": "corrected (B4c)"
     },
     {
       "id": "sim-only",
@@ -27,6 +28,34 @@
       "summary": "ball/cage: synthetic-only, uncalibrated amplitude. The ball and cage classes were trained on simulated faults whose mechanical amplitude (CALIBRATED_MECHANICAL_SEVERITY in datagen/scenario.py) is a placeholder: KAt has no clean single-defect code for these faults, so it cannot be calibrated without real data.",
       "evidence": "docs/AI_TECHNICAL_AUDIT.md Sec. 8.4-8.5",
       "date": "2026-11-10"
+    },
+    {
+      "id": "cage-45rad",
+      "severity": "low",
+      "date": "2026-11-15",
+      "summary": "Weakest point on E4c (simulated, held-out low speed): cage recall 0.87 at 45 rad/s (8 cage windows read as normal), below the 50 rad/s held out in B4. All other classes >= 0.97 at 45-70 rad/s.",
+      "evidence": "docs/audit/b4/b4c_results.md"
+    },
+    {
+      "id": "abstention-rule-changed",
+      "severity": "medium",
+      "date": "2026-11-15",
+      "summary": "The abstention rule was changed AFTER seeing B4's E4 result (two-sided |delta| <= 5 pt -> one-sided with a selective-risk bound). Because of that it was confirmed on new data (E4c, 150 runs, seeds 100001-100150) pre-registered before generation; E4 itself no longer counts as an independent test of the new rule.",
+      "evidence": "docs/audit/b4/b4c_confirmatory_preregistration.md; docs/audit/b4/b4c_results.md"
+    },
+    {
+      "id": "no-board-measurement",
+      "severity": "medium",
+      "date": "2026-11-15",
+      "summary": "Everything about this run is simulated: trained and evaluated on dc_perm_ex_v2 simulations only; no measured drive data; not run on its target hardware; no board measurement of any kind.",
+      "evidence": "docs/VALIDATION_SUMMARY.md"
+    },
+    {
+      "id": "e1-noninferiority-ci",
+      "severity": "medium",
+      "date": "2026-11-15",
+      "summary": "On E1 (its own test split), delta macro-F1 vs the 2026-11-04 run is -0.4 pt with a 95 % bootstrap CI [-2.2, +1.3] pt: non-inferiority at the -1 pt margin is NOT established with confidence (the point estimate passes the rule; the CI reaches below it).",
+      "evidence": "docs/audit/b4/b4_results.md (§5.4)"
     }
   ]
 }
