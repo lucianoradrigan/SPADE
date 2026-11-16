@@ -104,3 +104,7 @@ Page check: `python scripts/oneoff/frontend_inventory_pages.py http://127.0.0.1:
   - a link from job progress to Experiment Runs;
   - the draft as a tab on narrow screens.
 - **Not taken (need assets or decisions):** A3 head crop, A4 poses, A6 light variant, bubble tail / overlap, proposal Edit button (it changes the assistant's flow), results charts, the 'Hardware verified' tile and the missing SIMULATED labels on other pages (outside M6.3's assistant scope).
+
+## Update, round 2 (2026-11-15/16, branch `feat/FE-assistant-polish`)
+
+See [`round2.md`](round2.md). Done in rounds 1–2 (branch, not merged): A3 head crop, visible response time (real), 400 ms minimum of thinking, coloured origin chips and legend, model digest tooltip, link to Experiment Runs, both avatars following a turn (narrow screens), turn above the input. Still proposals: draft as a tab on narrow screens, A4/A6 assets, bubble tail/overlap, Edit button, results charts. The R1 label items (SIMULATED, full AI label, Board-measured, ESP32 notice) are in `dev` and in v0.2.1.

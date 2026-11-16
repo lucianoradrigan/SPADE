@@ -54,7 +54,8 @@
       "status": "missing",
       "file": "—",
       "screenshot": "desktop_14_assistant.png",
-      "note": ""
+      "note": "",
+      "status_after_round2": "missing (proposal: not possible with isolate_styles)"
     },
     {
       "area": "Assistant",
@@ -81,7 +82,8 @@
       "status": "partial",
       "file": "assistant.py",
       "screenshot": "narrow_14_assistant.png",
-      "note": "columns stack; draft is a stacked column, not a tab"
+      "note": "columns stack; draft is a stacked column, not a tab",
+      "status_after_round2": "partial (proposal, round2.md)"
     },
     {
       "area": "Assistant",
@@ -153,7 +155,8 @@
       "status": "missing",
       "file": "—",
       "screenshot": "desktop_14_assistant.png",
-      "note": "chat bubbles use Streamlit's default icon"
+      "note": "chat bubbles use Streamlit's default icon",
+      "status_after_round2": "done (round 2, runtime crop)"
     },
     {
       "area": "Assistant",
@@ -198,7 +201,8 @@
       "status": "partial",
       "file": "assistant.py caption",
       "screenshot": "desktop_14_assistant.png",
-      "note": "tag and status shown; digest not shown"
+      "note": "tag and status shown; digest not shown",
+      "status_after_round2": "done (round 1)"
     },
     {
       "area": "Assistant",
@@ -234,7 +238,8 @@
       "status": "missing",
       "file": "—",
       "screenshot": "",
-      "note": "the adapter delegates it to the UI; the UI does not enforce it"
+      "note": "the adapter delegates it to the UI; the UI does not enforce it",
+      "status_after_round2": "done (round 1)"
     },
     {
       "area": "Assistant",
@@ -270,7 +275,8 @@
       "status": "partial",
       "file": "assistant.py _draft_panel",
       "screenshot": "desktop_14_assistant.png",
-      "note": "origin as plain text column; no colours, no legend"
+      "note": "origin as plain text column; no colours, no legend",
+      "status_after_round2": "done (round 1)"
     },
     {
       "area": "Assistant",
@@ -279,7 +285,8 @@
       "status": "partial",
       "file": "assistant.py _jobs_panel",
       "screenshot": "",
-      "note": "progress bar, no link"
+      "note": "progress bar, no link",
+      "status_after_round2": "done (round 1)"
     },
     {
       "area": "Assistant",
@@ -297,7 +304,8 @@
       "status": "missing",
       "file": "—",
       "screenshot": "",
-      "note": "not shown per turn"
+      "note": "not shown per turn",
+      "status_after_round2": "done (round 1; real time confirmed round 2)"
     },
     {
       "area": "Assistant",
@@ -380,5 +388,6 @@
     "missing": 8,
     "not applicable": 1
   },
-  "pages": "inventory_pages_2026-11-12.json"
+  "pages": "inventory_pages_2026-11-12.json",
+  "round2": "docs/audit/frontend/round2.md (2026-11-15/16): both avatars follow a turn; turn drawn above the input; A3 head; real-browser test"
 }
