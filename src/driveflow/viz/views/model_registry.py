@@ -14,7 +14,8 @@ from driveflow.ai.registry import RegistryError, registry_history, rollback
 from driveflow.viz.adapters.registry_adapter import c2000_summary, class_coverage_warnings, list_runs
 from driveflow.viz.components.artifact_table import artifact_table
 from driveflow.viz.components.metric_cards import check_list, kpi_row
-from driveflow.viz.components.page_header import badge_html, page_header, provenance_table
+from driveflow.viz.components.model_notices import esp32_low_speed_notice
+from driveflow.viz.components.page_header import badge_html, page_header, provenance_table, source_badge_html
 from driveflow.ai.audit_findings import SYNTHETIC_LABEL, is_synthetic_class
 
 _STATUS_TONE = {"Promoted": "healthy", "Promoted (override)": "warning", "Candidate": "warning", "Superseded": "unknown", "Trained (not promoted)": "unknown", "Unreadable": "critical"}
@@ -25,16 +26,20 @@ def render() -> None:
         "Intelligence / Model registry",
         "Model registry & artifacts",
         "Every trained run on disk, with its promotion status, lineage, validation gate and edge-export evidence.",
-        [badge_html("HARDWARE VERIFICATION: NONE RECORDED", "warning", "▲", "No run has real-signal evidence. C2000 kits record their bench measurements on the board.")],
+        [source_badge_html("simulated", "Every run was trained and tested on simulated data."),
+         badge_html("HARDWARE VERIFICATION: NONE RECORDED", "warning", "▲", "No run has real-signal evidence. C2000 kits record their bench measurements on the board.")],
     )
     rows = list_runs()
     ok_rows = [r for r in rows if "error" not in r]
+    n_board = sum(r["hardware_verified"] for r in ok_rows)  # runs whose deployment evidence comes from a board
     kpi_row([
         {"label": "Runs on disk", "value": str(len(rows)), "sub": "configs/classifiers + configs/regressors", "tone": "primary"},
         {"label": "Promoted", "value": str(sum(r["status"].startswith("Promoted") for r in ok_rows)), "sub": "active registry entries", "tone": "healthy"},
-        {"label": "Exported (.tflite)", "value": str(sum(r["exported"] for r in ok_rows)), "sub": "export only — not hardware-verified", "tone": "training"},
-        {"label": "Hardware verified", "value": str(sum(r["hardware_verified"] for r in ok_rows)), "sub": "requires deployment evidence", "tone": "unknown"},
+        {"label": "Exported (.tflite)", "value": str(sum(r["exported"] for r in ok_rows)), "sub": "export only — not measured on a board", "tone": "training"},
+        {"label": "Board-measured", "value": str(n_board), "sub": "no board measurements recorded yet" if n_board == 0 else "with deployment evidence from a board", "tone": "unknown"},
     ])
+    if any(r["tier"] == "esp32" and r["block"] == "classifier" and r["domain"] == "dc_motor" for r in ok_rows):
+        esp32_low_speed_notice(st)
     c1, c2, c3 = st.columns(3)
     f_domain = c1.multiselect("Domain", sorted({r["domain"] for r in ok_rows}), key="reg_f_domain")
     f_tier = c2.multiselect("Platform / tier", sorted({r["tier"] for r in ok_rows}), key="reg_f_tier")

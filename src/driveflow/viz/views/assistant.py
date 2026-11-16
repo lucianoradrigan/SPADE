@@ -32,6 +32,18 @@ from driveflow.viz.adapters.assistant_adapter import avatar_state
 from driveflow.viz.components.radrigan_avatar import radrigan_avatar
 
 FOOTER = "All results are SIMULATED."
+#: AI-N38 (2026-11-15): a fixed card when the draft tool refused a frozen v1 DC plant in this turn. The model's reply did
+#: not always say why the plant changed; this card always does. Text written here, not by the model.
+V1_REFUSED_MARK = "frozen GEM-faithful plant"
+V1_REFUSED_CARD = {
+    "title": "Plant v1 not used: the v2 plant is simulated instead",
+    "source": "decision E3 (2026-11-08); finding S-21 (docs/SIMULATION_STABILITY_REPORT.md)",
+    "lines": ["dc_perm_ex_v1 and dc_pmg132_v1 are the frozen GEM-faithful plants. Their one-quadrant converter has the S-21 artifact:",
+              "when braking with a light load it applies the full supply and the speed rises instead of coasting.",
+              "They are kept only to reproduce earlier results, so the assistant does not simulate them.",
+              "It uses the v2 plant of the same motor (dc_perm_ex_v2 / dc_pmg132_v2), whose converter models discontinuous conduction.",
+              "To run a v1 plant, use the DC Motor page: Parameters → Advanced: plant, load, supply, limits → Plant mode."],
+}
 WORDS_PER_BEAT = 4
 STREAM_DELAY_S = 0.02
 #: Tests replace this with a factory returning a ReplayClient; None = the configured OllamaClient.
@@ -100,8 +112,21 @@ def _render_message(m: dict) -> None:
             _render_cards(m["cards"])
 
 
+def v1_refused_in(events: list) -> bool:
+    """AI-N38: True if a tool refused a frozen v1 plant among these trace events: a failed tool call (tool_error), or
+    update_draft reporting the op as an error in its result (tool_result, result.errors)."""
+    for e in events:
+        if e.get("kind") == "tool_error" and V1_REFUSED_MARK in str(e.get("error", "")):
+            return True
+        result = e.get("result") if e.get("kind") == "tool_result" else None
+        if isinstance(result, dict) and any(V1_REFUSED_MARK in str(x.get("error", "")) for x in result.get("errors") or [] if isinstance(x, dict)):
+            return True
+    return False
+
+
 def _turn(agent, text: str, how: str | None, avatar_slot) -> None:
     ss = st.session_state
+    n_trace = len(agent.trace.events)
     ss.assistant_history.append({"role": "user", "text": text, "cards": []})
     _render_message(ss.assistant_history[-1])
     agent.on_event = lambda e: (ss.assistant_events.append(e), _avatar(avatar_slot))
@@ -115,6 +140,7 @@ def _turn(agent, text: str, how: str | None, avatar_slot) -> None:
     finally:
         agent.on_event = ss.assistant_events.append
     ss.assistant_unavailable = None
+    cards = list(res.cards) + ([V1_REFUSED_CARD] if v1_refused_in(agent.trace.events[n_trace:]) else [])
     with st.chat_message("assistant"):
         box = st.empty()
         words, shown = res.text.split(), []
@@ -124,9 +150,9 @@ def _turn(agent, text: str, how: str | None, avatar_slot) -> None:
             if i % WORDS_PER_BEAT == 0:
                 _avatar(avatar_slot, beat=i // WORDS_PER_BEAT + 1, speaking=True)
             time.sleep(STREAM_DELAY_S)
-        if res.cards:
-            _render_cards(res.cards)
-    ss.assistant_history.append({"role": "assistant", "text": res.text, "cards": res.cards})
+        if cards:
+            _render_cards(cards)
+    ss.assistant_history.append({"role": "assistant", "text": res.text, "cards": cards})
     _avatar(avatar_slot)
 
 

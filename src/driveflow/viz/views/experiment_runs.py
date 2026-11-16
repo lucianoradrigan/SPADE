@@ -18,6 +18,7 @@ from driveflow.viz.adapters import jobs_adapter as ja
 from driveflow.viz.components.failure_panel import failure_panel
 from driveflow.viz.components.job_card import job_card
 from driveflow.viz.components.page_header import badge_html, page_header, status_badge_html
+from driveflow.viz.components.page_header import source_badge_html as header_source_badge_html
 from driveflow.viz.components.provenance_footer import provenance_footer
 from driveflow.viz.components.run_comparison import run_comparison
 from driveflow.viz.components.source_badge import source_badge_html, source_badge_view
@@ -157,7 +158,8 @@ def render() -> None:
     summary = ja.queue_summary()
     page_header("Workspace / Experiment Runs", "Experiment Runs",
                 "Durable queue and history of experiments. Jobs keep running in a separate worker while you navigate SPADE; every run keeps its configuration hash, seed, versions, logs and a reproducible command.",
-                [badge_html(f"{summary['running']} RUNNING · {summary['queued']} QUEUED", "primary" if summary["running"] else "unknown", "▶" if summary["running"] else "…"),
+                [header_source_badge_html("simulated", "Every run in the queue and history is a simulation."),
+                 badge_html(f"{summary['running']} RUNNING · {summary['queued']} QUEUED", "primary" if summary["running"] else "unknown", "▶" if summary["running"] else "…"),
                  badge_html(f"{summary['workers']} WORKER(S)", "healthy" if summary["workers"] else "warning", "●" if summary["workers"] else "▲")])
     if summary.get("error"):
         st.error(f"The job store could not be read: {summary['error']}", icon=":material/error:")

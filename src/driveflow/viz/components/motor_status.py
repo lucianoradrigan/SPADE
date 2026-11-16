@@ -90,7 +90,7 @@ def motor_status_html(view: MotorViewModel, compact: bool = False) -> str:
         meta.append(("Active alerts", ", ".join(view.active_alerts)))
     if view.prediction is not None:
         conf = "" if view.confidence is None else f", p={view.confidence:.2f}"
-        meta.append(("AI suggestion", f"{view.prediction}{conf} · {view.model_id or 'model n/a'} (not an alarm)"))
+        meta.append(("AI SUGGESTION — REQUIRES VERIFICATION", f"{view.prediction}{conf} · {view.model_id or 'model n/a'} (not an alarm)"))
     meta_html = "" if compact else '<dl class="spade-motor-meta">' + "".join(f"<dt>{escape(k)}</dt><dd>{escape(v)}</dd>" for k, v in meta) + "</dl>"
     if period:
         real_turns_per_s = view.rpm / 60.0
