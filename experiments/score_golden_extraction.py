@@ -117,7 +117,7 @@ def _key(f: dict):
 
 
 def load_rules(path: Path = CONVERSIONS) -> dict:
-    return {r["id"]: float(r["factor"]) for r in (yaml.safe_load(path.read_text()) or {}).get("rules", [])}
+    return {r["id"]: float(r["factor"]) for r in (yaml.safe_load(path.read_text(encoding="utf-8")) or {}).get("rules", [])}
 
 
 def score_document(expected: dict, output: dict | None, rtol: float = 0.02, text_threshold: float = 0.6, rules: dict | None = None) -> dict:
@@ -233,16 +233,16 @@ def main(argv=None) -> None:
     rules = load_rules()
     docs = []
     for i in ids:
-        exp = json.loads((EXPECTED_DIR / f"{i}.json").read_text())
+        exp = json.loads((EXPECTED_DIR / f"{i}.json").read_text(encoding="utf-8"))
         p = args.outputs / f"{i}.json"
         try:
-            out = json.loads(p.read_text()) if p.exists() and p.read_text().strip() else {}
+            out = json.loads(p.read_text(encoding="utf-8")) if p.exists() and p.read_text(encoding="utf-8").strip() else {}
         except json.JSONDecodeError:
             out = {}
         docs.append(score_document(exp, out, args.rtol, args.text_threshold, rules))
     res = {"rtol": args.rtol, "text_threshold": args.text_threshold, "total": summarize(docs), "documents": docs}
     if args.json:
-        args.json.write_text(json.dumps(res, indent=2, ensure_ascii=False) + "\n")
+        args.json.write_text(json.dumps(res, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(json.dumps(res["total"], indent=2))
 
 

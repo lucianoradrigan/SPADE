@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "experiments"))
 import score_golden_extraction as S  # noqa: E402
 
-EXPECTED = {p.stem: json.loads(p.read_text()) for p in sorted(S.EXPECTED_DIR.glob("*.json"))}
+EXPECTED = {p.stem: json.loads(p.read_text(encoding="utf-8")) for p in sorted(S.EXPECTED_DIR.glob("*.json"))}
 METRICS = ("values", "inventions", "must_ask", "unneeded_questions", "must_warn", "simulable")
 
 
@@ -133,10 +133,10 @@ def test_an_empty_or_broken_output_does_not_crash(out):
 
 
 def test_the_cli_on_an_empty_file_and_a_missing_file(tmp_path):
-    (tmp_path / "P1.json").write_text("")
+    (tmp_path / "P1.json").write_text("", encoding="utf-8")
     out = tmp_path / "res.json"
     S.main(["--outputs", str(tmp_path), "--ids", "P1", "W01", "--json", str(out)])
-    r = json.loads(out.read_text())
+    r = json.loads(out.read_text(encoding="utf-8"))
     assert r["total"]["documents"] == 2 and r["total"]["inventions"] == 0
 
 

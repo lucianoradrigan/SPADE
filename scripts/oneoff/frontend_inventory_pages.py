@@ -67,4 +67,4 @@ with sync_playwright() as p:
             res.append(rec)
             print(f"{i:02d} {label:20s} SIM={rec['simulated_label']!s:5} AI={rec['ai_suggestion_label']!s:5} pred={rec['shows_prediction']!s:5} forb={list(rec['forbidden'])} es={rec['spanish_hits']} nounit={no_unit[:4]} hscroll={rec['narrow_horizontal_scroll']} exc={len(rec['exceptions'])}", flush=True)
     b.close()
-(OUT / "inventory_pages.json").write_text(json.dumps(res, indent=2, ensure_ascii=False) + "\n")
+(OUT / "inventory_pages.json").write_text(json.dumps(res, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
