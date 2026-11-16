@@ -1,0 +1,58 @@
+# Phase 2 held-out set: read only with experiments/score_golden_extraction.py --final-eval (D8).
+decision: D8 (Luciano, 2026-11-16)
+seed: 20261116
+method: stratified by (style A-F, machine group); per stratum floor(n/3), the remaining
+  slots to the strata with the largest remainder (ties by the seeded RNG); members
+  shuffled with the seeded RNG
+total_documents: 36
+n_holdout: 12
+ids:
+- D5
+- IG1
+- P1
+- P2
+- W03
+- W05
+- W08
+- W09
+- W12
+- W16
+- W18
+- W21
+strata:
+  A/dc:
+    n: 2
+    held_out: 1
+  A/pmsm_bldc:
+    n: 2
+    held_out: 1
+  B/pmsm_bldc:
+    n: 1
+    held_out: 0
+  C/dc:
+    n: 1
+    held_out: 0
+  C/pmsm_bldc:
+    n: 4
+    held_out: 1
+  D/dc:
+    n: 1
+    held_out: 0
+  D/pmsm_bldc:
+    n: 1
+    held_out: 0
+  E/induction:
+    n: 1
+    held_out: 0
+  F/dc:
+    n: 3
+    held_out: 1
+  F/generator:
+    n: 7
+    held_out: 3
+  F/induction:
+    n: 7
+    held_out: 3
+  F/other:
+    n: 6
+    held_out: 2
