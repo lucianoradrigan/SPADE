@@ -48,14 +48,19 @@ def _sample(run: str | None, speed: float) -> AppTest:
     at = AppTest.from_file(APP_PATH, default_timeout=300)
     at.run()
     at.switch_page("pages/ai_diagnostics.py").run()
+    at.slider(key="ia_omega_ref_slider").set_value(speed).run()
+    gen = [b for b in at.button if "Generate" in b.label][0]
     if run is not None:
+        # AppTest cannot drive this selectbox (format_func: it resends the label, which the page drops), so the page's
+        # own request key is set right before the run that evaluates; the badge check makes sure the chosen run is used
         from driveflow.ai.custom_training import list_classifier_runs
 
-        value = next(str(r["run_dir"]) for r in list_classifier_runs("dc_motor") if Path(r["run_dir"]).resolve() == (ROOT / run).resolve())
-        at.selectbox(key="ia_model").set_value(value).run()
-    at.slider(key="ia_omega_ref_slider").set_value(speed).run()
-    [b for b in at.button if "Generate" in b.label][0].click().run()
+        at.session_state["ia_model_request"] = next(str(r["run_dir"]) for r in list_classifier_runs("dc_motor") if Path(r["run_dir"]).resolve() == (ROOT / run).resolve())
+    gen.click().run()
     assert not at.exception
+    if run is not None:
+        shown = " ".join(str(getattr(h, "body", "")) for h in at.get("html"))
+        assert "/".join(Path(run).parts[-2:]) in shown, f"the selected run {run} is not the one evaluated"
     return at
 
 
