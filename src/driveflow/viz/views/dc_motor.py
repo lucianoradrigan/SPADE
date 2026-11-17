@@ -33,6 +33,7 @@ from driveflow.viz.adapters import simulation_adapter as sim
 from driveflow.viz.adapters.ai_adapter import classify_last_window
 from driveflow.viz.adapters.session import config_hash, record_run
 from driveflow.viz.components.inputs import slider_with_custom
+from driveflow.viz.components.model_notices import speed_grid_notice
 from driveflow.viz.components.metric_cards import kpi_row
 from driveflow.viz.components.motor_status import render_motor_status
 from driveflow.viz.components.page_header import badge_html, page_header, provenance_table, source_badge_html
@@ -264,7 +265,9 @@ def _single() -> None:
             if ai is None:
                 st.info("No promoted PC-tier classifier for dc_motor, or the run is shorter than one input window.")
             elif ai.get("outside_envelope"):  # AI-N40 (D1): no class, no bars, no confidence
-                st.error(f"**{ai['message']}.** The promoted classifier ({ai['model_id']}) was trained on {ai['envelope'][0]:.0f}–{ai['envelope'][1]:.0f} rad/s "
+                st.html('<div class="spade-root spade-badges">' + badge_html("AI SUGGESTION — REQUIRES VERIFICATION", "warning", "▲", "A model output on simulated data, not a certified diagnosis.") + badge_html(f"model {ai['model_id']}", "training") + "</div>")
+                speed_grid_notice(st, ai["speed_rad_s"])
+                st.warning(f"**{ai['message']}.** The promoted classifier ({ai['model_id']}) was trained on {ai['envelope'][0]:.0f}–{ai['envelope'][1]:.0f} rad/s "
                          f"(simulated); this run is at {ai['speed_rad_s']:.0f} rad/s, where it has been found confidently wrong (AI-N40).", icon=":material/block:")
             else:
                 st.html('<div class="spade-root spade-badges">' + badge_html("AI SUGGESTION — REQUIRES VERIFICATION", "warning", "▲", "A model output on simulated data, not a certified diagnosis.") + badge_html(f"model {ai['model_id']}", "training") + "</div>")

@@ -21,5 +21,12 @@
       "summary": "3 classes (inner_race, normal, outer_race): a ball or cage fault is assigned to one of the 3 known classes, probably with high confidence; no OOD method catches it (AI-N13).",
       "evidence": "docs/AI_TECHNICAL_AUDIT.md AI-N12/AI-N13"
     }
-  ]
+  ],
+  "trained_envelope": {
+    "speed_rad_s": [
+      80.0,
+      220.0
+    ],
+    "source": "deduced from the grid_speed column of data/diagnosis_grid_dataset_dcm.parquet (run_metadata.json); declared 2026-11-16 (AI-N40, D1/D3) so that a clone without data/ knows it"
+  }
 }

@@ -1,0 +1,1405 @@
+{
+ "finding": "AI-N40",
+ "date": "2026-11-16",
+ "simulated": true,
+ "command": "PYTHONPATH=src:. python /mnt/datos/spade/a1/sweep.py <out.json>  (AppTest, AI Diagnostics defaults: 0.82 s, PI, seed 0, healthy; each selectable classifier x 80/150/220/300/350 rad/s)",
+ "before_commit": "5f4fbae (dev before the change; /mnt/datos/spade/fresh_dev)",
+ "after_branch": "feat/AI-N40-trained-envelope",
+ "summary": {
+  "after_cases": 60,
+  "after_exceptions": 0,
+  "after_above_220_with_box": 24,
+  "after_above_220_cases": 24,
+  "after_above_220_predictions": 0,
+  "evaluated_is_selected_after": true,
+  "evaluated_is_selected_before": true
+ },
+ "before": [
+  {
+   "run": "promoted",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-11-04_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "promoted",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-11-04_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "promoted",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-11-04_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "promoted",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-11-04_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "promoted",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-11-04_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-11-10_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-11-10_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-11-10_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-11-10_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-11-10_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-11-10_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-11-10_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-11-10_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": false,
+   "shown": [
+    "No class suggested"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-11-10_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-11-10_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": false,
+   "shown": [
+    "ball"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-10-25_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-10-25_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-10-25_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-10-25_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-10-25_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-10-25_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-10-25_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-10-25_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-10-25_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-10-25_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-10-20_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-10-20_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-10-20_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-10-20_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-10-20_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-10-20_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-10-20_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-10-20_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-10-20_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-10-20_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class/2026-10-20_run01",
+   "evaluated": [
+    "pc_server_5class/2026-10-20_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class/2026-10-20_run01",
+   "evaluated": [
+    "pc_server_5class/2026-10-20_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class/2026-10-20_run01",
+   "evaluated": [
+    "pc_server_5class/2026-10-20_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class/2026-10-20_run01",
+   "evaluated": [
+    "pc_server_5class/2026-10-20_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class/2026-10-20_run01",
+   "evaluated": [
+    "pc_server_5class/2026-10-20_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": false,
+   "shown": [
+    "cage"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-11-10_run01",
+   "evaluated": [
+    "pc_server/2026-11-10_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-11-10_run01",
+   "evaluated": [
+    "pc_server/2026-11-10_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-11-10_run01",
+   "evaluated": [
+    "pc_server/2026-11-10_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-11-10_run01",
+   "evaluated": [
+    "pc_server/2026-11-10_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-11-10_run01",
+   "evaluated": [
+    "pc_server/2026-11-10_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-11-04_run01",
+   "evaluated": [
+    "pc_server/2026-11-04_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-11-04_run01",
+   "evaluated": [
+    "pc_server/2026-11-04_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-11-04_run01",
+   "evaluated": [
+    "pc_server/2026-11-04_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-11-04_run01",
+   "evaluated": [
+    "pc_server/2026-11-04_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-11-04_run01",
+   "evaluated": [
+    "pc_server/2026-11-04_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-25_run01",
+   "evaluated": [
+    "pc_server/2026-10-25_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-25_run01",
+   "evaluated": [
+    "pc_server/2026-10-25_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-25_run01",
+   "evaluated": [
+    "pc_server/2026-10-25_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-25_run01",
+   "evaluated": [
+    "pc_server/2026-10-25_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-25_run01",
+   "evaluated": [
+    "pc_server/2026-10-25_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-18_run02",
+   "evaluated": [
+    "pc_server/2026-10-18_run02"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-18_run02",
+   "evaluated": [
+    "pc_server/2026-10-18_run02"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-18_run02",
+   "evaluated": [
+    "pc_server/2026-10-18_run02"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-18_run02",
+   "evaluated": [
+    "pc_server/2026-10-18_run02"
+   ],
+   "speed": 300.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-18_run02",
+   "evaluated": [
+    "pc_server/2026-10-18_run02"
+   ],
+   "speed": 350.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-18_run01",
+   "evaluated": [
+    "pc_server/2026-10-18_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-18_run01",
+   "evaluated": [
+    "pc_server/2026-10-18_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-18_run01",
+   "evaluated": [
+    "pc_server/2026-10-18_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-18_run01",
+   "evaluated": [
+    "pc_server/2026-10-18_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-18_run01",
+   "evaluated": [
+    "pc_server/2026-10-18_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-13_run01",
+   "evaluated": [
+    "pc_server/2026-10-13_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-13_run01",
+   "evaluated": [
+    "pc_server/2026-10-13_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-13_run01",
+   "evaluated": [
+    "pc_server/2026-10-13_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-13_run01",
+   "evaluated": [
+    "pc_server/2026-10-13_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-13_run01",
+   "evaluated": [
+    "pc_server/2026-10-13_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-09-01_run01",
+   "evaluated": [
+    "pc_server/2026-09-01_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-09-01_run01",
+   "evaluated": [
+    "pc_server/2026-09-01_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-09-01_run01",
+   "evaluated": [
+    "pc_server/2026-09-01_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-09-01_run01",
+   "evaluated": [
+    "pc_server/2026-09-01_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-09-01_run01",
+   "evaluated": [
+    "pc_server/2026-09-01_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  }
+ ],
+ "after": [
+  {
+   "run": "promoted",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-11-04_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "promoted",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-11-04_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "promoted",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-11-04_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "promoted",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-11-04_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "promoted",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-11-04_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-11-10_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-11-10_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-11-10_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-11-10_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-11-10_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-11-10_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-11-10_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-11-10_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-11-10_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-11-10_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-11-10_run01",
+   "evaluated": [
+    "pc_server/2026-11-10_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-11-10_run01",
+   "evaluated": [
+    "pc_server/2026-11-10_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-11-10_run01",
+   "evaluated": [
+    "pc_server/2026-11-10_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-11-10_run01",
+   "evaluated": [
+    "pc_server/2026-11-10_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-11-10_run01",
+   "evaluated": [
+    "pc_server/2026-11-10_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-11-04_run01",
+   "evaluated": [
+    "pc_server/2026-11-04_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-11-04_run01",
+   "evaluated": [
+    "pc_server/2026-11-04_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-11-04_run01",
+   "evaluated": [
+    "pc_server/2026-11-04_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-11-04_run01",
+   "evaluated": [
+    "pc_server/2026-11-04_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-11-04_run01",
+   "evaluated": [
+    "pc_server/2026-11-04_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-25_run01",
+   "evaluated": [
+    "pc_server/2026-10-25_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-25_run01",
+   "evaluated": [
+    "pc_server/2026-10-25_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-25_run01",
+   "evaluated": [
+    "pc_server/2026-10-25_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-25_run01",
+   "evaluated": [
+    "pc_server/2026-10-25_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-25_run01",
+   "evaluated": [
+    "pc_server/2026-10-25_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-10-25_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-10-25_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-10-25_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-10-25_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-10-25_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-10-25_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-10-25_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-10-25_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-10-25_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-10-25_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-10-20_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-10-20_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-10-20_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-10-20_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-10-20_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-10-20_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-10-20_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-10-20_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class_w2048/2026-10-20_run01",
+   "evaluated": [
+    "pc_server_5class_w2048/2026-10-20_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class/2026-10-20_run01",
+   "evaluated": [
+    "pc_server_5class/2026-10-20_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class/2026-10-20_run01",
+   "evaluated": [
+    "pc_server_5class/2026-10-20_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class/2026-10-20_run01",
+   "evaluated": [
+    "pc_server_5class/2026-10-20_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class/2026-10-20_run01",
+   "evaluated": [
+    "pc_server_5class/2026-10-20_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server_5class/2026-10-20_run01",
+   "evaluated": [
+    "pc_server_5class/2026-10-20_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-18_run02",
+   "evaluated": [
+    "pc_server/2026-10-18_run02"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-18_run02",
+   "evaluated": [
+    "pc_server/2026-10-18_run02"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-18_run02",
+   "evaluated": [
+    "pc_server/2026-10-18_run02"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-18_run02",
+   "evaluated": [
+    "pc_server/2026-10-18_run02"
+   ],
+   "speed": 300.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-18_run02",
+   "evaluated": [
+    "pc_server/2026-10-18_run02"
+   ],
+   "speed": 350.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-18_run01",
+   "evaluated": [
+    "pc_server/2026-10-18_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-18_run01",
+   "evaluated": [
+    "pc_server/2026-10-18_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-18_run01",
+   "evaluated": [
+    "pc_server/2026-10-18_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-18_run01",
+   "evaluated": [
+    "pc_server/2026-10-18_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-18_run01",
+   "evaluated": [
+    "pc_server/2026-10-18_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-13_run01",
+   "evaluated": [
+    "pc_server/2026-10-13_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-13_run01",
+   "evaluated": [
+    "pc_server/2026-10-13_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-13_run01",
+   "evaluated": [
+    "pc_server/2026-10-13_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-13_run01",
+   "evaluated": [
+    "pc_server/2026-10-13_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-10-13_run01",
+   "evaluated": [
+    "pc_server/2026-10-13_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-09-01_run01",
+   "evaluated": [
+    "pc_server/2026-09-01_run01"
+   ],
+   "speed": 80.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-09-01_run01",
+   "evaluated": [
+    "pc_server/2026-09-01_run01"
+   ],
+   "speed": 150.0,
+   "outside_box": false,
+   "shown": [
+    "normal"
+   ],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-09-01_run01",
+   "evaluated": [
+    "pc_server/2026-09-01_run01"
+   ],
+   "speed": 220.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-09-01_run01",
+   "evaluated": [
+    "pc_server/2026-09-01_run01"
+   ],
+   "speed": 300.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  },
+  {
+   "run": "pc_server/2026-09-01_run01",
+   "evaluated": [
+    "pc_server/2026-09-01_run01"
+   ],
+   "speed": 350.0,
+   "outside_box": true,
+   "shown": [],
+   "exception": false
+  }
+ ]
+}

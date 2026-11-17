@@ -28,14 +28,11 @@ def _page(name):
 
 
 def test_ai_diagnostics_default_sample_shows_the_notice():
-    """Updated 2026-11-16 (decisions D1, D2): the default is now 150 rad/s (inside the envelope, a prediction is shown);
-    at 300 rad/s the envelope rule replaces the notice with the 'no diagnosis' box."""
     at = _page("ai_diagnostics")
+    at.slider(key="ia_omega_ref_slider").set_value(300.0).run()  # 2026-11-16 (D2): the default moved from 300 to 150 rad/s; this test keeps 300
     [b for b in at.button if "Generate" in b.label][0].click().run()
-    assert not at.exception and any(m.value == "normal" for m in at.metric)
-    at.slider(key="ia_omega_ref_slider").set_value(300.0).run()
-    [b for b in at.button if "Generate" in b.label][0].click().run()
-    assert any("Outside the trained range (80–220 rad/s): no diagnosis" in e.value for e in at.error)
+    assert not at.exception
+    assert any("Outside the classifier's training grid" in w.value and "AI-N40" in w.value for w in at.warning), "the 300 rad/s default sample is above the grid"
 
 
 def test_ai_diagnostics_inside_the_grid_has_no_notice():
@@ -47,13 +44,11 @@ def test_ai_diagnostics_inside_the_grid_has_no_notice():
 
 
 def test_dc_motor_ai_card_shows_the_notice_at_the_default_speed():
-    """Updated 2026-11-16 (decision D1): at the DC Motor page's default 300 rad/s the envelope rule shows the
-    'no diagnosis' box instead of a prediction with a notice."""
     at = _page("dc_motor")
     at.slider(key="dc_duration_slider").set_value(1.0).run()
     at.button(key="dc_run_button").click().run()
     assert not at.exception
-    assert any("Outside the trained range (80–220 rad/s): no diagnosis" in e.value for e in at.error)
+    assert any("Outside the classifier's training grid" in w.value and "AI-N40" in w.value for w in at.warning)
 
 
 def test_the_grid_is_the_shipped_classifiers_grid():

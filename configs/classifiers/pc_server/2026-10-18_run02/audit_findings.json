@@ -1,0 +1,10 @@
+{
+  "findings": [],
+  "trained_envelope": {
+    "speed_rad_s": [
+      80.0,
+      220.0
+    ],
+    "source": "deduced from the grid_speed column of data/diagnosis_grid_dataset.parquet (run_metadata.json); declared 2026-11-16 (AI-N40, D1/D3) so that a clone without data/ knows it"
+  }
+}

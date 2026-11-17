@@ -26,10 +26,10 @@ def esp32_low_speed_notice(st) -> None:
 DC_GRID_RAD_S = (80.0, 220.0)
 ABOVE_GRID = ("**Outside the classifier's training grid — speed {w:.0f} rad/s > {hi:.0f} rad/s (AI-N40).** The dc_motor "
               "classifiers were trained and evaluated on {lo:.0f}–{hi:.0f} rad/s (simulated). Above that they can be confidently "
-              "wrong: at 350 rad/s a healthy motor was read as 'cage' (RPi5 model, 1.00). Treat this suggestion as unreliable. "
+              "wrong: at 350 rad/s a healthy motor was read as 'cage' (RPi5 model, 1.00). SPADE shows no diagnosis there (decision D1). "
               f"[AI audit §13.13]({AUDIT_URL})")
 BELOW_GRID = ("**Outside the classifier's training grid — speed {w:.0f} rad/s < {lo:.0f} rad/s (AI-N29).** The shipped PC classifier "
-              "is confidently wrong below its grid (e.g. at 50 rad/s). Treat this suggestion as unreliable. "
+              "is confidently wrong below its grid (e.g. at 50 rad/s). SPADE shows no diagnosis there (decision D1). "
               f"[AI audit §13.3]({AUDIT_URL})")
 
 

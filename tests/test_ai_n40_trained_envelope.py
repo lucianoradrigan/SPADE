@@ -48,17 +48,15 @@ def _sample(run: str | None, speed: float) -> AppTest:
     at = AppTest.from_file(APP_PATH, default_timeout=300)
     at.run()
     at.switch_page("pages/ai_diagnostics.py").run()
-    at.slider(key="ia_omega_ref_slider").set_value(speed).run()
-    gen = [b for b in at.button if "Generate" in b.label][0]
-    if run is not None:
-        # AppTest cannot drive this selectbox (format_func: it resends the label, which the page drops), so the page's
-        # own request key is set right before the run that evaluates; the badge check makes sure the chosen run is used
+    if run is not None:  # through the widget itself (AI-N42: the page used to reset this choice on every rerun)
         from driveflow.ai.custom_training import list_classifier_runs
 
-        at.session_state["ia_model_request"] = next(str(r["run_dir"]) for r in list_classifier_runs("dc_motor") if Path(r["run_dir"]).resolve() == (ROOT / run).resolve())
-    gen.click().run()
+        value = next(str(r["run_dir"]) for r in list_classifier_runs("dc_motor") if Path(r["run_dir"]).resolve() == (ROOT / run).resolve())
+        [s for s in at.selectbox if s.label == "Classifier"][0].set_value(value).run()
+    at.slider(key="ia_omega_ref_slider").set_value(speed).run()
+    [b for b in at.button if "Generate" in b.label][0].click().run()
     assert not at.exception
-    if run is not None:
+    if run is not None:  # the badge names the run that was evaluated
         shown = " ".join(str(getattr(h, "body", "")) for h in at.get("html"))
         assert "/".join(Path(run).parts[-2:]) in shown, f"the selected run {run} is not the one evaluated"
     return at
@@ -73,7 +71,7 @@ TIERS = {"promoted": None, "b4_candidate_5class": "configs/classifiers/pc_server
 @pytest.mark.parametrize("speed", [80.0, 150.0, 220.0])
 def test_inside_the_envelope_there_is_a_prediction_and_healthy_is_normal_or_abstains(tier, speed):
     at = _sample(TIERS[tier], speed)
-    assert not any(OUTSIDE in e.value for e in at.error)
+    assert not any(OUTSIDE in e.value for e in at.warning)
     shown = [m.value for m in at.metric]
     assert shown, f"{tier} at {speed}: no prediction"
     assert any(v in ("normal", "No class suggested") for v in shown), (tier, speed, shown)
@@ -83,5 +81,24 @@ def test_inside_the_envelope_there_is_a_prediction_and_healthy_is_normal_or_abst
 @pytest.mark.parametrize("speed", [300.0, 350.0])
 def test_outside_the_envelope_there_is_no_prediction(tier, speed):
     at = _sample(TIERS[tier], speed)
-    assert any(OUTSIDE in e.value and "no diagnosis" in e.value for e in at.error), (tier, speed)
+    assert any(OUTSIDE in e.value and "no diagnosis" in e.value for e in at.warning), (tier, speed)
     assert not at.metric and not at.get("plotly_chart"), f"{tier} at {speed}: a prediction is still shown"
+
+
+@pytest.mark.parametrize("run", ["pc_server/2026-09-01_run01", "pc_server/2026-10-13_run01"])
+def test_single_speed_runs_diagnose_only_at_150_rad_s(run):
+    """Luciano, 2026-11-16: the two old PC runs were trained at 150 rad/s only (AI-N07); they declare 150-150 rad/s."""
+    rdir = ROOT / "configs" / "classifiers" / run
+    assert envelope.declared_envelope(rdir)["speed_rad_s"] == [150.0, 150.0]
+    assert envelope.check(rdir, 150.0)["status"] == "inside"
+    assert envelope.check(rdir, 80.0)["status"] == envelope.check(rdir, 220.0)["status"] == "outside"
+
+
+def test_every_selectable_classifier_has_a_known_envelope():
+    """D3: no run offered by AI Diagnostics may fall back to 'unknown' (it would show a prediction at any speed). The
+    envelope must be declared, not deduced: a clone without data/ cannot deduce it."""
+    from driveflow.ai.custom_training import list_classifier_runs
+
+    runs = list_classifier_runs("dc_motor")
+    unknown = [str(r["run_dir"]) for r in runs if envelope.declared_envelope(r["run_dir"]) is None]
+    assert runs and not unknown, unknown

@@ -33,7 +33,7 @@ from driveflow.viz.adapters import ai_adapter as da_ai
 from driveflow.viz.adapters.ai_adapter import normalize_window, promoted_model, run_metrics
 from driveflow.viz.adapters.session import record_run
 from driveflow.ai import envelope
-from driveflow.viz.components.model_notices import esp32_low_speed_notice, is_esp32_classifier
+from driveflow.viz.components.model_notices import esp32_low_speed_notice, is_esp32_classifier, speed_grid_notice
 from driveflow.viz.components.inputs import slider_with_custom
 from driveflow.viz.components.page_header import badge_html, page_header, provenance_table, source_badge_html
 from driveflow.ai.custom_training import list_classifier_runs
@@ -140,9 +140,12 @@ def _model_choice(domain: str):
     labels = {None: "Promoted model (registry)"}
     labels.update({str(r["run_dir"]): f"{r['label']} · {r['origin']} · {len(r['classes'] or [])} classes" + (f" · F1 {r['macro_f1']:.2f}" if r.get("macro_f1") is not None else "")
                    for r in runs})
-    requested = st.session_state.pop("ia_model_request", None)
-    if requested in options:
-        st.session_state["ia_model"] = requested
+    # AI-N42 (2026-11-16): only an explicit request may set the selection. `pop(..., None)` returned None when there was no
+    # request, None is the "Promoted model" option, so every rerun reset the user's choice to the promoted model.
+    if "ia_model_request" in st.session_state:
+        requested = st.session_state.pop("ia_model_request")
+        if requested in options:
+            st.session_state["ia_model"] = requested
     if st.session_state.get("ia_model") not in options:
         st.session_state.pop("ia_model", None)
     return st.selectbox("Classifier", options, format_func=lambda o: labels.get(o, o), key="ia_model",
@@ -242,8 +245,10 @@ def _outside_envelope(domain: str, df, operating_point: dict | None, run_dir) ->
         return False
     chk = envelope.check(rdir, envelope.speed_of(df, operating_point))
     if chk["status"] == "outside":
-        st.html('<div class="spade-root spade-badges">' + badge_html(f"{rdir.parent.name}/{rdir.name}", "training") + "</div>")
-        st.error(f"**{chk['message']}.** This classifier was trained on {chk['envelope'][0]:.0f}–{chk['envelope'][1]:.0f} rad/s "
+        st.html('<div class="spade-root spade-badges">' + badge_html("AI SUGGESTION — REQUIRES VERIFICATION", "warning", "▲")
+                + badge_html(f"{rdir.parent.name}/{rdir.name}", "training") + "</div>")
+        speed_grid_notice(st, chk["speed_rad_s"])
+        st.warning(f"**{chk['message']}.** This classifier was trained on {chk['envelope'][0]:.0f}–{chk['envelope'][1]:.0f} rad/s "
                  f"(simulated) and this sample runs at {chk['speed_rad_s']:.0f} rad/s. Outside that range it has been found confidently "
                  "wrong (AI-N40), so no class is suggested.", icon=":material/block:")
         return True

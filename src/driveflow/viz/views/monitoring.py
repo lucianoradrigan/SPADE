@@ -23,6 +23,7 @@ from driveflow.viz.components.inputs import slider_with_custom
 from driveflow.viz.components.metric_cards import check_list, kpi_row
 from driveflow.viz.components.motor_status import render_motor_status
 from driveflow.viz.components.page_header import badge_html, page_header, source_badge_html, status_badge_html
+from driveflow.viz.components.model_notices import speed_grid_notice
 
 DOMAIN_LABELS = {"dc_motor": "DC motor (dc_motor)", "vsc_dpc": "VSC / DPC (vsc_dpc)"}
 _TONE = {"HEALTHY": "healthy", "WARNING": "warning", "CRITICAL": "critical", "OFFLINE": "unknown", "UNKNOWN": "unknown"}
@@ -116,7 +117,9 @@ def render() -> None:
                 with st.container(border=True):
                     st.markdown("##### Classifier confidence drift")
                     if (result.get("classifier") or {}).get("outside_envelope"):  # AI-N40 (D1)
-                        st.error(f"**{result['classifier']['message']}.** No classifier output for this pass: the simulated speed "
+                        st.html('<div class="spade-root spade-badges">' + badge_html("AI SUGGESTION — REQUIRES VERIFICATION", "warning", "▲") + "</div>")
+                        speed_grid_notice(st, result["classifier"]["speed_rad_s"])
+                        st.warning(f"**{result['classifier']['message']}.** No classifier output for this pass: the simulated speed "
                                  f"({result['classifier']['speed_rad_s']:.0f} rad/s) is outside the trained range of {result['classifier']['model_id']}.", icon=":material/block:")
                     elif result["confidence"] is None:
                         st.caption("No promoted PC-tier classifier for this domain (or not enough rows for one window).")

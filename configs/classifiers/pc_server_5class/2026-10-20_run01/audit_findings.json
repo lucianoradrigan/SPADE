@@ -21,5 +21,12 @@
       "summary": "Trained and evaluated on simulated data only (5-class speed x severity x noise x plant-drift grid). Recorded test accuracy 0.821; no real-machine validation exists.",
       "evidence": "docs/audit/ai/classifier_evaluation_5class.md"
     }
-  ]
+  ],
+  "trained_envelope": {
+    "speed_rad_s": [
+      80.0,
+      220.0
+    ],
+    "source": "deduced from the grid_speed column of data/diagnosis_grid_dataset_5class.parquet (run_metadata.json); declared 2026-11-16 (AI-N40, D1/D3) so that a clone without data/ knows it"
+  }
 }

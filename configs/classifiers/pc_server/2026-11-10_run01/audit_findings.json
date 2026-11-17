@@ -14,5 +14,12 @@
       "summary": "Trained and evaluated only on simulated data (dc_perm_ex_v2, converter dcm_exact, 10 kHz). No measured drive data; not run on its target hardware.",
       "evidence": "docs/audit/b4/b4_results.md; docs/audit/b4/b4_results.json; docs/audit/b4/b4_preregistration.md"
     }
-  ]
+  ],
+  "trained_envelope": {
+    "speed_rad_s": [
+      30.0,
+      220.0
+    ],
+    "source": "deduced from the grid_speed column of data/b4_train_3class.parquet (run_metadata.json); declared 2026-11-16 (AI-N40, D1/D3) so that a clone without data/ knows it"
+  }
 }

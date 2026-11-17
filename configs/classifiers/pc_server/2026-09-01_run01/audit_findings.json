@@ -6,6 +6,20 @@
       "date": "2026-10-13",
       "summary": "Never predicts inner_race (recall 0.00 on 24 fresh runs; always outer_race). The recorded 0.895 test accuracy comes from 2 test runs (normal + outer_race) with no inner_race run, so it never measured that class. Fresh runs: accuracy 0.58 (first 1 s) / 0.67 (steady state) vs. 0.33 majority baseline.",
       "evidence": "docs/audit/classifier_generalization_report.txt (experiments/report_classifier_generalization.py)"
+    },
+    {
+      "id": "AI-N40",
+      "severity": "high",
+      "summary": "Trained at one speed (150 rad/s). Outside its trained range the classifier is confidently wrong; SPADE shows no diagnosis there.",
+      "evidence": "docs/AI_TECHNICAL_AUDIT.md AI-N40; docs/audit/release/ai_n40.md",
+      "date": "2026-11-16"
     }
-  ]
+  ],
+  "trained_envelope": {
+    "speed_rad_s": [
+      150.0,
+      150.0
+    ],
+    "source": "single operating point: trained at 150 rad/s only (docs/AI_TECHNICAL_AUDIT.md AI-N07 root cause; for 2026-10-13 also the rpm column of data/diagnosis_dataset_c1_5s.parquet, median 150 rad/s); declared 2026-11-16 (AI-N40, decision D1)"
+  }
 }

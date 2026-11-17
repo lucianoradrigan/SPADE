@@ -86,7 +86,7 @@ class TestSampleRunControlsAreReal:
         # Sec. 4's default speed setpoint (Fase A's own default, GEM's real nominal ω) --
         # NOT Scenario's own dataclass default (150.0), see ai_dashboard.py's
         # _DC_MOTOR_DEFAULT_OMEGA_REF_RAD_S comment.
-        assert at.slider(key="ia_omega_ref_slider").value == 300.0
+        assert at.slider(key="ia_omega_ref_slider").value == 150.0  # 2026-11-16 (D2): the default moved from 300 to 150 rad/s (AI-N40)
         # "healthy" is the default -- severity sliders only render for an actual fault.
         at.selectbox(key="ia_fault_type").set_value("outer_race").run()
         assert not at.exception
