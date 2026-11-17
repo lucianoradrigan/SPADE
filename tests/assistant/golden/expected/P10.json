@@ -156,7 +156,42 @@
     }
   ],
   "must_ask": [
-    "the electrical constants, resistance, inductance, inertia and poles: not in this sheet; ask for the manufacturer's data sheet"
+    {
+      "field": "torque_constant",
+      "reason": "missing",
+      "item": 0,
+      "text": "the electrical constants, resistance, inductance, inertia and poles: not in this sheet; ask for the manufacturer's data sheet"
+    },
+    {
+      "field": "voltage_constant",
+      "reason": "missing",
+      "item": 0,
+      "text": "the electrical constants, resistance, inductance, inertia and poles: not in this sheet; ask for the manufacturer's data sheet"
+    },
+    {
+      "field": "resistance",
+      "reason": "missing",
+      "item": 0,
+      "text": "the electrical constants, resistance, inductance, inertia and poles: not in this sheet; ask for the manufacturer's data sheet"
+    },
+    {
+      "field": "inductance",
+      "reason": "missing",
+      "item": 0,
+      "text": "the electrical constants, resistance, inductance, inertia and poles: not in this sheet; ask for the manufacturer's data sheet"
+    },
+    {
+      "field": "inertia",
+      "reason": "missing",
+      "item": 0,
+      "text": "the electrical constants, resistance, inductance, inertia and poles: not in this sheet; ask for the manufacturer's data sheet"
+    },
+    {
+      "field": "poles",
+      "reason": "missing",
+      "item": 0,
+      "text": "the electrical constants, resistance, inductance, inertia and poles: not in this sheet; ask for the manufacturer's data sheet"
+    }
   ],
   "must_warn": [
     "not enough to simulate: only current, voltage and speed",

@@ -91,7 +91,12 @@
     }
   ],
   "must_ask": [
-    "whether 115 is kW or kVA: 166 A at 400 V is sqrt(3) x 400 x 166 = 115 kVA, so 115 kW at cos φ 0,8 would need 207 A"
+    {
+      "field": "power",
+      "reason": "inconsistent",
+      "item": 0,
+      "text": "whether 115 is kW or kVA: 166 A at 400 V is sqrt(3) x 400 x 166 = 115 kVA, so 115 kW at cos φ 0,8 would need 207 A"
+    }
   ],
   "must_warn": [
     "generator: not simulable"

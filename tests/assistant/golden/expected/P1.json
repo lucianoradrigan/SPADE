@@ -233,7 +233,30 @@
     }
   ],
   "must_ask": [
-    "the basis and waveform of the voltage constant and of the rated current (not printed); resolve with the consistency check before asking"
+    {
+      "field": "voltage_constant",
+      "reason": "ambiguous_basis",
+      "item": 0,
+      "text": "the basis and waveform of the voltage constant and of the rated current (not printed); resolve with the consistency check before asking"
+    },
+    {
+      "field": "voltage_constant",
+      "reason": "ambiguous_waveform",
+      "item": 0,
+      "text": "the basis and waveform of the voltage constant and of the rated current (not printed); resolve with the consistency check before asking"
+    },
+    {
+      "field": "current_rated",
+      "reason": "ambiguous_basis",
+      "item": 0,
+      "text": "the basis and waveform of the voltage constant and of the rated current (not printed); resolve with the consistency check before asking"
+    },
+    {
+      "field": "current_rated",
+      "reason": "ambiguous_waveform",
+      "item": 0,
+      "text": "the basis and waveform of the voltage constant and of the rated current (not printed); resolve with the consistency check before asking"
+    }
   ],
   "must_warn": [
     "values at different temperatures: kE and R at 20 °C, rated and static data at 60 K / 100 K rise; Kt has no temperature",

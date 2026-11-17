@@ -233,7 +233,12 @@
     }
   ],
   "must_ask": [
-    "the armature inductance (not printed)"
+    {
+      "field": "inductance",
+      "reason": "missing",
+      "item": 0,
+      "text": "the armature inductance (not printed)"
+    }
   ],
   "must_warn": [
     "mislabelled field: 'Thermal resistance (Ra) 17.2 Ohms' is the armature resistance (unit Ohm; 110 V / 6.4 A = 17.19 Ohm); transcribe the label as printed and flag it"

@@ -105,7 +105,12 @@
     }
   ],
   "must_ask": [
-    "the machine type: the plate shows an excitation (Erregung 43 V / 425 A) but no 'synchronous' or 'asynchronous'"
+    {
+      "field": "machine_type",
+      "reason": "machine_type_unspecified",
+      "item": 0,
+      "text": "the machine type: the plate shows an excitation (Erregung 43 V / 425 A) but no 'synchronous' or 'asynchronous'"
+    }
   ],
   "must_warn": [
     "do not take the machine type from the file name",

@@ -271,8 +271,24 @@
     }
   ],
   "must_ask": [
-    "which winding (6 windings x cooling)",
-    "the convention of Kt and Ke: Kt matches 1.5 p psi without sqrt(2) (peak current) although it says Arms; Ke does not match psi as line-line rms"
+    {
+      "field": "winding",
+      "reason": "variant_unspecified",
+      "item": 0,
+      "text": "which winding (6 windings x cooling)"
+    },
+    {
+      "field": "torque_constant",
+      "reason": "inconsistent",
+      "item": 1,
+      "text": "the convention of Kt and Ke: Kt matches 1.5 p psi without sqrt(2) (peak current) although it says Arms; Ke does not match psi as line-line rms"
+    },
+    {
+      "field": "ke_constant",
+      "reason": "inconsistent",
+      "item": 1,
+      "text": "the convention of Kt and Ke: Kt matches 1.5 p psi without sqrt(2) (peak current) although it says Arms; Ke does not match psi as line-line rms"
+    }
   ],
   "must_warn": [
     "resistance is per phase = line-line / 2 (footnote)",
