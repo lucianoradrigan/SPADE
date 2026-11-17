@@ -675,6 +675,7 @@ Local LLM `qwen3.5:9b` through Ollama. Each benchmark had its thresholds committ
 | AI-N41 (Low) | **Corrected (2026-11-16, D7).** A glossary entry named by a finding ID is never dropped (found 2026-11-15: a finding whose heading words were all frequent became unfindable even by its ID) | `AI_TECHNICAL_AUDIT.md` §13.14; `tests/assistant/test_ai_n41_glossary_ids.py` |
 | AI-N42 (Medium) | **Corrected (2026-11-16).** The AI Diagnostics "Classifier" selector reset to the promoted model on every rerun (since 2026-10-21, in v0.2.0 and v0.2.1): in a browser only the promoted model could be evaluated, and the v0.2.1 G6 evaluated only the promoted model. Fixed in the page | `AI_TECHNICAL_AUDIT.md` §13.15; `tests/test_ai_n42_classifier_selection.py` |
 | AI-N43 (Medium) | **Corrected (2026-11-16).** The ESP32 low-speed notice in the GUI quoted the never-shipped B4 candidate's int8 numbers (inner_race 0.35) as the shipped model's; the shipped int8 misses outer_race at 50/70 rad/s (0.28; float 0.22) | `AI_TECHNICAL_AUDIT.md` §13.16; `tests/test_ai_n43_esp32_notice.py` |
+| AI-N44 (Medium) | **Open (2026-11-16).** Against F1.13 the assistant now fails 'impossible rejected with an alternative' (80.0 % on `dev`) and 'asks when a value is missing' (73.3 %); i01 answers 'available motors are mainly DC' without the catalog. Cause not investigated | `audit/assistant/regression_2026-11-16.md` |
 
 - **B4 cost:** simulation 5.66 CPU-h (estimate 3.2) in 35 min; training 2.10 CPU-h in 23 min.
 - **C2000 visit kit** (D-B4-4 option B): [`audit/b4/c2000_visit_kit.md`](audit/b4/c2000_visit_kit.md). Nothing measured on the board yet.
@@ -690,6 +691,22 @@ Local LLM `qwen3.5:9b` through Ollama. Each benchmark had its thresholds committ
 | R3, frontend round 2 | **Branch `feat/FE-assistant-polish`, not merged (R-D4)**: both avatars follow a turn (narrow screens), turn above the input, A3 head, real-time display confirmed, real-browser test with Ollama | [`audit/frontend/round2.md`](https://github.com/lucianoradrigan/SPADE/blob/feat/FE-assistant-polish/docs/audit/frontend/round2.md) (on the branch) |
 | R4, Phase 2 scorer | **In `dev`:** `experiments/score_golden_extraction.py`, 50 tests without any LLM; criteria proposal **DRAFT** (not approved) | [`audit/assistant/phase2_scoring_proposal.md`](audit/assistant/phase2_scoring_proposal.md) |
 
+### 14.9 Round of 2026-11-16 (A0–A5, B1–B6)
+
+| Task | Result | Evidence |
+|---|---|---|
+| A1, AI-N40 | **Corrected, in v0.2.2.** Trained envelope per classifier (declared for every selectable run); outside it no diagnosis; AI Diagnostics default 150 rad/s | [`audit/release/ai_n40.md`](audit/release/ai_n40.md) |
+| A2, AI-N41 | **Corrected, in v0.2.2** | `tests/assistant/test_ai_n41_glossary_ids.py` |
+| A3, Phase 2 holdout | **In v0.2.2.** Criteria approved; `must_ask` structured; 12 of 36 held out (committed before any iteration), guarded by a test | [`audit/assistant/phase2_scoring_proposal.md`](audit/assistant/phase2_scoring_proposal.md) |
+| A4, **v0.2.2** | **Published.** G1–G8 all pass at `54a7606` (G6 over every selectable classifier); release commit `987e83b`, CI 5/5 on `dev` and `main`; tag `v0.2.2` | [`audit/release/v0.2.2_gates.md`](audit/release/v0.2.2_gates.md), [`v0.2.2_published.md`](audit/release/v0.2.2_published.md) |
+| A5, B4 promotion | **Merged into `dev`, not `main`.** PC and RPi5 B4 runs (envelope 40–220 rad/s); G1, G3, G6 pass | [`audit/b4/b4_promotion.md`](audit/b4/b4_promotion.md) §A5 |
+| B1 | `scripts/release_gates.py` (G1–G8; "manual", never "pass", when a gate cannot run) and [`RELEASING.md`](RELEASING.md) | `tests/test_release_gates.py` |
+| B2 | 24 claims: 13 reproduced, 9 evidence only, 1 stale, 1 unsupported (→ AI-N43) | [`audit/claims/claims_audit_2026-11-16.md`](audit/claims/claims_audit_2026-11-16.md) |
+| B3 | Physics invariants: every v2 plant passes; `dc_pmg132_v1` violates energy balance and no-energy-created (S-21, 2 strict xfails) | [`audit/physics/invariants.md`](audit/physics/invariants.md) |
+| B4 | OOD map (exploratory, burned): inside every declared envelope confident-wrong ≈ 0; outside up to 0.63 | [`audit/ai/ood_map_2026-11-16.md`](audit/ai/ood_map_2026-11-16.md) |
+| B5 | Assistant against F1.13: regressions on `dev` → AI-N44 | [`audit/assistant/regression_2026-11-16.md`](audit/assistant/regression_2026-11-16.md) |
+| B6 | 30 synthetic datasheets (styles A–F, logged traps); no LLM | [`audit/assistant/synthetic_datasheets/README.md`](audit/assistant/synthetic_datasheets/README.md) |
+
 **Findings, exact status on 2026-11-16** (the full lists are in `AI_TECHNICAL_AUDIT.md` and `SIMULATION_STABILITY_REPORT.md`):
 
 | Status | Findings |
@@ -698,6 +715,6 @@ Local LLM `qwen3.5:9b` through Ollama. Each benchmark had its thresholds committ
 | **Mitigated** | AI-N12; AI-N26 (software; board re-measurement pending); AI-N27 (PC and RPi5) |
 | **Documented** | S-22, AI-N19; AI-N18 (cause addressed, not adopted) |
 | **Closed (negative)** | AI-N22, AI-N23 |
-| **Open** | S-21 (v1 plants); AI-N13, AI-N14, AI-N15, AI-N16, AI-N17, AI-N20, AI-N21, AI-N24, AI-N25; AI-N27 (ESP32); AI-N28, AI-N29 (ESP32), AI-N30; AI-N36 |
+| **Open** | S-21 (v1 plants); AI-N13, AI-N14, AI-N15, AI-N16, AI-N17, AI-N20, AI-N21, AI-N24, AI-N25; AI-N27 (ESP32); AI-N28, AI-N29 (ESP32), AI-N30; AI-N36; **AI-N44** (assistant regression) |
 
-**Next free IDs: S-25 and AI-N44.**
+**Next free IDs: S-25 and AI-N45.**

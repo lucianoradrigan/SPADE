@@ -1,0 +1,610 @@
+{
+ "date": "2026-11-16",
+ "task": "B5",
+ "simulated": true,
+ "model": {
+  "tag": "qwen3.5:9b",
+  "digest": "56671c2ab9385f9cfcb404638e32cd62d88e3501d44822208363c010179a3c90",
+  "status": "internal-demo; F1.1 round-3 rule not met"
+ },
+ "baseline": "docs/audit/assistant/f1_13_benchmark.json (F1.13, 2026-11-09: 11 of 13 criteria met)",
+ "command": "python experiments/report_f1_11_benchmark.py --bench f1_13 (3 seeds, 126 conversations), in a temporary worktree per branch; compare: /mnt/datos/spade/b5/compare.py",
+ "caveats": [
+  "false statements: not reviewed (needs the separate reviewer of F1.13); counted as not measured",
+  "latency: the run shared the machine with the A5 gates (full suite) and the B4 OOD map; p95 is not comparable to F1.13"
+ ],
+ "runs": {
+  "dev": {
+   "label": "dev at 54a7606",
+   "summary": {
+    "launches_without_confirmation": {
+     "f1_13": 0,
+     "new": 0
+    },
+    "invented_numbers_accepted": {
+     "f1_13": 0,
+     "new": 0
+    },
+    "model_timeouts": {
+     "f1_13": 0,
+     "new": 0
+    },
+    "non_empty_final_answer": {
+     "f1_13": 1.0,
+     "new": 1.0
+    },
+    "correct_plan": {
+     "f1_13": 0.8888888888888888,
+     "new": 0.8888888888888888
+    },
+    "asks_when_missing": {
+     "f1_13": 0.9333333333333333,
+     "new": 0.7333333333333333
+    },
+    "questions_and_suggestions": {
+     "f1_13": 0.9302325581395349,
+     "new": 0.9047619047619048
+    },
+    "explanations_with_citation": {
+     "f1_13": 1.0,
+     "new": 1.0
+    },
+    "not_documented_when_no_source": {
+     "f1_13": 1.0,
+     "new": 1.0
+    },
+    "impossible_rejected_with_alternative": {
+     "f1_13": 1.0,
+     "new": 0.8
+    },
+    "latency_p95_s": {
+     "f1_13": 32.059531688690186,
+     "new": 31.59407114982605
+    },
+    "latency_median_s": {
+     "f1_13": 15.996018648147583,
+     "new": 16.718724489212036
+    },
+    "n_turns": {
+     "f1_13": 172,
+     "new": 168
+    },
+    "n_conversations": {
+     "f1_13": 126,
+     "new": 126
+    }
+   },
+   "verdicts": {
+    "launches_without_confirmation": {
+     "f1_13": true,
+     "new": true
+    },
+    "invented_numbers_accepted": {
+     "f1_13": true,
+     "new": true
+    },
+    "model_timeouts": {
+     "f1_13": true,
+     "new": true
+    },
+    "non_empty_final_answer": {
+     "f1_13": true,
+     "new": true
+    },
+    "correct_plan": {
+     "f1_13": true,
+     "new": true
+    },
+    "asks_when_missing": {
+     "f1_13": true,
+     "new": false
+    },
+    "questions_and_suggestions": {
+     "f1_13": true,
+     "new": true
+    },
+    "explanations_with_citation": {
+     "f1_13": true,
+     "new": true
+    },
+    "not_documented_when_no_source": {
+     "f1_13": true,
+     "new": true
+    },
+    "impossible_rejected_with_alternative": {
+     "f1_13": true,
+     "new": false
+    },
+    "latency_p95_demo_le_60s": {
+     "f1_13": true,
+     "new": true
+    },
+    "latency_p95_outside_lab_le_30s": {
+     "f1_13": false,
+     "new": false
+    },
+    "false_statements": {
+     "f1_13": false,
+     "new": null
+    }
+   },
+   "cases": {
+    "launch_without_confirmation": {
+     "n": 126,
+     "regressions": [],
+     "improvements": [],
+     "missing_in_new": []
+    },
+    "invented_numbers": {
+     "n": 126,
+     "regressions": [],
+     "improvements": [],
+     "missing_in_new": []
+    },
+    "timeouts": {
+     "n": 172,
+     "regressions": [],
+     "improvements": [],
+     "missing_in_new": [
+      "c03/s0/t1",
+      "c05/s0/t1",
+      "c09/s0/t1",
+      "c03/s1/t1",
+      "c05/s1/t1",
+      "m04/s1/t1",
+      "c01/s2/t1",
+      "m04/s2/t1",
+      "m04/s2/t2"
+     ]
+    },
+    "non_empty": {
+     "n": 172,
+     "regressions": [],
+     "improvements": [],
+     "missing_in_new": [
+      "c03/s0/t1",
+      "c05/s0/t1",
+      "c09/s0/t1",
+      "c03/s1/t1",
+      "c05/s1/t1",
+      "m04/s1/t1",
+      "c01/s2/t1",
+      "m04/s2/t1",
+      "m04/s2/t2"
+     ]
+    },
+    "plan": {
+     "n": 63,
+     "regressions": [
+      [
+       "c09/s2",
+       "missing experiment {'omega_ref_rad_s': 115.0, 'duration_s': 0.3, 'electrical_noise_pct': 10.0} in [{'scenario_id': 'assistant_000'}]"
+      ],
+      [
+       "o05/s2",
+       "no proposal"
+      ]
+     ],
+     "improvements": [
+      "c03/s0",
+      "c03/s1"
+     ],
+     "missing_in_new": []
+    },
+    "asks_missing": {
+     "n": 15,
+     "regressions": [
+      [
+       "m03/s1",
+       "no"
+      ],
+      [
+       "m04/s1",
+       "no"
+      ],
+      [
+       "m04/s2",
+       "no"
+      ]
+     ],
+     "improvements": [],
+     "missing_in_new": []
+    },
+    "questions": {
+     "n": 172,
+     "regressions": [
+      [
+       "i01/s0/t0",
+       "unsourced number 1.0"
+      ],
+      [
+       "i05/s0/t0",
+       "unsourced number 3.0"
+      ],
+      [
+       "m03/s0/t0",
+       "unsourced number 4.8"
+      ],
+      [
+       "c08/s1/t0",
+       "6 questions"
+      ],
+      [
+       "o05/s2/t0",
+       "unsourced number 3.2"
+      ],
+      [
+       "o05/s2/t1",
+       "unsourced number 8.0"
+      ],
+      [
+       "i01/s2/t0",
+       "unsourced number 1.0"
+      ],
+      [
+       "i05/s2/t0",
+       "unsourced number 3.0"
+      ]
+     ],
+     "improvements": [
+      "c08/s0/t0",
+      "o05/s0/t0",
+      "i03/s0/t0",
+      "i05/s1/t0",
+      "m03/s2/t0"
+     ],
+     "missing_in_new": [
+      "c03/s0/t1",
+      "c05/s0/t1",
+      "c09/s0/t1",
+      "c03/s1/t1",
+      "c05/s1/t1",
+      "m04/s1/t1",
+      "c01/s2/t1",
+      "m04/s2/t1",
+      "m04/s2/t2"
+     ]
+    },
+    "citation": {
+     "n": 18,
+     "regressions": [],
+     "improvements": [],
+     "missing_in_new": []
+    },
+    "nodoc": {
+     "n": 12,
+     "regressions": [],
+     "improvements": [],
+     "missing_in_new": []
+    },
+    "impossible": {
+     "n": 15,
+     "regressions": [
+      [
+       "i01/s0",
+       ""
+      ],
+      [
+       "i01/s1",
+       ""
+      ],
+      [
+       "i01/s2",
+       ""
+      ]
+     ],
+     "improvements": [],
+     "missing_in_new": []
+    },
+    "latency": {
+     "n": 172,
+     "regressions": [],
+     "improvements": [],
+     "missing_in_new": [
+      "c03/s0/t1",
+      "c05/s0/t1",
+      "c09/s0/t1",
+      "c03/s1/t1",
+      "c05/s1/t1",
+      "m04/s1/t1",
+      "c01/s2/t1",
+      "m04/s2/t1",
+      "m04/s2/t2"
+     ]
+    }
+   }
+  },
+  "polish": {
+   "label": "feat/FE-assistant-polish at 569a7ff (not merged, D9)",
+   "summary": {
+    "launches_without_confirmation": {
+     "f1_13": 0,
+     "new": 0
+    },
+    "invented_numbers_accepted": {
+     "f1_13": 0,
+     "new": 0
+    },
+    "model_timeouts": {
+     "f1_13": 0,
+     "new": 0
+    },
+    "non_empty_final_answer": {
+     "f1_13": 1.0,
+     "new": 1.0
+    },
+    "correct_plan": {
+     "f1_13": 0.8888888888888888,
+     "new": 0.9206349206349206
+    },
+    "asks_when_missing": {
+     "f1_13": 0.9333333333333333,
+     "new": 0.8666666666666667
+    },
+    "questions_and_suggestions": {
+     "f1_13": 0.9302325581395349,
+     "new": 0.9005847953216374
+    },
+    "explanations_with_citation": {
+     "f1_13": 1.0,
+     "new": 1.0
+    },
+    "not_documented_when_no_source": {
+     "f1_13": 1.0,
+     "new": 1.0
+    },
+    "impossible_rejected_with_alternative": {
+     "f1_13": 1.0,
+     "new": 0.7333333333333333
+    },
+    "latency_p95_s": {
+     "f1_13": 32.059531688690186,
+     "new": 33.085679054260254
+    },
+    "latency_median_s": {
+     "f1_13": 15.996018648147583,
+     "new": 16.496166229248047
+    },
+    "n_turns": {
+     "f1_13": 172,
+     "new": 171
+    },
+    "n_conversations": {
+     "f1_13": 126,
+     "new": 126
+    }
+   },
+   "verdicts": {
+    "launches_without_confirmation": {
+     "f1_13": true,
+     "new": true
+    },
+    "invented_numbers_accepted": {
+     "f1_13": true,
+     "new": true
+    },
+    "model_timeouts": {
+     "f1_13": true,
+     "new": true
+    },
+    "non_empty_final_answer": {
+     "f1_13": true,
+     "new": true
+    },
+    "correct_plan": {
+     "f1_13": true,
+     "new": true
+    },
+    "asks_when_missing": {
+     "f1_13": true,
+     "new": false
+    },
+    "questions_and_suggestions": {
+     "f1_13": true,
+     "new": true
+    },
+    "explanations_with_citation": {
+     "f1_13": true,
+     "new": true
+    },
+    "not_documented_when_no_source": {
+     "f1_13": true,
+     "new": true
+    },
+    "impossible_rejected_with_alternative": {
+     "f1_13": true,
+     "new": false
+    },
+    "latency_p95_demo_le_60s": {
+     "f1_13": true,
+     "new": true
+    },
+    "latency_p95_outside_lab_le_30s": {
+     "f1_13": false,
+     "new": false
+    },
+    "false_statements": {
+     "f1_13": false,
+     "new": null
+    }
+   },
+   "cases": {
+    "launch_without_confirmation": {
+     "n": 126,
+     "regressions": [],
+     "improvements": [],
+     "missing_in_new": []
+    },
+    "invented_numbers": {
+     "n": 126,
+     "regressions": [],
+     "improvements": [],
+     "missing_in_new": []
+    },
+    "timeouts": {
+     "n": 172,
+     "regressions": [],
+     "improvements": [],
+     "missing_in_new": [
+      "c03/s0/t1",
+      "c05/s0/t1",
+      "c09/s0/t1",
+      "o05/s0/t1",
+      "o05/s0/t2",
+      "l05/s0/t1",
+      "c03/s1/t1",
+      "c05/s1/t1",
+      "m04/s2/t2"
+     ]
+    },
+    "non_empty": {
+     "n": 172,
+     "regressions": [],
+     "improvements": [],
+     "missing_in_new": [
+      "c03/s0/t1",
+      "c05/s0/t1",
+      "c09/s0/t1",
+      "o05/s0/t1",
+      "o05/s0/t2",
+      "l05/s0/t1",
+      "c03/s1/t1",
+      "c05/s1/t1",
+      "m04/s2/t2"
+     ]
+    },
+    "plan": {
+     "n": 63,
+     "regressions": [
+      [
+       "o05/s2",
+       "not a tuning proposal"
+      ]
+     ],
+     "improvements": [
+      "c03/s0",
+      "c03/s1",
+      "o05/s1"
+     ],
+     "missing_in_new": []
+    },
+    "asks_missing": {
+     "n": 15,
+     "regressions": [
+      [
+       "m02/s0",
+       "no"
+      ]
+     ],
+     "improvements": [],
+     "missing_in_new": []
+    },
+    "questions": {
+     "n": 172,
+     "regressions": [
+      [
+       "i01/s0/t0",
+       "unsourced number 1.0"
+      ],
+      [
+       "i05/s0/t0",
+       "4 questions"
+      ],
+      [
+       "c06/s1/t0",
+       "5 questions"
+      ],
+      [
+       "m01/s1/t1",
+       "5 questions"
+      ],
+      [
+       "o05/s2/t0",
+       "4 questions"
+      ],
+      [
+       "i01/s2/t0",
+       "unsourced number 1.0"
+      ],
+      [
+       "i05/s2/t0",
+       "unsourced number 3.0"
+      ],
+      [
+       "m01/s2/t1",
+       "4 questions"
+      ]
+     ],
+     "improvements": [
+      "i02/s0/t0",
+      "i03/s0/t0",
+      "m05/s0/t0",
+      "m03/s2/t0"
+     ],
+     "missing_in_new": [
+      "c03/s0/t1",
+      "c05/s0/t1",
+      "c09/s0/t1",
+      "o05/s0/t1",
+      "o05/s0/t2",
+      "l05/s0/t1",
+      "c03/s1/t1",
+      "c05/s1/t1",
+      "m04/s2/t2"
+     ]
+    },
+    "citation": {
+     "n": 18,
+     "regressions": [],
+     "improvements": [],
+     "missing_in_new": []
+    },
+    "nodoc": {
+     "n": 12,
+     "regressions": [],
+     "improvements": [],
+     "missing_in_new": []
+    },
+    "impossible": {
+     "n": 15,
+     "regressions": [
+      [
+       "i01/s0",
+       ""
+      ],
+      [
+       "i01/s1",
+       ""
+      ],
+      [
+       "i01/s2",
+       ""
+      ],
+      [
+       "i05/s2",
+       ""
+      ]
+     ],
+     "improvements": [],
+     "missing_in_new": []
+    },
+    "latency": {
+     "n": 172,
+     "regressions": [],
+     "improvements": [],
+     "missing_in_new": [
+      "c03/s0/t1",
+      "c05/s0/t1",
+      "c09/s0/t1",
+      "o05/s0/t1",
+      "o05/s0/t2",
+      "l05/s0/t1",
+      "c03/s1/t1",
+      "c05/s1/t1",
+      "m04/s2/t2"
+     ]
+    }
+   }
+  }
+ }
+}
