@@ -1,15 +1,22 @@
 """Short, visible notices about known limitations of a model (R1, 2026-11-15; decision R-D5).
 
-The ESP32 dc_motor classifier is fragile at low speed (AI-N28, AI-N36): its int8 file misses inner-race faults below the
-training grid on simulated data. No ESP32 round is open; the limitation is shown where that model appears."""
+The shipped ESP32 dc_motor classifier is fragile at low speed (AI-N28, AI-N36, AI-N43): below its training grid it misses
+most outer-race faults on simulated data (its float model too). No ESP32 round is open; the limitation is shown where that
+model appears."""
 
 from __future__ import annotations
 
 AUDIT_URL = "https://github.com/lucianoradrigan/SPADE/blob/main/docs/AI_TECHNICAL_AUDIT.md"
+#: AI-N43 (2026-11-16): until then this text quoted the int8 numbers of the B4 ESP32 candidate (esp32_dscnn/2026-11-10_run01,
+#: never shipped) as if they were the shipped model's. The numbers below are the shipped run's, from docs/audit/b4/b4_results.json
+#: (tiers.ESP32.sets.E4.promoted and keras_descriptive.E4.promoted); tests/test_ai_n43_esp32_notice.py keeps them in sync.
+ESP32_SHIPPED_RUN = "esp32_dscnn/2026-10-18_run01"
 ESP32_LOW_SPEED = (
-    "**Known limitation — ESP32 classifier at low speed (AI-N28, AI-N36).** The int8 model is fragile below its training "
-    "grid: on simulated runs at 50–70 rad/s it misses most inner-race faults (int8 recall 0.35 where its own float model "
-    f"gets 1.00). Treat its outputs below 80 rad/s as unreliable. [AI audit §13.2, §13.10]({AUDIT_URL})"
+    "**Known limitation — ESP32 classifier at low speed (AI-N28, AI-N36, AI-N43).** The shipped int8 model "
+    f"(`{ESP32_SHIPPED_RUN}`) was trained on 80–220 rad/s. On simulated runs at 50 and 70 rad/s it misses most outer-race "
+    "faults (recall 0.28, 31 % of windows abstained); its own float model is as weak there (0.22), so this is not an int8 loss. "
+    "A retrained ESP32 that learned low speed lost it in int8 (AI-N36) and was not shipped. Treat its outputs below 80 rad/s "
+    f"as unreliable. [AI audit §13.2, §13.10, §13.16]({AUDIT_URL})"
 )
 
 

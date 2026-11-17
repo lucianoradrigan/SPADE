@@ -1,0 +1,666 @@
+[
+ {
+  "run": "promoted",
+  "evaluated": [
+   "pc_server_5class_w2048/2026-11-04_run01"
+  ],
+  "speed": 80.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "promoted",
+  "evaluated": [
+   "pc_server_5class_w2048/2026-11-04_run01"
+  ],
+  "speed": 150.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "promoted",
+  "evaluated": [
+   "pc_server_5class_w2048/2026-11-04_run01"
+  ],
+  "speed": 220.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "promoted",
+  "evaluated": [
+   "pc_server_5class_w2048/2026-11-04_run01"
+  ],
+  "speed": 300.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "promoted",
+  "evaluated": [
+   "pc_server_5class_w2048/2026-11-04_run01"
+  ],
+  "speed": 350.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "evaluated": [
+   "pc_server_5class_w2048/2026-11-10_run01"
+  ],
+  "speed": 80.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "evaluated": [
+   "pc_server_5class_w2048/2026-11-10_run01"
+  ],
+  "speed": 150.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "evaluated": [
+   "pc_server_5class_w2048/2026-11-10_run01"
+  ],
+  "speed": 220.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "evaluated": [
+   "pc_server_5class_w2048/2026-11-10_run01"
+  ],
+  "speed": 300.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "evaluated": [
+   "pc_server_5class_w2048/2026-11-10_run01"
+  ],
+  "speed": 350.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-11-10_run01",
+  "evaluated": [
+   "pc_server/2026-11-10_run01"
+  ],
+  "speed": 80.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-11-10_run01",
+  "evaluated": [
+   "pc_server/2026-11-10_run01"
+  ],
+  "speed": 150.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-11-10_run01",
+  "evaluated": [
+   "pc_server/2026-11-10_run01"
+  ],
+  "speed": 220.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-11-10_run01",
+  "evaluated": [
+   "pc_server/2026-11-10_run01"
+  ],
+  "speed": 300.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-11-10_run01",
+  "evaluated": [
+   "pc_server/2026-11-10_run01"
+  ],
+  "speed": 350.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-11-04_run01",
+  "evaluated": [
+   "pc_server/2026-11-04_run01"
+  ],
+  "speed": 80.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-11-04_run01",
+  "evaluated": [
+   "pc_server/2026-11-04_run01"
+  ],
+  "speed": 150.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-11-04_run01",
+  "evaluated": [
+   "pc_server/2026-11-04_run01"
+  ],
+  "speed": 220.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-11-04_run01",
+  "evaluated": [
+   "pc_server/2026-11-04_run01"
+  ],
+  "speed": 300.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-11-04_run01",
+  "evaluated": [
+   "pc_server/2026-11-04_run01"
+  ],
+  "speed": 350.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-10-25_run01",
+  "evaluated": [
+   "pc_server/2026-10-25_run01"
+  ],
+  "speed": 80.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-10-25_run01",
+  "evaluated": [
+   "pc_server/2026-10-25_run01"
+  ],
+  "speed": 150.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-10-25_run01",
+  "evaluated": [
+   "pc_server/2026-10-25_run01"
+  ],
+  "speed": 220.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-10-25_run01",
+  "evaluated": [
+   "pc_server/2026-10-25_run01"
+  ],
+  "speed": 300.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-10-25_run01",
+  "evaluated": [
+   "pc_server/2026-10-25_run01"
+  ],
+  "speed": 350.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server_5class_w2048/2026-10-25_run01",
+  "evaluated": [
+   "pc_server_5class_w2048/2026-10-25_run01"
+  ],
+  "speed": 80.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server_5class_w2048/2026-10-25_run01",
+  "evaluated": [
+   "pc_server_5class_w2048/2026-10-25_run01"
+  ],
+  "speed": 150.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server_5class_w2048/2026-10-25_run01",
+  "evaluated": [
+   "pc_server_5class_w2048/2026-10-25_run01"
+  ],
+  "speed": 220.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server_5class_w2048/2026-10-25_run01",
+  "evaluated": [
+   "pc_server_5class_w2048/2026-10-25_run01"
+  ],
+  "speed": 300.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server_5class_w2048/2026-10-25_run01",
+  "evaluated": [
+   "pc_server_5class_w2048/2026-10-25_run01"
+  ],
+  "speed": 350.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server_5class_w2048/2026-10-20_run01",
+  "evaluated": [
+   "pc_server_5class_w2048/2026-10-20_run01"
+  ],
+  "speed": 80.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server_5class_w2048/2026-10-20_run01",
+  "evaluated": [
+   "pc_server_5class_w2048/2026-10-20_run01"
+  ],
+  "speed": 150.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server_5class_w2048/2026-10-20_run01",
+  "evaluated": [
+   "pc_server_5class_w2048/2026-10-20_run01"
+  ],
+  "speed": 220.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server_5class_w2048/2026-10-20_run01",
+  "evaluated": [
+   "pc_server_5class_w2048/2026-10-20_run01"
+  ],
+  "speed": 300.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server_5class_w2048/2026-10-20_run01",
+  "evaluated": [
+   "pc_server_5class_w2048/2026-10-20_run01"
+  ],
+  "speed": 350.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server_5class/2026-10-20_run01",
+  "evaluated": [
+   "pc_server_5class/2026-10-20_run01"
+  ],
+  "speed": 80.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server_5class/2026-10-20_run01",
+  "evaluated": [
+   "pc_server_5class/2026-10-20_run01"
+  ],
+  "speed": 150.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server_5class/2026-10-20_run01",
+  "evaluated": [
+   "pc_server_5class/2026-10-20_run01"
+  ],
+  "speed": 220.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server_5class/2026-10-20_run01",
+  "evaluated": [
+   "pc_server_5class/2026-10-20_run01"
+  ],
+  "speed": 300.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server_5class/2026-10-20_run01",
+  "evaluated": [
+   "pc_server_5class/2026-10-20_run01"
+  ],
+  "speed": 350.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-10-18_run02",
+  "evaluated": [
+   "pc_server/2026-10-18_run02"
+  ],
+  "speed": 80.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-10-18_run02",
+  "evaluated": [
+   "pc_server/2026-10-18_run02"
+  ],
+  "speed": 150.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-10-18_run02",
+  "evaluated": [
+   "pc_server/2026-10-18_run02"
+  ],
+  "speed": 220.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-10-18_run02",
+  "evaluated": [
+   "pc_server/2026-10-18_run02"
+  ],
+  "speed": 300.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-10-18_run02",
+  "evaluated": [
+   "pc_server/2026-10-18_run02"
+  ],
+  "speed": 350.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-10-18_run01",
+  "evaluated": [
+   "pc_server/2026-10-18_run01"
+  ],
+  "speed": 80.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-10-18_run01",
+  "evaluated": [
+   "pc_server/2026-10-18_run01"
+  ],
+  "speed": 150.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-10-18_run01",
+  "evaluated": [
+   "pc_server/2026-10-18_run01"
+  ],
+  "speed": 220.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-10-18_run01",
+  "evaluated": [
+   "pc_server/2026-10-18_run01"
+  ],
+  "speed": 300.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-10-18_run01",
+  "evaluated": [
+   "pc_server/2026-10-18_run01"
+  ],
+  "speed": 350.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-10-13_run01",
+  "evaluated": [
+   "pc_server/2026-10-13_run01"
+  ],
+  "speed": 80.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-10-13_run01",
+  "evaluated": [
+   "pc_server/2026-10-13_run01"
+  ],
+  "speed": 150.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-10-13_run01",
+  "evaluated": [
+   "pc_server/2026-10-13_run01"
+  ],
+  "speed": 220.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-10-13_run01",
+  "evaluated": [
+   "pc_server/2026-10-13_run01"
+  ],
+  "speed": 300.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-10-13_run01",
+  "evaluated": [
+   "pc_server/2026-10-13_run01"
+  ],
+  "speed": 350.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-09-01_run01",
+  "evaluated": [
+   "pc_server/2026-09-01_run01"
+  ],
+  "speed": 80.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-09-01_run01",
+  "evaluated": [
+   "pc_server/2026-09-01_run01"
+  ],
+  "speed": 150.0,
+  "outside_box": false,
+  "shown": [
+   "normal"
+  ],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-09-01_run01",
+  "evaluated": [
+   "pc_server/2026-09-01_run01"
+  ],
+  "speed": 220.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-09-01_run01",
+  "evaluated": [
+   "pc_server/2026-09-01_run01"
+  ],
+  "speed": 300.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ },
+ {
+  "run": "pc_server/2026-09-01_run01",
+  "evaluated": [
+   "pc_server/2026-09-01_run01"
+  ],
+  "speed": 350.0,
+  "outside_box": true,
+  "shown": [],
+  "exception": false
+ }
+]
