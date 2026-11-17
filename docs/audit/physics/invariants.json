@@ -1,0 +1,116 @@
+{
+ "date": "2026-11-16",
+ "task": "B3",
+ "simulated": true,
+ "criteria": "docs/audit/physics/invariants_criteria.md (commit ce24379, before any measurement)",
+ "command": "PYTHONPATH=src:. python /mnt/datos/spade/b3/measure.py; tests: pytest tests/simulation/test_physics_invariants.py",
+ "results": {
+  "dc_perm_ex_v1": {
+   "I1": {
+    "e_in_J": 834.9610912070848,
+    "e_r_J": 88.20428013443862,
+    "e_load_J": 437.86765296337103,
+    "e_kin_J": 309.37499999961653,
+    "e_mag_J": 0.0196804756662844,
+    "residual_rel": -0.000605444219295086,
+    "min_current_a": 44.11759183721573
+   },
+   "I2": {
+    "omega_mean": 149.99999999999997,
+    "u_mean": 25.478242424242787,
+    "i_mean": 45.515151515173855,
+    "voltage_err_rel": 2.788821630349243e-16,
+    "torque_err_rel": 4.910408520099761e-13,
+    "torque_err_rel_per_sample_mean": 4.90921403247806e-13
+   },
+   "I3": {
+    "final_speed_rad_s": 120.0,
+    "max_speed_rad_s": 120.39257751348764,
+    "ratio_final": 1.0,
+    "min_current_a": 34.4309967580642
+   }
+  },
+  "dc_perm_ex_v2": {
+   "I1": {
+    "e_in_J": 835.3980539372623,
+    "e_r_J": 88.21116886457244,
+    "e_load_J": 437.92431098034376,
+    "e_kin_J": 309.3749999995392,
+    "e_mag_J": 0.019680475666434098,
+    "residual_rel": -0.00015813585180974953,
+    "min_current_a": 44.075675883674116
+   },
+   "I2": {
+    "omega_mean": 149.99999999999997,
+    "u_mean": 25.478242424242794,
+    "i_mean": 45.51515151517452,
+    "voltage_err_rel": 1.3944108151746211e-16,
+    "torque_err_rel": 5.057058485536266e-13,
+    "torque_err_rel_per_sample_mean": 5.059423807559436e-13
+   },
+   "I3": {
+    "final_speed_rad_s": 119.99999999999997,
+    "max_speed_rad_s": 120.40247903432477,
+    "ratio_final": 0.9999999999999998,
+    "min_current_a": 34.38677041766761
+   }
+  },
+  "dc_pmg132_v1": {
+   "I1": {
+    "e_in_J": 1496.9571133116706,
+    "e_r_J": 107.83538100796696,
+    "e_load_J": 22.08854130489738,
+    "e_kin_J": 442.68990827635565,
+    "e_mag_J": 0.07274526628566017,
+    "residual_rel": 0.6174328771593398,
+    "min_current_a": -161.19364045248832
+   },
+   "I2": {
+    "omega_mean": 179.40202841498282,
+    "u_mean": 32.5,
+    "i_mean": 1.7645535555069354,
+    "voltage_err_rel": 0.0,
+    "torque_err_rel": 4.03805386308894e-12,
+    "torque_err_rel_per_sample_mean": 4.038680958097679e-12
+   },
+   "I3": {
+    "final_speed_rad_s": 179.43140675983625,
+    "max_speed_rad_s": 179.43140675983625,
+    "ratio_final": 1.4952617229986354,
+    "min_current_a": -161.1941195399097
+   }
+  },
+  "dc_pmg132_v2": {
+   "I1": {
+    "e_in_J": 386.04145273686777,
+    "e_r_J": 57.911403125817706,
+    "e_load_J": 18.904083937621053,
+    "e_kin_J": 309.3748760681589,
+    "e_mag_J": 2.6079274771877952e-05,
+    "residual_rel": -0.0003858043558503532,
+    "min_current_a": 0.0
+   },
+   "I2": {
+    "omega_mean": 150.0000000000001,
+    "u_mean": 27.17650328673629,
+    "i_mean": 1.6564554210166142,
+    "voltage_err_rel": 1.3072740231943053e-16,
+    "torque_err_rel": -1.1518318654860093e-11,
+    "torque_err_rel_per_sample_mean": -1.151840910025822e-11
+   },
+   "I3": {
+    "final_speed_rad_s": 120.00000000000007,
+    "max_speed_rad_s": 121.09240459523802,
+    "ratio_final": 1.0000000000000007,
+    "min_current_a": 0.0
+   }
+  },
+  "pmsm_v1": {
+   "I4": {
+    "n": 1200,
+    "max_rel_err": 3.735803474983343e-16,
+    "torque_of_matches_formula": true
+   }
+  }
+ }
+}
