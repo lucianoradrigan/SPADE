@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-16",
+  "commit": "54a7606",
+  "simulated": true,
+  "gates": {
+    "G1": {
+      "criterion": "full suite: 0 failures; no new xfail without a finding",
+      "result": "2132 passed, 1 skipped, 9 xfailed, 0 failures (23 min 46 s); the same 9 xfails as v0.2.1",
+      "pass": true
+    },
+    "G2": {
+      "criterion": "smoke --launch all green",
+      "result": "7/7",
+      "pass": true
+    },
+    "G3": {
+      "criterion": "CI on the gated commit 5/5",
+      "result": "run 43986268043 at 54a7606: pytest 3.11, 3.12; smoke Ubuntu, Windows, macOS: 5/5",
+      "pass": true
+    },
+    "G4": {
+      "criterion": "fresh clone of dev from GitHub, new .venv, no data/ or workspace/, OLLAMA_HOST closed",
+      "result": "clone at 54a7606; no data/ or workspace/ at start; port 9 closed; smoke 7/7; 18/18 pages without exception (g4_pages.json); the assistant reports itself unavailable",
+      "pass": true
+    },
+    "G5": {
+      "criterion": "assistant with real Ollama, including one real browser turn (AI-N39)",
+      "result": "pytest --run-llm -m llm: 1 passed; one turn in Chrome with qwen3.5:9b (pinned digest) in the clean clone: reply in 18 s (g5_browser_turn.png)",
+      "pass": true
+    },
+    "G6": {
+      "criterion": "D3: every classifier selectable in AI Diagnostics, inside and outside its trained envelope; the default sample",
+      "result": "AppTest sweep, 12 selectable runs x 80/150/220/300/350 rad/s (healthy, defaults): 60/60 as expected (inside: a prediction, healthy normal; outside: the no-diagnosis box, no prediction; the evaluated run is the selected one). Above 220 rad/s: 24/24 boxes, 0 predictions, 0 exceptions (g6_sweep.json). Promoted PC at the new default 150 rad/s: normal 0.922; at 80 / 220: normal 0.999 / 0.973; outer 0.988, inner 1.00, ball 1.00, cage 0.999 at 150 rad/s (g6_probe.json). Chrome: default sample shows a prediction, 350 rad/s shows the box and no prediction (g6_browser_*.png)",
+      "pass": true
+    },
+    "G7": {
+      "criterion": "byte-for-byte tests intact",
+      "result": "0 diff lines since v0.2.1 in test_datagen, test_scml_system_regression, test_patch3_regression, test_r2_sensitivity_regression and tests/data; they pass in G1",
+      "pass": true
+    },
+    "G8": {
+      "criterion": "no absolute paths outside logs",
+      "result": "the same 3 /home/ matches as in v0.2.1 (comment in scripts/fmu/om.sh; two tests of this rule)",
+      "pass": true
+    }
+  },
+  "verdict": "all 8 pass",
+  "script": "/mnt/datos/spade/a4/gates.sh (outside git) + browser G6 via scripts/release_gates.py --browser-g6 (branch feat/B1-release-gates)",
+  "note": "A first run on c1e90c7 was stopped during G1 (10 min) to include the AI-N43 correction; nothing of it is used here."
+}
