@@ -1,0 +1,507 @@
+{
+ "seed": 20261116,
+ "n": 30,
+ "generator": "experiments/generate_synthetic_datasheets.py",
+ "sheets": [
+  {
+   "id": "S01",
+   "style": "A",
+   "machine": "dc",
+   "traps": [
+    "resistance_temperature",
+    "wrong_label"
+   ],
+   "must_ask_reasons": [
+    "variant_unspecified",
+    "ambiguous_meaning",
+    "missing"
+   ],
+   "html_sha256": "8a5ef2bc762d4a3c"
+  },
+  {
+   "id": "S02",
+   "style": "B",
+   "machine": "pmsm",
+   "traps": [
+    "kt_ke_inconsistent",
+    "resistance_temperature",
+    "multiple_ratings"
+   ],
+   "must_ask_reasons": [
+    "variant_unspecified",
+    "inconsistent",
+    "variant_unspecified",
+    "missing"
+   ],
+   "html_sha256": "35865a58b14e7c4b"
+  },
+  {
+   "id": "S03",
+   "style": "C",
+   "machine": "pmsm",
+   "traps": [
+    "ke_units",
+    "resistance_temperature",
+    "curve_only"
+   ],
+   "must_ask_reasons": [
+    "missing"
+   ],
+   "html_sha256": "37600ae4e0ce6db9"
+  },
+  {
+   "id": "S04",
+   "style": "D",
+   "machine": "dc",
+   "traps": [
+    "missing_kt",
+    "kt_ke_inconsistent",
+    "missing_inductance",
+    "curve_only",
+    "decimal_comma"
+   ],
+   "must_ask_reasons": [
+    "missing",
+    "inconsistent",
+    "missing",
+    "missing"
+   ],
+   "html_sha256": "626a644cc86f0a52"
+  },
+  {
+   "id": "S05",
+   "style": "E",
+   "machine": "pmsm",
+   "traps": [
+    "wrong_label",
+    "missing_inductance",
+    "multiple_ratings",
+    "curve_only"
+   ],
+   "must_ask_reasons": [
+    "ambiguous_meaning",
+    "missing",
+    "variant_unspecified",
+    "missing"
+   ],
+   "html_sha256": "2225d95c46c0e632"
+  },
+  {
+   "id": "S06",
+   "style": "F",
+   "machine": "dc",
+   "traps": [
+    "us_units",
+    "ke_units",
+    "unitless_inertia",
+    "multiple_ratings"
+   ],
+   "must_ask_reasons": [
+    "ambiguous_meaning",
+    "variant_unspecified",
+    "missing"
+   ],
+   "html_sha256": "0c442875f7bce5d4"
+  },
+  {
+   "id": "S07",
+   "style": "A",
+   "machine": "pmsm",
+   "traps": [
+    "resistance_temperature",
+    "wrong_label",
+    "curve_only"
+   ],
+   "must_ask_reasons": [
+    "variant_unspecified",
+    "ambiguous_meaning",
+    "missing"
+   ],
+   "html_sha256": "4dd76237d72e11cc"
+  },
+  {
+   "id": "S08",
+   "style": "B",
+   "machine": "pmsm",
+   "traps": [
+    "ke_units",
+    "wrong_label",
+    "missing_inductance"
+   ],
+   "must_ask_reasons": [
+    "variant_unspecified",
+    "ambiguous_meaning",
+    "missing",
+    "missing"
+   ],
+   "html_sha256": "b4f85d4870ac5845"
+  },
+  {
+   "id": "S09",
+   "style": "C",
+   "machine": "dc",
+   "traps": [
+    "kt_ke_inconsistent",
+    "decimal_comma"
+   ],
+   "must_ask_reasons": [
+    "inconsistent",
+    "missing"
+   ],
+   "html_sha256": "b0ae592ac29d1d87"
+  },
+  {
+   "id": "S10",
+   "style": "D",
+   "machine": "dc",
+   "traps": [
+    "continuous_vs_peak",
+    "missing_kt",
+    "kt_ke_inconsistent",
+    "missing_inductance",
+    "manufacturer_unnamed"
+   ],
+   "must_ask_reasons": [
+    "missing",
+    "inconsistent",
+    "missing",
+    "manufacturer_unnamed",
+    "missing"
+   ],
+   "html_sha256": "46296ee67504ff82"
+  },
+  {
+   "id": "S11",
+   "style": "E",
+   "machine": "pmsm",
+   "traps": [
+    "resistance_temperature",
+    "missing_inductance",
+    "unitless_inertia",
+    "curve_only",
+    "manufacturer_unnamed"
+   ],
+   "must_ask_reasons": [
+    "missing",
+    "ambiguous_meaning",
+    "manufacturer_unnamed",
+    "missing"
+   ],
+   "html_sha256": "beea37031794b529"
+  },
+  {
+   "id": "S12",
+   "style": "F",
+   "machine": "dc",
+   "traps": [
+    "kt_ke_inconsistent",
+    "multiple_ratings"
+   ],
+   "must_ask_reasons": [
+    "inconsistent",
+    "variant_unspecified",
+    "missing"
+   ],
+   "html_sha256": "66588c459321c025"
+  },
+  {
+   "id": "S13",
+   "style": "A",
+   "machine": "pmsm",
+   "traps": [
+    "continuous_vs_peak",
+    "unitless_inertia",
+    "multiple_ratings"
+   ],
+   "must_ask_reasons": [
+    "variant_unspecified",
+    "ambiguous_meaning",
+    "variant_unspecified",
+    "missing"
+   ],
+   "html_sha256": "c09acd36a72380bb"
+  },
+  {
+   "id": "S14",
+   "style": "B",
+   "machine": "pmsm",
+   "traps": [
+    "continuous_vs_peak",
+    "ke_units",
+    "line_line_resistance"
+   ],
+   "must_ask_reasons": [
+    "variant_unspecified",
+    "missing"
+   ],
+   "html_sha256": "913d442e02c4f905"
+  },
+  {
+   "id": "S15",
+   "style": "C",
+   "machine": "dc",
+   "traps": [
+    "continuous_vs_peak",
+    "wrong_label",
+    "missing_inductance"
+   ],
+   "must_ask_reasons": [
+    "ambiguous_meaning",
+    "missing",
+    "missing"
+   ],
+   "html_sha256": "ba7acd1e01d7749c"
+  },
+  {
+   "id": "S16",
+   "style": "D",
+   "machine": "pmsm",
+   "traps": [
+    "continuous_vs_peak",
+    "missing_kt",
+    "resistance_temperature",
+    "missing_inductance",
+    "manufacturer_unnamed"
+   ],
+   "must_ask_reasons": [
+    "missing",
+    "missing",
+    "manufacturer_unnamed",
+    "missing"
+   ],
+   "html_sha256": "35a3c514ffcf3dc7"
+  },
+  {
+   "id": "S17",
+   "style": "E",
+   "machine": "pmsm",
+   "traps": [
+    "continuous_vs_peak",
+    "kt_ke_inconsistent",
+    "wrong_label",
+    "curve_only"
+   ],
+   "must_ask_reasons": [
+    "inconsistent",
+    "ambiguous_meaning",
+    "missing"
+   ],
+   "html_sha256": "a1008069e65f977a"
+  },
+  {
+   "id": "S18",
+   "style": "F",
+   "machine": "dc",
+   "traps": [
+    "ke_units",
+    "multiple_ratings"
+   ],
+   "must_ask_reasons": [
+    "variant_unspecified",
+    "missing"
+   ],
+   "html_sha256": "c53d7e8eee7940e0"
+  },
+  {
+   "id": "S19",
+   "style": "A",
+   "machine": "dc",
+   "traps": [
+    "continuous_vs_peak",
+    "missing_inductance",
+    "curve_only"
+   ],
+   "must_ask_reasons": [
+    "variant_unspecified",
+    "missing",
+    "missing"
+   ],
+   "html_sha256": "ab34dad19e23d826"
+  },
+  {
+   "id": "S20",
+   "style": "B",
+   "machine": "pmsm",
+   "traps": [
+    "ke_waveform_undeclared",
+    "multiple_ratings",
+    "decimal_comma"
+   ],
+   "must_ask_reasons": [
+    "variant_unspecified",
+    "ambiguous_waveform",
+    "variant_unspecified",
+    "missing"
+   ],
+   "html_sha256": "1cb51a29da2c4b04"
+  },
+  {
+   "id": "S21",
+   "style": "C",
+   "machine": "pmsm",
+   "traps": [
+    "continuous_vs_peak",
+    "curve_only",
+    "decimal_comma"
+   ],
+   "must_ask_reasons": [
+    "missing"
+   ],
+   "html_sha256": "70c78c9fb25afdce"
+  },
+  {
+   "id": "S22",
+   "style": "D",
+   "machine": "dc",
+   "traps": [
+    "us_units",
+    "resistance_temperature",
+    "missing_inductance"
+   ],
+   "must_ask_reasons": [
+    "missing",
+    "missing"
+   ],
+   "html_sha256": "51da9c662ccc6d70"
+  },
+  {
+   "id": "S23",
+   "style": "E",
+   "machine": "pmsm",
+   "traps": [
+    "continuous_vs_peak",
+    "us_units",
+    "ke_waveform_undeclared",
+    "curve_only"
+   ],
+   "must_ask_reasons": [
+    "ambiguous_waveform",
+    "missing"
+   ],
+   "html_sha256": "3bbd3cafbc37c040"
+  },
+  {
+   "id": "S24",
+   "style": "F",
+   "machine": "pmsm",
+   "traps": [
+    "ke_waveform_undeclared",
+    "missing_inductance",
+    "multiple_ratings",
+    "decimal_comma",
+    "manufacturer_unnamed"
+   ],
+   "must_ask_reasons": [
+    "ambiguous_waveform",
+    "missing",
+    "variant_unspecified",
+    "manufacturer_unnamed",
+    "missing"
+   ],
+   "html_sha256": "29e64cc00b21310c"
+  },
+  {
+   "id": "S25",
+   "style": "A",
+   "machine": "dc",
+   "traps": [
+    "kt_ke_inconsistent",
+    "ke_units"
+   ],
+   "must_ask_reasons": [
+    "variant_unspecified",
+    "inconsistent",
+    "missing"
+   ],
+   "html_sha256": "a4ef4c90993edf33"
+  },
+  {
+   "id": "S26",
+   "style": "B",
+   "machine": "pmsm",
+   "traps": [
+    "ke_waveform_undeclared",
+    "line_line_resistance",
+    "unitless_inertia"
+   ],
+   "must_ask_reasons": [
+    "variant_unspecified",
+    "ambiguous_waveform",
+    "ambiguous_meaning",
+    "missing"
+   ],
+   "html_sha256": "054a0031c42e9422"
+  },
+  {
+   "id": "S27",
+   "style": "C",
+   "machine": "pmsm",
+   "traps": [
+    "us_units",
+    "kt_ke_inconsistent",
+    "unitless_inertia"
+   ],
+   "must_ask_reasons": [
+    "inconsistent",
+    "ambiguous_meaning",
+    "missing"
+   ],
+   "html_sha256": "6d55486380dee850"
+  },
+  {
+   "id": "S28",
+   "style": "D",
+   "machine": "dc",
+   "traps": [
+    "continuous_vs_peak",
+    "missing_kt",
+    "kt_ke_inconsistent",
+    "ke_units",
+    "missing_inductance"
+   ],
+   "must_ask_reasons": [
+    "missing",
+    "inconsistent",
+    "missing",
+    "missing"
+   ],
+   "html_sha256": "5fab73ee21907ab2"
+  },
+  {
+   "id": "S29",
+   "style": "E",
+   "machine": "pmsm",
+   "traps": [
+    "resistance_temperature",
+    "wrong_label",
+    "multiple_ratings",
+    "curve_only"
+   ],
+   "must_ask_reasons": [
+    "ambiguous_meaning",
+    "variant_unspecified",
+    "missing"
+   ],
+   "html_sha256": "9fa2845d3d3425fd"
+  },
+  {
+   "id": "S30",
+   "style": "F",
+   "machine": "dc",
+   "traps": [
+    "us_units",
+    "resistance_temperature",
+    "unitless_inertia",
+    "multiple_ratings",
+    "manufacturer_unnamed"
+   ],
+   "must_ask_reasons": [
+    "ambiguous_meaning",
+    "variant_unspecified",
+    "manufacturer_unnamed",
+    "missing"
+   ],
+   "html_sha256": "2b2c55d3687a9e86"
+  }
+ ]
+}

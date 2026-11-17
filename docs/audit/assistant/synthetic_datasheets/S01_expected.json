@@ -1,0 +1,207 @@
+{
+ "id": "S01",
+ "written_by": "experiments/generate_synthetic_datasheets.py (B6, 2026-11-16), from the known truth",
+ "schema": "golden-expected/1",
+ "synthetic": true,
+ "document": "synthetic sheet SX-S01 (style A)",
+ "manufacturer_printed": "Northwind Synthetic Drives (fictitious)",
+ "motor_type": "permanent magnet DC",
+ "simulable_today": true,
+ "variants": [
+  "36 V",
+  "72 V"
+ ],
+ "variant_policy": "every variant written",
+ "fields": [
+  {
+   "field": "voltage",
+   "value_printed": "36.0",
+   "unit_printed": "V",
+   "label_printed": "Rated voltage",
+   "basis": "not_applicable",
+   "waveform": "dc_equivalent",
+   "temperature_c": null,
+   "condition": null,
+   "variant": "36 V"
+  },
+  {
+   "field": "current",
+   "value_printed": "33.6",
+   "unit_printed": "A",
+   "label_printed": "Rated current",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": null,
+   "condition": null,
+   "variant": "36 V"
+  },
+  {
+   "field": "speed",
+   "value_printed": "1315",
+   "unit_printed": "rpm",
+   "label_printed": "Rated speed",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": null,
+   "condition": null,
+   "variant": "36 V"
+  },
+  {
+   "field": "voltage",
+   "value_printed": "72.0",
+   "unit_printed": "V",
+   "label_printed": "Rated voltage",
+   "basis": "not_applicable",
+   "waveform": "dc_equivalent",
+   "temperature_c": null,
+   "condition": null,
+   "variant": "72 V"
+  },
+  {
+   "field": "current",
+   "value_printed": "33.6",
+   "unit_printed": "A",
+   "label_printed": "Rated current",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": null,
+   "condition": null,
+   "variant": "72 V"
+  },
+  {
+   "field": "speed",
+   "value_printed": "2630",
+   "unit_printed": "rpm",
+   "label_printed": "Rated speed",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": null,
+   "condition": null,
+   "variant": "72 V"
+  },
+  {
+   "field": "torque",
+   "value_printed": "5.47",
+   "unit_printed": "N·m",
+   "label_printed": "Rated torque",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "torque_constant",
+   "value_printed": "0.177",
+   "unit_printed": "N·m/A",
+   "label_printed": "Torque constant",
+   "basis": "not_applicable",
+   "waveform": "dc_equivalent",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "voltage_constant",
+   "value_printed": "18.5",
+   "unit_printed": "V/krpm",
+   "label_printed": "Back-EMF constant",
+   "basis": "not_applicable",
+   "waveform": "dc_equivalent",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "resistance_hot",
+   "value_printed": "0.480",
+   "unit_printed": "Ω",
+   "label_printed": "Resistance at 120 °C",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": 120,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "resistance",
+   "value_printed": "0.346",
+   "unit_printed": "Ω",
+   "label_printed": "Thermal resistance (Ra) at 20 °C",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": 20,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "inductance",
+   "value_printed": "0.535",
+   "unit_printed": "mH",
+   "label_printed": "Inductance",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "inertia",
+   "value_printed": "116",
+   "unit_printed": "kg·cm²",
+   "label_printed": "Rotor inertia",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  }
+ ],
+ "must_ask": [
+  {
+   "field": "voltage",
+   "reason": "variant_unspecified",
+   "text": "which voltage variant (column/row) is the user's motor",
+   "item": 0
+  },
+  {
+   "field": "resistance",
+   "reason": "ambiguous_meaning",
+   "text": "'Thermal resistance (Ra)' is in ohms: is it the armature resistance",
+   "item": 1
+  },
+  {
+   "field": "load_torque",
+   "reason": "missing",
+   "text": "the load (never in a motor datasheet)",
+   "item": 2
+  }
+ ],
+ "must_warn": [
+  "two resistances (20 °C and 120 °C): the cold value is the default and is said"
+ ],
+ "traps": [
+  {
+   "trap": "resistance_temperature",
+   "detail": "R at 20 °C and at 120 °C (+39 %)"
+  },
+  {
+   "trap": "wrong_label",
+   "detail": "armature resistance labelled 'Thermal resistance (Ra)'"
+  }
+ ],
+ "truth_si": {
+  "machine": "dc",
+  "u_v": 36.0,
+  "i_a": 33.6,
+  "kt_nm_per_a": 0.1771,
+  "ke_v_s_per_rad": 0.1771,
+  "r_ohm": 0.3456,
+  "l_h": 0.000535,
+  "j_kgm2": 0.011579,
+  "speed_rpm": 1315,
+  "torque_nm": 5.475,
+  "pairs": null
+ },
+ "notes": "Synthetic: the truth is known exactly; numbers are printed with 3 significant digits."
+}

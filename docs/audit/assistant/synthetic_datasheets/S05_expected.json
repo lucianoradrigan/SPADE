@@ -1,0 +1,187 @@
+{
+ "id": "S05",
+ "written_by": "experiments/generate_synthetic_datasheets.py (B6, 2026-11-16), from the known truth",
+ "schema": "golden-expected/1",
+ "synthetic": true,
+ "document": "synthetic sheet SX-S05 (style E)",
+ "manufacturer_printed": "Lumen Fictional Drives (fictitious)",
+ "motor_type": "PMSM (synthetic)",
+ "simulable_today": false,
+ "variants": [],
+ "variant_policy": "single article",
+ "fields": [
+  {
+   "field": "voltage",
+   "value_printed": "400",
+   "unit_printed": "V",
+   "label_printed": "Rated voltage",
+   "basis": "not_applicable",
+   "waveform": "rms",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "current",
+   "value_printed": "10.1",
+   "unit_printed": "A",
+   "label_printed": "Rated current",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "speed",
+   "value_printed": "1500",
+   "unit_printed": "rpm",
+   "label_printed": "Rated speed",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "torque",
+   "value_printed": "1.55",
+   "unit_printed": "N·m",
+   "label_printed": "Rated torque",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "torque_constant",
+   "value_printed": "0.154",
+   "unit_printed": "N·m/A",
+   "label_printed": "Torque constant",
+   "basis": "unknown",
+   "waveform": "unknown",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "voltage_constant",
+   "value_printed": "18.7",
+   "unit_printed": "V/krpm",
+   "label_printed": "Back-EMF constant (line-line, peak)",
+   "basis": "line-line",
+   "waveform": "peak",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "resistance",
+   "value_printed": "0.489",
+   "unit_printed": "Ω",
+   "label_printed": "Thermal resistance (Ra)",
+   "basis": "phase",
+   "waveform": "not_applicable",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "inertia",
+   "value_printed": "10.7",
+   "unit_printed": "kg·cm²",
+   "label_printed": "Rotor inertia",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "pole_pairs",
+   "value_printed": "6",
+   "unit_printed": "",
+   "label_printed": "Poles",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "voltage_alt",
+   "value_printed": "400/800",
+   "unit_printed": "V",
+   "label_printed": "Voltage (Δ/Y)",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  }
+ ],
+ "must_ask": [
+  {
+   "field": "resistance",
+   "reason": "ambiguous_meaning",
+   "text": "'Thermal resistance (Ra)' is in ohms: is it the armature resistance",
+   "item": 0
+  },
+  {
+   "field": "inductance",
+   "reason": "missing",
+   "text": "the inductance (not printed)",
+   "item": 1
+  },
+  {
+   "field": "voltage",
+   "reason": "variant_unspecified",
+   "text": "which connection / rating (Δ or Y)",
+   "item": 2
+  },
+  {
+   "field": "load_torque",
+   "reason": "missing",
+   "text": "the load (never in a motor datasheet)",
+   "item": 3
+  }
+ ],
+ "must_warn": [
+  "efficiency is only in a curve: not a parameter"
+ ],
+ "traps": [
+  {
+   "trap": "wrong_label",
+   "detail": "armature resistance labelled 'Thermal resistance (Ra)'"
+  },
+  {
+   "trap": "missing_inductance",
+   "detail": "L not printed"
+  },
+  {
+   "trap": "multiple_ratings",
+   "detail": "two ratings on one line (Δ/Y)"
+  },
+  {
+   "trap": "curve_only",
+   "detail": "efficiency shown only as a curve"
+  }
+ ],
+ "truth_si": {
+  "machine": "pmsm",
+  "u_v": 400.0,
+  "i_a": 10.05,
+  "pole_pairs": 3,
+  "psi_v_s": 0.0343,
+  "kt_nm_per_a": 0.1543,
+  "ke_v_s_per_rad_phase_peak": 0.1029,
+  "r_ohm": 0.4892,
+  "l_h": 0.007298,
+  "j_kgm2": 0.0010678,
+  "speed_rpm": 1500,
+  "torque_nm": 1.551,
+  "pairs": 3
+ },
+ "notes": "Synthetic: the truth is known exactly; numbers are printed with 3 significant digits."
+}
