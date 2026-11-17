@@ -79,3 +79,37 @@ Two failures are pinned to the 2026-11-04 run. Passing them requires changing ex
   - At 300 and 350 rad/s: no diagnosis (the envelope rule), for every case.
   - In the page (AppTest, promoted PC): 40 and 150 rad/s show a prediction; 300 and 350 rad/s show the no-diagnosis box.
 - If all pass: merge into `dev` (never `main`); AI-N29 corrected for PC and RPi5 (open for ESP32); AI-N34 and AI-N35 corrected. If any fails: no merge, no rollback.
+
+## A5 results (2026-11-16): **all gates pass → merged into `dev`, not `main`**
+
+Measured after the criteria above were committed (`d2463d9`). Gated commit `02cb55d` (`feat/B4-promote` with `dev` at the v0.2.2 release commit merged in). Raw: `b4_promotion.json` → `a5_2026_11_16`; rows in `b4_promotion/a5_g6_*.json`.
+
+| Gate | Result | Pass |
+|---|---|---|
+| G1 | 2132 passed, 1 skipped, 9 xfailed, 0 failed (25 min 49 s) | ✓ |
+| G3 | CI run 43990843934 on the branch: 5/5 | ✓ |
+| G6 (library, PC and RPi5) | below | ✓ |
+| G6 (page, promoted PC in AI Diagnostics) | 40 and 150 rad/s: 'normal', badge `…2026-11-10_run01`; 300 and 350 rad/s: the no-diagnosis box, no class | ✓ |
+
+G6, suggested class (confidence) on the AI Diagnostics default sample; 'no diagnosis' = the envelope rule (40–220 rad/s):
+
+| Tier | rad/s | healthy | outer_race | inner_race | ball | cage |
+|---|---|---|---|---|---|---|
+| PC | 40 | normal (0.98) | outer_race (1.00) | inner_race (0.98) | ball (0.99) | cage (0.85) |
+| PC | 60 | normal (0.99) | outer_race (1.00) | inner_race (1.00) | ball (0.99) | cage (1.00) |
+| PC | 80 | normal (1.00) | outer_race (1.00) | inner_race (1.00) | ball (1.00) | cage (1.00) |
+| PC | 150 | normal (1.00) | outer_race (1.00) | inner_race (1.00) | ball (1.00) | cage (1.00) |
+| PC | 220 | normal (0.99) | outer_race (1.00) | inner_race (1.00) | ball (1.00) | cage (0.99) |
+| PC | 300 | no diagnosis | no diagnosis | no diagnosis | no diagnosis | no diagnosis |
+| PC | 350 | no diagnosis | no diagnosis | no diagnosis | no diagnosis | no diagnosis |
+| RPi5 | 40 | normal (0.99) | outer_race (0.96) | inner_race (0.99) | ball (0.89) | cage (0.75) |
+| RPi5 | 60 | normal (1.00) | outer_race (0.99) | inner_race (1.00) | ball (0.94) | cage (1.00) |
+| RPi5 | 80 | normal (1.00) | outer_race (1.00) | inner_race (1.00) | ball (0.99) | cage (1.00) |
+| RPi5 | 150 | normal (1.00) | outer_race (0.75) | inner_race (1.00) | ball (0.98) | cage (0.98) |
+| RPi5 | 220 | normal (1.00) | outer_race (0.99) | inner_race (1.00) | ball (0.98) | cage (0.94) |
+| RPi5 | 300 | no diagnosis | no diagnosis | no diagnosis | no diagnosis | no diagnosis |
+| RPi5 | 350 | no diagnosis | no diagnosis | no diagnosis | no diagnosis | no diagnosis |
+
+- Weakest cells, still detected: RPi5 cage at 40 rad/s (0.75) and outer_race at 150 rad/s (0.75); PC cage at 40 rad/s (0.85). Consistent with the known cage weakness at 45 rad/s (`cage-45rad`).
+- The two pinned tests changed only in the run name (commit `b61b93e`, which names them). No threshold changed.
+- **Status changes:** AI-N29 corrected for PC and RPi5 on `dev` (open for the ESP32); AI-N34 and AI-N35 corrected. **The promotion is not in v0.2.2**, which ships the 2026-11-04 runs; it goes to `main` only with Luciano's decision.

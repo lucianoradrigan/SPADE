@@ -335,5 +335,30 @@
       "confidence": 0.991
     }
   ],
-  "finding": "AI-N40 (classifiers confidently wrong above the training grid, > 220 rad/s; also the promoted RPi5 of v0.2.1: healthy 350 rad/s -> cage 1.00)"
+  "finding": "AI-N40 (classifiers confidently wrong above the training grid, > 220 rad/s; also the promoted RPi5 of v0.2.1: healthy 350 rad/s -> cage 1.00)",
+  "a5_2026_11_16": {
+    "branch": "feat/B4-promote",
+    "gated_commit": "02cb55d",
+    "criteria_commit": "d2463d9",
+    "simulated": true,
+    "G1": {
+      "result": "2132 passed, 1 skipped, 9 xfailed, 0 failed (25 min 49 s)",
+      "pass": true
+    },
+    "G3": {
+      "result": "run 43990843934 (workflow_dispatch on feat/B4-promote at 02cb55d): 5/5",
+      "pass": true
+    },
+    "G6_library": {
+      "script": "/mnt/datos/spade/a5/g6_a5.py",
+      "rows": "b4_promotion/a5_g6_library.json",
+      "pass": true
+    },
+    "G6_page": {
+      "script": "/mnt/datos/spade/a5/g6_page.py",
+      "rows": "b4_promotion/a5_g6_page.json",
+      "pass": true
+    },
+    "verdict": "all gates pass: merged into dev (not main)"
+  }
 }
