@@ -17,7 +17,6 @@ import argparse
 import json
 import os
 import platform
-import resource
 import sys
 import time
 from pathlib import Path
@@ -70,6 +69,7 @@ def _simulate(job: dict):
 
 
 def generate(workers: int):
+    import resource  # Unix only: imported here so that the module (and tests/test_ood_map_seeds.py) loads on Windows
     import pandas as pd
     from concurrent.futures import ProcessPoolExecutor
 
