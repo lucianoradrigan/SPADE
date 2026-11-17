@@ -25,6 +25,8 @@ REPO = Path(__file__).resolve().parents[3]
 MAX_DF = 3
 MIN_LEN = 5
 ID_RE = re.compile(r"\b(AI-N\d+|AI-\d+|S-\d+)\b")
+#: AI-N41: IDs of findings, which the glossary never drops
+FINDING_ID_RE = re.compile(r"(?:AI-N\d+|AI-\d+|S-\d+)")
 DOCS_PATH_RE = re.compile(r"\b(docs/[A-Za-z0-9_./-]+\.(?:md|json|txt))")
 STOP = set("""about above after again against because before being below between could doing during every first found further having
 into itself might model models other ought should since their there these those through under until using value values which while
@@ -74,7 +76,10 @@ def build_glossary() -> list:
     out = []
     for r in raw:
         terms = sorted(w for w in _words(r["text"]) if df[w] <= MAX_DF)
-        if terms:
+        # AI-N41 (decision D7, 2026-11-16): an entry whose ID is a finding (S-NN, AI-NNN) is never dropped, even when all
+        # its words are frequent: lookup() returns it when the query names the ID. Before, a new heading sharing its words
+        # made the finding unfindable even by ID (AI-N29 after the first AI-N40 heading).
+        if terms or FINDING_ID_RE.fullmatch(r["id"]):
             out.append({"id": r["id"], "file": r["file"], "title": r["title"], "terms": terms})
     return out
 
