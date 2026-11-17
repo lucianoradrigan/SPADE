@@ -1,0 +1,180 @@
+{
+ "id": "S06",
+ "written_by": "experiments/generate_synthetic_datasheets.py (B6, 2026-11-16), from the known truth",
+ "schema": "golden-expected/1",
+ "synthetic": true,
+ "document": "synthetic sheet SX-S06 (style F)",
+ "manufacturer_printed": "Northwind Synthetic Drives (fictitious)",
+ "motor_type": "permanent magnet DC",
+ "simulable_today": true,
+ "variants": [],
+ "variant_policy": "single article",
+ "fields": [
+  {
+   "field": "voltage",
+   "value_printed": "60.0",
+   "unit_printed": "V",
+   "label_printed": "Rated voltage",
+   "basis": "not_applicable",
+   "waveform": "dc_equivalent",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "current",
+   "value_printed": "56.2",
+   "unit_printed": "A",
+   "label_printed": "Rated current",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "speed",
+   "value_printed": "4266",
+   "unit_printed": "rpm",
+   "label_printed": "Rated speed",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "torque",
+   "value_printed": "794",
+   "unit_printed": "oz-in",
+   "label_printed": "Rated torque",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "torque_constant",
+   "value_printed": "15.4",
+   "unit_printed": "oz-in/A",
+   "label_printed": "Torque constant",
+   "basis": "not_applicable",
+   "waveform": "dc_equivalent",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "voltage_constant",
+   "value_printed": "88.0",
+   "unit_printed": "rpm/V",
+   "label_printed": "Back-EMF constant",
+   "basis": "not_applicable",
+   "waveform": "dc_equivalent",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "resistance",
+   "value_printed": "0.205",
+   "unit_printed": "Ω",
+   "label_printed": "Terminal resistance",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "inductance",
+   "value_printed": "0.317",
+   "unit_printed": "mH",
+   "label_printed": "Inductance",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "inertia",
+   "value_printed": "111",
+   "unit_printed": "",
+   "label_printed": "Rotor inertia",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  },
+  {
+   "field": "voltage_alt",
+   "value_printed": "60 // 120",
+   "unit_printed": "V",
+   "label_printed": "Voltage (dual rating)",
+   "basis": "not_applicable",
+   "waveform": "not_applicable",
+   "temperature_c": null,
+   "condition": null,
+   "variant": null
+  }
+ ],
+ "must_ask": [
+  {
+   "field": "inertia",
+   "reason": "ambiguous_meaning",
+   "text": "the rotor inertia has no unit",
+   "item": 0
+  },
+  {
+   "field": "voltage",
+   "reason": "variant_unspecified",
+   "text": "which of the two printed supply voltages",
+   "item": 1
+  },
+  {
+   "field": "load_torque",
+   "reason": "missing",
+   "text": "the load (never in a motor datasheet)",
+   "item": 2
+  }
+ ],
+ "must_warn": [
+  "US units (oz-in, oz-in/A): converted with fixed factors in Python",
+  "the voltage constant is printed as a speed constant in rpm/V (its inverse)"
+ ],
+ "traps": [
+  {
+   "trap": "us_units",
+   "detail": "torque and Kt in oz-in (1 N·m = 141.611932 oz-in)"
+  },
+  {
+   "trap": "ke_units",
+   "detail": "Ke printed in rpm/V (a speed constant: the inverse)"
+  },
+  {
+   "trap": "unitless_inertia",
+   "detail": "J printed without unit (value in kg·cm²)"
+  },
+  {
+   "trap": "multiple_ratings",
+   "detail": "two supply voltages on one line ('//')"
+  }
+ ],
+ "truth_si": {
+  "machine": "dc",
+  "u_v": 60.0,
+  "i_a": 56.2,
+  "kt_nm_per_a": 0.1085,
+  "ke_v_s_per_rad": 0.1085,
+  "r_ohm": 0.2052,
+  "l_h": 0.000317,
+  "j_kgm2": 0.011098,
+  "speed_rpm": 4266,
+  "torque_nm": 5.61,
+  "pairs": null
+ },
+ "notes": "Synthetic: the truth is known exactly; numbers are printed with 3 significant digits."
+}
