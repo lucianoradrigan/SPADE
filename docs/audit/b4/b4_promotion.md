@@ -63,3 +63,19 @@ Two failures are pinned to the 2026-11-04 run. Passing them requires changing ex
 
 1. Evaluate both candidates **above the grid** (250–350 rad/s), pre-registered on new data, as B4c did at low speed. Today the new PC model is worse there than the shipped one.
 2. If they pass: allow updating the two pinned tests and the quoted metrics, add an AI-N27 entry to their audit files, and repeat G1, G3 and G6.
+
+---
+
+# A5 (2026-11-16): promotion retried under decision D6
+
+**Criteria, written and committed before any A5 measurement** (instructions 2026-11-16, A5; decisions D1, D6). Everything is simulated.
+
+- Branch `feat/B4-promote`, with `dev` merged in (no rebase). Runs: `pc_server_5class_w2048/2026-11-10_run01` and `rpi5_resnet1d_se_5class_w2048/2026-11-10_run01` (the two of D6, nothing else).
+- Both declare `trained_envelope` 40–220 rad/s (from the `grid_speed` column of `data/b4_grid_5class.parquet`) and carry the agreed limitations in `audit_findings.json`: cage weak at 45 rad/s (`cage-45rad`); the RPi5 E1 CI does not establish non-inferiority (`e1-noninferiority-ci`); ball and cage synthetic-only (`A2-synthetic-ball-cage`); abstention rule changed after B4 and confirmed on E4c (`abstention-rule-changed`); simulated only (`sim-only`); plus `AI-N27` (mitigated: trained on the v2 plant with `dcm_exact`) and `dcm-trained`.
+- Existing tests changed only in the pinned run (D6): `tests/ai/test_classifier_evaluation.py::test_registry_resolves_the_grid_trained_classifier` and `tests/test_ai_n27_warning.py::test_promoted_dc_motor_classifiers_carry_ai_n27` (`2026-11-04_run01` → `2026-11-10_run01`). No threshold changed. No test pins a weight hash of these runs (the registry hash test reads the hashes from `configs/registry.yaml`).
+- **Gates:** G1 (full suite, 0 failures, no new xfail without a finding) and G3 (CI 5/5 on the branch) and G6:
+  - G6 sample: AI Diagnostics defaults (PI, speed mode, 0.82 s, electrical severity 8, calibrated mechanical severity, seed 0, no noise), training-grid window rule; PC and RPi5 promoted runs. Script `/mnt/datos/spade/a5/g6_a5.py`.
+  - At 40, 60, 80, 150 and 220 rad/s: healthy → suggested class `normal`; each fault (outer_race, inner_race, ball, cage) → suggested class equal to the fault ("detected as in E4c or better": on E4c every class has recall ≥ 0.87 at 45–70 rad/s, so a single default sample must be classified correctly). An abstention or another class is a failure.
+  - At 300 and 350 rad/s: no diagnosis (the envelope rule), for every case.
+  - In the page (AppTest, promoted PC): 40 and 150 rad/s show a prediction; 300 and 350 rad/s show the no-diagnosis box.
+- If all pass: merge into `dev` (never `main`); AI-N29 corrected for PC and RPi5 (open for ESP32); AI-N34 and AI-N35 corrected. If any fails: no merge, no rollback.
