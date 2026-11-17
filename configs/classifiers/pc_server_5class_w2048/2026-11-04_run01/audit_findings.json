@@ -48,6 +48,20 @@
       "summary": "ball/cage: synthetic-only, uncalibrated amplitude. The ball and cage classes were trained on simulated faults whose mechanical amplitude (CALIBRATED_MECHANICAL_SEVERITY in datagen/scenario.py) is a placeholder: KAt has no clean single-defect code for these faults, so it cannot be calibrated without real data.",
       "evidence": "docs/AI_TECHNICAL_AUDIT.md Sec. 8.4-8.5",
       "date": "2026-11-04"
+    },
+    {
+      "id": "AI-N40",
+      "severity": "high",
+      "date": "2026-11-16",
+      "summary": "Trained envelope: 80–220 rad/s (speed reference of the training grid, simulated). Outside it the GUI shows no diagnosis (AI-N40 correction, decision D1): above the grid this family was found confidently wrong (e.g. a healthy motor at 350 rad/s).",
+      "evidence": "docs/audit/release/ai_n40.md; docs/AI_TECHNICAL_AUDIT.md §13.13"
     }
-  ]
+  ],
+  "trained_envelope": {
+    "speed_rad_s": [
+      80.0,
+      220.0
+    ],
+    "source": "deduced from the grid_speed column of data/diagnosis_grid_dataset_5class_dcm.parquet (run_metadata.json); declared 2026-11-16 (AI-N40, decision D1)"
+  }
 }

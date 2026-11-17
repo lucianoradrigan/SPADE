@@ -21,5 +21,12 @@
       "evidence": "docs/AI_TECHNICAL_AUDIT.md Sec. 8.4-8.5",
       "date": "2026-10-25"
     }
-  ]
+  ],
+  "trained_envelope": {
+    "speed_rad_s": [
+      80.0,
+      220.0
+    ],
+    "source": "deduced from the grid_speed column of data/diagnosis_grid_dataset_5class_rk45.parquet (run_metadata.json); declared 2026-11-16 (AI-N40, D1/D3) so that a clone without data/ knows it"
+  }
 }

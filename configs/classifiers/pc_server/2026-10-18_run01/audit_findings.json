@@ -14,5 +14,12 @@
       "summary": "Trained and evaluated on simulated data only (speed x severity x noise x plant-drift grid). Held-out simulated conditions reach 1.000 accuracy in steady state, 0.969 at 100 % noise and 0.815 in the start-up transient; no real-machine validation exists.",
       "evidence": "docs/audit/ai/classifier_evaluation.md, docs/AI_TECHNICAL_AUDIT.md Sec. 7.1"
     }
-  ]
+  ],
+  "trained_envelope": {
+    "speed_rad_s": [
+      80.0,
+      220.0
+    ],
+    "source": "deduced from the grid_speed column of data/diagnosis_grid_dataset.parquet (run_metadata.json); declared 2026-11-16 (AI-N40, D1/D3) so that a clone without data/ knows it"
+  }
 }

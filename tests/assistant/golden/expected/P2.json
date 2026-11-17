@@ -268,8 +268,24 @@
     }
   ],
   "must_ask": [
-    "which of the 14 windings and which bus voltage (75, 160, 320, 560, 640 Vdc)",
-    "what 'Measured at 25°C' (a note whose marker is lost in the table) refers to: resistance? constants?"
+    {
+      "field": "winding",
+      "reason": "variant_unspecified",
+      "item": 0,
+      "text": "which of the 14 windings and which bus voltage (75, 160, 320, 560, 640 Vdc)"
+    },
+    {
+      "field": "vbus_max",
+      "reason": "variant_unspecified",
+      "item": 0,
+      "text": "which of the 14 windings and which bus voltage (75, 160, 320, 560, 640 Vdc)"
+    },
+    {
+      "field": "measurement_note",
+      "reason": "ambiguous_meaning",
+      "item": 1,
+      "text": "what 'Measured at 25°C' (a note whose marker is lost in the table) refers to: resistance? constants?"
+    }
   ],
   "must_warn": [
     "'All data referenced to sinusoidal commutation'",

@@ -336,8 +336,18 @@
     }
   ],
   "must_ask": [
-    "which supply voltage / column (24, 36, 48, 60 or 72 V)",
-    "the load (not in the document)"
+    {
+      "field": "voltage",
+      "reason": "variant_unspecified",
+      "item": 0,
+      "text": "which supply voltage / column (24, 36, 48, 60 or 72 V)"
+    },
+    {
+      "field": "load_torque",
+      "reason": "missing",
+      "item": 1,
+      "text": "the load (not in the document)"
+    }
   ],
   "must_warn": [
     "Kt and Ke are not printed (derivable only from U/n at the rated point, approximately)",

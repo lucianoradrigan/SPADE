@@ -35,5 +35,12 @@
       "summary": "No longer promoted: replaced on 2026-11-04 by pc_server_5class_w2048/2026-11-04_run01 (trained on the dcm x1000 grid, S-21 corrected). On the corrected-physics test split (dcm) this run scores macro-F1 0.891.",
       "evidence": "docs/audit/assistant/ai_n27_regen.md"
     }
-  ]
+  ],
+  "trained_envelope": {
+    "speed_rad_s": [
+      80.0,
+      220.0
+    ],
+    "source": "deduced from the grid_speed column of data/diagnosis_grid_dataset_5class.parquet (run_metadata.json); declared 2026-11-16 (AI-N40, D1/D3) so that a clone without data/ knows it"
+  }
 }

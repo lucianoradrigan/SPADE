@@ -43,8 +43,24 @@
     }
   ],
   "must_ask": [
-    "the kW value (13.2 or 15.2); 110 V x 120 A = 13.2 kW suggests 13.2",
-    "whether it is a DC machine and how it is excited (not on the plate)"
+    {
+      "field": "power",
+      "reason": "ambiguous_meaning",
+      "item": 0,
+      "text": "the kW value (13.2 or 15.2); 110 V x 120 A = 13.2 kW suggests 13.2"
+    },
+    {
+      "field": "machine_type",
+      "reason": "machine_type_unspecified",
+      "item": 1,
+      "text": "whether it is a DC machine and how it is excited (not on the plate)"
+    },
+    {
+      "field": "excitation",
+      "reason": "missing",
+      "item": 1,
+      "text": "whether it is a DC machine and how it is excited (not on the plate)"
+    }
   ],
   "must_warn": [
     "machine type not printed"

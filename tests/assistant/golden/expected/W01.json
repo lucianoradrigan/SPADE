@@ -75,7 +75,12 @@
     }
   ],
   "must_ask": [
-    "the voltage and current pairs go with the connection Δ/Y: 230 V Δ / 1.67 A and 400 V Y / 0.97 A"
+    {
+      "field": "connection",
+      "reason": "variant_unspecified",
+      "item": 0,
+      "text": "the voltage and current pairs go with the connection Δ/Y: 230 V Δ / 1.67 A and 400 V Y / 0.97 A"
+    }
   ],
   "must_warn": [
     "induction motor: not simulable in SPADE today"

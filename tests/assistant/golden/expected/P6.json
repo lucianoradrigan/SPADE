@@ -167,7 +167,12 @@
     }
   ],
   "must_ask": [
-    "the back-EMF constant (not printed on this sheet, unlike the 24 V variant)"
+    {
+      "field": "back_emf_constant",
+      "reason": "missing",
+      "item": 0,
+      "text": "the back-EMF constant (not printed on this sheet, unlike the 24 V variant)"
+    }
   ],
   "must_warn": [
     "'No. of Poles 6' = 3 pole pairs",

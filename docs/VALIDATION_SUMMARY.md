@@ -671,7 +671,32 @@ Local LLM `qwen3.5:9b` through Ollama. Each benchmark had its thresholds committ
 | AI-N37 (Low) | **Corrected (2026-11-12).** `run_metadata.json` now names the teacher run of a distilled model (`metrics.json` had only `distilled_from`, a registry key for registry teachers) | `tests/test_ai_n37_teacher_provenance.py`; `AI_TECHNICAL_AUDIT.md` §13.8 |
 | AI-N38 (Low) | **Corrected (2026-11-15).** A refused v1 plant request is now explained by a fixed card on the Assistant page (S-21, decision E3; what is simulated instead) | `tests/assistant/test_assistant_ai_n38.py`; `AI_TECHNICAL_AUDIT.md` §13.11 |
 | AI-N39 (High) | **Corrected (2026-11-12).** The Assistant page never finished a turn in a real browser with the model running: the avatar's state report requested a rerun on every repaint and cancelled the turn. Present in v0.2.0 | [`audit/assistant/ai_n39_avatar_rerun.md`](audit/assistant/ai_n39_avatar_rerun.md); `tests/assistant/test_ai_n39_avatar_rerun.py` |
+| AI-N40 (High) | **Corrected (2026-11-16).** Trained envelope per classifier; outside it the GUI shows no diagnosis (deterministic rule); AI Diagnostics defaults to 150 rad/s. (Correction: the RPi5/ESP32 runs are not selectable in the GUI; the B4 PC candidate ('ball' 0.88 at 350 rad/s) could not be selected either, AI-N42) | `AI_TECHNICAL_AUDIT.md` §13.13; `audit/release/ai_n40.md`; `tests/test_ai_n40_trained_envelope.py` |
+| AI-N41 (Low) | **Corrected (2026-11-16, D7).** A glossary entry named by a finding ID is never dropped (found 2026-11-15: a finding whose heading words were all frequent became unfindable even by its ID) | `AI_TECHNICAL_AUDIT.md` §13.14; `tests/assistant/test_ai_n41_glossary_ids.py` |
+| AI-N42 (Medium) | **Corrected (2026-11-16).** The AI Diagnostics "Classifier" selector reset to the promoted model on every rerun (since 2026-10-21, in v0.2.0 and v0.2.1): in a browser only the promoted model could be evaluated, and the v0.2.1 G6 evaluated only the promoted model. Fixed in the page | `AI_TECHNICAL_AUDIT.md` §13.15; `tests/test_ai_n42_classifier_selection.py` |
 
 - **B4 cost:** simulation 5.66 CPU-h (estimate 3.2) in 35 min; training 2.10 CPU-h in 23 min.
 - **C2000 visit kit** (D-B4-4 option B): [`audit/b4/c2000_visit_kit.md`](audit/b4/c2000_visit_kit.md). Nothing measured on the board yet.
 - **`dev` stability (2026-11-12): stable at `e4fed56`** (first verdict at `849721c` revised to *not stable* after AI-N39 was found; fixed and gates re-run, G5 extended to a real browser turn) ([`audit/release/dev_stability_2026-11-12.md`](audit/release/dev_stability_2026-11-12.md)). Draft notes: `docs/RELEASE_NOTES_v0.2.1.md` (no tag, M-D7).
+
+### 14.8 Round of 2026-11-15/16 (R1–R5)
+
+| Task | Result | Evidence |
+|---|---|---|
+| R1, hotfix **v0.2.1** | **Published.** Truthful labels (SIMULATED on Transfer Learning, Model Registry and Experiment Runs; the full AI SUGGESTION label on DC Motor and Monitoring; "Board-measured"; macro-F1 drop as a fraction; ESP32 low-speed notice), AI-N38 corrected, page truth test over the 18 pages. G1–G8 all green at `e804fc4`; release commit `122ce2e` (CI 5/5 on `dev` and `main`); tag `v0.2.1`. The v0.2.0 release text notes AI-N39 | [`audit/release/v0.2.1_gates.md`](audit/release/v0.2.1_gates.md), [`v0.2.1_published.md`](audit/release/v0.2.1_published.md) |
+| R2, promotion of the B4 PC and RPi5 candidates | **Not merged.** G1: 5 failures (two pinned to the 2026-11-04 runs). G6: the new PC model calls a healthy motor at 350 rad/s 'ball' 0.88 and abstains at 300 rad/s. Above-grid speeds were never evaluated → **AI-N40** | [`audit/b4/b4_promotion.md`](audit/b4/b4_promotion.md) |
+| AI-N40 notice | **In `dev`:** visible notice outside 80–220 rad/s on AI Diagnostics and the DC Motor AI card (no default or model changed). Not in v0.2.1 | `tests/test_ai_n40_speed_grid_notice.py` |
+| R3, frontend round 2 | **Branch `feat/FE-assistant-polish`, not merged (R-D4)**: both avatars follow a turn (narrow screens), turn above the input, A3 head, real-time display confirmed, real-browser test with Ollama | [`audit/frontend/round2.md`](https://github.com/lucianoradrigan/SPADE/blob/feat/FE-assistant-polish/docs/audit/frontend/round2.md) (on the branch) |
+| R4, Phase 2 scorer | **In `dev`:** `experiments/score_golden_extraction.py`, 50 tests without any LLM; criteria proposal **DRAFT** (not approved) | [`audit/assistant/phase2_scoring_proposal.md`](audit/assistant/phase2_scoring_proposal.md) |
+
+**Findings, exact status on 2026-11-16** (the full lists are in `AI_TECHNICAL_AUDIT.md` and `SIMULATION_STABILITY_REPORT.md`):
+
+| Status | Findings |
+|---|---|
+| **Corrected** | S-23, S-24, AI-N31, AI-N32, AI-N33, AI-N37, AI-N38, AI-N39 (in v0.2.1); S-21 in the v2 plants; **AI-N40, AI-N41, AI-N42** (`dev`, 2026-11-16) |
+| **Mitigated** | AI-N12; AI-N26 (software; board re-measurement pending); AI-N27 (PC and RPi5) |
+| **Documented** | S-22, AI-N19; AI-N18 (cause addressed, not adopted) |
+| **Closed (negative)** | AI-N22, AI-N23 |
+| **Open** | S-21 (v1 plants); AI-N13, AI-N14, AI-N15, AI-N16, AI-N17, AI-N20, AI-N21, AI-N24, AI-N25; AI-N27 (ESP32); AI-N28, AI-N29, AI-N30; AI-N34, AI-N35 (B4c passed; promotion blocked by G6 / AI-N40); AI-N36 |
+
+**Next free IDs: S-25 and AI-N43.**

@@ -55,8 +55,30 @@
     }
   ],
   "must_ask": [
-    "the field excitation (series, shunt, separately excited or permanent magnet: not printed)",
-    "armature resistance, inductance and inertia"
+    {
+      "field": "excitation",
+      "reason": "missing",
+      "item": 0,
+      "text": "the field excitation (series, shunt, separately excited or permanent magnet: not printed)"
+    },
+    {
+      "field": "resistance",
+      "reason": "missing",
+      "item": 1,
+      "text": "armature resistance, inductance and inertia"
+    },
+    {
+      "field": "inductance",
+      "reason": "missing",
+      "item": 1,
+      "text": "armature resistance, inductance and inertia"
+    },
+    {
+      "field": "inertia",
+      "reason": "missing",
+      "item": 1,
+      "text": "armature resistance, inductance and inertia"
+    }
   ],
   "must_warn": [
     "SPADE's DC plants are permanent-magnet and small; a 1000 hp wound-field motor is outside the simulated range",

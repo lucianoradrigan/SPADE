@@ -57,7 +57,18 @@
     }
   ],
   "must_ask": [
-    "the machine type and excitation (not printed)"
+    {
+      "field": "machine_type",
+      "reason": "machine_type_unspecified",
+      "item": 0,
+      "text": "the machine type and excitation (not printed)"
+    },
+    {
+      "field": "excitation",
+      "reason": "missing",
+      "item": 0,
+      "text": "the machine type and excitation (not printed)"
+    }
   ],
   "must_warn": [
     "'93'5' uses an apostrophe as the decimal mark",
