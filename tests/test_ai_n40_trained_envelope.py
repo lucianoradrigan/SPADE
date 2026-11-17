@@ -63,8 +63,8 @@ def _sample(run: str | None, speed: float) -> AppTest:
 
 
 #: selectable classifier -> the run to select in AI Diagnostics (None: the promoted PC run, the page's default model)
-TIERS = {"promoted": None, "b4_candidate_5class": "configs/classifiers/pc_server_5class_w2048/2026-11-10_run01",
-         "pc_3class": "configs/classifiers/pc_server/2026-11-04_run01"}
+TIERS = {"promoted": None, "previous_5class": "configs/classifiers/pc_server_5class_w2048/2026-11-04_run01",
+         "pc_3class": "configs/classifiers/pc_server/2026-11-04_run01"}  # A5 (D6): the B4 candidate is now the promoted run
 
 
 @pytest.mark.parametrize("tier", sorted(TIERS))

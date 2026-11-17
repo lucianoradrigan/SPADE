@@ -604,7 +604,7 @@ This section catches up on work that was recorded only in its own evidence files
 | AI-N26 (Medium) | **Mitigated (software) · board re-measurement pending in B4.** Data at 10 kHz, C2000 budget and examples assumed 5 kHz. Every run records `fs_hz` (2026-11-09) | [`audit/c2000/ai_n26_sample_rate.md`](audit/c2000/ai_n26_sample_rate.md), [`c5_post_hoc_10khz.md`](audit/c2000/c5_post_hoc_10khz.md); `AI_TECHNICAL_AUDIT.md` §12.3 |
 | AI-N27 (High) | **Mitigated for PC and RPi5** (corrected-data runs promoted 2026-11-04) · **open for ESP32** | §13; [`audit/assistant/ai_n27_regen.md`](audit/assistant/ai_n27_regen.md) |
 | AI-N28 (High) | **Open.** ESP32 int8 fragility. The pre-registered repair did not pass: outer_race 0.560 → 0.717, but normal 0.994 → 0.687 and abstention +19 points. The promoted ESP32 stays; to B4 | [`audit/assistant/esp32_repair.md`](audit/assistant/esp32_repair.md) (`python experiments/report_esp32_repair.py`) |
-| AI-N29 (High) | **Open.** The PC classifier promoted on 2026-11-04 is confidently wrong at 50 rad/s, below its grid; to B4 | `AI_TECHNICAL_AUDIT.md` §13.3 |
+| AI-N29 (High) | **Corrected for PC and RPi5 on `dev` (2026-11-16, A5); open for the ESP32.** The 2026-11-04 PC was confidently wrong at 50 rad/s; the B4 runs promoted to `dev` (trained on 40–220 rad/s) pass B4c and the A5 G6 at 40–220 rad/s. **Not in v0.2.2** (the release ships the 2026-11-04 runs) | `AI_TECHNICAL_AUDIT.md` §13.3 |
 | AI-N30 (High) | **Open.** The assistant does not meet its benchmarks (§14.5) | `AI_TECHNICAL_AUDIT.md` §13.4 |
 | AI-N31 (Low) | **Fixed (2026-11-09).** The tuning card said "custom" for an unmodified motor (introduced by E3) | `tests/assistant/test_assistant_ai_n31.py`; `AI_TECHNICAL_AUDIT.md` §13.5 |
 
@@ -664,8 +664,8 @@ Local LLM `qwen3.5:9b` through Ollama. Each benchmark had its thresholds committ
 
 | ID | Status | Evidence |
 |---|---|---|
-| AI-N34 (Medium) | **Open.** B4 PC candidate `pc_server_5class_w2048/2026-11-10_run01` fails only the two-sided \|Δ abstention\| ≤ 5 pt on E4 (−16.3 pt: it abstains less); E4 macro-F1 0.994 against 0.684, every other check passes | `audit/b4/b4_results.md` |
-| AI-N35 (Medium) | **Open.** B4 RPi5 candidate (float16): the same, −20.6 pt on E4; E4 macro-F1 0.993 against 0.922 | `audit/b4/b4_results.md` |
+| AI-N34 (Medium) | **Corrected (2026-11-16, A5): promoted to `dev` after B4c; not in v0.2.2.** Was: B4 PC candidate `pc_server_5class_w2048/2026-11-10_run01` fails only the two-sided \|Δ abstention\| ≤ 5 pt on E4 (−16.3 pt: it abstains less); E4 macro-F1 0.994 against 0.684, every other check passes | `audit/b4/b4_results.md` |
+| AI-N35 (Medium) | **Corrected (2026-11-16, A5): promoted to `dev` after B4c; not in v0.2.2.** Was: B4 RPi5 candidate (float16): the same, −20.6 pt on E4; E4 macro-F1 0.993 against 0.922 | `audit/b4/b4_results.md` |
 | B4c (AI-N34, AI-N35) | **Passes (2026-11-12).** Confirmatory evaluation, pre-registered before its data, on 150 new low-speed runs (E4c), one-sided abstention rule with a selective-risk bound: PC and RPi5 candidates macro-F1 0.994, min recall 0.970, selective risk 0.004 (promoted PC 0.275, RPi5 0.024). Recommended for promotion; **not promoted** (M-D5) | [`audit/b4/b4c_results.md`](audit/b4/b4c_results.md) |
 | AI-N36 (High) | **Open.** B4 ESP32 int8 (V1): D1 gate 0.838 < 0.88; inner_race at 50/70 rad/s is lost in int8 (Keras 1.000, int8 0.346). AI-N27/AI-N28 stay open for the ESP32 Diagnosis (2026-11-12, validation only): int8 activation rounding shifts a fragile low-speed boundary of the float model; the two tested fixes do not recover it | `audit/b4/b4_results.md`; [`audit/b4/ai_n36_quant_diagnosis.md`](audit/b4/ai_n36_quant_diagnosis.md) |
 | AI-N37 (Low) | **Corrected (2026-11-12).** `run_metadata.json` now names the teacher run of a distilled model (`metrics.json` had only `distilled_from`, a registry key for registry teachers) | `tests/test_ai_n37_teacher_provenance.py`; `AI_TECHNICAL_AUDIT.md` §13.8 |
@@ -694,10 +694,10 @@ Local LLM `qwen3.5:9b` through Ollama. Each benchmark had its thresholds committ
 
 | Status | Findings |
 |---|---|
-| **Corrected** | S-23, S-24, AI-N31, AI-N32, AI-N33, AI-N37, AI-N38, AI-N39 (in v0.2.1); S-21 in the v2 plants; **AI-N40, AI-N41, AI-N42, AI-N43** (`dev`, 2026-11-16) |
+| **Corrected** | S-23, S-24, AI-N31, AI-N32, AI-N33, AI-N37, AI-N38, AI-N39 (in v0.2.1); S-21 in the v2 plants; **AI-N40, AI-N41, AI-N42, AI-N43** (v0.2.2); **AI-N29 (PC, RPi5), AI-N34, AI-N35** (`dev`, A5 promotion, 2026-11-16) |
 | **Mitigated** | AI-N12; AI-N26 (software; board re-measurement pending); AI-N27 (PC and RPi5) |
 | **Documented** | S-22, AI-N19; AI-N18 (cause addressed, not adopted) |
 | **Closed (negative)** | AI-N22, AI-N23 |
-| **Open** | S-21 (v1 plants); AI-N13, AI-N14, AI-N15, AI-N16, AI-N17, AI-N20, AI-N21, AI-N24, AI-N25; AI-N27 (ESP32); AI-N28, AI-N29, AI-N30; AI-N34, AI-N35 (B4c passed; promotion blocked by G6 / AI-N40); AI-N36 |
+| **Open** | S-21 (v1 plants); AI-N13, AI-N14, AI-N15, AI-N16, AI-N17, AI-N20, AI-N21, AI-N24, AI-N25; AI-N27 (ESP32); AI-N28, AI-N29 (ESP32), AI-N30; AI-N36 |
 
 **Next free IDs: S-25 and AI-N44.**

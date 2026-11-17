@@ -118,7 +118,7 @@ def render() -> None:
                     st.markdown("##### Classifier confidence drift")
                     if (result.get("classifier") or {}).get("outside_envelope"):  # AI-N40 (D1)
                         st.html('<div class="spade-root spade-badges">' + badge_html("AI SUGGESTION — REQUIRES VERIFICATION", "warning", "▲") + "</div>")
-                        speed_grid_notice(st, result["classifier"]["speed_rad_s"])
+                        speed_grid_notice(st, result["classifier"]["speed_rad_s"], result["classifier"]["envelope"])
                         st.warning(f"**{result['classifier']['message']}.** No classifier output for this pass: the simulated speed "
                                  f"({result['classifier']['speed_rad_s']:.0f} rad/s) is outside the trained range of {result['classifier']['model_id']}.", icon=":material/block:")
                     elif result["confidence"] is None:

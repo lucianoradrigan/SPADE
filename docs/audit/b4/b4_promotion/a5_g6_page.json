@@ -1,0 +1,34 @@
+[
+ {
+  "speed": 40.0,
+  "badge_is_b4": true,
+  "shown": [
+   "normal"
+  ],
+  "box": false,
+  "exception": false
+ },
+ {
+  "speed": 150.0,
+  "badge_is_b4": true,
+  "shown": [
+   "normal"
+  ],
+  "box": false,
+  "exception": false
+ },
+ {
+  "speed": 300.0,
+  "badge_is_b4": true,
+  "shown": [],
+  "box": true,
+  "exception": false
+ },
+ {
+  "speed": 350.0,
+  "badge_is_b4": true,
+  "shown": [],
+  "box": true,
+  "exception": false
+ }
+]

@@ -1,0 +1,1062 @@
+[
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 40.0,
+  "case": "healthy",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "normal",
+  "top_class": "normal",
+  "confidence": 0.977,
+  "shown": "normal"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 40.0,
+  "case": "outer_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "outer_race",
+  "top_class": "outer_race",
+  "confidence": 0.997,
+  "shown": "outer_race"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 40.0,
+  "case": "inner_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "inner_race",
+  "top_class": "inner_race",
+  "confidence": 0.976,
+  "shown": "inner_race"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 40.0,
+  "case": "ball",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "ball",
+  "top_class": "ball",
+  "confidence": 0.986,
+  "shown": "ball"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 40.0,
+  "case": "cage",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "cage",
+  "top_class": "cage",
+  "confidence": 0.853,
+  "shown": "cage"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 60.0,
+  "case": "healthy",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "normal",
+  "top_class": "normal",
+  "confidence": 0.99,
+  "shown": "normal"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 60.0,
+  "case": "outer_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "outer_race",
+  "top_class": "outer_race",
+  "confidence": 1.0,
+  "shown": "outer_race"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 60.0,
+  "case": "inner_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "inner_race",
+  "top_class": "inner_race",
+  "confidence": 1.0,
+  "shown": "inner_race"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 60.0,
+  "case": "ball",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "ball",
+  "top_class": "ball",
+  "confidence": 0.993,
+  "shown": "ball"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 60.0,
+  "case": "cage",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "cage",
+  "top_class": "cage",
+  "confidence": 0.998,
+  "shown": "cage"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 80.0,
+  "case": "healthy",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "normal",
+  "top_class": "normal",
+  "confidence": 0.998,
+  "shown": "normal"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 80.0,
+  "case": "outer_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "outer_race",
+  "top_class": "outer_race",
+  "confidence": 1.0,
+  "shown": "outer_race"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 80.0,
+  "case": "inner_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "inner_race",
+  "top_class": "inner_race",
+  "confidence": 1.0,
+  "shown": "inner_race"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 80.0,
+  "case": "ball",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "ball",
+  "top_class": "ball",
+  "confidence": 0.999,
+  "shown": "ball"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 80.0,
+  "case": "cage",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "cage",
+  "top_class": "cage",
+  "confidence": 1.0,
+  "shown": "cage"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 150.0,
+  "case": "healthy",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "normal",
+  "top_class": "normal",
+  "confidence": 0.997,
+  "shown": "normal"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 150.0,
+  "case": "outer_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "outer_race",
+  "top_class": "outer_race",
+  "confidence": 0.998,
+  "shown": "outer_race"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 150.0,
+  "case": "inner_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "inner_race",
+  "top_class": "inner_race",
+  "confidence": 1.0,
+  "shown": "inner_race"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 150.0,
+  "case": "ball",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "ball",
+  "top_class": "ball",
+  "confidence": 0.998,
+  "shown": "ball"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 150.0,
+  "case": "cage",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "cage",
+  "top_class": "cage",
+  "confidence": 0.999,
+  "shown": "cage"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 220.0,
+  "case": "healthy",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "normal",
+  "top_class": "normal",
+  "confidence": 0.993,
+  "shown": "normal"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 220.0,
+  "case": "outer_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "outer_race",
+  "top_class": "outer_race",
+  "confidence": 1.0,
+  "shown": "outer_race"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 220.0,
+  "case": "inner_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "inner_race",
+  "top_class": "inner_race",
+  "confidence": 1.0,
+  "shown": "inner_race"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 220.0,
+  "case": "ball",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "ball",
+  "top_class": "ball",
+  "confidence": 0.999,
+  "shown": "ball"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 220.0,
+  "case": "cage",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "cage",
+  "top_class": "cage",
+  "confidence": 0.987,
+  "shown": "cage"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 300.0,
+  "case": "healthy",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "outside",
+  "shown": "no diagnosis",
+  "message": "Outside the trained range (40\u2013220 rad/s): no diagnosis"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 300.0,
+  "case": "outer_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "outside",
+  "shown": "no diagnosis",
+  "message": "Outside the trained range (40\u2013220 rad/s): no diagnosis"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 300.0,
+  "case": "inner_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "outside",
+  "shown": "no diagnosis",
+  "message": "Outside the trained range (40\u2013220 rad/s): no diagnosis"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 300.0,
+  "case": "ball",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "outside",
+  "shown": "no diagnosis",
+  "message": "Outside the trained range (40\u2013220 rad/s): no diagnosis"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 300.0,
+  "case": "cage",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "outside",
+  "shown": "no diagnosis",
+  "message": "Outside the trained range (40\u2013220 rad/s): no diagnosis"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 350.0,
+  "case": "healthy",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "outside",
+  "shown": "no diagnosis",
+  "message": "Outside the trained range (40\u2013220 rad/s): no diagnosis"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 350.0,
+  "case": "outer_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "outside",
+  "shown": "no diagnosis",
+  "message": "Outside the trained range (40\u2013220 rad/s): no diagnosis"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 350.0,
+  "case": "inner_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "outside",
+  "shown": "no diagnosis",
+  "message": "Outside the trained range (40\u2013220 rad/s): no diagnosis"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 350.0,
+  "case": "ball",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "outside",
+  "shown": "no diagnosis",
+  "message": "Outside the trained range (40\u2013220 rad/s): no diagnosis"
+ },
+ {
+  "tier": "pc",
+  "run": "pc_server_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 350.0,
+  "case": "cage",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "outside",
+  "shown": "no diagnosis",
+  "message": "Outside the trained range (40\u2013220 rad/s): no diagnosis"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 40.0,
+  "case": "healthy",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "normal",
+  "top_class": "normal",
+  "confidence": 0.992,
+  "shown": "normal"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 40.0,
+  "case": "outer_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "outer_race",
+  "top_class": "outer_race",
+  "confidence": 0.963,
+  "shown": "outer_race"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 40.0,
+  "case": "inner_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "inner_race",
+  "top_class": "inner_race",
+  "confidence": 0.987,
+  "shown": "inner_race"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 40.0,
+  "case": "ball",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "ball",
+  "top_class": "ball",
+  "confidence": 0.89,
+  "shown": "ball"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 40.0,
+  "case": "cage",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "cage",
+  "top_class": "cage",
+  "confidence": 0.75,
+  "shown": "cage"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 60.0,
+  "case": "healthy",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "normal",
+  "top_class": "normal",
+  "confidence": 0.997,
+  "shown": "normal"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 60.0,
+  "case": "outer_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "outer_race",
+  "top_class": "outer_race",
+  "confidence": 0.992,
+  "shown": "outer_race"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 60.0,
+  "case": "inner_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "inner_race",
+  "top_class": "inner_race",
+  "confidence": 0.999,
+  "shown": "inner_race"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 60.0,
+  "case": "ball",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "ball",
+  "top_class": "ball",
+  "confidence": 0.936,
+  "shown": "ball"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 60.0,
+  "case": "cage",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "cage",
+  "top_class": "cage",
+  "confidence": 0.999,
+  "shown": "cage"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 80.0,
+  "case": "healthy",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "normal",
+  "top_class": "normal",
+  "confidence": 0.999,
+  "shown": "normal"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 80.0,
+  "case": "outer_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "outer_race",
+  "top_class": "outer_race",
+  "confidence": 0.996,
+  "shown": "outer_race"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 80.0,
+  "case": "inner_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "inner_race",
+  "top_class": "inner_race",
+  "confidence": 1.0,
+  "shown": "inner_race"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 80.0,
+  "case": "ball",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "ball",
+  "top_class": "ball",
+  "confidence": 0.992,
+  "shown": "ball"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 80.0,
+  "case": "cage",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "cage",
+  "top_class": "cage",
+  "confidence": 0.999,
+  "shown": "cage"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 150.0,
+  "case": "healthy",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "normal",
+  "top_class": "normal",
+  "confidence": 1.0,
+  "shown": "normal"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 150.0,
+  "case": "outer_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "outer_race",
+  "top_class": "outer_race",
+  "confidence": 0.753,
+  "shown": "outer_race"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 150.0,
+  "case": "inner_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "inner_race",
+  "top_class": "inner_race",
+  "confidence": 1.0,
+  "shown": "inner_race"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 150.0,
+  "case": "ball",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "ball",
+  "top_class": "ball",
+  "confidence": 0.981,
+  "shown": "ball"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 150.0,
+  "case": "cage",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "cage",
+  "top_class": "cage",
+  "confidence": 0.981,
+  "shown": "cage"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 220.0,
+  "case": "healthy",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "normal",
+  "top_class": "normal",
+  "confidence": 0.997,
+  "shown": "normal"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 220.0,
+  "case": "outer_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "outer_race",
+  "top_class": "outer_race",
+  "confidence": 0.991,
+  "shown": "outer_race"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 220.0,
+  "case": "inner_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "inner_race",
+  "top_class": "inner_race",
+  "confidence": 0.999,
+  "shown": "inner_race"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 220.0,
+  "case": "ball",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "ball",
+  "top_class": "ball",
+  "confidence": 0.976,
+  "shown": "ball"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 220.0,
+  "case": "cage",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "inside",
+  "state": "known",
+  "suggested": "cage",
+  "top_class": "cage",
+  "confidence": 0.945,
+  "shown": "cage"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 300.0,
+  "case": "healthy",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "outside",
+  "shown": "no diagnosis",
+  "message": "Outside the trained range (40\u2013220 rad/s): no diagnosis"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 300.0,
+  "case": "outer_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "outside",
+  "shown": "no diagnosis",
+  "message": "Outside the trained range (40\u2013220 rad/s): no diagnosis"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 300.0,
+  "case": "inner_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "outside",
+  "shown": "no diagnosis",
+  "message": "Outside the trained range (40\u2013220 rad/s): no diagnosis"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 300.0,
+  "case": "ball",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "outside",
+  "shown": "no diagnosis",
+  "message": "Outside the trained range (40\u2013220 rad/s): no diagnosis"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 300.0,
+  "case": "cage",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "outside",
+  "shown": "no diagnosis",
+  "message": "Outside the trained range (40\u2013220 rad/s): no diagnosis"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 350.0,
+  "case": "healthy",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "outside",
+  "shown": "no diagnosis",
+  "message": "Outside the trained range (40\u2013220 rad/s): no diagnosis"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 350.0,
+  "case": "outer_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "outside",
+  "shown": "no diagnosis",
+  "message": "Outside the trained range (40\u2013220 rad/s): no diagnosis"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 350.0,
+  "case": "inner_race",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "outside",
+  "shown": "no diagnosis",
+  "message": "Outside the trained range (40\u2013220 rad/s): no diagnosis"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 350.0,
+  "case": "ball",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "outside",
+  "shown": "no diagnosis",
+  "message": "Outside the trained range (40\u2013220 rad/s): no diagnosis"
+ },
+ {
+  "tier": "rpi5",
+  "run": "rpi5_resnet1d_se_5class_w2048/2026-11-10_run01",
+  "speed_rad_s": 350.0,
+  "case": "cage",
+  "envelope": [
+   40.0,
+   220.0
+  ],
+  "envelope_status": "outside",
+  "shown": "no diagnosis",
+  "message": "Outside the trained range (40\u2013220 rad/s): no diagnosis"
+ }
+]
