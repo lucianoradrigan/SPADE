@@ -23,7 +23,7 @@ def test_promoted_dc_motor_classifiers_carry_ai_n27():
         else:
             assert "mitigated" in ai[0]["summary"] and "dc_perm_ex_v1" in ai[0]["summary"]
             assert any(f.get("id") == "dcm-trained" for f in findings), key
-            assert entries[key].endswith("2026-11-04_run01"), key
+            assert entries[key].endswith("2026-11-10_run01"), key
 
 
 def test_previous_rpi5_does_not_pass_d1_on_corrected_physics():
