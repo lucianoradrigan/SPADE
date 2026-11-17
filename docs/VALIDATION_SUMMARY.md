@@ -674,6 +674,7 @@ Local LLM `qwen3.5:9b` through Ollama. Each benchmark had its thresholds committ
 | AI-N40 (High) | **Corrected (2026-11-16).** Trained envelope per classifier; outside it the GUI shows no diagnosis (deterministic rule); AI Diagnostics defaults to 150 rad/s. (Correction: the RPi5/ESP32 runs are not selectable in the GUI; the B4 PC candidate ('ball' 0.88 at 350 rad/s) could not be selected either, AI-N42) | `AI_TECHNICAL_AUDIT.md` §13.13; `audit/release/ai_n40.md`; `tests/test_ai_n40_trained_envelope.py` |
 | AI-N41 (Low) | **Corrected (2026-11-16, D7).** A glossary entry named by a finding ID is never dropped (found 2026-11-15: a finding whose heading words were all frequent became unfindable even by its ID) | `AI_TECHNICAL_AUDIT.md` §13.14; `tests/assistant/test_ai_n41_glossary_ids.py` |
 | AI-N42 (Medium) | **Corrected (2026-11-16).** The AI Diagnostics "Classifier" selector reset to the promoted model on every rerun (since 2026-10-21, in v0.2.0 and v0.2.1): in a browser only the promoted model could be evaluated, and the v0.2.1 G6 evaluated only the promoted model. Fixed in the page | `AI_TECHNICAL_AUDIT.md` §13.15; `tests/test_ai_n42_classifier_selection.py` |
+| AI-N43 (Medium) | **Corrected (2026-11-16).** The ESP32 low-speed notice in the GUI quoted the never-shipped B4 candidate's int8 numbers (inner_race 0.35) as the shipped model's; the shipped int8 misses outer_race at 50/70 rad/s (0.28; float 0.22) | `AI_TECHNICAL_AUDIT.md` §13.16; `tests/test_ai_n43_esp32_notice.py` |
 
 - **B4 cost:** simulation 5.66 CPU-h (estimate 3.2) in 35 min; training 2.10 CPU-h in 23 min.
 - **C2000 visit kit** (D-B4-4 option B): [`audit/b4/c2000_visit_kit.md`](audit/b4/c2000_visit_kit.md). Nothing measured on the board yet.
@@ -693,10 +694,10 @@ Local LLM `qwen3.5:9b` through Ollama. Each benchmark had its thresholds committ
 
 | Status | Findings |
 |---|---|
-| **Corrected** | S-23, S-24, AI-N31, AI-N32, AI-N33, AI-N37, AI-N38, AI-N39 (in v0.2.1); S-21 in the v2 plants; **AI-N40, AI-N41, AI-N42** (`dev`, 2026-11-16) |
+| **Corrected** | S-23, S-24, AI-N31, AI-N32, AI-N33, AI-N37, AI-N38, AI-N39 (in v0.2.1); S-21 in the v2 plants; **AI-N40, AI-N41, AI-N42, AI-N43** (`dev`, 2026-11-16) |
 | **Mitigated** | AI-N12; AI-N26 (software; board re-measurement pending); AI-N27 (PC and RPi5) |
 | **Documented** | S-22, AI-N19; AI-N18 (cause addressed, not adopted) |
 | **Closed (negative)** | AI-N22, AI-N23 |
 | **Open** | S-21 (v1 plants); AI-N13, AI-N14, AI-N15, AI-N16, AI-N17, AI-N20, AI-N21, AI-N24, AI-N25; AI-N27 (ESP32); AI-N28, AI-N29, AI-N30; AI-N34, AI-N35 (B4c passed; promotion blocked by G6 / AI-N40); AI-N36 |
 
-**Next free IDs: S-25 and AI-N43.**
+**Next free IDs: S-25 and AI-N44.**
