@@ -49,6 +49,20 @@
       "date": "2026-11-15",
       "summary": "Everything about this run is simulated: trained and evaluated on dc_perm_ex_v2 simulations only; no measured drive data; not run on its target hardware; no board measurement of any kind.",
       "evidence": "docs/VALIDATION_SUMMARY.md"
+    },
+    {
+      "id": "dcm-trained",
+      "severity": "info",
+      "date": "2026-11-16",
+      "summary": "B4 PC candidate: trained on the B4 grid simulated with dc_perm_ex_v2 and the exact discontinuous-conduction converter (dcm_exact, 10 kHz), i.e. without the S-21 converter artifact (AI-N27 option 2). Pre-registered B4 (2026-11-10) and confirmatory B4c (2026-11-12) evaluations; promoted 2026-11-16 (decision D6).",
+      "evidence": "docs/audit/b4/b4_results.md; docs/audit/b4/b4c_results.md; docs/audit/b4/b4_promotion.md"
+    },
+    {
+      "id": "AI-N27",
+      "severity": "medium",
+      "date": "2026-11-16",
+      "summary": "AI-N27 (mitigated for this run) / S-21: this model was trained without the converter artifact (v2 plant, dcm_exact). The frozen GEM-faithful DC plant (dc_perm_ex_v1, the Scenario default and the v1 mode of the GUI) still uses GEM's converter, so its simulations in braking at light load still contain the artifact; on such inputs this model sees a signal it was not trained on. Not measured on dc_perm_ex_v1 inputs.",
+      "evidence": "docs/AI_TECHNICAL_AUDIT.md Sec. 13.1; docs/SIMULATION_STABILITY_REPORT.md S-21; docs/audit/b4/b4_results.md"
     }
   ],
   "trained_envelope": {

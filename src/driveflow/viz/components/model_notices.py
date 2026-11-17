@@ -24,20 +24,22 @@ def esp32_low_speed_notice(st) -> None:
 #: AI-N40 (2026-11-15): the speeds the shipped dc_motor classifiers were trained and evaluated on (the diagnosis grid,
 #: simulated). Above it they were never evaluated before 2026-11-15 and can be confidently wrong there.
 DC_GRID_RAD_S = (80.0, 220.0)
-ABOVE_GRID = ("**Outside the classifier's training grid — speed {w:.0f} rad/s > {hi:.0f} rad/s (AI-N40).** The dc_motor "
-              "classifiers were trained and evaluated on {lo:.0f}–{hi:.0f} rad/s (simulated). Above that they can be confidently "
-              "wrong: at 350 rad/s a healthy motor was read as 'cage' (RPi5 model, 1.00). SPADE shows no diagnosis there (decision D1). "
-              f"[AI audit §13.13]({AUDIT_URL})")
-BELOW_GRID = ("**Outside the classifier's training grid — speed {w:.0f} rad/s < {lo:.0f} rad/s (AI-N29).** The shipped PC classifier "
-              "is confidently wrong below its grid (e.g. at 50 rad/s). SPADE shows no diagnosis there (decision D1). "
+ABOVE_GRID = ("**Outside the classifier's training grid — speed {w:.0f} rad/s > {hi:.0f} rad/s (AI-N40).** This classifier was "
+              "trained and evaluated on {lo:.0f}–{hi:.0f} rad/s (simulated). Above their training range the dc_motor classifiers can be "
+              "confidently wrong: at 350 rad/s a healthy motor was read as 'cage' (RPi5 model, 1.00). SPADE shows no diagnosis there "
+              f"(decision D1). [AI audit §13.13]({AUDIT_URL})")
+BELOW_GRID = ("**Outside the classifier's training grid — speed {w:.0f} rad/s < {lo:.0f} rad/s (AI-N29).** This classifier was "
+              "trained and evaluated on {lo:.0f}–{hi:.0f} rad/s (simulated). Below their training range the dc_motor classifiers can be "
+              "confidently wrong (the 2026-11-04 PC model at 50 rad/s). SPADE shows no diagnosis there (decision D1). "
               f"[AI audit §13.3]({AUDIT_URL})")
 
 
-def speed_grid_message(omega_ref_rad_s: float | None) -> str | None:
-    """The notice for a dc_motor speed setpoint outside the classifiers' training grid, or None inside it (or unknown)."""
+def speed_grid_message(omega_ref_rad_s: float | None, envelope=None) -> str | None:
+    """The notice for a dc_motor speed setpoint outside a classifier's training range (its declared trained envelope when
+    given, AI-N40; otherwise the diagnosis grid), or None inside it (or unknown)."""
     if omega_ref_rad_s is None:
         return None
-    lo, hi = DC_GRID_RAD_S
+    lo, hi = (float(envelope[0]), float(envelope[1])) if envelope else DC_GRID_RAD_S
     w = float(omega_ref_rad_s)
     if w > hi:
         return ABOVE_GRID.format(w=w, lo=lo, hi=hi)
@@ -46,7 +48,7 @@ def speed_grid_message(omega_ref_rad_s: float | None) -> str | None:
     return None
 
 
-def speed_grid_notice(st, omega_ref_rad_s: float | None) -> None:
-    msg = speed_grid_message(omega_ref_rad_s)
+def speed_grid_notice(st, omega_ref_rad_s: float | None, envelope=None) -> None:
+    msg = speed_grid_message(omega_ref_rad_s, envelope)
     if msg:
         st.warning(msg, icon=":material/speed:")

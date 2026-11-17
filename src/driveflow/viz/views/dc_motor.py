@@ -266,7 +266,7 @@ def _single() -> None:
                 st.info("No promoted PC-tier classifier for dc_motor, or the run is shorter than one input window.")
             elif ai.get("outside_envelope"):  # AI-N40 (D1): no class, no bars, no confidence
                 st.html('<div class="spade-root spade-badges">' + badge_html("AI SUGGESTION — REQUIRES VERIFICATION", "warning", "▲", "A model output on simulated data, not a certified diagnosis.") + badge_html(f"model {ai['model_id']}", "training") + "</div>")
-                speed_grid_notice(st, ai["speed_rad_s"])
+                speed_grid_notice(st, ai["speed_rad_s"], ai["envelope"])
                 st.warning(f"**{ai['message']}.** The promoted classifier ({ai['model_id']}) was trained on {ai['envelope'][0]:.0f}–{ai['envelope'][1]:.0f} rad/s "
                          f"(simulated); this run is at {ai['speed_rad_s']:.0f} rad/s, where it has been found confidently wrong (AI-N40).", icon=":material/block:")
             else:

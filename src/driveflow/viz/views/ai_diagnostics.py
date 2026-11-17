@@ -247,7 +247,7 @@ def _outside_envelope(domain: str, df, operating_point: dict | None, run_dir) ->
     if chk["status"] == "outside":
         st.html('<div class="spade-root spade-badges">' + badge_html("AI SUGGESTION — REQUIRES VERIFICATION", "warning", "▲")
                 + badge_html(f"{rdir.parent.name}/{rdir.name}", "training") + "</div>")
-        speed_grid_notice(st, chk["speed_rad_s"])
+        speed_grid_notice(st, chk["speed_rad_s"], chk["envelope"])
         st.warning(f"**{chk['message']}.** This classifier was trained on {chk['envelope'][0]:.0f}–{chk['envelope'][1]:.0f} rad/s "
                  f"(simulated) and this sample runs at {chk['speed_rad_s']:.0f} rad/s. Outside that range it has been found confidently "
                  "wrong (AI-N40), so no class is suggested.", icon=":material/block:")
